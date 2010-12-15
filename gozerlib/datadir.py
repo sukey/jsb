@@ -10,7 +10,7 @@ import re
 import os
 import shutil
 import logging
-import os
+import os.path
 import getpass
 
 ## the global datadir
@@ -23,12 +23,41 @@ isgae = False
 try: getattr(os, "mkdir") ; logging.info("datadir - shell detected") ; datadir = homedir + os.sep + ".jsonbot"
 except AttributeError: logging.info("datadir - skipping makedirs") ; datadir = "gozerdata" ; isgae = True
 
-## functions
+## helper functions
+
+def touch(fname):
+    """ touch a file. """
+    fd = os.open(fname, os.O_WRONLY | os.O_CREAT)
+    os.close(fd)
+
+def getsource(mod):
+    source = None
+    splitted = mod.split(".")
+    if len(splitted) == 1: splitted.append("")
+    try:
+        import pkg_resources
+        source = pkg_resources.resource_filename(*splitted)
+    except ImportError: 
+        thedir = mod.replace(".", os.sep)
+        if os.path.isdir(thedir): source = thedir
+        elif os.path.isdir("/var/lib/jsonbot" + os.sep + thedir): source = "/var/lib/jsonbot" + os.sep + thedir
+    logging.warn("datadir - source is %s" % source)
+    return source
+
+def doit(ddir, mod):
+    source = getsource(mod)
+    if not source: raise Exception("can't find %s package" % mod)
+    try:
+        shutil.copytree(source, ddir + os.sep + mod.replace(".", os.sep))
+    except (OSError, IOError), ex: logging.error("datadir - failed to copy %s: %s" % (mod, str(ex)))
+
+
+## makedir function
 
 def makedirs(ddir=None):
     """ make subdirs in datadir. """
     global datadir
-    if not ddir and getpass.getuser() == 'jsonbot': ddir = "/var/cache/jsonbot"
+    if os.path.exists("/etc/debian_version") and getpass.getuser() == 'jsonbot': ddir = "/var/cache/jsonbot"
     else:
         ddir = ddir or datadir
     datadir = ddir
@@ -36,67 +65,37 @@ def makedirs(ddir=None):
     if isgae: return
     if not os.path.isdir(ddir):
         try: os.mkdir(ddir)
-        except: logging.warn("can't make %s dir" % ddir)
-        logging.warn("making dirs in %s" % ddir)
+        except: logging.warn("can't make %s dir" % ddir) ; os._exit(1)
+    logging.warn("making dirs in %s" % ddir)
     try: os.chmod(ddir, 0700)
     except: pass
     last = datadir.split(os.sep)[-1]
     if not os.path.isdir(ddir):
-        try:
-            import pkg_resources
-            source = pkg_resources.resource_filename('gozerdata', '')
-            shutil.copytree(source, ddir)
-        except ImportError: 
-            try:
-                source = "/var/lib/jsonbot/gozerdata"
-                shutil.copytree(source, ddir)
-            except: logging.error("datadir - failed to copy gozerdata")
+        doit(ddir, "gozerdata")
     if not os.path.isdir(ddir + os.sep + 'myplugs'):
-        try:
-            import pkg_resources
-            source = pkg_resources.resource_filename('gozerdata', 'myplugs')
-            shutil.copytree(source, ddir + os.sep + 'myplugs')
-        except ImportError: 
-            try:
-                source = "/var/lib/jsonbot/gozerdata/myplugs"
-                shutil.copytree(source, ddir + os.sep + "myplugs")
-            except: logging.error("datadir - failed to copy gozerdata/myplugs")
+        doit(ddir, "gozerdata.myplugs")
     if not os.path.isdir(ddir + os.sep + 'examples'):
-        try:
-            import pkg_resources
-            source = pkg_resources.resource_filename('gozerdata', 'examples')
-            shutil.copytree(source, ddir + os.sep + 'examples')
-        except ImportError: 
-            try:
-                source = "/var/lib/jsonbot/gozerdata/examples"
-                shutil.copytree(source, ddir + os.sep + "examples")
-            except: logging.error("datadir - failed to copy gozerdata/examples")
-    if not os.path.isdir(ddir + os.sep + 'config'):
-        try:
-            import pkg_resources
-            source = pkg_resources.resource_filename('gozerdata', 'examples')
-            shutil.copytree(source, ddir + os.sep + 'config')
-        except ImportError: 
-            try:
-                source = "/var/lib/jsonbot/gozerdata/examples"
-                shutil.copytree(source, ddir + os.sep + "config")
-            except: logging.error("datadir - failed to copy gozerdata/myplugs")
-    try:
-        import pkg_resources
-        source = pkg_resources.resource_filename('commonplugs', '')
-        shutil.copyfile(source + os.sep + "__init__.py", ddir + os.sep + '__init__.py')
-    except ImportError: pass
+        doit(ddir, "gozerdata.examples")
+    try: touch(ddir + os.sep + "__init__.py")
+    except: pass
+    if not os.path.isdir(ddir + os.sep + "config"): os.mkdir(ddir + os.sep + "config")
+    if not os.path.isfile(ddir + os.sep + 'config' + os.sep + "mainconfig"):
+        source = getsource("gozerdata.examples")
+        if not source: raise Exception("can't find gozerdate.examples package")
+        try: shutil.copy(source + os.sep + 'mainconfig.example', ddir + os.sep + 'config' + os.sep + 'mainconfig')
+        except (OSError, IOError), ex: logging.error("datadir - failed to copy gozerdata.config: %s" % str(ex))
+    try: touch(ddir + os.sep + "config" + os.sep + "__init__.py")
+    except: pass
     if not os.path.isdir(ddir + os.sep + 'myplugs'): os.mkdir(ddir + os.sep + 'myplugs')
-    try:
-        import pkg_resources
-        source = pkg_resources.resource_filename('commonplugs', '')
-        shutil.copyfile(source + os.sep + "__init__.py", os.path.join(ddir,'myplugs', '__init__.py'))
-    except ImportError: pass
-    if not os.path.isdir(homedir + os.sep + '.jsonbot' + os.sep +'botlogs'): os.mkdir(homedir + os.sep + '.jsonbot' + os.sep + 'botlogs')
-    if not os.path.isdir(ddir + '/run/'): os.mkdir(ddir + '/run/')
+    if not os.path.isfile(ddir + os.sep + 'myplugs' + os.sep + "__init__.py"):
+        source = getsource("commonplugs")
+        if not source: raise Exception("can't find commonplugs package")
+        try:
+            shutil.copy(source + os.sep + "__init__.py", os.path.join(ddir, 'myplugs', '__init__.py'))
+        except (OSError, IOError), ex: logging.error("datadir - failed to copy gozerdata.config: %s" % str(ex))
+    if not os.path.isdir(ddir + os.sep +'botlogs'): os.mkdir(ddir + os.sep + 'botlogs')
     if not os.path.isdir(ddir + '/run/'): os.mkdir(ddir + '/run/')
     if not os.path.isdir(ddir + '/examples/'): os.mkdir(ddir + '/examples/')
-    if not os.path.isdir(ddir + '/config/'): os.mkdir(ddir + '/config/')
     if not os.path.isdir(ddir + '/users/'): os.mkdir(ddir + '/users/')
     if not os.path.isdir(ddir + '/channels/'): os.mkdir(ddir + '/channels/')
     if not os.path.isdir(ddir + '/fleet/'): os.mkdir(ddir + '/fleet/')

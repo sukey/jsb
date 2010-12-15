@@ -9,10 +9,7 @@
 from gozerlib.utils.locking import lockdec
 from gozerlib.utils.exception import handle_exception
 from gozerlib.errors import PropertyIgnored
-
-## simplejson imports
-
-from simplejson import loads, dumps
+from gozerlib.contrib.simplejson import loads, dumps
 
 ## basic imports
 
