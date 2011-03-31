@@ -94,7 +94,7 @@ class IRCBot(Irc):
         """ send welcome message and loop for dcc commands. """
         if not nick or not userhost: return
         try:
-            sock.send('Welcome to the GOZERBOT partyline ' + nick + " ;]\n")
+            sock.send('Welcome to the JSONBOT partyline ' + nick + " ;]\n")
             partylist = partyline.list_nicks()
             if partylist: sock.send("people on the partyline: %s\n" % ' .. '.join(partylist))
             sock.send("control character is ! .. bot broadcast is @\n")
