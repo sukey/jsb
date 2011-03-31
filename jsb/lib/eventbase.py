@@ -77,9 +77,7 @@ class EventBase(LazyDict):
     def bind(self, bot=None, user=None, chan=None):
         """ bind event.bot event.user and event.chan to execute a command on it. """
         target = self.auth
-        assert target
         bot = bot or self.bot
-        assert bot
         if not self.user and target:
             cfg = Config()
             if cfg.auto_register: 
