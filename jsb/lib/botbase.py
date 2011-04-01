@@ -387,14 +387,19 @@ class BotBase(LazyDict):
         if event and event.showall: txt = self.makeresponse(txt, result, dot, *args, **kwargs)
         else: txt = self.makeoutput(channel, txt, result, nr, extend, dot, origin=target, *args, **kwargs)
         if txt:
+            if event:
+                event.resqueue.put_nowait(txt)
+                event.outqueue.put_nowait(txt)
+                if not (self.name, txt) in event.path: event.path.append((self.name, txt))
             txt = self.outputmorphs.do(txt, event)
             self.out(target, txt, how, event=event, origin=target, *args, **kwargs)
-        if event: event.resqueue.put_nowait(txt) ; event.outqueue.put_nowait(txt)
 
     def saynocb(self, channel, txt, result=[], how="msg", event=None, nr=375, extend=0, dot=", ", *args, **kwargs):
         txt = self.makeoutput(channel, txt, result, nr, extend, dot, *args, **kwargs)
+        if event and not (self.name, txt) in event.path: event.path.append((self.name, txt))
         txt = self.outputmorphs.do(txt, event)
-        if txt: self.outnocb(channel, txt, how, event=event, origin=channel, *args, **kwargs)
+        if txt:
+            self.outnocb(channel, txt, how, event=event, origin=channel, *args, **kwargs)
 
     def less(self, printto, what, nr=365):
         """ split up in parts of <nr> chars overflowing on word boundaries. """

@@ -164,7 +164,7 @@ def strippedtxt(what, allowed=[]):
 
 ## stripcolor function
 
-REcolor = re.compile(r"\003\d+(.+?)\003")
+REcolor = re.compile(r"\003\d(.+?)\003")
 
 def matchcolor(match):
     return match.group(1)

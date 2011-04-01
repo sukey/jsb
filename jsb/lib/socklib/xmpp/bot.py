@@ -12,6 +12,7 @@ from jsb.utils.trace import whichmodule
 from jsb.utils.locking import lockdec
 from jsb.utils.pdod import Pdod
 from jsb.utils.dol import Dol
+from jsb.utils.generic import stripcolor
 from jsb.lib.less import Less
 from jsb.lib.callbacks import callbacks, remote_callbacks
 from jsb.lib.threads import start_new_thread
@@ -563,6 +564,7 @@ class SXMPPBot(XMLStream, BotBase):
 
     def normalize(self, what):
         #what = cgi.escape(what)
+        what = stripcolor(what)
         what = what.replace("\002", "")
         what = what.replace("\003", "")
         what = what.replace("<b>", "")
