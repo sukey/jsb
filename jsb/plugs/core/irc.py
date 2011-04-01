@@ -47,8 +47,8 @@ def handle_chat(bot, ievent):
     thr.start_new_thread(bot._dcclisten, (i.nick, i.userhost, i.channel))
     ievent.reply('dcc chat request sent')
 
-cmnds.add('chat', handle_chat, 'USER')
-examples.add('chat', 'start a dcc chat session', 'chat')
+#cmnds.add('chat', handle_chat, 'USER')
+#examples.add('chat', 'start a dcc chat session', 'chat')
 
 ## jump command
 

@@ -44,6 +44,7 @@ class EventBase(LazyDict):
         if bot: self.bot = bot
         self.bottype = "botbase"
         self.relayed = []
+        self.path = []
         self.copyin(input)
         
     def __deepcopy__(self, a):
@@ -111,6 +112,8 @@ class EventBase(LazyDict):
     def copyin(self, eventin):
         """ copy in an event. """
         self.update(eventin)
+        try: self.path = eventin.path
+        except: pass
         self.threads = self.threads or []
         self.queues = self.queues or []
         self.finished = self.finished or threading.Event()

@@ -56,7 +56,7 @@ def dumpelement(element, prev={}, withtypes=False):
     for name in elem:
         #logging.debug("lazydict - trying dump of %s" % name) 
         if checkignore(name, defaultignore): continue
-        if not elem[name]: continue
+        #if not elem[name]: continue
         try:
             json.dumps(elem[name])
             new[name] = elem[name]
