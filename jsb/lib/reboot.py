@@ -30,7 +30,7 @@ def reboot():
 def reboot_stateful(bot, ievent, fleet, partyline):
     """ reboot the bot, but keep the connections (IRC only). """
     logging.warn("reboot - doing statefull reboot")
-    session = {'bots': {}, 'name': bot.name, 'channel': ievent.channel, 'partyline': []}
+    session = {'bots': {}, 'name': bot.name, 'channel': ievent.nick, 'partyline': []}
     for i in getfleet().bots:
         logging.warn("reboot - updating %s" % i.name)
         data = i._resumedata()
