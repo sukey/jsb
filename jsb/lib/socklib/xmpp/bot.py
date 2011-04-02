@@ -518,6 +518,7 @@ class SXMPPBot(XMLStream, BotBase):
             self.state.save()
         if channel in self.channels409:
             self.channels409.remove(channel)
+        chan.save()
         return 1
 
     def part(self, channel):
