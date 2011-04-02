@@ -149,7 +149,7 @@ class XMLStream(NodeBuilder):
             time.sleep(0.001)
             try:
                 data = jabberstrip(fromenc(self.connection.read()))
-                logging.debug(u"%s - incoming: %s" % (self.name, data))
+                logging.info(u"%s - incoming: %s" % (self.name, data))
                 if data.endswith("</stream:stream>"):
                     logging.error("%s - end of stream detected" % self.name)
                     self.error = "streamend"

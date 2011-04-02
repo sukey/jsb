@@ -76,6 +76,7 @@ def forwardoutcb(bot, event):
     if event.chan: e.allowwatch = event.chan.data.allowwatch
     fleet = getfleet()
     for jid in forward.data.channels[event.channel.lower()]:
+        if not "@" in jid: logging.error("forward - %s is not a valid JID" % jid) ; continue
         logging.info("forward - sending to %s" % jid)
         if jid == "twitter":
             try: postmsg(forward.data.outs[jid], e.txt)

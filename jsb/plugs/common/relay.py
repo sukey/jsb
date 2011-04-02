@@ -39,8 +39,10 @@ def relayprecondition(bot, event):
     """ check to see whether the callback needs to be executed. """
     #if event.type == "error": return False
     logging.warn("relay - event path is %s" % event.path)
-    target = event.chan and "[%s]" % event.chan.data.nick
-    if target in event.txt: logging.info("relay - %s already relayed" % bot.name) ; return False
+    if event.isrelayed: logging.info("relay - %s already relayed" % bot.name) ; return False
+    #if "] [" in event.txt: target = event.chan and "[%s]" % event.chan.data.nick
+    #else: target = None
+    #if target and target in event.txt: logging.info("relay - %s already relayed" % bot.name) ; return False
     origin = event.printto or event.channel
     logging.debug("relay - precondition - origin is %s" % origin)
     if event.txt:
@@ -57,15 +59,17 @@ def relayprecondition(bot, event):
 def relaycallback(bot, event):
     """ this is the callbacks that handles the responses to questions. """
     # determine where the event came from
-    origin = event.printto or event.channel
+    e = cpy(event)
+    origin = e.printto or e.channel
+    e.isrelayed = True
     try:
         # loop over relays for origin
         for botname, type, target in relay.data[origin]:
             try:
                 logging.debug('trying relay of %s to (%s,%s)' % (origin, type, target))
+                if target == origin: continue
                 # tests to prevent looping
                 if botname == bot.botname and origin == target: continue
-                if bot.name in event.relayed: continue
                 # check whether relay is blocked
                 if block.data.has_key(origin):
                     if [botname, type, target] in block.data[origin]: continue
@@ -74,18 +78,19 @@ def relaycallback(bot, event):
                 outbot = fleet.byname(botname)
                 if not outbot: outbot = fleet.makebot(type, botname)
                 if outbot:
-                    logging.debug('relay - outbot found - %s - %s' % (outbot.name, outbot.type))
+                    logging.info('relay - outbot found - %s - %s' % (outbot.name, outbot.type))
                     # we got bot .. use it to send the relayed message
-                    if event.nick == "bot":
-                        txt = event.txt
+                    if e.nick == bot.nick:
+                        txt = "[!] %s" % e.txt
                     else:
-                        txt = "[%s] %s" % (event.nick, event.txt)
-                    if event:
-                        t = "[%s]" % outbot.nick
-                        if t in txt: logging.info("relay - %s already relayed" % bot.name) ; continue
-                        if outbot.name not in event.path: event.path.append(outbot.name)
-                    outbot.outnocb(target, txt, event=event)
-                else: logging.error("can't find %s bot" % type)
+                        txt = "[%s] %s" % (e.nick, e.txt)
+                    #if event:
+                    #    t = "[%s]" % outbot.nick
+                    #    if "] [" in txt and t in txt: logging.info("relay - %s already relayed" % bot.name) ; continue
+                    #    if outbot.name not in event.path: event.path.append(outbot.name)
+                    logging.warn("relay - sending to %s (%s)" % (target, outbot.name)) 
+                    outbot.outnocb(target, txt, event=e)
+                else: logging.error("can't find bot for (%s,%s,%s)" % (botname, type, target))
             except Exception, ex: handle_exception()
     except KeyError: pass
 

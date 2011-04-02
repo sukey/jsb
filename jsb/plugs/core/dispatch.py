@@ -22,12 +22,9 @@ cpy = copy.deepcopy
 ## dispatch precondition
 
 def predispatch(bot, event):
-    if event.status == "done":
-        logging.debug("dispatch - event is done .. ignoring")
-        return
-    if event.isremote():
-        logging.done("dispatch - event is remote .. not dispatching")
-        return
+    if event.status == "done": logging.debug("dispatch - event is done .. ignoring") ; return
+    if event.isremote(): logging.debug("dispatch - event is remote .. not dispatching") ; return
+    #if event.isrelayed: logging.debug("dispatch - event is relayed .. not dispatching") ; return  
     return True
 
 ## dispatch callback

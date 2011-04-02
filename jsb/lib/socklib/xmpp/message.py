@@ -60,7 +60,7 @@ class Message(GozerEvent):
         """ set ircevent compat attributes. """
         self.bot = bot
         self.jidchange = False
-        self.cmnd = 'MESSAGE'
+        #self.cmnd = 'MESSAGE'
         try: self.resource = self.fromm.split('/')[1]
         except IndexError: pass
         self.channel = self['fromm'].split('/')[0]

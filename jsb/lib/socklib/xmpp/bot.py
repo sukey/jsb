@@ -267,14 +267,17 @@ class SXMPPBot(XMLStream, BotBase):
         """ disconnect handler. """
         self.reconnect()
 
-    def outnocb(self, printto, txt, how=None, event=None, html=False, *args, **kwargs):
+    def outnocb(self, printto, txt, how=None, event=None, html=False, isrelayed=False, *args, **kwargs):
         """ output txt to bot. """
         if printto and printto in self.state['joinedchannels']: outtype = 'groupchat'
         else: outtype = "chat"
         target = printto
         if not html: 
             txt = self.normalize(txt)
-        repl = Message({'from': self.me, 'to': target, 'type': outtype, 'txt': txt})
+        repl = Message(event)
+        repl.to = target
+        repl.type = outtype
+        repl.txt = txt
         if html:
             repl.html = txt
         if not repl.type: repl.type = 'normal'
@@ -415,12 +418,12 @@ class SXMPPBot(XMLStream, BotBase):
         try:
             to = what['to']
         except (KeyError, TypeError):
-            logging.error("%s - can't determine where to send %s to" % (self.name, what))
+            logging.error("%s - can't determine where to send %s to" % (self.name, str(what)))
             return
         try:
             jid = JID(to)
         except (InvalidJID, AttributeError):
-            logging.error("%s - invalid jid - %s - %s" % (self.name, str(to), str(what)))
+            logging.error("%s - invalid jid - %s - %s" % (self.name, str(to), whichmodule(2)))
             return
         try: del what['from']
         except KeyError: pass

@@ -75,6 +75,7 @@ class BotBase(LazyDict):
         LazyDict.__init__(self)
         self.update(self.cfg)
         self.ignore = []
+        self.ids = []
         self.aliases = getaliases()
         self.curevent = None
         self.inqueue = Queue.Queue()
@@ -247,6 +248,7 @@ class BotBase(LazyDict):
                 channel = ChannelBase(i)
                 if channel: key = channel.getpass()
                 else: key=None
+                if channel.data.nick: self.ids.append("%s/%s" % (i, channel.data.nick))
                 start_new_thread(self.join, (i, key))
                 time.sleep(1)
             except Exception, ex:
@@ -298,6 +300,9 @@ class BotBase(LazyDict):
         """ dispatch an event. """
         if not event: raise NoEventProvided()
         if event.isremote(): self.doremote(event) ; return
+        if event.type == "groupchat" and event.fromm in self.ids:
+            logging.warn("%s - receiving groupchat from self (%s)" % (self.name, event.fromm))
+            return
         event.txt = self.inputmorphs.do(fromenc(event.txt, self.encoding))
         msg = "%s - %s - %s - %s" % (self.name, event.auth, event.how, event.cbtype)
         if event.cbtype in ['NOTICE']: logging.warn("%s - %s - %s" % (self.name, event.nick, event.txt))
