@@ -2,7 +2,7 @@
 #
 #
 
-""" base class of all events. """
+""" base class of all events.  """
 
 ## jsb imports
 
