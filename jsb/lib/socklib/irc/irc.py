@@ -332,6 +332,7 @@ class Irc(BotBase):
             self.sock.settimeout(socktimeout)
         self.nickchanged = 0
         self.connecting = False
+        time.sleep(2)
         self._raw('PING :RESUME %s' % str(time.time()))
         self.dostart(self.name, self.type)
         self.connectok.set()
