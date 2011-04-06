@@ -69,7 +69,7 @@ def relaycallback(bot, event):
                 logging.debug('trying relay of %s to (%s,%s)' % (origin, type, target))
                 #if target == origin: continue
                 # tests to prevent looping
-                #if botname == bot.botname and origin == target: continue
+                if botname == bot.botname and origin == target: continue
                 # check whether relay is blocked
                 if block.data.has_key(origin):
                     if [botname, type, target] in block.data[origin]: continue
