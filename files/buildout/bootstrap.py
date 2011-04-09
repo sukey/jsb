@@ -13,9 +13,10 @@ import urllib2
 
 tmpeggs = tempfile.mkdtemp()
 
-try:
-    import pkg_resources
-except ImportError:
+#try:
+#    import pkg_resources
+#except ImportError:
+if True:
     ez = {}
     exec urllib2.urlopen('http://peak.telecommunity.com/dist/ez_setup.py'
                          ).read() in ez
