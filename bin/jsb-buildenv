@@ -1,0 +1,5 @@
+mkdir jsb-env
+cp -fR files/buildout/* jsb-env
+cd jsb-env
+python bootstrap.py
+bin/buildout -c jsonbot.cfg
