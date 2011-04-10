@@ -228,7 +228,7 @@ def handle_help(bot, event):
          where = bot.plugs.getmodule(target)
          if where:
              theplace = os.sep.join(where.split(".")[-2:])
-             event.reply("help for %s is at http://jsonbot.appspot.com/docs/html/plugins/%s.html" % (event.rest.upper(), theplace))
+             event.reply("help for %s is at http://jsonbot.org/plugins/%s.html or http://jsonbot.appspot.com/docs/html/plugins/%s.html" % (event.rest.upper(), theplace, theplace))
          else: event.reply("can't find a help url for %s" % event.rest)
      else:
          event.reply("documentation for jsonbot can be found at http://jsonbot.appspot.com/docs")
