@@ -34,9 +34,9 @@ sys.path.insert(0, os.getcwd() + os.sep + '..')
 ongae = False
 try:
     import waveapi
-    plugin_packages = ['myplugs.gae','jsb.plugs.core', 'jsb.plugs.gae', 'jsb.plugs.common', 'jsb.plugs.wave', 'jsb.plugs.myplugs.gae']
+    plugin_packages = ['myplugs.common', 'myplugs.gae','jsb.plugs.core', 'jsb.plugs.gae', 'jsb.plugs.common', 'jsb.plugs.wave', 'jsb.plugs.myplugs.common', 'jsb.plugs.myplugs.gae']
     ongae = True
-except ImportError: plugin_packages = ['myplugs.socket', 'jsb.plugs.core', 'jsb.plugs.common', 'jsb.plugs.socket', 'jsb.plugs.myplugs.socket']
+except ImportError: plugin_packages = ['myplugs.common', 'myplugs.socket', 'jsb.plugs.core', 'jsb.plugs.common', 'jsb.plugs.socket', 'jsb.plugs.myplugs.common', 'jsb.plugs.myplugs.socket']
 
 default_plugins = ['jsb.plugs.core.admin', 'jsb.plugs.core.dispatch', 'jsb.plugs.core.plug']
 
@@ -113,8 +113,8 @@ def boot(ddir=None, force=False, encoding="utf-8", umask=None, saveperms=True, f
         for plug in default_plugins:
             plugs.reload(plug, showerror=True, force=True)
         if not fast:
-            if ongae: plugs.loadall(["myplugs.gae", "jsb.plugs.myplugs"], force=True)
-            else: plugs.loadall(["myplugs.socket", "jsb.plugs.myplugs"], force=True)
+            if ongae: plugs.loadall(["myplugs.common", "myplugs.gae", "jsb.plugs.myplugs.gae", "jsb.plugs.myplugs.common"], force=True)
+            else: plugs.loadall(["myplugs.common", "myplugs.socket", "jsb.plugs.myplugs.socket", "jsb.plugs.myplugs.common"], force=True)
         else: logging.error("skipped loading of myplugs")
     logging.warn("boot - done")
 
