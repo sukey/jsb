@@ -14,7 +14,9 @@ from jsb.lib.boot import savecmndtable, savepluginlist, boot, plugin_packages, c
 from jsb.lib.plugins import plugs
 from jsb.lib.botbase import BotBase
 from jsb.lib.exit import globalshutdown
+from jsb.lib.config import getmainconfig
 from jsb.utils.generic import stringsed
+from jsb.utils.exception import handle_exception
 
 ## admin-boot command
 
@@ -126,5 +128,15 @@ def handle_adminsetstatus(bot, event):
     except IndexError: show = ""
     bot.setstatus(status, show)
 
-cmnds.add("admin-setstatus", handle_adminsetstatus, ["GUEST", "USER", "OPER"])
+cmnds.add("admin-setstatus", handle_adminsetstatus, ["STATUS", "OPER"])
 examples.add("admin-setstatus", "set status of sxmpp bot", "admin-setstatus available Yooo dudes !")
+
+def handle_reloadconfig(bot, event):
+    try:
+        bot.cfg.reload()
+        getmainconfig().reload()
+    except Exception, ex: handle_exception(event)
+    event.done()
+
+cmnds.add("admin-reloadconfig", handle_reloadconfig, ["OPER"])
+examples.add("admin-reloadconfig", "reload bot.cfg and mainconfig", "admin-reloadconfig")

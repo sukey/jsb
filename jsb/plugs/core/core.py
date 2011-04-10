@@ -7,7 +7,7 @@
 ## gozerbot imports
 
 from jsb.utils.statdict import StatDict
-from jsb.utils.log import setloglevel
+from jsb.utils.log import setloglevel, getloglevel
 from jsb.utils.timeutils import elapsedstring
 from jsb.utils.exception import handle_exception
 from jsb.lib.commands import cmnds
@@ -294,9 +294,7 @@ examples.add('versions', 'show versions of all loaded modules', 'versions')
 
 def handle_loglevel(bot, event):
     """ change loglevel of the bot. """
-    if not event.rest:
-        event.missing("<loglevel> (string)")
-        return
+    if not event.rest: event.reply(getloglevel()) ; return
     setloglevel(event.rest)
     from jsb.lib.config import getmainconfig
     cfg = getmainconfig()

@@ -19,7 +19,15 @@ LEVELS = {'debug': logging.DEBUG,
           'warning': logging.WARNING,
           'warn': logging.WARNING,
           'error': logging.ERROR,
-          'critical': logging.CRITICAL}
+          'critical': logging.CRITICAL
+         }
+
+RLEVELS = {logging.DEBUG: 'debug',
+           logging.INFO: 'info',
+           logging.WARNING: 'warn',
+           logging.ERROR: 'error',
+           logging.CRITICAL: 'critical'
+          }
 
 try:
     import waveapi
@@ -55,11 +63,21 @@ def setloglevel(level_name):
     if not level_name: return
     level = LEVELS.get(level_name.lower(), logging.NOTSET)
     root = logging.getLogger("")
+    root.setLevel(level)
     if root.handlers:
         for handler in root.handlers: root.removeHandler(handler)
     logging.basicConfig(level=level, format=format)
     try: import waveapi
     except ImportError:
         if filehandler: root.addHandler(filehandler)
-    root.setLevel(level)
+    try:
+        from jsb.lib.config import getmainconfig
+        cfg = getmainconfig()
+        cfg.loglevel =level
+        cfg.save()
+    except Exception, ex: logging.error("error saving loglevel: %s" % str(ex))
     logging.warn("loglevel is %s (%s)" % (str(level), level_name))
+
+def getloglevel():
+    root = logging.getLogger("")
+    return RLEVELS.get(root.level)
