@@ -85,6 +85,12 @@ def makedirs(ddir=None):
         try:
             shutil.copy(initsource, os.path.join(ddir, 'myplugs', '__init__.py'))
         except (OSError, IOError), ex: logging.error("datadir - failed to copy myplugs/__init__.py: %s" % str(ex))
+    # myplugs.common
+    if not os.path.isdir(os.path.join(ddir, 'myplugs', 'common')): os.mkdir(os.path.join(ddir, 'myplugs', 'common'))
+    if not os.path.isfile(os.path.join(ddir, 'myplugs', "common", "__init__.py")):
+        try:
+            shutil.copy(initsource, os.path.join(ddir, 'myplugs', 'common', '__init__.py'))
+        except (OSError, IOError), ex: logging.error("datadir - failed to copy myplugs/common/__init__.py: %s" % str(ex))
     # myplugs.gae
     if not os.path.isdir(os.path.join(ddir, 'myplugs', 'gae')): os.mkdir(os.path.join(ddir, 'myplugs', 'gae'))
     if not os.path.isfile(os.path.join(ddir, 'myplugs', "gae", "__init__.py")):
