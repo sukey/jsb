@@ -524,7 +524,7 @@ class BotBase(LazyDict):
             if name in default_plugins: pass
             elif self.cfg.blacklist and name in self.cfg.blacklist: continue
             elif self.cfg.loadlist and name not in self.cfg.loadlist: continue
-            logging.warn("%s - on demand reloading of %s" % (self.name, name))
+            logging.info("%s - on demand reloading of %s" % (self.name, name))
             try:
                 mod = self.plugs.reload(name, force=True, showerror=False)
                 if mod: plugloaded.append(mod) ; continue

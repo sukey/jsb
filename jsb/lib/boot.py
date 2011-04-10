@@ -9,7 +9,7 @@
 from jsb.utils.generic import checkpermissions, isdebian, botuser
 from jsb.lib.persist import Persist
 from jsb.utils.exception import handle_exception
-from jsb.lib.datadir import makedirs
+from jsb.lib.datadir import makedirs, getdatadir
 from jsb.lib.config import Config
 from jsb.lib.jsbimport import _import
 from jsb.utils.lazydict import LazyDict
@@ -47,6 +47,7 @@ cmndtable = None
 pluginlist = None
 callbacktable = None
 cmndperms = None
+timestamps = None
 
 cpy = copy.deepcopy
 
@@ -89,9 +90,11 @@ def boot(ddir=None, force=False, encoding="utf-8", umask=None, saveperms=True, f
     global callbacktable
     global cmndperms
     global plugcommands
+    global timestamps
     if not cmndtable: cmndtable = Persist(rundir + os.sep + 'cmndtable')
     if not pluginlist: pluginlist = Persist(rundir + os.sep + 'pluginlist')
     if not callbacktable: callbacktable = Persist(rundir + os.sep + 'callbacktable')
+    if not timestamps: timestamps = Persist(rundir + os.sep + 'timestamps')
     if not cmndperms: cmndperms = Config('cmndperms', ddir=ddir)
     from jsb.lib.plugins import plugs
     if not cmndtable.data or force:
@@ -116,7 +119,28 @@ def boot(ddir=None, force=False, encoding="utf-8", umask=None, saveperms=True, f
             if ongae: plugs.loadall(["myplugs.common", "myplugs.gae", "jsb.plugs.myplugs.gae", "jsb.plugs.myplugs.common"], force=True)
             else: plugs.loadall(["myplugs.common", "myplugs.socket", "jsb.plugs.myplugs.socket", "jsb.plugs.myplugs.common"], force=True)
         else: logging.error("skipped loading of myplugs")
+    changed = checktimestamps()
+    if changed:
+        logging.error("boot - files changed %s" % str(changed))
+        for plugfile in changed: plugs.reloadfile(plugfile, force=True)
     logging.warn("boot - done")
+
+## filestamps stuff
+
+def checktimestamps(d=None):
+    changed = []
+    if not d: d = getdatadir() + os.sep + "myplugs"
+    for f in os.listdir(d):
+        if os.path.isdir(d + os.sep + f): changed.extend(checktimestamps(d + os.sep + f))
+        if not f.endswith(".py"): continue 
+        m = d + os.sep + f
+        global timestamps
+        try:
+            t = os.path.getmtime(m)
+            if t > timestamps.data[m]: changed.append(m) ; timestamps.data[m] = t
+        except KeyError: timestamps.data[m] = os.path.getmtime(m) ; changed.append(m)
+    if changed: timestamps.save()
+    return changed 
 
 ## commands related commands
 

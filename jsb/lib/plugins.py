@@ -46,6 +46,17 @@ class Plugins(LazyDict):
         for plugname in self:
             self.unload(plugname)         
 
+    def reloadfile(self, filename, force=True):
+        logging.warn("plugs - reloading file %s" % filename)
+        mlist = filename.split(os.sep)
+        mod = []
+        for m in mlist[::-1]:
+            mod.insert(0, m)
+            if m == "myplugs": break 
+        modname = ".".join(mod)[:-3]
+        logging.warn("plugs - using %s" % modname)
+        self.reload(modname, force)
+          
     def loadall(self, paths=[], force=True):
         """
             load all plugins from given paths, if force is true .. 
@@ -115,13 +126,13 @@ class Plugins(LazyDict):
                 raise NoSuchPlugin(modname)
         try: init = getattr(self[modname], 'init')
         except AttributeError:
-            logging.debug("%s loaded - no init" % modname)
+            logging.warn("plugins - %s loaded" % modname)
             return self[modname]
         try:
             init()
             logging.debug('plugins - %s init called' % modname)
         except Exception, ex: raise
-        logging.debug("%s loaded - with init" % modname)
+        logging.warn("plugins - %s loaded" % modname)
         return self[modname]
 
     def loaddeps(self, modname, force=False, showerror=False, loaded=[]):
