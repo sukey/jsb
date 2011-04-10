@@ -77,6 +77,7 @@ class GozerEvent(EventBase):
                 main += u"<body>%s</body>" % XMLescape(res['txt'])
                 gotsub = True
         for subelement in subelements[elem]:
+            if subelement == "body": continue
             try:
                 data = res[subelement]
                 if data:

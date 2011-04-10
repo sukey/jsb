@@ -280,6 +280,7 @@ class SXMPPBot(XMLStream, BotBase):
         repl.txt = txt
         if html:
             repl.html = txt
+        logging.debug("%s - reply is %s" % (self.name, repl.dump()))
         if not repl.type: repl.type = 'normal'
         logging.debug("%s - sxmpp - out - %s - %s" % (self.name, printto, unicode(txt)))
         self.send(repl)
