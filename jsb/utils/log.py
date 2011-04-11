@@ -61,7 +61,7 @@ except ImportError:
 def setloglevel(level_name):
     """ set loglevel to level_name. """
     if not level_name: return
-    level = LEVELS.get(level_name.lower(), logging.NOTSET)
+    level = LEVELS.get(str(level_name).lower(), logging.NOTSET)
     root = logging.getLogger("")
     root.setLevel(level)
     if root.handlers:
@@ -73,7 +73,7 @@ def setloglevel(level_name):
     try:
         from jsb.lib.config import getmainconfig
         cfg = getmainconfig()
-        cfg.loglevel =level
+        cfg.loglevel = level_name
         cfg.save()
     except Exception, ex: logging.error("error saving loglevel: %s" % str(ex))
     logging.warn("loglevel is %s (%s)" % (str(level), level_name))
