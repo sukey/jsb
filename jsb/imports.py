@@ -21,16 +21,11 @@ def getjson():
     except ImportError:
         try: mod = _import("json")
         except:
-<<<<<<< local
-            mod = _import("jsb.contrib.simplejson")
-    logging.info("imports - json module is %s" % str(mod))
-=======
             try:
                 mod = _import("simplejson")
             except:
                 mod = _import("jsb.contrib.simplejson")
-    logging.debug("imports - module is %s" % str(mod))
->>>>>>> other
+    logging.debug("imports - json module is %s" % str(mod))
     return mod
 
 ## getfeedparser function

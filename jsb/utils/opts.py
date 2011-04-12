@@ -53,6 +53,24 @@ def makeircopts(txt=""):
     opts.args = args
     return opts
 
+## makeconvoreopts
+
+def makeconvoreopts(txt=""):
+    """ create commandline parser options. """
+    parser = optparse.OptionParser(usage='usage: %prog [options]', version=getversion())
+    parser.add_option('-d', '--datadir', type='string', default=False, dest='datadir',  help="datadir of the bot")
+    parser.add_option('-o', '--owner', type='string', default=False, dest='owner',  help="owner of the bot")
+    parser.add_option('-l', '--loglevel', type='string', default="", dest='loglevel',  help="loglevel of the bot")
+    parser.add_option('-p', '--password', type='string', default=False, dest='password', help="set password used to connect to the server")
+    parser.add_option('', '--name', type='string', default=False, dest='name', help="bot's name")
+    parser.add_option('-u', '--username', type='string', default=False, dest='username',  help="username of the bot")
+    if txt: opts, args = parser.parse_args(txt.split())
+    else: opts, args = parser.parse_args()
+    opts.args = args
+    return opts
+
+## makexmppopts
+
 def makexmppopts(txt=""):
     """ create commandline parser options. """
     parser = optparse.OptionParser(usage='usage: %prog [options]', version=getversion())
@@ -131,6 +149,8 @@ def makeconsoleconfig(type, opts, botname=None):
     else: cfg.loglevel = cfg.loglevel or "error"
     return cfg
 
+## makeircconfig function
+
 def makeircconfig(type=None, opts=None, botname=None):
     """ make config file based on options. """
     if not opts: botname = botname or "default-irc"
@@ -159,6 +179,8 @@ def makeircconfig(type=None, opts=None, botname=None):
     if opts.owner and opts.owner not in cfg.owner: cfg.owner.append(opts.owner)
     if opts.ipv6: cfg.ipv6 = opts.ipv6
     return cfg
+
+## makexmppconfig function
 
 def makexmppconfig(type, opts=None, botname=None):
     """ make config file based on options. """
