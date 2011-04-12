@@ -37,22 +37,21 @@ class ConvoreBot(BotBase):
         if not self.state.has_key("idcache"): self.state["idcache"] = {}
 
     def post(self, endpoint, data=None):
-        logging.warn("%s - doing post on %s - %s" % (self.name, endpoint, data)) 
+        logging.debug("%s - doing post on %s - %s" % (self.name, endpoint, data)) 
         assert self.username
         assert self.password
         self.auth = requests.AuthObject(self.username, self.password)
         res = requests.post("https://convore.com/api/%s" % endpoint, data or {}, auth=self.auth)
-        logging.warn("%s - got result %s" % (self.name, res.content))
+        logging.debug("%s - got result %s" % (self.name, res.content))
         if res.status_code == 200:
             logging.debug("%s - got result %s" % (self.name, res.content))
             return LazyDict(json.loads(res.content))
         else: logging.error("%s - %s - %s returned code %s" % (self.name, endpoint, data, res.status_code))
 
     def get(self, endpoint, data={}):
-        logging.warn("%s - doing get on %s - %s" % (self.name, endpoint, data)) 
+        logging.debug("%s - doing get on %s - %s" % (self.name, endpoint, data)) 
         self.auth = requests.AuthObject(self.username, self.password)
         url = "https://convore.com/api/%s" % endpoint
-        logging.warn("%s - GET url is %s - data is %s" % (self.name, url, data)) 
         res = requests.get(url, data, auth=self.auth)
         if res.status_code == 200:
             logging.debug("%s - got result %s" % (self.name, res.content))
@@ -106,8 +105,8 @@ class ConvoreBot(BotBase):
             time.sleep(0.01)
             if self.cursor: result = self.get("live.json", {"cursor": self.cursor})
             else: result = self.get("live.json")
-            logging.warn("%s - incoming - %s" % (self.name, str(result)))
-            if not result: break
+            logging.debug("%s - incoming - %s" % (self.name, str(result)))
+            if not result: continue
             if not result.messages: continue
             for message in result.messages:
                 m = LazyDict(message)
@@ -119,7 +118,7 @@ class ConvoreBot(BotBase):
 
     def handle_message(self, message, root):
         self.cursor = message._id
-        logging.warn("%s - cursor is %s" % (self.name, self.cursor))
+        logging.debug("%s - cursor is %s" % (self.name, self.cursor))
         event = ConvoreEvent()
         event.parse(self, message, root)
         event.bind(self)
