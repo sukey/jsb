@@ -66,6 +66,7 @@ class ConvoreBot(BotBase):
         else: logging.warn("%s - auth failed - %s" % (self.name, r)) ; raise NotConnected(self.username)
 
     def outnocb(self, printto, txt, how="msg", event=None, origin=None, html=False, *args, **kwargs):
+        txt = self.normalize(txt)
         logging.warn("%s - out - %s - %s" % (self.name, printto, txt))
         r = self.post("topics/%s/messages/create.json" % printto, data={"message": txt, "pasted": True})
 
