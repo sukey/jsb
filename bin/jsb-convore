@@ -43,16 +43,23 @@ from jsb.lib.threads import start_new_thread
 
 ## basic imports
 
-import getpass
 import time
+import logging
 
 ## start the bot
+
 name = opts.name or "default-convore"
 cfg = Config("fleet" + os.sep + name + os.sep + 'config')
 cfg.botname = name
-userid = getpass.getuser() + '@' + cfg.uuid
 
-if userid not in cfg.owner: cfg.owner.append(userid)
+if opts.owner:
+    userid = "CONVORE_USER_%s" % opts.owner
+    if not userid in cfg.owner: cfg.owner.append(userid) ; cfg.save()
+    from jsb.lib.users import users_boot
+    u = users_boot()
+    u.make_owner(opts.owner)
+
+logging.warn("owner is %s" % cfg.owner)
 
 if opts.password: cfg.password = opts.password ; cfg.save()
 if opts.username: cfg.username = opts.username ; cfg.save()

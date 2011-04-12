@@ -24,13 +24,19 @@ json = getjson()
 class ConvoreEvent(EventBase):
     """ Convore Event."""
 
-    def parse(self, bot, message):
+    def parse(self, bot, message, root):
+        print "MESSAGE: " + str(message)
+        print "ROOT: " + str(root)
         m = LazyDict(message)
-        logging.warn("convore - parsing event %s" % m)
-        self.cbtype = "CONVORE"
-        self.userhost = "%s_%s" % (bot.type, m.user['username']) 
-        self.userid = m.user['id']
-        self.channel = m.id
+        r = LazyDict(root)
         self.type = m.kind
-        self.auth = m.userhost
+        self.cbtype = "CONVORE"
+        self.bottype = bot.type
+        if self.type == "message":
+            self.userhost = "%s_%s" % ("CONVORE_USER", m.user['username']) 
+            self.userid = m.user['id']
+            self.channel = m.topic['id']
+            self.auth = self.userhost
+            self.txt = m.message
+        logging.warn("convore - parsed event: %s" % self.dump())
         return self
