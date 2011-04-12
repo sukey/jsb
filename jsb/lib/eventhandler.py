@@ -14,6 +14,8 @@ from threads import start_new_thread
 
 import Queue
 import thread
+import logging
+import time
 
 ## locks
 
@@ -78,9 +80,14 @@ class EventHandler(object):
         """ thread that polls the queues for items to dispatch. """
         logging.debug('eventhandler - starting handle thread')
         while not self.stopped:
-            self.go.get()
-            self.handle_one()
+            time.sleep(0.01)
+            try:
+                res = self.go.get_nowait()
+                if res: self.handle_one()
+            except Queue.Empty: pass
         logging.debug('eventhandler - stopping %s' % str(self))
+
+    runforever = handleloop
 
     def dispatch(self, queue):
         """ dispatch functions from provided queue. """

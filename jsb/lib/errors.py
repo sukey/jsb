@@ -14,7 +14,11 @@ import sys
 
 ## exceptions
 
+
 class JsonBotError(Exception):
+    pass
+
+class NotConnected(JsonBotError):
     pass
 
 class FeedAlreadyExists(JsonBotError):

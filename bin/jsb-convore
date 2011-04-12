@@ -2,7 +2,72 @@
 #
 #
 
-from jsb.lib.convore.bot import ConvoreBot  
+""" Convore Bot. """
 
-bot = ConvoreBot()    
-bot.start()      
+
+import warnings
+warnings.simplefilter("ignore")
+
+## bootstrap
+
+import os, sys
+sys.path.insert(0, os.getcwd())
+
+from jsb.lib.version import getversion
+
+print getversion('CONVORE')
+
+## command line parsing
+from jsb.utils.opts import makeconvoreopts
+opts = makeconvoreopts()
+
+if opts.datadir and not os.path.isdir(opts.datadir): os.mkdir(opts.datadir)
+
+## make config from cmndline options
+
+from jsb.utils.log import setloglevel
+setloglevel(opts.loglevel or "warn")
+
+from jsb.lib.boot import boot
+boot(opts.datadir)
+
+## jsb imports
+
+from jsb.utils.generic import waitforqueue, waitevents
+from jsb.lib.convore.bot import ConvoreBot
+from jsb.lib.config import Config
+from jsb.lib.errors import NoOwnerSet
+from jsb.lib.commands import cmnds
+from jsb.lib.eventhandler import mainhandler
+from jsb.lib.threads import start_new_thread
+
+## basic imports
+
+import getpass
+import time
+
+## start the bot
+name = opts.name or "default-convore"
+cfg = Config("fleet" + os.sep + name + os.sep + 'config')
+cfg.botname = name
+userid = getpass.getuser() + '@' + cfg.uuid
+
+if userid not in cfg.owner: cfg.owner.append(userid)
+
+if opts.password: cfg.password = opts.password ; cfg.save()
+if opts.username: cfg.username = opts.username ; cfg.save()
+if not cfg.password: print "password is not set .. use -p" ; os._exit(1)
+if not cfg.username: print "username is not set .. use -u" ; os._exit(1)
+
+try:
+    bot = ConvoreBot(cfg)
+except NoOwnerSet:
+    print "the owner is not set in %s" % cfg.cfile
+    os._exit(1)
+
+if opts.channel and not opts.channel in bot.state['joinedchannels']:
+    bot.state['joinedchannels'].append(opts.channel)
+    bot.state.save()
+
+bot.start()
+mainhandler.runforever()

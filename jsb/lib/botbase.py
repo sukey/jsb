@@ -359,7 +359,7 @@ class BotBase(LazyDict):
     def _raw(self, txt, *args, **kwargs):
         """ override this. """ 
         logging.debug(u"%s - out - %s" % (self.name, txt))
-k        print txt
+        print txt
 
     def makeoutput(self, printto, txt, result=[], nr=375, extend=0, dot=", ", origin=None, *args, **kwargs):
         if not txt: return ""

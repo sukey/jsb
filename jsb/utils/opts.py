@@ -62,6 +62,7 @@ def makeconvoreopts(txt=""):
     parser.add_option('-o', '--owner', type='string', default=False, dest='owner',  help="owner of the bot")
     parser.add_option('-l', '--loglevel', type='string', default="", dest='loglevel',  help="loglevel of the bot")
     parser.add_option('-p', '--password', type='string', default=False, dest='password', help="set password used to connect to the server")
+    parser.add_option('-c', '--channel', type='string', default=False, dest='channel',  help="channel to join")
     parser.add_option('', '--name', type='string', default=False, dest='name', help="bot's name")
     parser.add_option('-u', '--username', type='string', default=False, dest='username',  help="username of the bot")
     if txt: opts, args = parser.parse_args(txt.split())
