@@ -30,13 +30,13 @@ class ConvoreEvent(EventBase):
         self.type = m.kind
         self.cbtype = "CONVORE"
         self.bottype = bot.type
-        if self.type == "message":
-            self.username = m.user['username']
-            self.userhost = "%s_%s" % ("CONVORE_USER", self.username) 
-            self.userid = m.user['id']
-            self.channel = m.topic['id']
-            self.auth = self.userhost
-            self.txt = m.message
-            self.nick = self.username
+        self.username = m.user['username']
+        self.userhost = "%s_%s" % ("CONVORE_USER", self.username) 
+        self.userid = m.user['id']
+        try: self.channel = m.topic['id']
+        except: self.channel = self.userid ; self.msg = True
+        self.auth = self.userhost
+        self.txt = m.message
+        self.nick = self.username
         logging.debug("convore - parsed event: %s" % self.dump())
         return self

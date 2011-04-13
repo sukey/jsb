@@ -67,7 +67,10 @@ class ConvoreBot(BotBase):
     def outnocb(self, printto, txt, how="msg", event=None, origin=None, html=False, *args, **kwargs):
         txt = self.normalize(txt)
         logging.warn("%s - out - %s - %s" % (self.name, printto, txt))
-        r = self.post("topics/%s/messages/create.json" % printto, data={"message": txt, "pasted": True})
+        if event and event.msg:
+            r = self.post("messages/%s/create.json" % printto, data={"message": txt, "pasted": True})
+        else:
+            r = self.post("users/%s/messages/create.json" % printto, data={"message": txt, "pasted": True})
 
     def discover(self, channel):
         res = self.get("groups/discover/search.json", {"q": channel })
@@ -111,19 +114,27 @@ class ConvoreBot(BotBase):
             for message in result.messages:
                 m = LazyDict(message)
                 try:
-                    method = getattr(self, "handle_%s" % m.kind)
+                    type = str(m.kind)
+                    type = type.replace("-", "_")
+                    method = getattr(self, "handle_%s" % type)
                     method(m, result)
-                except (TypeError, AttributeError): logging.error("%s - no handler for %s kind" % (self.name, m.kind)) ; continue
+                #except (TypeError, AttributeError): logging.error("%s - no handler for %s kind" % (self.name, m.kind)) ; continue
                 except: handle_exception()
 
     def handle_error(self, message, root):
         logging.error("%s - error - %s" % (self.name, message.error))
 
     def handle_logout(self, message, root):
-        logging.info("%s - logout - %s" % (self.name, str(message)))
+        logging.warn("%s - logout - %s" % (self.name, str(message)))
 
     def handle_login(self, message, root):
-        logging.info("%s - login - %s" % (self.name, str(message)))
+        logging.warn("%s - login - %s" % (self.name, str(message)))
+
+    def handle_star(self, message, root):
+        logging.warn("%s - star - %s" % (self.name, str(message)))
+
+    def handle_topic(self, message, root):
+        logging.warn("%s - topic - %s" % (self.name, str(message)))
 
     def handle_message(self, message, root):
         self.cursor = message._id
@@ -132,3 +143,7 @@ class ConvoreBot(BotBase):
         event.parse(self, message, root)
         event.bind(self)
         self.doevent(event)
+
+    def handle_direct_message(self, message, root):
+        self.handle_message(message, root)
+ 
