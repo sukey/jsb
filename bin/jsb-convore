@@ -76,5 +76,6 @@ if opts.channel and not opts.channel in bot.state['joinedchannels']:
     bot.state['joinedchannels'].append(opts.channel)
     bot.state.save()
 
-bot.start()
+bot.start(False)
+bot.doauth()
 mainhandler.runforever()

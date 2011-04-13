@@ -57,11 +57,11 @@ class ConvoreBot(BotBase):
             logging.debug("%s - got result %s" % (self.name, res.content))
             return LazyDict(json.loads(res.content))
         logging.error("%s - %s - %s returned code %s" % (self.name, endpoint, data, res.status_code))
-      
-    def connect(self):
+
+    def doauth(self):
         logging.warn("%s - authing %s" % (self.name, self.username))
         r = self.get('account/verify.json')
-        if r: logging.warn("%s - connected" % self.name) ;self.connectok.set()
+        if r: logging.warn("%s - connected" % self.name) ; self.connectok.set()
         else: logging.warn("%s - auth failed - %s" % (self.name, r)) ; raise NotConnected(self.username)
 
     def outnocb(self, printto, txt, how="msg", event=None, origin=None, html=False, *args, **kwargs):
@@ -113,8 +113,11 @@ class ConvoreBot(BotBase):
                 try:
                     method = getattr(self, "handle_%s" % m.kind)
                     method(m, result)
-                #except (TypeError, AttributeError): continue
+                except (TypeError, AttributeError): logging.error("%s - no handler for %s kind" % (self.name, m.kind)) ; continue
                 except: handle_exception()
+
+    def handle_error(self, message, root):
+        logging.error("%s - error - %s" % (self.name, message.error))
 
     def handle_message(self, message, root):
         self.cursor = message._id
