@@ -125,13 +125,14 @@ class ConvoreBot(BotBase):
         logging.error("%s - error - %s" % (self.name, message.error))
 
     def handle_logout(self, message, root):
-        logging.warn("%s - logout - %s" % (self.name, str(message)))
+        logging.warn("%s - logout - %s" % (self.name, message.username))
 
     def handle_login(self, message, root):
-        logging.warn("%s - login - %s" % (self.name, str(message)))
+        logging.warn("%s - login - %s" % (self.name, message.username))
 
     def handle_star(self, message, root):
-        logging.warn("%s - star - %s" % (self.name, str(message)))
+        pass
+        #logging.warn("%s - star - %s" % (self.name, str(message)))
 
     def handle_topic(self, message, root):
         logging.warn("%s - topic - %s" % (self.name, str(message)))
