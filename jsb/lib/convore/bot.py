@@ -35,6 +35,7 @@ class ConvoreBot(BotBase):
         self.cursor = None
         if not self.state.has_key("namecache"): self.state["namecache"] = {}
         if not self.state.has_key("idcache"): self.state["idcache"] = {}
+        self.nick = cfg.username or "jsonbot"
 
     def post(self, endpoint, data=None):
         logging.debug("%s - doing post on %s - %s" % (self.name, endpoint, data)) 
@@ -65,6 +66,8 @@ class ConvoreBot(BotBase):
         else: logging.warn("%s - auth failed - %s" % (self.name, r)) ; raise NotConnected(self.username)
 
     def outnocb(self, printto, txt, how="msg", event=None, origin=None, html=False, *args, **kwargs):
+        print str(event.chan.data)
+        if event and not event.chan.data.enable: return
         txt = self.normalize(txt)
         logging.warn("%s - out - %s - %s" % (self.name, printto, txt))
         if event and event.msg:
@@ -97,7 +100,10 @@ class ConvoreBot(BotBase):
 
     def part(self, channel):
         logging.warn("%s - part %s" % (self.name, channel))
-        res = self.post("groups/%s/leave.json" % channel, {"group_id": channel})
+        try:
+            id = self.state["idcache"][channel]
+            res = self.post("groups/%s/leave.json" % id, {"group_id": id})
+        except: handle_exception() ; return
         if channel in self.state['joinedchannels']: self.state['joinedchannels'].remove(channel) ; self.state.save()
         return res
 

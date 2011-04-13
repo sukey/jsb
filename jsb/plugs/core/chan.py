@@ -305,3 +305,21 @@ def handle_chandelwatch(bot, event):
 
 cmnds.add("chan-delwatch", handle_chandelwatch, "OPER")
 examples.add("chan-delwatch", "deny channel events to be watched when forwarded", "chan-delwatch bthate@gmail.com")
+
+def handle_chanenable(bot, event):
+    """ enable a channel. """
+    event.chan.data.enable = True
+    event.chan.save()
+    event.reply("%s channel enabled" % event.channel)
+
+cmnds.add("chan-enable", handle_chanenable, "OPER")
+examples.add("chan-enable", "enable a channel (allow for handling of events concerning this channel (convore for now)", "chan-enable")
+
+def handle_chandisable(bot, event):
+    """ enable a channel. """
+    event.chan.data.enable = False
+    event.chan.save()
+    event.reply("%s channel disabled" % event.channel)
+
+cmnds.add("chan-disable", handle_chandisable, "OPER")
+examples.add("chan-disable", "disable a channel (disallow for handling of events concerning this channel (convore for now)", "chan-disable")
