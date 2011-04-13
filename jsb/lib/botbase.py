@@ -255,7 +255,7 @@ class BotBase(LazyDict):
                 logging.warn('%s - failed to join %s: %s' % (self.name, i, str(ex)))
                 handle_exception()
 
-    def start(self, connect=True):
+    def start(self, connect=True, join=True):
         """ start the mainloop of the bot. """
         if not self.isgae: 
             if connect: self.connect()
@@ -266,7 +266,7 @@ class BotBase(LazyDict):
                 self.connectok.wait(120)
                 if self.connectok.isSet():
                     logging.warn('%s - logged on !' % self.name)
-                    start_new_thread(self.joinchannels, ())
+                    if join: start_new_thread(self.joinchannels, ())
                 else: logging.warn("%s - failed to logon - connectok is not set" % self.name)
         self.status == "running"
         self.dostart(self.botname, self.type)

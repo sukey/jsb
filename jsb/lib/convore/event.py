@@ -47,5 +47,6 @@ class ConvoreEvent(EventBase):
         self.auth = self.userhost
         self.txt = m.message
         self.nick = self.username
+        self.printto = self.channel
         logging.debug("convore - parsed event: %s" % self.dump())
         return self

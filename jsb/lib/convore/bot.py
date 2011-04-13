@@ -59,15 +59,16 @@ class ConvoreBot(BotBase):
             return LazyDict(json.loads(res.content))
         logging.error("%s - %s - %s returned code %s" % (self.name, endpoint, data, res.status_code))
 
-    def doauth(self):
+    def connect(self):
         logging.warn("%s - authing %s" % (self.name, self.username))
         r = self.get('account/verify.json')
         if r: logging.warn("%s - connected" % self.name) ; self.connectok.set()
         else: logging.warn("%s - auth failed - %s" % (self.name, r)) ; raise NotConnected(self.username)
 
     def outnocb(self, printto, txt, how="msg", event=None, origin=None, html=False, *args, **kwargs):
-        print str(event.chan.data)
-        if event and not event.chan.data.enable: return
+        if event and not event.chan.data.enable:
+            logging.warn("%s - channel %s is not enabled" % (self.name, event.chan.data.id))
+            return
         txt = self.normalize(txt)
         logging.warn("%s - out - %s - %s" % (self.name, printto, txt))
         if event and event.msg:
@@ -122,6 +123,7 @@ class ConvoreBot(BotBase):
                 try:
                     event = ConvoreEvent()
                     event.parse(self, message, result)
+                    if event.username == self.username: continue
                     event.bind(self)
                     method = getattr(self, "handle_%s" % event.type)
                     method(event)

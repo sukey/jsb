@@ -40,6 +40,7 @@ from jsb.lib.errors import NoOwnerSet
 from jsb.lib.commands import cmnds
 from jsb.lib.eventhandler import mainhandler
 from jsb.lib.threads import start_new_thread
+from jsb.lib.fleet import getfleet
 
 ## basic imports
 
@@ -76,6 +77,9 @@ if opts.channel and not opts.channel in bot.state['joinedchannels']:
     bot.state['joinedchannels'].append(opts.channel)
     bot.state.save()
 
-bot.start(False)
-bot.doauth()
+bot.start(join=False)
+
+fleet = getfleet(opts.datadir)
+fleet.addbot(bot)
+
 mainhandler.runforever()

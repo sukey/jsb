@@ -106,6 +106,7 @@ first_callbacks.add('WEB', relaycallback, relayprecondition)
 first_callbacks.add('BLIP_SUBMITTED', relaycallback, relayprecondition)
 first_callbacks.add('OUTPUT', relaycallback, relayprecondition)
 first_callbacks.add('PRIVMSG', relaycallback, relayprecondition)
+first_callbacks.add('CONVORE', relaycallback, relayprecondition)
 
 # COMMANDS
 # this is where the commands for the relay plugin are defined, Arguments to a

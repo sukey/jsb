@@ -16,6 +16,7 @@ from errors import NoSuchBotType, BotNotEnabled
 from threads import start_new_thread
 from eventhandler import mainhandler
 from jsb.utils.name import stripname
+from jsb.lib.factory import BotFactory
 
 ## simplejson imports
 from jsb.imports import getjson
@@ -141,37 +142,9 @@ class Fleet(Persist):
         if not cfg.domain and domain: cfg.domain = domain
         if not cfg: raise Exception("can't make config for %s" % name)
         cfg.save()
-        if type == 'xmpp' or type == 'jabber':
-            try:
-                from jsb.lib.gae.xmpp.bot import XMPPBot
-                bot = XMPPBot(cfg)
-            except ImportError:
-                from jsb.lib.socklib.xmpp.bot import SXMPPBot          
-                bot = SXMPPBot(cfg)
-        elif type == 'sxmpp':
-            from jsb.lib.socklib.xmpp.bot import SXMPPBot
-            bot = SXMPPBot(cfg)
-        elif type == 'web':
-            from jsb.lib.gae.web.bot import WebBot
-            bot = WebBot(cfg)
-        elif type == 'wave':
-            from jsb.lib.gae.wave.bot import WaveBot
-            dom = cfg.domain or domain
-            bot = WaveBot(cfg, domain=dom)
-        elif type == 'irc':
-            from jsb.lib.socklib.irc.bot import IRCBot
-            bot = IRCBot(cfg)
-        elif type == 'console':
-            from jsb.lib.console.bot import ConsoleBot
-            bot = ConsoleBot(cfg)
-        elif type == 'base':
-            from jsb.lib.botbase import BotBase
-            bot = BotBase(cfg)
-        else: raise NoSuchBotType('%s bot .. unproper type %s' % (name, type))
-        if bot:
-            self.addbot(bot)
-            return bot
-        raise Exception("can't make %s bot" % name)
+        bot = BotFactory().create(type, cfg)
+        if not bot: raise NoSuchBotType('%s bot .. unproper type %s' % (name, type))
+        else: self.addbot(bot) ; return bot
 
     def save(self):
         """ save fleet data and call save on all the bots. """

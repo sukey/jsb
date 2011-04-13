@@ -43,5 +43,8 @@ class BotFactory(Factory):
         elif type == 'base':
             from jsb.lib.botbase import BotBase
             bot = BotBase(cfg)
+        elif type == 'convore':
+            from jsb.lib.convore.bot import ConvoreBot
+            bot = ConvoreBot(cfg)
         else: raise NoSuchBotType('%s bot .. unproper type %s' % (type, cfg.dump()))
         return bot
