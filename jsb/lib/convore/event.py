@@ -25,8 +25,6 @@ class ConvoreEvent(EventBase):
     """ Convore Event."""
 
     def parse(self, bot, message, root):
-        print "MESSAGE: " + str(message)
-        print "ROOT: " + str(root)
         m = LazyDict(message)
         r = LazyDict(root)
         self.type = m.kind
