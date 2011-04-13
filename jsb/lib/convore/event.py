@@ -6,6 +6,7 @@
 
 ## jsb imports
 
+from jsb.utils.locking import lockdec
 from jsb.lib.eventbase import EventBase
 from jsb.utils.lazydict import LazyDict
 from jsb.imports import getjson
@@ -13,17 +14,23 @@ from jsb.imports import getjson
 ## basic imports
 
 import logging
+import thread
 
 ## defines
 
 json = getjson()
 
+## locks
+
+parselock = thread.allocate_lock()
+locked = lockdec(parselock)
 
 ## ConvoreEvent
 
 class ConvoreEvent(EventBase):
     """ Convore Event."""
 
+    @locked
     def parse(self, bot, message, root):
         m = LazyDict(message)
         self.root = LazyDict(root)

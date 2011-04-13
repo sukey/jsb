@@ -105,10 +105,11 @@ class ConvoreBot(BotBase):
         self.connectok.wait(15)
         self.auth = requests.AuthObject(self.username, self.password)
         while not self.stopped:
-            time.sleep(0.01)
+            time.sleep(1)
             if self.cursor: result = self.get("live.json", {"cursor": self.cursor})
             else: result = self.get("live.json")
-            logging.debug("%s - incoming - %s" % (self.name, str(result)))
+            if result.has_key("_id"): self.cursor = result["_id"]
+            logging.warn("%s - incoming - %s" % (self.name, str(result)))
             if not result: continue
             if not result.messages: continue
             for message in result.messages:
@@ -138,10 +139,8 @@ class ConvoreBot(BotBase):
         logging.warn("%s - topic - %s" % (self.name, event.dump()))
 
     def handle_message(self, event):
-        self.cursor = event._id
-        logging.debug("%s - cursor is %s" % (self.name, self.cursor))
         self.doevent(event)
 
     def handle_direct_message(self, event):
-        self.handle_message(event)
+        self.doevent(event)
  
