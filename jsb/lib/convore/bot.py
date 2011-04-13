@@ -119,6 +119,12 @@ class ConvoreBot(BotBase):
     def handle_error(self, message, root):
         logging.error("%s - error - %s" % (self.name, message.error))
 
+    def handle_logout(self, message, root):
+        logging.warn("%s - logout - %s" % (self.name, message.username))
+
+    def handle_login(self, message, root):
+        logging.warn("%s - login - %s" % (self.name, message.username))
+
     def handle_message(self, message, root):
         self.cursor = message._id
         logging.debug("%s - cursor is %s" % (self.name, self.cursor))
