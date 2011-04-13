@@ -27,8 +27,8 @@ class ConvoreEvent(EventBase):
     def parse(self, bot, message, root):
         m = LazyDict(message)
         self.root = LazyDict(root)
-        m.kind.replace("-", "_")
-        self.type = m.kind
+        type = m.kind.replace("-", "_")
+        self.type = type
         self.cbtype = "CONVORE"
         self.bottype = bot.type
         self.username = m.user['username']
@@ -36,7 +36,7 @@ class ConvoreEvent(EventBase):
         self._id = m._id
         self.userid = m.user['id']
         try: self.channel = m.topic['id'] ; self.groupchat = True
-        except: self.channel = self.userid 
+        except: self.channel = self.userid ; self.msg = True
         self.auth = self.userhost
         self.txt = m.message
         self.nick = self.username

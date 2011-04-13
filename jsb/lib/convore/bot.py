@@ -118,7 +118,7 @@ class ConvoreBot(BotBase):
                     event.bind(self)
                     method = getattr(self, "handle_%s" % event.type)
                     method(event)
-                #except (TypeError, AttributeError): logging.error("%s - no handler for %s kind" % (self.name, m.kind)) ; continue
+                except (TypeError, AttributeError): logging.error("%s - no handler for %s kind" % (self.name, message['kind'])) 
                 except: handle_exception()
 
     def handle_error(self, event):
