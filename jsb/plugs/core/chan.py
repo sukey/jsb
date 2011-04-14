@@ -312,7 +312,7 @@ def handle_chanenable(bot, event):
     event.chan.save()
     event.reply("%s channel enabled" % event.channel)
 
-cmnds.add("chan-enable", handle_chanenable, "OPER")
+cmnds.add("chan-enable", handle_chanenable, ["OPER", "USER"])
 examples.add("chan-enable", "enable a channel (allow for handling of events concerning this channel (convore for now)", "chan-enable")
 
 def handle_chandisable(bot, event):
@@ -321,5 +321,5 @@ def handle_chandisable(bot, event):
     event.chan.save()
     event.reply("%s channel disabled" % event.channel)
 
-cmnds.add("chan-disable", handle_chandisable, "OPER")
+cmnds.add("chan-disable", handle_chandisable, ["OPER", "USER"])
 examples.add("chan-disable", "disable a channel (disallow for handling of events concerning this channel (convore for now)", "chan-disable")
