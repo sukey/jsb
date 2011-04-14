@@ -50,10 +50,13 @@ def handle_fleetconnect(bot, ievent):
             ievent.reply("can't connect %s .. trying enable" % botname)
             cfg = Config('fleet' + os.sep + stripname(botname) + os.sep + 'config')
             cfg['disable'] = 0
+            if not cfg.name: cfg.name = botname
             cfg.save()
             bot = fleet.makebot(cfg.type, cfg.name, cfg)
-            ievent.reply('enabled and started %s bot' % botname)
-            start_new_thread(bot.start, ())
+            if bot:
+                ievent.reply('enabled and started %s bot' % botname)
+                start_new_thread(bot.start, ())
+            else: ievent.reply("can't make %s bot" % cfg.name)
     except Exception, ex:
         ievent.reply(str(ex))
 
@@ -138,12 +141,14 @@ def fleet_enable(bot, ievent):
         if bot:
             bot.cfg.load()
             bot.cfg['disable'] = 0
+            if not bot.cfg.name: bot.cfg.name = name
             bot.cfg.save()
             ievent.reply('enabled %s' % name)
             start_new_thread(bot.connect, ())
         elif name in fleet.avail():
             cfg = Config('fleet' + os.sep + stripname(name) + os.sep + 'config')
             cfg['disable'] = 0
+            if not cfg.name: cfg.name = name
             cfg.save()
             bot = fleet.makebot(cfg.type, cfg.name, cfg)
             if not bot: ievent.reply("can't make %s bot - %s" % (cfg.name, cfg.type)) ; return
@@ -178,8 +183,10 @@ def fleet_add(bot, ievent):
         cfg.password = nick
     cfg.save()
     bot = fleet.makebot(type, name, cfg)
-    ievent.reply('enabled and started %s bot - %s' % (name, cfg.filename))
-    start_new_thread(bot.start, ())
+    if bot:
+        ievent.reply('enabled and started %s bot - %s' % (name, cfg.filename))
+        start_new_thread(bot.start, ())
+    else: ievent.reply("can't make %s bot" % cfg.name)
 
 cmnds.add('fleet-add', fleet_add, 'OPER', threaded=True)
 examples.add('fleet-add', 'add a fleet bot', 'fleet-add local irc localhost jsbtest')
