@@ -116,7 +116,7 @@ class ConvoreBot(BotBase):
             if self.cursor: result = self.get("live.json", {"cursor": self.cursor})
             else: result = self.get("live.json")
             if result.has_key("_id"): self.cursor = result["_id"]
-            logging.warn("%s - incoming - %s" % (self.name, str(result)))
+            logging.info("%s - incoming - %s" % (self.name, str(result)))
             if not result: continue
             if not result.messages: continue
             for message in result.messages:
