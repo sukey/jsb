@@ -48,6 +48,7 @@ def prekarma(bot, event):
 ## karma callbacks
 
 def karmacb(bot, event):
+    if bot.type == "convore" and not event.chan.data.enabled: return
     event.bind(bot)
     targets = re.findall(RE_KARMA, event.txt)
     karma = []
@@ -78,6 +79,7 @@ def karmacb(bot, event):
 callbacks.add('PRIVMSG', karmacb, prekarma)
 callbacks.add('MESSAGE', karmacb, prekarma)
 callbacks.add('CONSOLE', karmacb, prekarma)
+callbacks.add('CONVORE', karmacb, prekarma)
 
 ## karma command
 
