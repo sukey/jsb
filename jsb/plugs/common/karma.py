@@ -48,8 +48,8 @@ def prekarma(bot, event):
 ## karma callbacks
 
 def karmacb(bot, event):
-    if bot.type == "convore" and not event.chan.data.enabled: return
     event.bind(bot)
+    if bot.type == "convore" and not event.chan.data.enable: return
     targets = re.findall(RE_KARMA, event.txt)
     karma = []
     try: reason = event.txt.split('#', 1)[1] ; reason = reason.strip()
