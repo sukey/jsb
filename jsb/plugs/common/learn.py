@@ -70,13 +70,16 @@ cmnds.add('items', handle_items, ['USER', 'GUEST'])
 examples.add("items", "show what items the bot knows", "items")
 
 def prelearn(bot, event):
-    if event.txt and event.txt[0] == "?" and not event.forwarded: return True
+    if event.txt and (event.txt[0] == "?" or event.txt[-1] == "?") and not event.forwarded: return True
     return False
 
 def learncb(bot, event):
+    if bot.type == "convore" and not event.chan.data.enable: return
     event.bind(bot)
     items = PlugPersist(event.channel)
-    target = event.txt[1:].lower().split('!')[0].strip()
+    target = event.txt.lower().split('!')[0]
+    if target[0] == "?": target = target[1:]
+    if target[-1] == "?": target = target[:-1]
     if target in items.data: event.reply("%s is " % target, items.data[target], dot=", ")
     event.ready()
 
@@ -85,3 +88,4 @@ callbacks.add("MESSAGE", learncb, prelearn)
 callbacks.add("DISPATCH", learncb, prelearn)
 callbacks.add("CONSOLE", learncb, prelearn)
 callbacks.add("CMND", learncb, prelearn)
+callbacks.add("CONVORE", learncb, prelearn)
