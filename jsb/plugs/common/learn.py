@@ -70,6 +70,7 @@ cmnds.add('items', handle_items, ['USER', 'GUEST'])
 examples.add("items", "show what items the bot knows", "items")
 
 def prelearn(bot, event):
+    if len(event.txt) < 2: return
     if event.txt and (event.txt[0] == "?" or event.txt[-1] == "?") and not event.forwarded: return True
     return False
 
