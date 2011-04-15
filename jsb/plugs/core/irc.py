@@ -16,6 +16,7 @@ import jsb.lib.threads as thr
 ## basic imports
 
 import Queue
+import sets
 
 ## define
 
