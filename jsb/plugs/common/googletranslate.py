@@ -13,6 +13,7 @@ URL = r"http://ajax.googleapis.com/ajax/services/language/translate?v=1.0&q=%(te
 def parse_pair(text):
     trans = re.match("^(?P<from>[a-z]{2}) +(?P<to>[a-z]{2}) +(?P<txt>.*)$",
                      text)
+    if not trans: return {}
     return {'from': trans.group('from'),
             'to':   trans.group('to'),
             'text': quote(trans.group('txt'))}
