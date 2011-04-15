@@ -77,6 +77,7 @@ class Irc(BotBase):
         self.encoding = 'utf-8'
         self.blocking = 1
         self.lastoutput = 0
+        self.sleepsec = self.cfg.sleepsec or 4
         if self.cfg and self.cfg.ipv6: self.ipv6 = True
         else: self.ipv6 = False
         self.splitted = []
@@ -522,7 +523,7 @@ class Irc(BotBase):
         if self.stopped: return
         try:
             now = time.time()
-            timetosleep = 4 - (now - self.lastoutput)
+            timetosleep = self.sleepsec - (now - self.lastoutput)
             if timetosleep > 0 and not self.nolimiter and not (time.time() - self.connecttime < 5):
                 logging.debug('%s - flood protect' % self.name)
                 time.sleep(timetosleep)

@@ -14,7 +14,7 @@ import os
 
 ## defines
 
-version = "0.7 BETA2"
+version = "0.7 RC1"
 
 ## getversion function
 
