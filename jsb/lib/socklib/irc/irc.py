@@ -478,8 +478,6 @@ class Irc(BotBase):
         if not channel: return
         if password:
             self._raw('JOIN %s %s' % (channel, password))
-            chan = ChannelBase(channel, self.botname)
-            if chan: chan.setpass('IRC', password)            
         else: self._raw('JOIN %s' % channel)
         if self.state:
             if channel not in self.state.data.joinedchannels:
