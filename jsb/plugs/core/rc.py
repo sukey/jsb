@@ -11,6 +11,7 @@ from jsb.lib.examples import examples
 from jsb.utils.url import geturl2
 from jsb.utils.exception import handle_exception
 from jsb.utils.generic import waitforqueue, waitevents
+from jsb.lib.config import getmainconfig
 
 ## basic imports
 
@@ -30,7 +31,7 @@ def handle_rc(bot, event):
     waiting = []
     try:
         try:
-            if t.startswith("http"): data = geturl2(t)
+            if getmainconfig().allowremoterc and t.startswith("http"): data = geturl2(t)
             else: data = open(t, 'r').read()
         except IOError, ex: event.reply("I/O error: %s" % str(ex)) ; return
         if not data: event.reply("can't get data from %s" % event.rest) ; return
