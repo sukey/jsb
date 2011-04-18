@@ -12,8 +12,8 @@
 
 from jsb.utils.exception import handle_exception
 from jsb.utils.generic import toenc, fromenc
-from jsb.lib.socklib.utils.generic import getrandomnick, strippedtxt
-from jsb.lib.socklib.utils.generic import fix_format, splittxt, uniqlist
+from jsb.utils.generic import getrandomnick, strippedtxt
+from jsb.utils.generic import fix_format, splittxt, uniqlist
 from jsb.utils.locking import lockdec
 from jsb.lib.botbase import BotBase
 from jsb.lib.threads import start_new_thread, threaded
@@ -26,7 +26,6 @@ from jsb.lib.config import Config
 ## jsb.irc imports
 
 from ircevent import IrcEvent
-from jsb.lib.socklib.wait import Wait
 
 ## basic imports
 
@@ -56,7 +55,6 @@ class Irc(BotBase):
         BotBase.__init__(self, cfg, users, plugs, *args, **kwargs)
         BotBase.setstate(self)
         self.type = 'irc'
-        self.wait = Wait()
         self.fsock = None
         self.oldsock = None
         self.sock = None
@@ -589,10 +587,6 @@ class Irc(BotBase):
                     handle_exception()
         except AttributeError:
             pass
-        try:
-            self.wait.check(ievent)
-        except:
-            handle_exception()
 
     def handle_432(self, ievent):
         """ erroneous nick. """

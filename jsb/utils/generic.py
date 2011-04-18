@@ -26,6 +26,22 @@ import random
 import Queue 
 import logging
 
+## fix_format function
+
+def fix_format(s):
+    counters = {
+        chr(2): 0,
+        chr(3): 0
+        }
+    for letter in s:
+        if letter in counters:
+            counters[letter] += 1
+    for char in counters:
+        if counters[char] % 2:
+            s += char
+    return s
+
+
 ## isdebian function
 
 def isdebian():

@@ -7,8 +7,7 @@
 
 ## jsb imports
 
-from jsb.utils.generic import toenc, fromenc, strippedtxt
-from jsb.lib.socklib.utils.generic import fix_format, stripident, makeargrest
+from jsb.utils.generic import toenc, fromenc, strippedtxt, fix_format
 from jsb.lib.eventbase import EventBase
 
 ## basic imports
@@ -48,7 +47,6 @@ class IrcEvent(EventBase):
         nickuser = self.prefix.split('!')
         if len(nickuser) == 2:
             self.nick = nickuser[0]
-            #if self.bot.cfg['stripident'] or Config()['stripident']: self.userhost = stripident(nickuser[1])
             self.userhost = nickuser[1]
         self.cmnd = splitted[1]
         self.cbtype = self.cmnd

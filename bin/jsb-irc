@@ -10,10 +10,12 @@ warnings.simplefilter("ignore")
 import os, sys
 sys.path.insert(0, os.getcwd())
 
-from jsb.utils.opts import makeircconfig, makeircopts
 ## options parser
 
+from jsb.utils.opts import makeircconfig, makeircopts
 opts = makeircopts()
+
+## print version
 
 from jsb.lib.version import getversion
 print getversion('IRC')
@@ -21,8 +23,8 @@ print getversion('IRC')
 ## jsb imports
 
 from jsb.utils.exception import handle_exception
-from jsb.drivers.socket.partyline import partyline
-from jsb.drivers.socket.irc.bot import IRCBot
+from jsb.lib.partyline import partyline
+from jsb.drivers.irc.bot import IRCBot
 from jsb.lib.boot import plugin_packages, boot
 from jsb.utils.log import setloglevel
 from jsb.lib.config import Config, getmainconfig
@@ -40,9 +42,7 @@ import logging
 import time
 import os
 
-## boot
-
-boot(opts.datadir)
+## config stuff 
 
 cfg = makeircconfig('irc', opts)
 cfg.type = "irc"
@@ -50,8 +50,12 @@ if opts.nick: cfg.nick = opts.nick
 cfg.save()
 
 mainconfig = getmainconfig()
-if opts.loglevel and opts.loglevel != mainconfig.loglevel: mainconfig.loglevel = opts.loglevel ; mainconfig.save()
+if opts.loglevel: mainconfig.loglevel = opts.loglevel ; mainconfig.save()
 setloglevel(mainconfig.loglevel or "warning")
+
+## boot
+
+boot(opts.datadir)
 
 ## runtime
 

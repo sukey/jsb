@@ -24,16 +24,11 @@ from jsb.lib.errors import NoSuchCommand
 from jsb.lib.channelbase import ChannelBase
 from jsb.lib.exit import globalshutdown
 from jsb.lib.botbase import BotBase
-
-## jsb.socklib.irc imports
-
-from jsb.drivers.socket.partyline import partyline
+from jsb.lib.partyline import partyline
 
 from channels import Channels
 from irc import Irc
 from ircevent import IrcEvent
-from jsb.drivers.socket.wait import Privwait
-from jsb.drivers.socket.utils.generic import getlistensocket, checkchan, makeargrest
 
 ## basic imports
 
@@ -58,7 +53,6 @@ class IRCBot(Irc):
 
     def __init__(self, cfg={}, users=None, plugs=None, *args, **kwargs):
         Irc.__init__(self, cfg, users, plugs, *args, **kwargs)
-        self.privwait = Privwait()
         if self.state:
             if not self.state.has_key('opchan'): self.state['opchan'] = []
         if not self.state.has_key('joinedchannels'): self.state['joinedchannels'] = []
@@ -175,7 +169,6 @@ class IRCBot(Irc):
                     continue
                 else:
                     partyline.say_broadcast_notself(ievent.nick, "[%s] %s" % (ievent.nick, ievent.txt))
-                self.privwait.check(ievent)
             except socket.error, ex:
                 try:
                     (errno, errstr) = ex
@@ -262,7 +255,6 @@ class IRCBot(Irc):
             ievent.speed =  4
             ievent.printto = ievent.nick
             ccs = ['!', '@', self.cfg['defaultcc']]
-            self.privwait.check(ievent)
             if ievent.isresponse:
                 return
             if self.cfg['noccinmsg'] and self.msg:
@@ -271,7 +263,6 @@ class IRCBot(Irc):
                 self.put(ievent)
             return
         self.put(ievent)
-        if not ievent.iscmnd(): self.privwait.check(ievent)
 
     def handle_join(self, ievent):
         """ handle joins. """
@@ -391,27 +382,8 @@ class IRCBot(Irc):
 
     def settopic(self, channel, txt):
         """ set topic of channel to txt. """
-        if not channel or not txt: return
         self.putonqueue(7, None, 'TOPIC %s :%s' % (channel, txt))
 
     def gettopic(self, channel):
         """ get topic data. """
-        if not channel: return
-        queue332 = Queue.Queue()
-        queue333 = Queue.Queue()
-        self.wait.register('332', channel, queue332)
-        self.wait.register('333', channel, queue333)
         self.putonqueue(7, None, 'TOPIC %s' % channel)
-        try:
-            res = queue332.get(1, 5)
-        except Queue.Empty: return None
-        what = res.txt
-        try:
-            res = queue333.get(1, 5)
-        except Queue.Empty: return None
-        try:
-            splitted = res.postfix.split()
-            who = splitted[2]
-            when = float(splitted[3])
-        except (IndexError, ValueError): return None
-        return (what, who, when)
