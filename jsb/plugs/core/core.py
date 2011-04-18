@@ -18,7 +18,7 @@ from jsb.lib.persist import Persist
 from jsb.lib.reboot import reboot, reboot_stateful
 from jsb.lib.eventhandler import mainhandler
 from jsb.lib.fleet import getfleet
-from jsb.lib.socklib.partyline import partyline
+from jsb.lib.partyline import partyline
 from jsb.lib.exit import globalshutdown
 from jsb.lib.runner import defaultrunner, cmndrunner, longrunner
 from jsb.lib.errors import NoSuchPlugin

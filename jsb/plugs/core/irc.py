@@ -7,7 +7,7 @@
 ## gozerbot imports
 
 from jsb.lib.callbacks import callbacks
-from jsb.lib.socklib.partyline import partyline
+from jsb.lib.partyline import partyline
 from jsb.lib.commands import cmnds
 from jsb.lib.examples import examples
 from jsb.lib.fleet import getfleet

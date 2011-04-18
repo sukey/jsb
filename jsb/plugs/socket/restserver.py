@@ -8,7 +8,7 @@ from jsb.lib.callbacks import callbacks
 from jsb.utils.url import posturl, getpostdata
 from jsb.lib.persistconfig import PersistConfig
 from jsb.lib.commands import cmnds
-from jsb.lib.socklib.rest.server import RestServer, RestRequestHandler
+from jsb.lib.rest.server import RestServer, RestRequestHandler
 from jsb.lib.eventbase import EventBase
 from jsb.utils.exception import handle_exception
 from jsb.lib.examples import examples

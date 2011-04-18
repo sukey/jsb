@@ -23,10 +23,10 @@ class BotFactory(Factory):
                 from jsb.drivers.gae.xmpp.bot import XMPPBot
                 bot = XMPPBot(cfg)
             except ImportError:   
-                from jsb.drivers.socket.xmpp.bot import SXMPPBot
+                from jsb.drivers.xmpp.bot import SXMPPBot
                 bot = SXMPPBot(cfg)
         elif type == 'sxmpp':
-            from jsb.drivers.socket.xmpp.bot import SXMPPBot
+            from jsb.drivers.xmpp.bot import SXMPPBot
             bot = SXMPPBot(cfg)
         elif type == 'web':
             from jsb.drivers.gae.web.bot import WebBot
@@ -35,7 +35,7 @@ class BotFactory(Factory):
             from jsb.drivers.gae.wave.bot import WaveBot
             bot = WaveBot(cfg, domain=cfg.domain)
         elif type == 'irc':
-            from jsb.drivers.socket.irc.bot import IRCBot
+            from jsb.drivers.irc.bot import IRCBot
             bot = IRCBot(cfg)
         elif type == 'console':
             from jsb.drivers.console.bot import ConsoleBot

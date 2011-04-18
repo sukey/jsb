@@ -11,7 +11,6 @@ __author__ = 'Landon Fowles'
 ## jsb imports
 
 from jsb.utils.url import geturl
-from jsb.lib.socklib.utils.generic import waitforuser
 from jsb.utils.generic import getwho
 from jsb.lib.commands import cmnds
 from jsb.lib.persist import Persist
