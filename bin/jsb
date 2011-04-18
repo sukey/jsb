@@ -13,7 +13,7 @@ warnings.simplefilter("ignore")
 import os, sys
 sys.path.insert(0, os.getcwd())
 
-from jsb.lib.version import getversion
+from jsb.version import getversion
 
 ## command line parsing
 

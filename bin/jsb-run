@@ -13,7 +13,7 @@ sys.path.insert(0, os.getcwd())
 
 from jsb.utils.popen import gozerpopen
 from jsb.lib.datadir import getdatadir
-from jsb.lib.version import getversion
+from jsb.version import getversion
 
 ## basic imports
 

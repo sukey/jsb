@@ -15,7 +15,7 @@ setloglevel("error")
 
 ## jsb imports
 
-from jsb.lib.version import getversion
+from jsb.version import getversion
 from jsb.utils.popen import gozerpopen
 from jsb.lib.datadir import getdatadir
 

@@ -24,7 +24,7 @@ from jsb.utils.opts import makefleetopts
 
 opts = makefleetopts()
 
-from jsb.lib.version import getversion
+from jsb.version import getversion
 print getversion('FLEET')
 
 ## jsb imports

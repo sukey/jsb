@@ -34,7 +34,7 @@ import os
 
 opts = makexmppopts()
 
-from jsb.lib.version import getversion
+from jsb.version import getversion
 print getversion('SXMPP')
 
 boot(opts.datadir)

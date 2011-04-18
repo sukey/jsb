@@ -27,7 +27,7 @@ setloglevel("warn")
 
 from jsb.utils.generic import gethighest, dosed, isdebian, botuser
 from jsb.utils.source import getsource
-from jsb.lib.version import getversion
+from jsb.version import getversion
 from jsb.lib.datadir import getdatadir
 from jsb.lib.config import getmainconfig
 
