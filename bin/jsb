@@ -41,7 +41,7 @@ else: boot(opts.datadir)
 ## jsb imports
 
 from jsb.utils.generic import waitforqueue, waitevents
-from jsb.lib.console.bot import ConsoleBot
+from jsb.drivers.console.bot import ConsoleBot
 from jsb.lib.config import Config
 from jsb.lib.errors import NoOwnerSet
 from jsb.lib.commands import cmnds
