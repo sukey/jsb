@@ -34,7 +34,7 @@ from jsb.lib.fleet import fleet
 from jsb.utils.exception import handle_exception
 from jsb.utils.generic import strippedtxt
 from jsb.utils.locking import lockdec
-from jsb.lib.socklib.partyline import partyline
+from jsb.lib.partyline import partyline
 from jsb.lib.threads import start_new_thread
 from jsb.contrib.rijndael import rijndael
 from jsb.lib.persistconfig import PersistConfig
