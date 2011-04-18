@@ -154,7 +154,7 @@ class Commands(LazyDict):
             if bot.isgae:
                 if not event.notask and (target.threaded or event.threaded) and not event.nothreads:
                     logging.warn("commands - LAUNCHING AS TASK")
-                    from jsb.lib.gae.tasks import start_botevent
+                    from jsb.drivers.gae.tasks import start_botevent
                     event.txt = event.origtxt
                     start_botevent(bot, event, event.speed)
                     event.reply("task started for %s" % event.auth)
