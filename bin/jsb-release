@@ -13,7 +13,6 @@
 
 import sys
 import os
-import pkg_resources
 import shutil
 import time
 
