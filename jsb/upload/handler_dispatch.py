@@ -12,7 +12,7 @@ boot()
 ## jsb imports
 
 from jsb.utils.generic import fromenc, toenc
-from jsb.lib.version import getversion
+from jsb.version import getversion
 from jsb.utils.xmpp import stripped
 from jsb.utils.url import getpostdata, useragent
 from jsb.lib.plugins import plugs
@@ -20,13 +20,12 @@ from jsb.lib.persist import Persist
 from jsb.utils.exception import handle_exception, exceptionmsg
 from jsb.lib.fleet import fleet
 from jsb.lib.errors import NoSuchCommand
-from jsb.lib.gae.utils.web import loginurl
 
 ## gaelib imports
 
-from jsb.lib.gae.web.bot import WebBot
-from jsb.lib.gae.web.event import WebEvent
-from jsb.lib.gae.utils.auth import checkuser
+from jsb.drivers.gae.web.bot import WebBot
+from jsb.drivers.gae.web.event import WebEvent
+from jsb.utils.gae.auth import checkuser
 
 ## google imports
 

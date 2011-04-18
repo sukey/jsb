@@ -8,7 +8,7 @@
 
 from jsb.lib.errors import NameNotSet
 from jsb.lib.config import Config
-from jsb.lib.version import getversion
+from jsb.version import getversion
 from jsb.utils.name import stripname
 
 ## basic imports

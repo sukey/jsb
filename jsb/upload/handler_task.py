@@ -7,7 +7,7 @@
 ## jsb imports
 
 from jsb.lib.plugins import plugs
-from jsb.lib.version import getversion
+from jsb.version import getversion
 from jsb.utils.exception import handle_exception
 from jsb.lib.tasks import taskmanager
 

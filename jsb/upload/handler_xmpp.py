@@ -7,7 +7,7 @@
 ## jsb imports
 
 from jsb.utils.generic import fromenc, toenc
-from jsb.lib.version import getversion
+from jsb.version import getversion
 from jsb.utils.lazydict import LazyDict
 from jsb.utils.exception import handle_exception
 from jsb.lib.plugins import plugs
@@ -15,9 +15,9 @@ from jsb.lib.boot import boot, plugin_packages
 
 ## gaelib imports
 
-from jsb.lib.gae.xmpp.bot import XMPPBot
-from jsb.lib.gae.xmpp.event import XMPPEvent
-from jsb.lib.gae.utils.auth import checkuser
+from jsb.drivers.gae.xmpp.bot import XMPPBot
+from jsb.drivers.gae.xmpp.event import XMPPEvent
+from jsb.utils.gae.auth import checkuser
 
 ## google imports
 

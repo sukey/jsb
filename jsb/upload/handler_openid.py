@@ -6,8 +6,8 @@
 
 ## jsb imports
 
-from jsb.lib.gae.utils.web import loginurl
-from jsb.lib.version import getversion
+from jsb.utils.gae.web import loginurl
+from jsb.version import getversion
 from jsb.utils.exception import handle_exception
 from jsb.utils.lazydict import LazyDict
 

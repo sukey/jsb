@@ -5,7 +5,7 @@
 ## jsb imports
 
 from jsb.contrib import feedparser
-from jsb.lib.version import getversion
+from jsb.version import getversion
 from jsb.lib.plugins import plugs
 
 ## google imports

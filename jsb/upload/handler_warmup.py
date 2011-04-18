@@ -6,7 +6,7 @@
 
 ## jsb imports
 
-from jsb.lib.version import getversion
+from jsb.version import getversion
 
 ## google imports
 

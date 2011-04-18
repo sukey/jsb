@@ -6,13 +6,13 @@
 
 ## jsb imports
 
-from jsb.lib.version import getversion
+from jsb.version import getversion
 from jsb.lib.errors import NoSuchCommand
 from jsb.lib.boot import boot
 
 ## gaelib imports
 
-from jsb.lib.gae.wave.bot import WaveBot
+from jsb.drivers.gae.wave.bot import WaveBot
 
 ## basic imports
 

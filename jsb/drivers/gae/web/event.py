@@ -16,7 +16,7 @@ from jsb.lib.channelbase import ChannelBase
 
 ## gaelib imports
 
-from jsb.lib.gae.utils.auth import checkuser
+from jsb.utils.gae.auth import checkuser
 
 ## basic imports
 

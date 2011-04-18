@@ -9,14 +9,14 @@ import logging
 
 ## jsb imports
 
-from jsb.lib.version import getversion
+from jsb.version import getversion
 from jsb.utils.exception import handle_exception
 from jsb.lib.channelbase import ChannelBase
 
 ## gaelib import
 
-from jsb.lib.gae.utils.auth import finduser
-from jsb.lib.gae.utils.web import start, closer, loginurl, logouturl, login
+from jsb.utils.gae.auth import finduser
+from jsb.utils.gae.web import start, closer, loginurl, logouturl, login
 
 ## google imports
 

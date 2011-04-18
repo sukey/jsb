@@ -6,7 +6,7 @@
 
 ## jsb imports
 
-from jsb.lib.version import getversion
+from jsb.version import getversion
 
 ## google imports
 
@@ -35,6 +35,7 @@ class DocsHandler(webapp2.RequestHandler):
                 else:
                     url += u"index.html"
             splitted = url.split('/')
+            if len(splitted) > 2: self.send_error(404) ; return
             splitted.insert(2, 'html')
             goto = '/'.join(splitted)
             logging.warn("docs - redirecting %s" % goto)
