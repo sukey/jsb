@@ -21,8 +21,8 @@ print getversion('IRC')
 ## jsb imports
 
 from jsb.utils.exception import handle_exception
-from jsb.lib.socklib.partyline import partyline
-from jsb.lib.socklib.irc.bot import IRCBot
+from jsb.drivers.socket.partyline import partyline
+from jsb.drivers.socket.irc.bot import IRCBot
 from jsb.lib.boot import plugin_packages, boot
 from jsb.utils.log import setloglevel
 from jsb.lib.config import Config, getmainconfig

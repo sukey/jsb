@@ -20,31 +20,31 @@ class BotFactory(Factory):
     def create(self, type, cfg):
         if type == 'xmpp' or type == 'jabber':
             try:
-                from jsb.lib.gae.xmpp.bot import XMPPBot
+                from jsb.drivers.gae.xmpp.bot import XMPPBot
                 bot = XMPPBot(cfg)
             except ImportError:   
-                from jsb.lib.socklib.xmpp.bot import SXMPPBot
+                from jsb.drivers.socket.xmpp.bot import SXMPPBot
                 bot = SXMPPBot(cfg)
         elif type == 'sxmpp':
-            from jsb.lib.socklib.xmpp.bot import SXMPPBot
+            from jsb.drivers.socket.xmpp.bot import SXMPPBot
             bot = SXMPPBot(cfg)
         elif type == 'web':
-            from jsb.lib.gae.web.bot import WebBot
+            from jsb.drivers.gae.web.bot import WebBot
             bot = WebBot(cfg)
         elif type == 'wave': 
-            from jsb.lib.gae.wave.bot import WaveBot
+            from jsb.drivers.gae.wave.bot import WaveBot
             bot = WaveBot(cfg, domain=cfg.domain)
         elif type == 'irc':
-            from jsb.lib.socklib.irc.bot import IRCBot
+            from jsb.drivers.socket.irc.bot import IRCBot
             bot = IRCBot(cfg)
         elif type == 'console':
-            from jsb.lib.console.bot import ConsoleBot
+            from jsb.drivers.console.bot import ConsoleBot
             bot = ConsoleBot(cfg)
         elif type == 'base':
             from jsb.lib.botbase import BotBase
             bot = BotBase(cfg)
         elif type == 'convore':
-            from jsb.lib.convore.bot import ConvoreBot
+            from jsb.drivers.convore.bot import ConvoreBot
             bot = ConvoreBot(cfg)
         else: raise NoSuchBotType('%s bot .. unproper type %s' % (type, cfg.dump()))
         return bot

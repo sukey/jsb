@@ -27,13 +27,13 @@ from jsb.lib.botbase import BotBase
 
 ## jsb.socklib.irc imports
 
-from jsb.lib.socklib.partyline import partyline
+from jsb.drivers.socket.partyline import partyline
 
 from channels import Channels
 from irc import Irc
 from ircevent import IrcEvent
-from jsb.lib.socklib.wait import Privwait
-from jsb.lib.socklib.utils.generic import getlistensocket, checkchan, makeargrest
+from jsb.drivers.socket.wait import Privwait
+from jsb.drivers.socket.utils.generic import getlistensocket, checkchan, makeargrest
 
 ## basic imports
 

@@ -22,7 +22,7 @@ import xml.parsers.expat
 
 ## xmpp imports
 
-from jsb.lib.socklib.xmpp.namespace import attributes, subelements
+from jsb.drivers.socket.xmpp.namespace import attributes, subelements
 
 ## basic imports
 

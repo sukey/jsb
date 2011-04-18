@@ -12,7 +12,7 @@ from jsb.lib.persist import PlugPersist
 from jsb.lib.fleet import getfleet
 from jsb.utils.exception import handle_exception
 from jsb.lib.examples import examples
-from jsb.lib.gae.wave.waves import Wave
+from jsb.drivers.gae.wave.waves import Wave
 from jsb.utils.locking import locked
 from jsb.lib.eventbase import EventBase
 

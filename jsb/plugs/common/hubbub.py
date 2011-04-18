@@ -24,7 +24,7 @@ from jsb.lib.fleet import getfleet
 from jsb.lib.channelbase import ChannelBase
 from jsb.utils.url import posturl
 from jsb.lib.errors import NoSuchBotType
-from jsb.lib.gae.wave.waves import Wave
+from jsb.drivers.gae.wave.waves import Wave
 from jsb.lib.threads import start_new_thread
 from jsb.lib.datadir import getdatadir
 from jsb.lib.jsbimport import _import_byfile
