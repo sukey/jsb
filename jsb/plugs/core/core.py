@@ -139,7 +139,7 @@ examples.add('perm', 'show permission of command', 'perm quit')
 
 def handle_version(bot, ievent):
     """ show bot's version. """
-    from jsb.lib.version import getversion
+    from jsb.version import getversion
     ievent.reply(getversion(bot.type.upper()))
 
 cmnds.add('version', handle_version, ['USER', 'GUEST'])

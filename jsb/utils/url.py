@@ -45,7 +45,7 @@ class istr(str):
 
 def useragent():
     """ provide useragent string """
-    from jsb.lib.version import version
+    from jsb.version import version
     (name, version) = version.split()[0:2]
     return 'Mozilla/5.0 (compatible; %s %s; http://jsonbot.appspot.com)' % (name, version)
 
