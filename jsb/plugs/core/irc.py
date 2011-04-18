@@ -37,20 +37,6 @@ def handle_broadcast(bot, ievent):
 cmnds.add('broadcast', handle_broadcast, 'OPER')
 examples.add('broadcast', 'send a message to all channels and dcc users', 'broadcast good morning')
 
-## chat command
-
-def handle_chat(bot, ievent):
-    """ chat .. start a bot initiated dcc chat session. """
-    if not bot.type == 'irc':
-        ievent.reply("chat only works on irc bots")
-        return
-    i = ievent
-    thr.start_new_thread(bot._dcclisten, (i.nick, i.userhost, i.channel))
-    ievent.reply('dcc chat request sent')
-
-#cmnds.add('chat', handle_chat, 'USER')
-#examples.add('chat', 'start a dcc chat session', 'chat')
-
 ## jump command
 
 def handle_jump(bot, ievent):
