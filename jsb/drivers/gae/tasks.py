@@ -37,6 +37,8 @@ for i in range(9):
 def start_botevent(bot, event, speed=5):
     """ start a new botevent task. """
     try:
+        try: speed = int(speed)
+        except: speed = 5
         event.botevent = True
         if event.usercmnd[0] == "!": e = event.usercmnd[1:]
         else: e = event.usercmnd
