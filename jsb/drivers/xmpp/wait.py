@@ -7,7 +7,7 @@
 ## jsb imports
 
 from jsb.utils.locking import lockdec
-from jsb.lib.socklib.wait import Wait
+from jsb.lib.wait import Wait
 import jsb.lib.threads as thr
 
 ## basic imports

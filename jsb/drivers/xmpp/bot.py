@@ -23,8 +23,7 @@ from jsb.lib.fleet import getfleet
 
 ## jsb.socket imports
 
-from jsb.lib.socklib.utils.generic import waitforqueue, jabberstrip, getrandomnick
-from jsb.utils.generic import toenc, fromenc
+from jsb.utils.generic import waitforqueue, jabberstrip, getrandomnick, toenc, fromenc
 
 ## xmpp imports
 
@@ -33,7 +32,6 @@ from presence import Presence
 from message import Message
 from iq import Iq
 from core import XMLStream
-from wait import XMPPWait, XMPPErrorWait
 from jid import JID, InvalidJID
 from errors import xmpperrors
 
@@ -86,8 +84,6 @@ class SXMPPBot(XMLStream, BotBase):
         self.password = ""
         self.connecttime = 0
         self.connection = None
-        self.privwait = XMPPWait()
-        self.errorwait = XMPPErrorWait()
         self.jabber = True
         self.jids = {}
         self.topics = {}
@@ -307,7 +303,6 @@ class SXMPPBot(XMLStream, BotBase):
         if data.get('x').xmlns == 'jabber:x:delay':
             logging.warn("%s - ignoring delayed message" % self.name)
             return
-        self.privwait.check(m)
         if m.isresponse:
             logging.debug("%s - message is a response" % self.name)
             return
@@ -323,7 +318,6 @@ class SXMPPBot(XMLStream, BotBase):
             if m.type == 'error':
                 if m.code:
                     logging.error('%s - error - %s' % (self.name, str(m)))
-                self.errorwait.check(m)
                 self.errorHandler(m)
         except Exception, ex:
             handle_exception()
@@ -393,7 +387,6 @@ class SXMPPBot(XMLStream, BotBase):
                     txt = ""
             if err:
                 logging.error('%s - error - %s - %s'  % (self.name, err, txt))
-            self.errorwait.check(p)
             try:
                 method = getattr(self,'handle_' + err)
                 try:
@@ -449,15 +442,6 @@ class SXMPPBot(XMLStream, BotBase):
         if fromm: message.fromm = fromm
         self.send(message)
         
-    def userwait(self, msg, txt):
-        """ wait for user response. """
-        msg.reply(txt)
-        queue = Queue.Queue()
-        self.privwait.register(msg, queue)
-        result = queue.get()
-        if result:
-            return result.txt
-
     def save(self):
         """ save bot's state. """
         if self.state:
@@ -496,20 +480,10 @@ class SXMPPBot(XMLStream, BotBase):
         except IndexError: nick = self.nick
         channel = channel.split('/')[0]
         q = Queue.Queue()
-        self.errorwait.register("409", q, 3)
-        self.errorwait.register("401", q, 3)
-        self.errorwait.register("400", q, 3)
         presence = Presence({'to': channel + '/' + nick})
         if password:
              presence.x.password = password             
         self.send(presence)
-        errorobj = waitforqueue(q, 3000)
-        if errorobj:
-            err = errorobj[0].error
-            logging.error('%s - error joining %s - %s' % (self.name, channel, err))
-            if err >= '400':
-                if channel not in self.channels409: self.channels409.append(channel)
-            return err
         self.timejoined[channel] = time.time()
         chan = ChannelBase(channel, self.botname)
         chan.data['nick'] = nick
