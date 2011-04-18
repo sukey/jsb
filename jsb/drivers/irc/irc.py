@@ -629,14 +629,14 @@ class Irc(BotBase):
     def handle_notice(self, ievent):
         """ handle notice event .. check for version request. """
         if ievent.txt and ievent.txt.find('VERSION') != -1:
-            from jsb.lib.version import getversion
+            from jsb.version import getversion
             self.say(ievent.nick, getversion(), None, 'notice')
             return 1
 
     def handle_ctcp(self, ievent):
         """ handle client to client request .. version and ping. """
         if ievent.txt.find('VERSION') != -1:
-            from jsb.lib.version import getversion
+            from jsb.version import getversion
             self.ctcpreply(ievent.nick, 'VERSION %s' % getversion())
         if ievent.txt.find('PING') != -1:
             try:
