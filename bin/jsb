@@ -72,7 +72,7 @@ if opts.args:
         if "|" in cmnd: break
         cmndstring += u" %s" % unicode(cmnd)
     bot.start(False)
-    cmndstring = "!%s" % cmndstring
+    cmndstring = "!%s" % cmndstring.strip()
     event = bot.putevent(userid, opts.channel or userid, cmndstring, wait=0, showall=True)
     event.waitfor(2)
     time.sleep(0.1)
