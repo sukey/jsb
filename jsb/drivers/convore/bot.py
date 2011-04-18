@@ -115,6 +115,7 @@ class ConvoreBot(BotBase):
             time.sleep(1)
             if self.cursor: result = self.get("live.json", {"cursor": self.cursor})
             else: result = self.get("live.json")
+            if not result: time.sleep(20) ; continue
             if result.has_key("_id"): self.cursor = result["_id"]
             logging.info("%s - incoming - %s" % (self.name, str(result)))
             if not result: continue
