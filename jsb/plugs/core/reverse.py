@@ -26,4 +26,4 @@ def handle_reverse(bot, ievent):
     else: ievent.reply(result[::-1])
 
 cmnds.add('reverse', handle_reverse, ['USER', 'GUEST'])
-examples.add('reverse', 'reverse text or pipeline', '1) reverse gozerbot 2) list | reverse')
+examples.add('reverse', 'reverse text or pipeline', '1) reverse gozerbot 2) list ! reverse')

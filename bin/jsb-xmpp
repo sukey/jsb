@@ -46,9 +46,8 @@ cfg.save()
 ## loglevel
 
 mainconfig = getmainconfig()
-if opts.loglevel and opts.loglevel != mainconfig.loglevel: mainconfig.loglevel = opts.loglevel ; mainconfig.save()
 from jsb.utils.log import setloglevel
-setloglevel(mainconfig.loglevel or "warn")
+setloglevel(opts.loglevel or mainconfig.loglevel or "warn")
 
 ## start bot
 

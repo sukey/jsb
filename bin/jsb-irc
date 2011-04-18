@@ -50,8 +50,7 @@ if opts.nick: cfg.nick = opts.nick
 cfg.save()
 
 mainconfig = getmainconfig()
-if opts.loglevel: mainconfig.loglevel = opts.loglevel ; mainconfig.save()
-setloglevel(mainconfig.loglevel or "warning")
+setloglevel(opt.loglevel or mainconfig.loglevel or "warning")
 
 ## boot
 

@@ -32,8 +32,7 @@ RLEVELS = {logging.DEBUG: 'debug',
 try:
     import waveapi
 except ImportError:
-    if os.path.isdir('/var/log/jsb') and getpass.getuser() == "jsb": LOGDIR = "/var/log/jsb"
-    else: LOGDIR = os.path.expanduser("~") + os.sep + ".jsb" + os.sep + "botlogs"
+    LOGDIR = os.path.expanduser("~") + os.sep + ".jsb" + os.sep + "botlogs" # BHJTW change this for debian
 
 try:
     ddir = os.sep.join(LOGDIR.split(os.sep)[:-1])
@@ -58,7 +57,7 @@ except ImportError:
 
 ## setloglevel function
 
-def setloglevel(level_name):
+def setloglevel(level_name="warn"):
     """ set loglevel to level_name. """
     if not level_name: return
     level = LEVELS.get(str(level_name).lower(), logging.NOTSET)
@@ -75,6 +74,7 @@ def setloglevel(level_name):
         cfg = getmainconfig()
         cfg.loglevel = level_name
         cfg.save()
+        logging.warn("log - loglevel saved to mainconfig file")
     except Exception, ex: logging.error("error saving loglevel: %s" % str(ex))
     logging.warn("loglevel is %s (%s)" % (str(level), level_name))
 

@@ -21,4 +21,4 @@ def handle_count(bot, ievent):
     ievent.reply(str(len(result)))
 
 cmnds.add('count', handle_count, ['USER', 'GUEST'])
-examples.add('count', 'count nr of items', 'list | count')
+examples.add('count', 'count nr of items', 'list ! count')

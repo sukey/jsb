@@ -31,4 +31,4 @@ def handle_uniq(bot, ievent):
     else: ievent.reply(result)
 
 cmnds.add('uniq', handle_uniq, ['USER', 'GUEST', 'CLOUD'])
-examples.add('uniq', 'sort out multiple elements', 'list | grep uniqe')
+examples.add('uniq', 'sort out multiple elements', 'list ! uniq')

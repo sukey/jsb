@@ -69,4 +69,4 @@ def handle_grep(bot, ievent):
     else: ievent.reply('results: ', res)
 
 cmnds.add('grep', handle_grep, ['USER', 'GUEST'])
-examples.add('grep', 'grep the output of a command', 'list | grep core')
+examples.add('grep', 'grep the output of a command', 'list ! grep core')

@@ -32,7 +32,8 @@ if opts.datadir and not os.path.isdir(opts.datadir): os.mkdir(opts.datadir)
 ## make config from cmndline options
 
 from jsb.utils.log import setloglevel
-setloglevel(opts.loglevel or "error")
+from jsb.lib.config import getmainconfig
+setloglevel(opts.loglevel or getmainconfig().loglevel or "error")
 
 from jsb.lib.boot import boot
 if opts.fast: boot(opts.datadir, fast=True)

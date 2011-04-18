@@ -202,7 +202,7 @@ def makexmppconfig(type, opts=None, botname=None):
         cfg.loglevel = "warn" 
         return cfg        
     if opts.user: cfg.user = opts.user
-    else: cfg.user = cfg.user or "%s@jsb.org" % cfg.uuid
+    else: cfg.user = cfg.user or "%s@jsonbot.org" % cfg.uuid
     if opts.user:
         try: cfg.host = opts.user.split('@')[1]
         except ValueError: print "user is not in the nick@server format"

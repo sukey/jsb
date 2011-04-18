@@ -51,4 +51,4 @@ def handle_not(bot, ievent):
     else: ievent.reply('results', res)
 
 cmnds.add('not', handle_not, ['USER', 'GUEST'])
-examples.add('not', 'reverse grep used in pipelines', 'list | not todo')
+examples.add('not', 'reverse grep used in pipelines', 'list ! not todo')

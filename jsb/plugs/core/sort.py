@@ -91,4 +91,4 @@ def handle_sort(bot, ievent):
     ievent.reply("results: ", result)
 
 cmnds.add('sort', handle_sort, ['USER', 'GUEST'])
-examples.add('sort', 'sort the output of a command', 'list | sort')
+examples.add('sort', 'sort the output of a command', 'list ! sort')

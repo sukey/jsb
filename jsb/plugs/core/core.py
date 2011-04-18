@@ -296,9 +296,6 @@ def handle_loglevel(bot, event):
     """ change loglevel of the bot. """
     if not event.rest: event.reply(getloglevel()) ; return
     setloglevel(event.rest)
-    from jsb.lib.config import getmainconfig
-    cfg = getmainconfig()
-    if cfg.loglevel != event.rest: cfg.loglevel = event.rest ; cfg.save()
     event.done()
 
 cmnds.add("loglevel", handle_loglevel, "OPER")
