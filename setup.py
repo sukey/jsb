@@ -84,6 +84,7 @@ setup(
               'jsb.contrib',
               'jsb.contrib.simplejson',
               'jsb.contrib.tweepy',
+              'jsb.contrib.requests',
               'jsb.plugs',
               'jsb.plugs.core',
               'jsb.plugs.wave',
