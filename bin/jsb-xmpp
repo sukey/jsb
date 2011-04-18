@@ -13,7 +13,7 @@ sys.path.insert(0, os.getcwd())
 
 ## jsb impors
 
-from jsb.lib.socklib.xmpp.bot import SXMPPBot
+from jsb.drivers.socket.xmpp.bot import SXMPPBot
 from jsb.lib.boot import plugin_packages, boot
 from jsb.utils.log import setloglevel
 from jsb.lib.config import Config, getmainconfig
