@@ -8,8 +8,8 @@
 
 from jsb.lib.eventbase import EventBase
 from jsb.utils.exception import handle_exception
-from jsb.lib.gae.utils.auth import finduser
-from jsb.lib.gae.wave.waves import Wave
+from jsb.utils.gae.auth import finduser
+from jsb.drivers.gae.wave.waves import Wave
 
 
 ## basic imports

@@ -23,7 +23,7 @@ import jsb.contrib.simplejson as simplejson
 
 ## gaelib imports
 
-from jsb.lib.gae.utils.auth import finduser
+from jsb.utils.gae.auth import finduser
 from event import WaveEvent
 from waves import Wave
 
