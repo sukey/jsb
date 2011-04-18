@@ -8,7 +8,7 @@ from jsb.utils.exception import handle_exception, exceptionmsg
 from jsb.utils.trace import calledfrom
 from jsb.lib.persiststate import ObjectState
 from jsb.lib.threads import start_new_thread
-from jsb.lib.version import version
+from jsb.version import version
 
 ## basic imports
 

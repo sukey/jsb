@@ -21,12 +21,12 @@ import sys, os
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.abspath(".."))
 sys.path.insert(0, os.path.abspath('..' + os.sep + 'jsb'))
+sys.path.insert(0, os.path.abspath(os.path.join('..', 'jsb', 'drivers')))
+sys.path.insert(0, os.path.abspath(os.path.join('..', 'jsb', 'drivers', 'gae')))
 sys.path.insert(0, os.path.abspath(os.path.join('..', 'jsb', 'utils')))
+sys.path.insert(0, os.path.abspath(os.path.join('..', 'jsb', 'utils', 'gae')))
 sys.path.insert(0, os.path.abspath(os.path.join('..', 'jsb', 'contrib')))
-sys.path.insert(0, os.path.abspath(os.path.join('..', 'jsb', 'lib', 'socklib')))
 sys.path.insert(0, os.path.abspath(os.path.join('..', 'jsb', 'lib','gae')))
-sys.path.insert(0, os.path.abspath(os.path.join('..', 'jsb', 'lib', 'socklib', 'xmpp')))
-sys.path.insert(0, os.path.abspath(os.path.join('..', 'jsb', 'lib', 'socklib', 'irc')))
 sys.path.insert(0, os.path.abspath(os.path.join('..', 'jsb', 'plugs','core')))
 sys.path.insert(0, os.path.abspath(os.path.join('..', 'jsb', 'plugs','common')))
 sys.path.insert(0, os.path.abspath(os.path.join('..', 'jsb', 'plugs','socket')))
@@ -82,7 +82,7 @@ release = '0.7 RC1'
 #today_fmt = '%B %d, %Y'
 
 # List of documents that shouldn't be included in the build.
-unused_docs = ['jsbindex', 'lindex', 'uindex', 'plugsdocindex']
+unused_docs = ['jsbindex', 'lindex', 'uindex', 'plugsdocindex', 'dindex']
 
 # List of directories, relative to source directory, that shouldn't be searched
 # for source files.

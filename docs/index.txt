@@ -96,6 +96,7 @@ jsb code
     .. toctree::
         :maxdepth: 2
 
+        jsb/drivers/index
         jsb/lib/index
         jsb/utils/index
 

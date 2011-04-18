@@ -262,7 +262,7 @@ if __name__ == '__main__':
     except IndexError: boot()
     import shutil
     import os.path
-    from jsb.lib.socklib.utils.generic import touch
+    from jsb.utils.generic import touch
     from jsb.utils.exception import handle_exception
     try:
         shutil.copyfile(os.path.join(os.path.expanduser("~"), 'jsbregs', 'jsb', 'credentials.py'), os.path.join(os.getcwd(), 'jsb', 'data', 'config', 'credentials.py'))
@@ -284,7 +284,12 @@ if __name__ == '__main__':
          os.mkdir('docs' + os.sep + 'jsb')
          os.mkdir('docs' + os.sep + 'jsb' + os.sep + 'plugs')
          os.mkdir(os.path.join('docs', 'jsb', 'lib'))
+         os.mkdir(os.path.join('docs', 'jsb', 'lib', 'gae'))
+         os.mkdir(os.path.join('docs', 'jsb', 'lib', 'rest'))
          os.mkdir(os.path.join('docs', 'jsb', 'utils'))
+         os.mkdir(os.path.join('docs', 'jsb', 'utils', 'gae'))
+         os.mkdir(os.path.join('docs', 'jsb', 'drivers'))
+         os.mkdir(os.path.join('docs', 'jsb', 'drivers', 'gae'))
          os.mkdir(os.path.join('docs', 'jsb', 'plugs', 'core'))
          os.mkdir(os.path.join('docs', 'jsb', 'plugs', 'common'))
          os.mkdir(os.path.join('docs', 'jsb', 'plugs', 'socket'))
@@ -330,6 +335,9 @@ if __name__ == '__main__':
     time.sleep(5)
     domods(os.path.join('jsb', 'lib'))
     domods(os.path.join('jsb', 'utils'))
+    domods(os.path.join('jsb', 'utils', 'gae'))
+    domods(os.path.join('jsb', 'drivers'))
+    domods(os.path.join('jsb', 'drivers', 'gae'))
     domods(os.path.join('jsb','plugs'))
     domods(os.path.join('jsb','plugs', 'core'))
     domods(os.path.join('jsb','plugs', 'common'))
@@ -339,6 +347,7 @@ if __name__ == '__main__':
 
     shutil.copyfile(os.path.join(os.getcwd(), 'docs', 'jsbindex.txt'), os.path.join('docs', 'jsb', 'index.txt'))
     shutil.copyfile(os.path.join(os.getcwd(), 'docs', 'lindex.txt'), os.path.join('docs', 'jsb', 'lib', 'index.txt'))
+    shutil.copyfile(os.path.join(os.getcwd(), 'docs', 'dindex.txt'), os.path.join('docs', 'jsb', 'drivers', 'index.txt'))
     shutil.copyfile(os.path.join(os.getcwd(), 'docs', 'uindex.txt'), os.path.join('docs', 'jsb', 'utils', 'index.txt'))
     shutil.copyfile(os.path.join(os.getcwd(), 'docs', 'plugsdocindex.txt'), os.path.join('docs', 'plugins', 'index.txt'))
     try:
