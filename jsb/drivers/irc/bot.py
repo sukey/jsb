@@ -212,9 +212,9 @@ class IRCBot(Irc):
         """ join a channel .. use optional password. """
         chan = ChannelBase(channel, self.cfg.name)
         if password:
-            chan.data.key = password
+            chan.data.key = password.strip()
             chan.save()
-        logging.warn("%s - using key %s for channel %s" % (self.cfg.name, chan.data.key, channel))
+            logging.warn("%s - using key %s for channel %s" % (self.cfg.name, chan.data.key, channel))
         result = Irc.join(self, channel, chan.data.key)
         if result != 1:
             return result

@@ -41,13 +41,15 @@ class IrcEvent(EventBase):
         rawstr = rawstr.rstrip()
         splitted = re.split('\s+', rawstr)
         if not rawstr[0] == ':':
-            splitted.insert(0, u":%s!%s@%s" % (bot.nick, bot.name, bot.server))
-            rawstr = u":%s!%s@%s %s" % (bot.nick, bot.name, bot.server, rawstr)
+            assert bot.cfg
+            splitted.insert(0, u":%s!%s@%s" % (bot.cfg.nick, bot.cfg.username, bot.cfg.server))
+            rawstr = u":%s!%s@%s %s" % (bot.cfg.nick, bot.cfg.username, bot.cfg.server, rawstr)
         self.prefix = splitted[0][1:]
         nickuser = self.prefix.split('!')
-        if len(nickuser) == 2:
-            self.nick = nickuser[0]
+        try: 
             self.userhost = nickuser[1]
+            self.nick = nickuser[0]
+        except IndexError: self.userhost = None ; self.nick = None ; self.isservermsg = True
         self.cmnd = splitted[1]
         self.cbtype = self.cmnd
         if pfc.has_key(self.cmnd):
@@ -84,13 +86,13 @@ class IrcEvent(EventBase):
         if self.channel:
             self.channel = self.channel.strip()
             self.origchannel = self.channel
-            if self.channel == self.bot.nick:
+            if self.channel == self.bot.cfg.nick:
                 logging.warn("irc - msg detected - setting channel to %s" % self.userhost)
                 self.msg = True
                 self.channel = self.userhost
         try:
             nr = int(self.cmnd)
-            if nr > 399 and not nr == 422: logging.error('%s - %s - %s - %s' % (self.bot.name, self.cmnd, self.arguments, self.txt))
+            if nr > 399 and not nr == 422: logging.error('%s - %s - %s - %s' % (self.bot.cfg.name, self.cmnd, self.arguments, self.txt))
         except ValueError: pass
         return self
 

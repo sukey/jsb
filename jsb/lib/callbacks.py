@@ -143,6 +143,7 @@ class Callbacks(object):
                 return
             if cb.prereq:
                 logging.debug('callbacks - executing in loop %s' % str(cb.prereq))
+                
                 if not cb.prereq(bot, event): return
             if not cb.func: return
             if event.isremote(): logging.info('%s - executing REMOTE %s - %s' % (bot.name, getname(cb.func), event.cbtype))

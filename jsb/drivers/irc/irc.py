@@ -572,8 +572,9 @@ class Irc(BotBase):
                 if ievent.nick in self.nicks401:
                     self.nicks401.remove(ievent.nick)
                     logging.debug('%s - %s joined .. unignoring' % (self.cfg.name, ievent.nick))
-            if not ievent.chan and ievent.channel:
-                ievent.chan = ChannelBase(ievent.channel, self.bot.cfg.name)
+            ievent.bind(self)
+            #if not ievent.chan and ievent.channel:
+            #    ievent.chan = ChannelBase(ievent.channel, self.bot.cfg.name)
             method = getattr(self,'handle_' + ievent.cmnd.lower())
             if method:
                 try:

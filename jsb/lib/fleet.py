@@ -118,8 +118,10 @@ class Fleet(Persist):
 
     def makebot(self, type, name, domain="", config={}, showerror=False):
         """ create a bot .. use configuration if provided. """
+        assert type
+        assert name
         if not name: logging.warn("fleet - name is not correct: %s" % name) ; return
-        if config: logging.warn('fleet - making %s (%s) bot - %s' % (type, name, cfg.dump()))
+        if config: logging.warn('fleet - making %s (%s) bot - %s' % (type, name, config.dump()))
         bot = None
         cfg = Config('fleet' + os.sep + stripname(name) + os.sep + 'config')
         if config: cfg.update(config) 
@@ -170,12 +172,12 @@ class Fleet(Persist):
     def byname(self, name):
         """ return bot by name. """
         for i in self.bots:
-            if name == i.name: return i
+            if name == i.cfg.name: return i
 
     def replace(self, name, bot):
         """ replace bot with a new bot. """
         for i in range(len(self.bots)):
-            if name == self.bots[i].name:
+            if name == self.bots[i].cfg.name:
                 self.bots[i] = bot
                 return True
 
@@ -192,29 +194,29 @@ class Fleet(Persist):
         """
             add a bot to the fleet .. remove all existing bots with the 
             same name.
-
         """
+        assert bot
         for i in range(len(self.bots)-1, -1, -1):
-            if self.bots[i].name == bot.botname:
+            if self.bots[i].cfg.name == bot.cfg.name:
                 logging.debug('fleet - removing %s from fleet' % bot.botname)
                 del self.bots[i]
-        logging.info('fleet - adding %s' % bot.botname)
+        logging.info('fleet - adding %s' % bot.cfg.name)
         self.bots.append(bot)
-        if bot.botname and bot.botname not in self.data['names']:
-            self.data['names'].append(bot.botname)
-            self.data['types'][bot.botname] = bot.type
+        if bot.cfg.name not in self.data['names']:
+            self.data['names'].append(bot.cfg.name)
+            self.data['types'][bot.cfg.name] = bot.type
             self.save()
         return True
 
     def delete(self, name):
         """ delete bot with name from fleet. """
         for bot in self.bots:
-            if bot.botname == name:
+            if bot.cfg.name == name:
                 bot.exit()
                 self.remove(i)
                 bot.cfg['disable'] = 1
                 bot.cfg.save()
-                logging.debug('fleet - %s disabled' % bot.botname)
+                logging.debug('fleet - %s disabled' % bot.cfg.name)
                 return True
         return False
 
@@ -236,7 +238,7 @@ class Fleet(Persist):
             for thread in threads: thread.join()
             return
         for bot in self.bots:
-            if bot.botname == name:
+            if bot.cfg.name == name:
                 if jabber and bot.type != 'sxmpp' and bot.type != 'jabber': continue
                 try: bot.exit()
                 except: handle_exception()
@@ -258,14 +260,14 @@ class Fleet(Persist):
         plugs.trydispatch(bot, j)
         result = waitforqueue(q, 3000)
         if not result: return
-        res = ["[%s]" % bot.botname, ]
+        res = ["[%s]" % bot.cfg.name, ]
         res += result
         event.reply(res)
         return res
 
     def cmndall(self, event, cmnd):
         """ do a command on all bots. """
-        for bot in self.bots: self.cmnd(event, bot.botname, cmnd)
+        for bot in self.bots: self.cmnd(event, bot.cfg.name, cmnd)
 
     def broadcast(self, txt):
         """ broadcast txt to all bots. """

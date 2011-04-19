@@ -233,9 +233,6 @@ class Plugins(LazyDict):
             except Exception, ex: handle_exception() ; continue
             if plugname in imp.__plugs__: return "%s.%s" % (module, plugname)
 
-
-
-
 ## global plugins object
 
 plugs = Plugins()

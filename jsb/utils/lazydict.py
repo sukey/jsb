@@ -80,13 +80,18 @@ class LazyDict(dict):
 
     def __getattr__(self, attr, default=None):
         """ get attribute. """
-        if not self.has_key(attr): logging.info("lazydict - %s is not set - %s" % (attr, whichmodule())) ; return 
+        if not self.has_key(attr):
+            mod = whichmodule()
+            if not "eventbase" in mod: logging.debug("lazydict - %s is not set - %s" % (attr, mod))
+            return
         return self[attr]
 
     def __setattr__(self, attr, value):
         """ set attribute. """
         if self.has_key(attr) and type(self[attr]) in [types.FunctionType, types.MethodType]:
-            logging.error("lazydict - cannot change a function of method: %s - called from %s" % (attr, whichmodule()))
+            mod = whichmodule()
+            logging.error("lazydict - cannot change a function of method: %s - called from %s" % (attr, mod))
+            return
         self[attr] = value
 
     def render(self, template):

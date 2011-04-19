@@ -296,6 +296,7 @@ class BotBase(LazyDict):
     @locked
     def doevent(self, event):
         """ dispatch an event. """
+        assert self.cfg
         if not event: raise NoEventProvided()
         if event.isremote(): self.doremote(event) ; return
         if event.type == "groupchat" and event.fromm in self.ids:

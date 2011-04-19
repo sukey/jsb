@@ -7,7 +7,6 @@
 ## jsb imports
 
 from jsb.utils.trace import whichmodule
-from plugins import plugs
 from runner import defaultrunner, cmndrunner
 
 ## basic imports
@@ -34,9 +33,9 @@ def globalshutdown():
         logging.warn('shutting down fleet')
         fleet.exit()
     logging.warn('shutting down plugins')
+    from jsb.lib.plugins import plugs
     plugs.exit()
     logging.warn('done')
-    #print "ltrs!"
     os._exit(0)
 
 #try: import google
