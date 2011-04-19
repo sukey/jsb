@@ -72,7 +72,7 @@ def makeconvoreopts(txt=""):
 
 ## makexmppopts
 
-def makexmppopts(txt=""):
+def makesxmppopts(txt=""):
     """ create commandline parser options. """
     parser = optparse.OptionParser(usage='usage: %prog [options]', version=getversion())
     parser.add_option('', '-r', type='string', default=False, dest='doresume',  metavar='PATH', 
@@ -139,35 +139,35 @@ def makeeventopts(txt):
 
 ## makeconfig function
 
-def makeconsoleconfig(type, opts, botname=None):
+def makeconsoleconfig(opts=None, botname=None):
     """ make config file based on options. """
     if not botname: botname = opts.name or "default-%s" % str(type)
     botname = stripname(botname)
     cfg = Config('fleet' + os.sep + botname + os.sep + 'config')
-    cfg.type = type
+    cfg.type = "console"
     cfg.botname = botname
-    if opts.loglevel: cfg.loglevel = opts.loglevel
+    if opts and opts.loglevel: cfg.loglevel = opts.loglevel
     else: cfg.loglevel = cfg.loglevel or "error"
     return cfg
 
 ## makeircconfig function
 
-def makeircconfig(type=None, opts=None, botname=None):
+def makeircconfig(opts=None, botname=None):
     """ make config file based on options. """
     if not opts: botname = botname or "default-irc"
     else:
         if not botname: botname = opts.name or "default-irc"
     botname = stripname(botname)
     cfg = Config('fleet' + os.sep + botname + os.sep + 'config')
-    cfg.type = 'irc'
+    cfg.bottype = 'irc'
     cfg.botname = botname
     if not opts:
-        cfg.password = ""
-        cfg.ssl = False
-        cfg.port = 6667
-        cfg.server = "localhost"
-        cfg.owner = []
-        cfg.ipv6 = False
+        cfg.password = cfg.password or ""
+        cfg.ssl = cfg.ssl or False
+        cfg.port = cfg.port or 6667
+        cfg.server = cfg.server or "localhost"
+        cfg.owner = cfg.owner or []
+        cfg.ipv6 = cfg.ipv6 or False
         return cfg          
     if opts.password: cfg.password = opts.password
     if opts.ssl: cfg.ssl = True
@@ -183,7 +183,7 @@ def makeircconfig(type=None, opts=None, botname=None):
 
 ## makexmppconfig function
 
-def makexmppconfig(type, opts=None, botname=None):
+def makesxmppconfig(opts=None, botname=None):
     """ make config file based on options. """
     if not opts: botname = botname or "default-sxmpp"
     else:
@@ -193,13 +193,12 @@ def makexmppconfig(type, opts=None, botname=None):
     cfg.type = "sxmpp"
     cfg.botname = botname
     if not opts:
-        cfg.user = ""
-        cfg.host = ""
-        cfg.password = ""
-        cfg.server = ""
-        cfg.jid = ""
-        cfg.owner = []
-        cfg.loglevel = "warn" 
+        cfg.user = cfg.user or ""
+        cfg.host = cfg.host or ""
+        cfg.password =  cfg.passord or ""
+        cfg.server = cfg.server or ""
+        cfg.owner = cfg.owner or []
+        cfg.loglevel = cfg.lowlevel or "warn" 
         return cfg        
     if opts.user: cfg.user = opts.user
     else: cfg.user = cfg.user or "%s@jsonbot.org" % cfg.uuid

@@ -50,8 +50,8 @@ def handle_jump(bot, ievent):
     (server, port) = ievent.args
     ievent.reply('changing to server %s' % server)
     bot.shutdown()
-    bot.server = server
-    bot.port = port
+    bot.cfg.server = server
+    bot.cfg.port = port
     bot.connect()
     ievent.done()
 
@@ -120,7 +120,7 @@ def handle_nicks(bot, ievent):
                     try: res.remove(nick)
                     except ValueError: pass
         res.sort()
-        ievent.reply("nicks on %s (%s): " % (chan, bot.server), res)
+        ievent.reply("nicks on %s (%s): " % (chan, bot.cfg.server), res)
     else: ievent.reply("can't get nicks of channel %s" % chan)
 
 cmnds.add('nicks', handle_nicks, ['USER'], threaded=True)
@@ -167,7 +167,7 @@ examples.add('say', 'send txt to channel/user', 'say #test good morning')
 
 def handle_server(bot, ievent):
     """ show the server to which the bot is connected. """
-    ievent.reply(bot.server or "not connected.")
+    ievent.reply(bot.cfg.server or "not connected.")
 
 cmnds.add('server', handle_server, 'OPER')
 examples.add('server', 'show server hostname of bot', 'server')

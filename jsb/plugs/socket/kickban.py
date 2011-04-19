@@ -92,7 +92,7 @@ def handle_ban_add(bot, ievent):
     if not ievent.args:
         ievent.missing('<nick>')
         return
-    if ievent.args[0].lower() == bot.cfg.nick.lower():
+    if bot.cfg.nick and ievent.args[0].lower() == bot.cfg.nick.lower():
         ievent.reply('not going to ban myself')
         return
     userhost = getwho(bot, ievent.args[0])
@@ -110,7 +110,7 @@ def handle_kickban_add(bot, ievent):
     if not ievent.args:
         ievent.missing('<nick> [<reason>]')
         return
-    if ievent.args[0].lower() == bot.cfg.nick.lower():
+    if bot.cfg.nick and ievent.args[0].lower() == bot.cfg.nick.lower():
         ievent.reply('not going to kickban myself')
         return
     userhost = getwho(bot, ievent.args[0])

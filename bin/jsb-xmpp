@@ -20,7 +20,7 @@ from jsb.lib.config import Config, getmainconfig
 from jsb.lib.errors import NoOwnerSet
 from jsb.lib.fleet import getfleet
 from jsb.utils.mainloop import mainloop
-from jsb.utils.opts import makexmppopts, makexmppconfig
+from jsb.utils.opts import makesxmppopts, makesxmppconfig
 import jsb.lib.users as users
 import jsb
 
@@ -39,8 +39,9 @@ print getversion('SXMPP')
 
 boot(opts.datadir)
 
-cfg = makexmppconfig('sxmpp', opts)
+cfg = makesxmppconfig(opts)
 if opts.nick: cfg.nick = opts.nick
+else cfg.nick = 'jsb'
 cfg.save()
 
 ## loglevel
@@ -53,7 +54,6 @@ setloglevel(opts.loglevel or mainconfig.loglevel or "warn")
 
 try:
     bot = SXMPPBot(cfg)
-    bot.nick = cfg.nick or 'jsb'
 except NoOwnerSet, ex:
     print "owner is not set in %s - use the -o option" % str(ex)
     os._exit(1)

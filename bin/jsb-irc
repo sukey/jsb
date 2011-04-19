@@ -48,6 +48,7 @@ cfg = makeircconfig('irc', opts)
 cfg.name = opts.name or cfg.name or "default-irc"
 cfg.type = "irc"
 if opts.nick: cfg.nick = opts.nick
+else: cfg.nick = 'jsb'
 cfg.save()
 
 mainconfig = getmainconfig()
@@ -76,7 +77,6 @@ if opts.doresume and os.path.isfile(opts.doresume):
 else:
     try:
         bot = IRCBot(cfg)
-        bot.nick = cfg.nick or 'jsb'
     except NoOwnerSet, ex:
         print "owner is not set in %s - use the -o option" % str(ex)
         os._exit(1)
@@ -85,11 +85,6 @@ else:
         bot.state.save()
     fleet = getfleet(opts.datadir)
     fleet.addbot(bot)
-    #if opts.forward:
-    #    print "starting forward bot (%s)" % str(cfg)
-    #    forwardcfg = makeconfig('sxmpp', opts, 'forwardbot') # sxmpp for the forward bo
-    #    forwardbot = fleet.makebot('sxmpp', 'forwardbot', cfg=forwardcfg)
-    #    start_new_thread(forwardbot.start, ())
     start_new_thread(bot.start, ())
 
 

@@ -40,30 +40,30 @@ class NSAuth(Pdod):
         }
         options.update(kwargs)
         assert options.has_key('password'), 'A password must be set'
-        for key in options.keys(): Pdod.set(self, bot.name, key, options[key])
+        for key in options.keys(): Pdod.set(self, bot.cfg.name, key, options[key])
         self.save()
 
     def remove(self, bot):
         """ remove a nickserv entry. """
-        if self.has_key(bot.name):
-            del self[bot.name]
+        if self.has_key(bot.cfg.name):
+            del self[bot.cfg.name]
             self.save()
 
     def has(self, bot):
         """ check if a bot is in the nickserv list. """
-        return self.has_key(bot.name)
+        return self.has_key(bot.cfg.name)
 
     def register(self, bot, passwd):
         """ register a bot to nickserv. """
-        if self.has_key(bot.name) and self.has_key2(bot.name, 'nickserv'):
-            bot.sendraw('PRIVMSG %s :%s %s' % (self.get(bot.name, 'nickserv'),  'REGISTER', passwd))
-            logging.warn('nickserv - register sent on %s' % bot.server)
+        if self.has_key(bot.cfg.name) and self.has_key2(bot.cfg.name, 'nickserv'):
+            bot.sendraw('PRIVMSG %s :%s %s' % (self.get(bot.cfg.name, 'nickserv'),  'REGISTER', passwd))
+            logging.warn('nickserv - register sent on %s' % bot.cfg.server)
 
     def identify(self, bot):
         """ identify a bot to nickserv. """
-        if self.has_key(bot.name):
-            logging.warn('nickserv - identify sent on %s' % bot.server)
-            bot.outnocb(self.get(bot.name, 'nickserv', ), '%s %s' % (self.get(bot.name, 'identify'), self.get(bot.name, 'password')), how="msg")
+        if self.has_key(bot.cfg.name):
+            logging.warn('nickserv - identify sent on %s' % bot.cfg.server)
+            bot.outnocb(self.get(bot.cfg.name, 'nickserv', ), '%s %s' % (self.get(bot.cfg.name, 'identify'), self.get(bot.cfg.name, 'password')), how="msg")
 
     def listbots(self):
         """ list all bots know. """
@@ -73,14 +73,14 @@ class NSAuth(Pdod):
 
     def sendstring(self, bot, txt):
         """ send string to nickserver. """
-        nickservnick = self.get(bot.name, 'nickserv')
+        nickservnick = self.get(bot.cfg.name, 'nickserv')
         logging.warn('nickserv - sent %s to %s' % (txt, nickservnick))
         bot.outnocb(nickservnick, txt, how="msg")
 
     def handle_001(self, bot, ievent):
         self.identify(bot)
         try:
-            for i in self.data[bot.name]['nickservtxt']:
+            for i in self.data[bot.cfg.name]['nickservtxt']:
                 self.sendstring(bot, i)
                 logging.warn('nickserv - sent %s' % i)
         except: pass
@@ -128,7 +128,7 @@ def handle_nsdel(bot, ievent):
         ievent.reply('fleet bot %s not found' % botname)
         return
     if not nsauth.has(fbot):
-        ievent.reply('nickserv not configured on %s' % fbot.name)
+        ievent.reply('nickserv not configured on %s' % fbot.cfg.name)
         return
     nsauth.remove(fbot)
     ievent.reply('ok')
@@ -155,14 +155,14 @@ examples.add('ns-send', 'ns-send <txt> .. send txt to nickserv', 'ns-send identi
 def handle_nsauth(bot, ievent):
     """ perform an auth request. """
     if bot.jabber: return
-    if len(ievent.args) != 1: name = bot.name
+    if len(ievent.args) != 1: name = bot.cfg.name
     else: name = ievent.args[0]
     fbot = getfleet().byname(name)
     if not fbot:
         ievent.reply('fleet bot %s not found' % name)
         return
     if not nsauth.has(fbot):
-        ievent.reply('nickserv not configured on %s' % fbot.name)
+        ievent.reply('nickserv not configured on %s' % fbot.cfg.name)
         return
     nsauth.identify(fbot)
     ievent.reply('ok')

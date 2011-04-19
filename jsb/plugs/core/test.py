@@ -104,7 +104,7 @@ examples.add('test-plugs', 'test all plugins by running there examples', 'test-p
 
 def handle_forcedreconnect(bot, ievent):
     """ do a forced reconnect. """
-    if not bot.ssl: bot.sock.shutdown(2)
+    if not bot.cfg.ssl: bot.sock.shutdown(2)
     else: bot.sock.shutdown()
 
 cmnds.add('test-forcedreconnect', handle_forcedreconnect, 'TEST')
