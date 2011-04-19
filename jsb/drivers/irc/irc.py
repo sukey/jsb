@@ -514,7 +514,8 @@ class Irc(BotBase):
         if self.stopped: return
         try:
             now = time.time()
-            timetosleep = self.cfg.sleepsec - (now - self.lastoutput)
+            if self.cfg.sleepsec: timetosleep = self.cfg.sleepsec - (now - self.lastoutput)
+            else: timetosleep = 4 - (now - self.lastoutput)
             if timetosleep > 0 and not self.cfg.nolimiter and not (time.time() - self.connecttime < 5):
                 logging.debug('%s - flood protect' % self.cfg.name)
                 time.sleep(timetosleep)
