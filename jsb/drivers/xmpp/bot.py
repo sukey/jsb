@@ -69,11 +69,15 @@ class SXMPPBot(XMLStream, BotBase):
 
     def __init__(self, cfg=None, usersin=None, plugs=None, jid=None, *args, **kwargs):
         BotBase.__init__(self, cfg, usersin, plugs, jid, *args, **kwargs)
+        try: self.username, self.host = self.user.split('@')
+        except (ValueError, TypeError): raise Exception("%s - user not set - %s" % (self.name, str(self.cfg)))
         self.port = 5222
         if not self.host:
             self.host = self.cfg.host
             if not self.host: raise Exception("%s - host not set - %s" % (self.name, str(self.cfg)))
-        self.username = self.user.split('@')[0]
+        assert self.host
+        assert self.port
+        assert self.name
         XMLStream.__init__(self, self.host, self.port, self.name)   
         self.type = 'sxmpp'
         self.sock = None

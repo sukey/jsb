@@ -1,4 +1,4 @@
-# jsb/config.py
+# jsb/lib/config.py
 #
 #
 

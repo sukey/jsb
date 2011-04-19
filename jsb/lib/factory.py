@@ -1,4 +1,4 @@
-# jsb/factory.py
+# jsb/lib/factory.py
 #
 #
 
@@ -48,3 +48,5 @@ class BotFactory(Factory):
             bot = ConvoreBot(cfg)
         else: raise NoSuchBotType('%s bot .. unproper type %s' % (type, cfg.dump()))
         return bot
+
+bot_factory = BotFactory()
