@@ -80,7 +80,7 @@ class LazyDict(dict):
 
     def __getattr__(self, attr, default=None):
         """ get attribute. """
-        if not self.has_key(attr): logging.info("lazydict - %s is not set" % attr) ; return 
+        if not self.has_key(attr): logging.info("lazydict - %s is not set - %s" % (attr, whichmodule())) ; return 
         return self[attr]
 
     def __setattr__(self, attr, value):

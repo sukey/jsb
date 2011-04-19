@@ -76,7 +76,6 @@ class SXMPPBot(XMLStream, BotBase):
         self.sock = None
         self.lastin = None
         self.test = 0
-        self.password = ""
         self.connecttime = 0
         self.connection = None
         self.jabber = True
@@ -93,11 +92,11 @@ class SXMPPBot(XMLStream, BotBase):
         """ return data needed for resuming. """
         return {self.cfg.name: {
             'type': self.type,
-            'nick': self.nick,
-            'server': self.server,
-            'port': self.port,
-            'password': self.password,
-            'ipv6': self.ipv6,
+            'nick': self.cfg.nick,
+            'server': self.cfg.server,
+            'port': self.cfg.port,
+            'password': self.cfg.password,
+            'ipv6': self.cfg.ipv6,
             'user': self.cfg.user
             }}
 

@@ -28,7 +28,7 @@ def handle_uniq(bot, ievent):
         return
     result = list(result)
     if not result: ievent.reply('no result')
-    else: ievent.reply(result)
+    else: ievent.reply("result: ", result)
 
 cmnds.add('uniq', handle_uniq, ['USER', 'GUEST', 'CLOUD'])
 examples.add('uniq', 'sort out multiple elements', 'list ! uniq')

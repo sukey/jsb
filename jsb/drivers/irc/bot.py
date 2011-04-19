@@ -80,7 +80,7 @@ class IRCBot(Irc):
             self.sock = sock = listensock.accept()[0]
         except Exception, ex:
             handle_exception()
-            logging.error('%s - dcc error: %s' % (self.name, str(ex)))
+            logging.error('%s - dcc error: %s' % (self.cfg.name, str(ex)))
             return
         self._dodcc(sock, nick, userhost, channel)
 
@@ -94,7 +94,7 @@ class IRCBot(Irc):
             sock.send("control character is ! .. bot broadcast is @\n")
         except Exception, ex:
             handle_exception()
-            logging.error('%s - dcc error: %s' % (self.name, str(ex)))
+            logging.error('%s - dcc error: %s' % (self.cfg.name, str(ex)))
             return
         start_new_thread(self._dccloop, (sock, nick, userhost, channel))
 
@@ -111,9 +111,9 @@ class IRCBot(Irc):
             time.sleep(0.001)
             try:
                 res = sockfile.readline()
-                logging.debug("%s - dcc - %s got %s" % (self.name, userhost, res))
+                logging.debug("%s - dcc - %s got %s" % (self.cfg.name, userhost, res))
                 if self.stopped or not res:
-                    logging.warn('%s - closing dcc with %s' % (self.name, nick))
+                    logging.warn('%s - closing dcc with %s' % (self.cfg,name, nick))
                     partyline.del_party(nick)
                     return
             except socket.timeout:
@@ -130,7 +130,7 @@ class IRCBot(Irc):
                     raise
             except Exception, ex:
                 handle_exception()
-                logging.warn('%s - closing dcc with %s' % (self.name, nick))
+                logging.warn('%s - closing dcc with %s' % (self.cfg.name, nick))
                 partyline.del_party(nick)
                 return
             try:
@@ -152,7 +152,7 @@ class IRCBot(Irc):
                 ievent.isdcc = True
                 ievent.msg = True
                 ievent.bind(self)
-                logging.debug("%s - dcc - constructed event" % self.name)
+                logging.debug("%s - dcc - constructed event" % self.cfg.name)
                 if ievent.txt[0] == "!":
                     self.doevent(ievent)
                     continue
@@ -180,13 +180,13 @@ class IRCBot(Irc):
             except Exception, ex:
                 handle_exception()
         sockfile.close()
-        logging.warn('%s - closing dcc with %s' %  (self.name, nick))
+        logging.warn('%s - closing dcc with %s' %  (self.cfg.name, nick))
 
     def _dccconnect(self, nick, userhost, addr, port):
         """ connect to dcc request from nick. """
         try:
             port = int(port)
-            logging.warn("%s - dcc - connecting to %s:%s (%s)" % (self.name, addr, port, userhost))
+            logging.warn("%s - dcc - connecting to %s:%s (%s)" % (self.cfg.name, addr, port, userhost))
             if re.search(':', addr):
                 sock = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
                 sock.connect((addr, port))
@@ -194,7 +194,7 @@ class IRCBot(Irc):
                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 sock.connect((addr, port))
         except Exception, ex:
-            logging.error('%s - dcc error: %s' % (self.name, str(ex)))
+            logging.error('%s - dcc error: %s' % (self.cfg.name, str(ex)))
             return
         self._dodcc(sock, nick, userhost, userhost)
 
@@ -210,11 +210,11 @@ class IRCBot(Irc):
 
     def join(self, channel, password=None):
         """ join a channel .. use optional password. """
-        chan = ChannelBase(channel, self.botname)
+        chan = ChannelBase(channel, self.cfg.name)
         if password:
             chan.data.key = password
             chan.save()
-        logging.warn("%s - using key %s for channel %s" % (self.name, chan.data.key, channel))
+        logging.warn("%s - using key %s for channel %s" % (self.cfg.name, chan.data.key, channel))
         result = Irc.join(self, channel, chan.data.key)
         if result != 1:
             return result
@@ -236,7 +236,7 @@ class IRCBot(Irc):
     def handle_privmsg(self, ievent):
         """ check if PRIVMSG is command, if so dispatch. """
         if ievent.nick in self.nicks401:
-            logging.debug("%s - %s is available again" % (self.name, ievent.nick))
+            logging.debug("%s - %s is available again" % (self.cfg,name, ievent.nick))
             self.nicks401.remove(ievent.nick)
         if not ievent.txt: return
         chat = re.search(dccchatre, ievent.txt)
@@ -272,11 +272,11 @@ class IRCBot(Irc):
         chan = ievent.channel
         nick = ievent.nick
         if nick == self.nick:
-            logging.warn("%s - joined %s" % (self.name, ievent.channel))
+            logging.warn("%s - joined %s" % (self.cfg.name, ievent.channel))
             time.sleep(0.5)
             self.who(chan)
             return
-        logging.info("%s - %s joined %s" % (self.name, ievent.nick, ievent.channel))
+        logging.info("%s - %s joined %s" % (self.cfg.name, ievent.nick, ievent.channel))
         self.userhosts[nick] = ievent.userhost
 
     def handle_kick(self, ievent):
@@ -286,7 +286,7 @@ class IRCBot(Irc):
         except IndexError:
             return
         chan = ievent.channel
-        if who == self.nick:
+        if who == self.cfg.nick:
             if chan in self.state['joinedchannels']:
                 self.state['joinedchannels'].remove(chan)
                 self.state.save()
@@ -295,16 +295,15 @@ class IRCBot(Irc):
         """ update userhost cache on nick change. """
         nick = ievent.txt
         self.userhosts[nick] = ievent.userhost
-        if ievent.nick == self.nick or ievent.nick == self.orignick:
-            self.nick = nick
+        if ievent.nick == self.cfg.nick or ievent.nick == self.cfg.orignick:
             self.cfg['nick'] = nick
             self.cfg.save()
 
     def handle_part(self, ievent):
         """ handle parts. """
         chan = ievent.channel
-        if ievent.nick == self.nick:
-            logging.warn('%s - parted channel %s' % (self.name, chan))
+        if ievent.nick == self.cfg.nick:
+            logging.warn('%s - parted channel %s' % (self.cfg.name, chan))
             if chan in self.state['joinedchannels']:
                 self.state['joinedchannels'].remove(chan)
                 self.state.save()
@@ -327,11 +326,11 @@ class IRCBot(Irc):
  
     def handle_quit(self, ievent):
         """ check if quit is because of a split. """
-        if '*.' in ievent.txt or self.server in ievent.txt: self.splitted.append(ievent.nick)
+        if '*.' in ievent.txt or self.cfg.server in ievent.txt: self.splitted.append(ievent.nick)
         
     def handle_mode(self, ievent):
         """ check if mode is about channel if so request channel mode. """
-        logging.info("%s - mode change %s" % (self.name, str(ievent.arguments)))
+        logging.info("%s - mode change %s" % (self.cfg.name, str(ievent.arguments)))
         try:
             dummy = ievent.arguments[2]
         except IndexError:
@@ -347,7 +346,7 @@ class IRCBot(Irc):
         target, nick, user, host, dummy = ievent.arguments
         nick = nick
         userhost = "%s@%s" % (user, host)
-        logging.debug('%s - adding %s to userhosts: %s' % (self.name, nick, userhost))
+        logging.debug('%s - adding %s to userhosts: %s' % (self.cfg.name, nick, userhost))
         self.userhosts[nick] = userhost
 
     def handle_352(self, ievent):
@@ -358,7 +357,7 @@ class IRCBot(Irc):
         user = args[2]
         host = args[3]
         userhost = "%s@%s" % (user, host)
-        logging.debug('%s - adding %s to userhosts: %s' % (self.name, nick, userhost))
+        logging.debug('%s - adding %s to userhosts: %s' % (self.cfg.name, nick, userhost))
         self.userhosts[nick] = userhost
         
     def handle_353(self, ievent):
@@ -366,7 +365,7 @@ class IRCBot(Irc):
         userlist = ievent.txt.split()
         chan = ievent.channel
         for i in userlist:
-            if i[0] == '@' and i[1:] == self.nick:
+            if i[0] == '@' and i[1:] == self.cfg.nick:
                 if chan not in self.state['opchan']:
                     self.state['opchan'].append(chan)
 

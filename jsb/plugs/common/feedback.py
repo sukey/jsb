@@ -19,14 +19,17 @@ import time
 ## handle_feedback command
 
 def handle_feedback(bot, event):
-    feedbackbot = getfleet().getfirstjabber(bot.isgae)
+    feedbackbot = getfleet().byname("feedbackbot")
     if not feedbackbot:
         cfg = {"name": "feedbackbot", "user": "%s@jsonbot.org" % str(uuid.uuid4()), "password": str(uuid.uuid4())}
         if not bot.isgae: feedbackbot = bot_factory.create("sxmpp", cfg) ; feedbackbot.start()
         else: feedbackbot = bot_factory.create("xmpp", cfg)
-    if not feedbackbot: event.reply("can't make xmpp bot.")
-    else: event.reply("sending to bart@jsonbot.org ... ")
+        if not feedbackbot.cfg.password: feedbackbot.cfg.password = cfg['password'] ; feedbackbot.cfg.save()
+    if not feedbackbot: event.reply("can't make xmpp bot.") ; return
+    feedbackbot.cfg.enable = True
+    event.reply("sending to bart@jsonbot.org ... ")
     feedbackbot.say("bart@jsonbot.org", event.rest)
+    feedbackbot.cfg.enable = False
     event.done()
 
 cmnds.add("feedback", handle_feedback, ["OPER", "USER", "GUEST"], threaded=True)

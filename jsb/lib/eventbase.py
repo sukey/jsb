@@ -87,8 +87,8 @@ class EventBase(LazyDict):
             logging.info("eventbase - binding user - %s - from %s" % (str(self.user), whichmodule()))
         if not self.chan:
             if chan: self.chan = chan
-            elif self.channel: self.chan = ChannelBase(self.channel, bot.botname)
-            elif self.userhost: self.chan = ChannelBase(self.userhost, bot.botname)
+            elif self.channel: self.chan = ChannelBase(self.channel, bot.cfg.name)
+            elif self.userhost: self.chan = ChannelBase(self.userhost, bot.cfg.name)
             logging.info("eventbase - binding channel - %s" % str(self.chan))
         if not self.user: logging.info("eventbase - no %s user found .. setting nodispatch" % target) ; self.nodispatch = True
         self.prepare(bot)
@@ -203,7 +203,7 @@ class EventBase(LazyDict):
         if self.isremote(): logging.info("eventbase - event is remote") ; return
         logging.debug("eventbase - trying to match %s" % self.txt)
         cc = "!"
-        if not self.chan: self.chan = ChannelBase(self.channel, self.bot.botname) 
+        if not self.chan: self.chan = ChannelBase(self.channel, self.bot.cfg.name) 
         cc = self.chan.data.cc
         if not cc: self.chan.data.cc = "!" ; self.chan.save()
         if not cc: cc = "!"

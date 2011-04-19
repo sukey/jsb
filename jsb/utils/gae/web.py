@@ -9,7 +9,6 @@
 from jsb.utils.generic import fromenc
 from jsb.version import getversion
 from jsb.lib.config import Config
-from jsb.lib.channelbase import ChannelBase
 from jsb.utils.lazydict import LazyDict
 
 ## gaelib imports

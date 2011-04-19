@@ -376,10 +376,9 @@ class HubbubWatcher(PlugPersist):
                 result.append(z.data.name)
         return result
 
-    def getfeeds(self, channel, type=None):
+    def getfeeds(self, channel, botname, type=None):
         """ get all feeds running in a channel. """
-        if type and type == "wave": chan = Wave(channel)
-        else: chan = ChannelBase(channel)
+        chan = ChannelBase(channel, botname)
         return chan.data.feeds
 
     def url(self, name):
@@ -454,7 +453,7 @@ class HubbubWatcher(PlugPersist):
 
     def clone(self, botname, type, newchannel, oldchannel):
         """ clone feeds over to a new wave. """
-        feeds = self.getfeeds(oldchannel, type)
+        feeds = self.getfeeds(oldchannel, botname)
         logging.debug("hubbub - clone - %s - %s - %s - %s - %s" % (botname, type, newchannel, oldchannel, feeds))
         for feed in feeds:
             self.stop(botname, type, feed, oldchannel)
@@ -616,7 +615,7 @@ def handle_hubbubstopall(bot, ievent):
     if not ievent.rest: target = ievent.channel
     else: target = ievent.rest
     stopped = []
-    feeds = watcher.getfeeds(target)
+    feeds = watcher.getfeeds(target, bot.cfg.name)
     if feeds:
         for feed in feeds:
             if watcher.stop(bot.name, bot.type, feed, target):
@@ -951,7 +950,7 @@ def handle_hubbubfeeds(bot, ievent):
     try: channel = ievent.args[0]
     except IndexError: channel = ievent.channel
     try:
-        result = watcher.getfeeds(channel, type=bot.type)
+        result = watcher.getfeeds(channel, bot.cfg.name)
         if result: ievent.reply("feeds running: ", result)
         else: ievent.reply('no feeds running')
     except Exception, ex: ievent.reply("ERROR: %s" % str(ex))
@@ -981,7 +980,7 @@ def handle_hubbubregister(bot, ievent):
         except IndexError: ievent.reply("i need a feed name and a feed url to work with") ; return
         item = watcher.byname(name)
         if item:
-            if not name in watcher.getfeeds(ievent.channel):
+            if not name in watcher.getfeeds(ievent.channel, bot.cfg.name):
                 watcher.start(bot.name, bot.type, name, target)
                 if name not in ievent.chan.data.feeds:
                     ievent.chan.data.feeds.append(name)

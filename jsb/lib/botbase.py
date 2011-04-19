@@ -138,7 +138,7 @@ class BotBase(LazyDict):
     def __deepcopy__(self, a):
         """ deepcopy an event. """  
         logging.debug("botbase - cpy - %s" % type(self))
-        bot = BotBase() 
+        bot = BotBase(self.cfg) 
         bot.copyin(self)
         return bot
 
@@ -243,9 +243,9 @@ class BotBase(LazyDict):
         for i in self.state['joinedchannels']:
             try:
                 logging.debug("%s - joining %s" % (self.cfg.name, i))
-                channel = ChannelBase(i)
-                if channel: key = channel.getpass()
-                else: key=None
+                channel = ChannelBase(i, self.cfg.name)
+                if channel: key = channel.data.key
+                else: key = None
                 if channel.data.nick: self.ids.append("%s/%s" % (i, channel.data.nick))
                 start_new_thread(self.join, (i, key))
                 time.sleep(1)
