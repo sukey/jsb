@@ -91,7 +91,7 @@ class ConsoleBot(BotBase):
                         handle_exception()
                         continue
                 self.put(event)
-                waitevents([event, ])
+                waitforqueue(event.resqueue)
                 time.sleep(0.2)
             except NoInput: continue
             except (KeyboardInterrupt, EOFError): break

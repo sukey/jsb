@@ -86,6 +86,7 @@ class BotEventRunner(Runner):
             handle_exception(ievent)
         finally: lockmanager.release(getname(str(func)))
         self.working = False
+        self.name = "finished"
 
 ## Runners class
 
@@ -102,7 +103,7 @@ class Runners(object):
     def runnersizes(self):
         """ return sizes of runner objects. """
         result = []
-        for runner in self.runners: result.append(runner.queue.qsize())
+        for runner in self.runners: result.append("%s - %s" % (runner.queue.qsize(), runner.name))
         return result
 
     def stop(self):
@@ -151,10 +152,17 @@ class Runners(object):
             if not runner.queue.qsize(): runner.stop() ; del self.runners[index]
             else: logging.info("runners - %s" % runner.nowrunning)
 
+## show runner status
+
+def runner_status():
+    print cmndrunner.runnersizes()
+    print callbackrunner.runnersizes()
+
+
 ## global runners
 
-cmndrunner = defaultrunner = longrunner = Runners(30, BotEventRunner)
-callbackrunner = Runners(50, BotEventRunner, doready=False)
+cmndrunner = defaultrunner = longrunner = Runners(10, BotEventRunner)
+callbackrunner = Runners(10, BotEventRunner, doready=False)
 
 def runnercleanup(bot, event):
     logging.debug("runner sizes: %s" % str(cmndrunner.runnersizes()))

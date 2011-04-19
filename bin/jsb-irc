@@ -49,10 +49,12 @@ cfg.name = opts.name or cfg.name or "default-irc"
 cfg.type = "irc"
 if opts.nick: cfg.nick = opts.nick
 else: cfg.nick = 'jsb'
+if opts.loglevel: cfg.loglevel = opts.loglevel 
 cfg.save()
 
 mainconfig = getmainconfig()
 setloglevel(opts.loglevel or mainconfig.loglevel or "warning")
+if opts.loglevel: mainconfig.loglevel = opts.loglevel ; mainconfig.save()
 
 ## boot
 

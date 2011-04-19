@@ -295,6 +295,10 @@ examples.add('versions', 'show versions of all loaded modules', 'versions')
 def handle_loglevel(bot, event):
     """ change loglevel of the bot. """
     if not event.rest: event.reply("loglevel is %s" % getloglevel()) ; return
+    from jsb.lib.config import getmainconfig
+    mainconfig = getmainconfig()
+    mainconfig.loglevel = event.rest
+    mainconfig.save()
     mainhandler.put(4, setloglevel, event.rest)
     event.done()
 

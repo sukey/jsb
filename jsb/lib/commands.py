@@ -26,6 +26,11 @@ import logging
 import sys
 import types
 import os
+import copy
+
+## defines
+
+cpy = copy.deepcopy
 
 ## Command class
 
@@ -33,21 +38,21 @@ class Command(LazyDict):
 
     """ a command object. """
 
-    def __init__(self, modname, cmnd, func, perms=[], threaded=False, wait=False, orig=None, how=None):
+    def __init__(self, modname, cmnd, func, perms=[], threaded=False, wait=False, orig=None, how="message"):
         LazyDict.__init__(self)
         if not modname: raise Exception("modname is not set - %s" % cmnd)
-        self.modname = modname
+        self.modname = cpy(modname)
         self.plugname = self.modname.split('.')[-1]
-        self.cmnd = cmnd
-        self.orig = orig
+        self.cmnd = cpy(cmnd)
+        self.orig = cpy(orig)
         self.func = func
         if type(perms) == types.StringType: perms = [perms, ]
-        self.perms = perms
+        self.perms = cpy(perms)
         self.plugin = self.plugname
-        self.threaded = threaded
-        self.wait = wait
+        self.threaded = cpy(threaded)
+        self.wait = cpy(wait)
         self.enable = True
-        self.how = how or "channel"
+        self.how = cpy(how)
 
 class Commands(LazyDict):
 

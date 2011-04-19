@@ -62,20 +62,13 @@ def setloglevel(level_name="warn"):
     if not level_name: return
     level = LEVELS.get(str(level_name).lower(), logging.NOTSET)
     root = logging.getLogger("")
-    root.setLevel(level)
-    if root.handlers:
+    if root and root.handlers:
         for handler in root.handlers: root.removeHandler(handler)
-    logging.basicConfig(level=level, format=format)
+    if root: logging.basicConfig(level=level, format=format)
+    root.setLevel(level)
     try: import waveapi
     except ImportError:
         if filehandler: root.addHandler(filehandler)
-    try:
-        from jsb.lib.config import getmainconfig
-        cfg = getmainconfig()
-        cfg.loglevel = level_name
-        cfg.save()
-        logging.warn("log - loglevel saved to mainconfig file")
-    except Exception, ex: logging.error("error saving loglevel: %s" % str(ex))
     logging.warn("loglevel is %s (%s)" % (str(level), level_name))
 
 def getloglevel():

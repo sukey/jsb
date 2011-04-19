@@ -12,6 +12,7 @@ from jsb.utils.generic import splittxt, stripped, waitforqueue
 from errors import NoSuchUser
 from jsb.utils.opts import makeeventopts
 from jsb.utils.trace import whichmodule
+from jsb.utils.exception import handle_exception
 from jsb.utils.locking import lockdec
 from jsb.lib.config import Config
 
@@ -45,6 +46,14 @@ class EventBase(LazyDict):
         self.bottype = "botbase"
         self.relayed = []
         self.path = []
+        self.cbs = []
+        self.result = []
+        self.threads = self.threads or []
+        self.queues = self.queues or []
+        self.finished = self.finished or threading.Event()
+        self.resqueue = self.resqueue or Queue.Queue()
+        self.inqueue = self.inqueue or Queue.Queue()
+        self.outqueue = self.outqueue or Queue.Queue()
         self.copyin(input)
         
     def __deepcopy__(self, a):
@@ -64,6 +73,9 @@ class EventBase(LazyDict):
             self.outqueue.put_nowait(None)
             self.resqueue.put_nowait(None)
             self.inqueue.put_nowait(None)
+        for cb in self.cbs:
+            try: cb(self.result)
+            except Exception, ex: handle_exception()
         if finish: self.finished.set()
 
     def prepare(self, bot=None):
@@ -103,11 +115,12 @@ class EventBase(LazyDict):
         self.channel = event.channel
         self.auth = stripped(self.userhost)
 
-    def waitfor(self, millisec=10000):
+    def waitfor(self, cb):
         """ wait for the event to finish. """
         logging.warn("eventbase - waiting for %s" % self.txt)
-        self.finished.wait(5)
-        return waitforqueue(self.resqueue , millisec)
+        #self.finished.wait(5)
+        self.cbs.append(cb)
+        return True
 
     def copyin(self, eventin):
         """ copy in an event. """

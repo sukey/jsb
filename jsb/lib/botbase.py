@@ -398,6 +398,7 @@ class BotBase(LazyDict):
                 if not self.cfg.name in event.path: event.path.append(self.cfg.name)
             txt = self.outputmorphs.do(txt, event)
             self.out(target, txt, how, event=event, origin=target, *args, **kwargs)
+        if event: event.result.append(txt)
 
     def saynocb(self, channel, txt, result=[], how="msg", event=None, nr=375, extend=0, dot=", ", *args, **kwargs):
         txt = self.makeoutput(channel, txt, result, nr, extend, dot, *args, **kwargs)

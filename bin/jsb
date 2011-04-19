@@ -33,7 +33,9 @@ if opts.datadir and not os.path.isdir(opts.datadir): os.mkdir(opts.datadir)
 
 from jsb.utils.log import setloglevel
 from jsb.lib.config import getmainconfig
-setloglevel(opts.loglevel or getmainconfig().loglevel or "error")
+mainconfig = getmainconfig()
+setloglevel(opts.loglevel or mainconfig.loglevel or "error")
+if opts.loglevel: mainconfig.loglevel = opts.loglevel ; mainconfig.save()
 
 from jsb.lib.boot import boot
 if opts.fast: boot(opts.datadir, fast=True)
@@ -55,7 +57,6 @@ import time
 ## start the bot
 name = opts.name or "default-console"
 cfg = Config("fleet" + os.sep + name + os.sep + 'config')
-cfg.name = opts.name or cfg.name or name
 userid = getpass.getuser() + '@' + cfg.uuid
 
 if userid not in cfg.owner: cfg.owner.append(userid)
@@ -73,9 +74,9 @@ if opts.args:
         cmndstring += u" %s" % unicode(cmnd)
     bot.start(False)
     cmndstring = "!%s" % cmndstring.strip()
-    event = bot.putevent(userid, opts.channel or userid, cmndstring, wait=0, showall=True)
+    event = bot.putevent(userid, opts.channel or userid, cmndstring, wait=1, showall=True)
     if 'feedback' in cmndstring: time.sleep(30)
-    else: event.waitfor(2)
+    else: waitforqueue(event.resqueue)
     time.sleep(0.1)
     try:
         sys.stdout.close()
