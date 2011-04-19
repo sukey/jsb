@@ -68,7 +68,6 @@ class ConsoleBot(BotBase):
     def __init__(self, cfg=None, users=None, plugs=None, botname=None, *args, **kwargs):
         BotBase.__init__(self, cfg, users, plugs, botname, *args, **kwargs)
         self.type = "console"
-        self.nick = botname or "console"
 
     def startshell(self, connect=True):
         """ start the console bot. """
@@ -91,14 +90,9 @@ class ConsoleBot(BotBase):
                     except Exception, ex:
                         handle_exception()
                         continue
-                    #event.direct = True
                 self.put(event)
                 waitevents([event, ])
-                #if not result: continue
-                #logging.debug("console - waiting for %s to finish" % event.usercmnd)
-                #res = waitforqueue(event.outqueue)
                 time.sleep(0.2)
-                #logging.debug("console - %s" % res)
             except NoInput: continue
             except (KeyboardInterrupt, EOFError): break
             except Exception, ex: handle_exception()

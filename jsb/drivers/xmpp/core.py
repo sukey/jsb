@@ -50,8 +50,10 @@ class XMLStream(NodeBuilder):
 
     """ XMLStream. """
 
-    def __init__(self, host, port, name='sxmpp'):
-        self.name = name
+    def __init__(self, name=None):
+        assert self.cfg
+        self.cfg.name = name or self.cfg.name
+        if not self.cfg.name: raise Exception("bot name is not set in config file %s" % self.cfg.filename)
         self.connection = None
         self.encoding = "utf-8"
         self.stop = False
@@ -61,8 +63,6 @@ class XMLStream(NodeBuilder):
         self.reslist = []
         self.cur = u""
         self.tags = []
-        self.host = host
-        self.port = port
         self.handlers = LazyDict()
         self.addHandler('proceed', self.handle_proceed)
         self.addHandler('message', self.handle_message)
@@ -145,6 +145,7 @@ class XMLStream(NodeBuilder):
         self.buffer = ""
         self.error = ""
         data = ""
+        assert(self.connection)
         while not self.stopped:
             time.sleep(0.001)
             try:
@@ -226,15 +227,12 @@ class XMLStream(NodeBuilder):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setblocking(0)
         self.sock.settimeout(10)
-        if not self.port: self.port = 5222
-        if self.server != 'localhost': self.host = self.server
-        else: self.host = self.cfg.host
-        logging.warn("%s - connecting to %s:%s" % (self.name, self.host, self.port))
-        self.sock.connect((self.host, self.port))
+        logging.warn("%s - connecting to %s:%s" % (self.cfg.name, self.cfg.host, self.cfg.port))
+        self.sock.connect((self.cfg.host, self.cfg.port))
         self.sock.settimeout(60)
         time.sleep(1) 
         logging.debug("%s - starting stream" % self.name)
-        self.sock.send('<stream:stream to="%s" xmlns="jabber:client" xmlns:stream="http://etherx.jabber.org/streams" version="1.0">\r\n' % self.user.split('@')[1])
+        self.sock.send('<stream:stream to="%s" xmlns="jabber:client" xmlns:stream="http://etherx.jabber.org/streams" version="1.0">\r\n' % self.cfg.user.split('@')[1])
         time.sleep(3)
         result = self.sock.recv(1500)
         logging.debug("%s - %s" %  (self.name, str(result)))

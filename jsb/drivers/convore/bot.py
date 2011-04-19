@@ -112,24 +112,26 @@ class ConvoreBot(BotBase):
         self.connectok.wait(15)
         self.auth = requests.AuthObject(self.username, self.password)
         while not self.stopped:
-            time.sleep(1)
-            if self.cursor: result = self.get("live.json", {"cursor": self.cursor})
-            else: result = self.get("live.json")
-            if not result: time.sleep(20) ; continue
-            if result.has_key("_id"): self.cursor = result["_id"]
-            logging.info("%s - incoming - %s" % (self.name, str(result)))
-            if not result: continue
-            if not result.messages: continue
-            for message in result.messages:
-                try:
-                    event = ConvoreEvent()
-                    event.parse(self, message, result)
-                    if event.username == self.username: continue
-                    event.bind(self)
-                    method = getattr(self, "handle_%s" % event.type)
-                    method(event)
-                except (TypeError, AttributeError): logging.error("%s - no handler for %s kind" % (self.name, message['kind'])) 
-                except: handle_exception()
+            try:
+                time.sleep(1)
+                if self.cursor: result = self.get("live.json", {"cursor": self.cursor})
+                else: result = self.get("live.json")
+                if not result: time.sleep(20) ; continue
+                if result.has_key("_id"): self.cursor = result["_id"]
+                logging.info("%s - incoming - %s" % (self.name, str(result)))
+                if not result: continue
+                if not result.messages: continue
+                for message in result.messages:
+                    try:
+                        event = ConvoreEvent()
+                        event.parse(self, message, result)
+                        if event.username == self.username: continue
+                        event.bind(self)
+                        method = getattr(self, "handle_%s" % event.type)
+                        method(event)
+                    except (TypeError, AttributeError): logging.error("%s - no handler for %s kind" % (self.name, message['kind'])) 
+                    except: handle_exception()
+            except Exception, ex: handle_exception()
 
     def handle_error(self, event):
         logging.error("%s - error - %s" % (self.name, event.error))
