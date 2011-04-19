@@ -13,7 +13,7 @@ from jsb.lib.callbacks import callbacks
 def ncaptest(bot, ievent):
     """ test if user is splitted. """
     if '*.' in ievent.txt or bot.cfg.server in ievent.txt: return 0
-    if ievent.chan.data.wantnick.lower() == ievent.nick.lower(): return 1
+    if ievent.chan.data.wantnick and ievent.chan.data.wantnick.lower() == ievent.nick.lower(): return 1
     if bot.cfg.nick.lower() == ievent.nick.lower(): return 1
     return 0
 

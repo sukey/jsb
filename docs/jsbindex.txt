@@ -5,6 +5,7 @@ jsb
     :maxdepth: 2
     :glob:
 
+    drivers/index
     lib/index
     utils/*
     plugs/index
