@@ -316,7 +316,7 @@ class BotBase(LazyDict):
                     logging.debug(msg)
                 else: logging.info("======== start handling local event ========") ; logging.info(msg)
         logging.debug(event.dump())
-        event.prepare(self)
+        event.bind(self)
         self.status = "callback"
         starttime = time.time()
         if self.closed:

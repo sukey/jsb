@@ -81,8 +81,8 @@ class LazyDict(dict):
     def __getattr__(self, attr, default=None):
         """ get attribute. """
         if not self.has_key(attr):
-            mod = whichmodule()
-            if not "eventbase" in mod: logging.debug("lazydict - %s is not set - %s" % (attr, mod))
+            #mod = whichmodule()
+            #if not "queue" in attr: logging.debug("lazydict - %s is not set - %s" % (attr, mod))
             return
         return self[attr]
 

@@ -131,6 +131,7 @@ class ConvoreBot(BotBase):
                         method(event)
                     except (TypeError, AttributeError): logging.error("%s - no handler for %s kind" % (self.cfg.name, message['kind'])) 
                     except: handle_exception()
+            except urllib2.URLError, ex: logging.error("%s - url error - %s" % (self.cfg.name, str(ex)))
             except Exception, ex: handle_exception()
 
     def handle_error(self, event):

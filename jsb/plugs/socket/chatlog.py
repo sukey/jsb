@@ -149,12 +149,12 @@ def prechatlogcb(bot, ievent):
     specific, so we will check each channel in log()."""
     if bot.isgae: return False
     if not cfg.channels: return False
-    if not [bot.name, ievent.channel] in cfg.get('channels'): return False
+    if not [bot.cfg.name, ievent.channel] in cfg.get('channels'): return False
     if not ievent.cbtype in eventstolog: return False
     if not ievent.msg: return True
     if ievent.cmnd in ('QUIT', 'NICK'): return True
     if ievent.cmnd == 'NOTICE':
-        if [bot.name, ievent.arguments[0]] in cfg.get('channels'): return True
+        if [bot.cfg.name, ievent.arguments[0]] in cfg.get('channels'): return True
     return False
 
 ## chatlog callbacks
@@ -196,11 +196,11 @@ def shutdown():
 def handle_chatlogon(bot, ievent):
     """ enable chatlog. """
     chan = ievent.channel
-    enablelogging(bot.name, chan)
-    if [bot.name, chan] not in cfg.get('channels'):
-        cfg['channels'].append([bot.name, chan])
+    enablelogging(bot.cfg.name, chan)
+    if [bot.cfg.name, chan] not in cfg.get('channels'):
+        cfg['channels'].append([bot.cfg.name, chan])
         cfg.save()
-    ievent.reply('chatlog enabled on (%s,%s)' % (bot.name, chan))
+    ievent.reply('chatlog enabled on (%s,%s)' % (bot.cfg.name, chan))
 
 cmnds.add('chatlog-on', handle_chatlogon, 'OPER')
 examples.add('chatlog-on', 'enable chatlog on <channel> or the channel the commands is given in', '1) chatlog-on 2) chatlog-on #dunkbots')
@@ -210,16 +210,16 @@ examples.add('chatlog-on', 'enable chatlog on <channel> or the channel the comma
 def handle_chatlogoff(bot, ievent):
     """ disable chatlog. """
     try:
-        cfg['channels'].remove([bot.name, ievent.channel])
+        cfg['channels'].remove([bot.cfg.name, ievent.channel])
         cfg.save()
     except ValueError:
-        ievent.reply('chatlog is not enabled in (%s,%s)' % (bot.name, ievent.channel))
+        ievent.reply('chatlog is not enabled in (%s,%s)' % (bot.cfg.name, ievent.channel))
         return
     try:
-        del loggers["%s-%s" % (bot.name, stripname(ievent.channel))]
+        del loggers["%s-%s" % (bot.cfg.name, stripname(ievent.channel))]
     except KeyError: pass
     except Exception, ex: handle_exception()
-    ievent.reply('chatlog disabled on (%s,%s)' % (bot.name, ievent.channel))
+    ievent.reply('chatlog disabled on (%s,%s)' % (bot.cfg.name, ievent.channel))
 
 cmnds.add('chatlog-off', handle_chatlogoff, 'OPER')
 examples.add('chatlog-off', 'disable chatlog on <channel> or the channel the commands is given in', '1) chatlog-off 2) chatlog-off #dunkbots')
