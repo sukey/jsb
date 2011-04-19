@@ -294,8 +294,8 @@ examples.add('versions', 'show versions of all loaded modules', 'versions')
 
 def handle_loglevel(bot, event):
     """ change loglevel of the bot. """
-    if not event.rest: event.reply(getloglevel()) ; return
-    setloglevel(event.rest)
+    if not event.rest: event.reply("loglevel is %s" % getloglevel()) ; return
+    mainhandler.put(4, setloglevel, event.rest)
     event.done()
 
 cmnds.add("loglevel", handle_loglevel, "OPER")
