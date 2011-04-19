@@ -44,7 +44,7 @@ import os
 
 ## config stuff 
 
-cfg = makeircconfig('irc', opts)
+cfg = makeircconfig(opts)
 cfg.name = opts.name or cfg.name or "default-irc"
 cfg.type = "irc"
 if opts.nick: cfg.nick = opts.nick
