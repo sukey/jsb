@@ -29,7 +29,8 @@ class WebBot(BotBase):
 
     def __init__(self, cfg=None, users=None, plugs=None, botname="gae-web", *args, **kwargs):
         BotBase.__init__(self, cfg, users, plugs, botname, *args, **kwargs)
-        if self.cfg: self.cfg['type'] = u'web'
+        assert self.cfg
+        self.cfg.type = u'web'
         self.isgae = True
         self.type = u"web"
 
@@ -37,13 +38,13 @@ class WebBot(BotBase):
         """  put txt to the client. """
         if not txt: return 
         txt = txt + end
-        logging.debug("%s - out - %s" % (self.name, txt))
+        logging.debug("%s - out - %s" % (self.cfg.name, txt))
         response.out.write(txt)
 
     def outnocb(self, channel, txt, how="cache", event=None, origin=None, response=None, dotime=False, *args, **kwargs):
         txt = self.normalize(txt)
         if event and event.how != "background":
-            logging.warn("%s - out - %s" % (self.name, txt))
+            logging.warn("%s - out - %s" % (self.cfg.name, txt))
             #if how == "cache": add(channel, [txt, ])
         if "http://" in txt or "https://" in txt:
              for item in re_url_match.findall(txt):
@@ -76,12 +77,12 @@ class WebBot(BotBase):
     def update_web(self, channel, txt, end="<br>"):
         from google.appengine.api.channel import channel as gchan
         chan = ChannelBase(channel, botname="gae-web")
-        #logging.warn("%s - webchannels are %s" % (self.name, chan.data.webchannels))
+        #logging.warn("%s - webchannels are %s" % (self.cfg.name, chan.data.webchannels))
         remove = []
         for c in chan.data.webchannels:
             try:
                 if c:
-                    logging.debug("%s - sending to channel %s" % (self.name, chan))
+                    logging.debug("%s - sending to channel %s" % (self.cfg.name, chan))
                     gchan.send_message(c, txt + end)
             except gchan.InvalidChannelClientIdError:
                 remove.append(c)

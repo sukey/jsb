@@ -68,9 +68,9 @@ def privmsgcb(bot, ievent):
     test_url = re_url_match.search(ievent.txt)
     if test_url:
         url = test_url.group(1)
-        if not urlcache.has_key(bot.name):
-            urlcache[bot.name] = {}
-        urlcache[bot.name][ievent.target] = url
+        if not urlcache.has_key(bot.cfg.name):
+            urlcache[bot.cfg.name] = {}
+        urlcache[bot.cfg.name][ievent.target] = url
 
 #callbacks.add('PRIVMSG', privmsgcb, precb)
 
@@ -103,10 +103,10 @@ def get_tinyurl(url):
 
 def handle_tinyurl(bot, ievent):
     """ get tinyurl from provided url. """
-    if not ievent.rest and (not urlcache.has_key(bot.name) or not urlcache[bot.name].has_key(ievent.target)):
+    if not ievent.rest and (not urlcache.has_key(bot.cfg.name) or not urlcache[bot.cfg.name].has_key(ievent.target)):
         ievent.missing('<url>')
         return
-    elif not ievent.rest: url = urlcache[bot.name][ievent.target]
+    elif not ievent.rest: url = urlcache[bot.cfg.name][ievent.target]
     else: url = ievent.rest
     url = valid_url(url)
     if not url: ievent.reply('invalid or bad URL') ; return
@@ -115,7 +115,7 @@ def handle_tinyurl(bot, ievent):
     else: ievent.reply('failed to create tinyurl')
 
 cmnds.add('tinyurl', handle_tinyurl, ['USER', 'GUEST'], threaded=True)
-examples.add('tinyurl', 'show a tinyurl', 'tinyurl http://jsonbot.googlecode.com')
+examples.add('tinyurl', 'show a tinyurl', 'tinyurl http://jsonbbot.org')
 
 def init():
     plugcfg.save()

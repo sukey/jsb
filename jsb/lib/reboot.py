@@ -30,13 +30,13 @@ def reboot():
 def reboot_stateful(bot, ievent, fleet, partyline):
     """ reboot the bot, but keep the connections (IRC only). """
     logging.warn("reboot - doing statefull reboot")
-    session = {'bots': {}, 'name': bot.name, 'channel': ievent.nick, 'partyline': []}
+    session = {'bots': {}, 'name': bot.cfg.name, 'channel': ievent.nick, 'partyline': []}
     for i in getfleet().bots:
         logging.warn("reboot - updating %s" % i.name)
         data = i._resumedata()
         if not data: continue
         session['bots'].update(data)
-        if i.bottype == "sxmpp": i.exit()
+        if i.type == "sxmpp": i.exit()
     session['partyline'] = partyline._resumedata()
     sessionfile = tempfile.mkstemp('-session', 'jsb-')[1]
     json.dump(session, open(sessionfile, 'w'))

@@ -86,14 +86,14 @@ def handle_ask(bot, event):
     fleet = getfleet()
     xmppbot = fleet.getfirstjabber()
     if xmppbot:
-        for expert in expertslist: xmppbot.say(expert, "%s (%s) asks you: %s" % (event.userhost, bot.name, question))
+        for expert in expertslist: xmppbot.say(expert, "%s (%s) asks you: %s" % (event.userhost, bot.cfg.name, question))
     else:
         logging.warn("ask - can't find jabber bot in fleet")
         return
     asker = event.userhost
     for expert in expertslist:
         if not questions.data.has_key(expert): questions.data[expert] = []
-        questions.data[expert].append([bot.name, bot.type, event.userhost, event.channel])
+        questions.data[expert].append([bot.cfg.name, bot.type, event.userhost, event.channel])
     questions.save()
     event.reply('question is sent to %s' % ' .. '.join(expertslist))
 

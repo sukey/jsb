@@ -63,13 +63,13 @@ class MPDWatcher(Pdod):
         self.lastsong = -1
 
     def add(self, bot, ievent):
-        if not self.has_key2(bot.name, ievent.channel):
-            self.set(bot.name, ievent.channel, True)
+        if not self.has_key2(bot.cfg.name, ievent.channel):
+            self.set(bot.cfg.name, ievent.channel, True)
             self.save()
 
     def remove(self, bot, ievent):
-        if self.has_key2(bot.name, ievent.channel):
-            del self.data[bot.name][ievent.channel]
+        if self.has_key2(bot.cfg.name, ievent.channel):
+            del self.data[bot.cfg.name][ievent.channel]
             self.save()
 
     def start(self):

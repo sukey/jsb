@@ -70,8 +70,8 @@ def forwardoutcb(bot, event):
     e = cpy(event)
     logging.debug("forward - cbtype is %s - %s" % (event.cbtype, event.how))
     e.forwarded = True
-    e.source = bot.jid
-    e.botname = bot.server or bot.name
+    e.source = bot.cfg.user
+    e.botname = bot.cfg.server or bot.cfg.name
     if not event.chan: event.bind(bot)
     if event.chan: e.allowwatch = event.chan.data.allowwatch
     fleet = getfleet()
@@ -85,11 +85,11 @@ def forwardoutcb(bot, event):
         outbot = fleet.getfirstjabber(bot.isgae)
         if not outbot and bot.isgae: outbot = fleet.makebot('xmpp', 'forwardbot')
         if outbot:
-            e.source = outbot.jid
+            e.source = outbot.cfg.user
             txt = outbot.normalize(e.tojson())
             txt = stripcolor(txt)
             #txt = e.tojson()
-            container = Container(outbot.jid, txt)
+            container = Container(outbot.cfg.user, txt)
             outbot.outnocb(jid, container.tojson()) 
         else: logging.info("forward - no xmpp bot found in fleet".upper())
 

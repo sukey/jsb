@@ -178,7 +178,7 @@ def handle_watcherstart(bot, event):
     """ [<channel>] .. start watching a target (channel/wave). """
     target = event.rest or event.channel
 
-    watched.subscribe(bot.name, bot.type, target, event.channel)
+    watched.subscribe(bot.cfg.name, bot.type, target, event.channel)
     if not target in event.chan.data.watched:
         event.chan.data.watched.append(target)
         event.chan.save()
@@ -204,7 +204,7 @@ def handle_watcherstop(bot, event):
     else:
         target = event.rest
 
-    watched.unsubscribe(bot.name, bot.type, target, event.channel)
+    watched.unsubscribe(bot.cfg.name, bot.type, target, event.channel)
     if target in event.chan.data.watched:
         event.chan.data.watched.remove(target)
         event.chan.save()

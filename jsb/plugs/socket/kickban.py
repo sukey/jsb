@@ -28,9 +28,9 @@ timeout   = 10
 def handle_367(bot, ievent):
     logging.debug('kickban - 367 - %s' % str(ievent))
     channel = ievent.arguments[1].lower()
-    if not bot.name in bans or not channel in bans[bot.name]:
+    if not bot.cfg.name in bans or not channel in bans[bot.cfg.name]:
         return # not requested by this plugin
-    bans[bot.name][channel].append(ievent.txt.split()[0])
+    bans[bot.cfg.name][channel].append(ievent.txt.split()[0])
 
 def handle_mode(bot, ievent):
     logging.debug('kick-ban - mode - %s' % str(ievent))
@@ -43,9 +43,9 @@ def get_bans(bot, channel):
     # :ironforge.sorcery.net 367 basla #eth0 *!*@6ca5f0a3.14055a38.89.123.imsk eth0!eth0@62.212.76.127 1200238584
     # :ironforge.sorcery.net 368 basla #eth0 :End of Channel Ban List
     channel = channel.lower()
-    if not bot.name in bans:
-        bans[bot.name] = {}
-    bans[bot.name][channel] = []
+    if not bot.cfg.name in bans:
+        bans[bot.cfg.name] = {}
+    bans[bot.cfg.name][channel] = []
     queue368 = Queue.Queue()
     if not bot.wait:
         return
@@ -59,7 +59,7 @@ def get_bans(bot, channel):
     return bans[bot.name][channel]
 
 def get_bothost(bot):
-    return getwho(bot, bot.nick).split('@')[-1].lower()
+    return getwho(bot, bot.cfg.nick).split('@')[-1].lower()
 
 ## commands
 
@@ -75,10 +75,10 @@ def handle_ban_remove(bot, ievent):
     if len(ievent.args) != 1 or not ievent.args[0].isdigit():
         ievent.missing('<banlist index>')
         return
-    if not bot.name in bans or not channel in bans[bot.name]:
+    if not bot.cfg.name in bans or not channel in bans[bot.cfg.name]:
         banslist = get_bans(bot, ievent.channel)
     else:
-        banslist = bans[bot.name][channel]
+        banslist = bans[bot.cfg.name][channel]
         index = int(ievent.args[0])-1
         if len(banslist) <= index:
             ievent.reply('ban index out of range')
@@ -92,7 +92,7 @@ def handle_ban_add(bot, ievent):
     if not ievent.args:
         ievent.missing('<nick>')
         return
-    if ievent.args[0].lower() == bot.nick.lower():
+    if ievent.args[0].lower() == bot.cfg.nick.lower():
         ievent.reply('not going to ban myself')
         return
     userhost = getwho(bot, ievent.args[0])
@@ -110,7 +110,7 @@ def handle_kickban_add(bot, ievent):
     if not ievent.args:
         ievent.missing('<nick> [<reason>]')
         return
-    if ievent.args[0].lower() == bot.nick.lower():
+    if ievent.args[0].lower() == bot.cfg.nick.lower():
         ievent.reply('not going to kickban myself')
         return
     userhost = getwho(bot, ievent.args[0])

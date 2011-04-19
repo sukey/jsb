@@ -39,7 +39,7 @@ def relayprecondition(bot, event):
     """ check to see whether the callback needs to be executed. """
     #if event.type == "error": return False
     logging.debug("relay - event path is %s" % event.path)
-    if event.isrelayed: logging.info("relay - %s already relayed" % bot.name) ; return False
+    if event.isrelayed: logging.info("relay - %s already relayed" % bot.cfg.name) ; return False
     #if "] [" in event.txt: target = event.chan and "[%s]" % event.chan.data.nick
     #else: target = None
     #if target and target in event.txt: logging.info("relay - %s already relayed" % bot.name) ; return False
@@ -69,7 +69,7 @@ def relaycallback(bot, event):
                 logging.debug('trying relay of %s to (%s,%s)' % (origin, type, target))
                 #if target == origin: continue
                 # tests to prevent looping
-                if botname == bot.botname and origin == target: continue
+                if botname == bot.cfg.name and origin == target: continue
                 # check whether relay is blocked
                 if block.data.has_key(origin):
                     if [botname, type, target] in block.data[origin]: continue
@@ -78,17 +78,17 @@ def relaycallback(bot, event):
                 outbot = fleet.byname(botname)
                 if not outbot: outbot = fleet.makebot(type, botname)
                 if outbot:
-                    logging.info('relay - outbot found - %s - %s' % (outbot.name, outbot.type))
+                    logging.info('relay - outbot found - %s - %s' % (outbot.cfg.name, outbot.type))
                     # we got bot .. use it to send the relayed message
-                    if e.nick == bot.nick:
+                    if e.nick == bot.cfg.nick:
                         txt = "[!] %s" % e.txt
                     else:
                         txt = "[%s] %s" % (e.nick, e.txt)
                     #if event:
-                    #    t = "[%s]" % outbot.nick
-                    #    if "] [" in txt and t in txt: logging.info("relay - %s already relayed" % bot.name) ; continue
-                    #    if outbot.name not in event.path: event.path.append(outbot.name)
-                    logging.warn("relay - sending to %s (%s)" % (target, outbot.name)) 
+                    #    t = "[%s]" % outbot.cfg.nick
+                    #    if "] [" in txt and t in txt: logging.info("relay - %s already relayed" % bot.cfg.name) ; continue
+                    #    if outbot.cfg.name not in event.path: event.path.append(outbot.cfg.name)
+                    logging.warn("relay - sending to %s (%s)" % (target, outbot.cfg.name)) 
                     outbot.outnocb(target, txt, event=e)
                 else: logging.error("can't find bot for (%s,%s,%s)" % (botname, type, target))
             except Exception, ex: handle_exception()
@@ -134,7 +134,7 @@ def handle_relay(bot, event):
     try: (botname, type, target) = event.args
     except ValueError:
         try:
-             botname = bot.name
+             botname = bot.cfg.name
              (type, target) = event.args
         except ValueError: event.missing('[<botname>] <bottype> <target>') ; return 
     origin = event.channel
@@ -154,9 +154,9 @@ def handle_relaystop(bot, event):
     try: (botname, type, target) = event.args
     except ValueError:
         try:
-            botname = bot.name
+            botname = bot.cfg.name
             (type, target) = event.args
-        except (IndexError, ValueError): botname = bot.name ; type = bot.type ; target = event.channel 
+        except (IndexError, ValueError): botname = bot.cfg.name ; type = bot.type ; target = event.channel 
     origin = event.origin or event.channel
     try:
         logging.debug('trying to remove relay (%s,%s)' % (type, target))
@@ -207,7 +207,7 @@ def handle_relayunblock(bot, event):
     try: target = event.args[0]
     except IndexError: event.missing('<target>') ; return 
     origin = event.origin or event.channel
-    try: block.data[origin].remove([bot.name, target]) ; block.save()
+    try: block.data[origin].remove([bot.cfg.name, target]) ; block.save()
     except (KeyError, ValueError): pass
     event.done()
 

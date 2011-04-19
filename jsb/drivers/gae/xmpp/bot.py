@@ -27,8 +27,7 @@ class XMPPBot(BotBase):
 
     def __init__(self, cfg=None, users=None, plugs=None, botname="gae-xmpp", *args, **kwargs):
         BotBase.__init__(self, cfg, users, plugs, botname, *args, **kwargs)
-        self.jid = "jsb@appspot.com"
-        if self.cfg: self.cfg['type'] = 'xmpp'
+        assert self.cfg
         self.isgae = True
         self.type = "xmpp"
 
@@ -37,7 +36,7 @@ class XMPPBot(BotBase):
         if type(jids) != types.ListType: jids = [jids, ]
         self.outnocb(jids, txt, how, event, origin)
         for jid in jids:
-            self.outmonitor(self.nick, jid, txt)
+            self.outmonitor(self.cfg.nick, jid, txt)
 
     def outnocb(self, jids, txt, how="msg", event=None, origin=None, from_jid=None, message_type=None, raw_xml=False, groupchat=False, *args, **kwargs):
         """ output xmpp message. """
@@ -45,7 +44,7 @@ class XMPPBot(BotBase):
         if not message_type: message_type = xmpp.MESSAGE_TYPE_CHAT
         if type(jids) != types.ListType: jids = [jids, ]
         txt = self.normalize(txt)
-        logging.debug(u"%s - xmpp - out - %s - %s" % (self.name, unicode(jids), txt))             
+        logging.debug(u"%s - xmpp - out - %s - %s" % (self.cfg.name, unicode(jids), txt))             
         xmpp.send_message(jids, txt, from_jid=from_jid, message_type=message_type, raw_xml=raw_xml)
 
     def invite(self, jid):

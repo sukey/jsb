@@ -790,7 +790,7 @@ def save():
 def handle_rssclone(bot, event):
     """ clone feed running in a channel. """
     if not event.rest: event.missing('<channel>') ; event.done()
-    feeds = watcher.clone(bot.name, event.channel, event.rest)
+    feeds = watcher.clone(bot.cfg.name, event.channel, event.rest)
     event.reply('cloned the following feeds: ', feeds)
     bot.say(event.rest, "this wave is continued in %s" % event.url)
  
@@ -831,7 +831,7 @@ def handle_rssregister(bot, ievent):
         return
     if watcher.checkfeed(url, ievent):
         watcher.add(name, url, ievent.userhost)
-        watcher.start(bot.name, bot.type, name, ievent.channel)
+        watcher.start(bot.cfg.name, bot.type, name, ievent.channel)
         if name not in ievent.chan.data.feeds: ievent.chan.data.feeds.append(name) ; ievent.chan.save()
         ievent.reply('rss item added and started in channel %s' % ievent.channel)
     else: ievent.reply('%s is not valid' % url)
@@ -905,7 +905,7 @@ def handle_rssstart(bot, ievent):
     started = []
     if feeds[0] == 'all': feeds = watcher.list()
     for name in feeds:
-        watcher.start(bot.name, bot.type, name, ievent.channel)
+        watcher.start(bot.cfg.name, bot.type, name, ievent.channel)
         if name not in ievent.chan.data.feeds: ievent.chan.data.feeds.append(name) ; ievent.chan.save()
         started.append(name)
     ievent.reply('started: ', started)
@@ -928,9 +928,9 @@ def handle_rssstop(bot, ievent):
         target = ievent.channel
         if rssitem == None: continue
         if not rssitem.data.running: continue
-        try: rssitem.data.watchchannels.remove([bot.name, bot.type, target])
+        try: rssitem.data.watchchannels.remove([bot.cfg.name, bot.type, target])
         except ValueError:
-            try: rssitem.data.watchchannels.remove([bot.name, bot.type, target])
+            try: rssitem.data.watchchannels.remove([bot.cfg.name, bot.type, target])
             except ValueError: continue
         rssitem.save()
         stopped.append(name)
@@ -947,10 +947,10 @@ def handle_rssstopall(bot, ievent):
     if not ievent.rest: target = ievent.channel
     else: target = ievent.rest
     stopped = []
-    feeds = watcher.getfeeds(bot.name, bot.type, target)
+    feeds = watcher.getfeeds(bot.cfg.name, bot.type, target)
     if feeds:
         for feed in feeds:
-            if watcher.stop(bot.name, bot.type, feed, target):
+            if watcher.stop(bot.cfg.name, bot.type, feed, target):
                 if feed in ievent.chan.data.feeds: ievent.chan.data.feeds.remove(feed) ; ievent.chan.save()
                 stopped.append(feed)
         ievent.reply('stopped feeds: ', stopped)
@@ -981,9 +981,9 @@ def handle_rssaddchannel(bot, ievent):
     """ rss-addchannel <name> [<botname>] <channel> .. add a channel to rss item. """
     try: (name, botname, type, channel) = ievent.args
     except ValueError:
-        try: (name, channel) = ievent.args ; botname = bot.name ; type = bot.type
+        try: (name, channel) = ievent.args ; botname = bot.cfg.name ; type = bot.type
         except ValueError:
-            try: name = ievent.args[0] ; botname = bot.name ; type = bot.type ; channel = ievent.channel
+            try: name = ievent.args[0] ; botname = bot.cfg.name ; type = bot.type ; channel = ievent.channel
             except IndexError: ievent.missing('<name> [<botname>] <channel>') ; return
     rssitem = watcher.byname(name)
     if rssitem == None: ievent.reply("we don't have a %s rss object" % name) ; return
@@ -1118,11 +1118,11 @@ def handle_rssdelchannel(bot, ievent):
     botname = None
     try: (name, botname, type, channel) = ievent.args
     except ValueError:
-        try: (name, channel) = ievent.args ; type = bot.type ; botname = bot.name
+        try: (name, channel) = ievent.args ; type = bot.type ; botname = bot.cfg.name
         except ValueError:
             try:
                 name = ievent.args[0]
-                botname = bot.name
+                botname = bot.cfg.name
                 type = bot.type
                 channel = ievent.channel
             except IndexError: ievent.missing('<name> [<botname>] [<channel>]') ; return
@@ -1310,7 +1310,7 @@ def handle_rssfeeds(bot, ievent):
     """ show what feeds are running in a channel. """
     try: channel = ievent.args[0]
     except IndexError: channel = ievent.channel
-    result = watcher.getfeeds(bot.name, bot.type, channel)
+    result = watcher.getfeeds(bot.cfg.name, bot.type, channel)
     if result: ievent.reply("feeds running in %s: " % channel, result)
     else: ievent.reply('%s has no feeds running' % channel)
 

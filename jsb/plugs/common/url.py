@@ -73,12 +73,12 @@ def urlcb(bot, ievent):
     try:
         test_urls = re_url_match.findall(ievent.txt)
         for i in test_urls:
-            if not state['urls'].has_key(bot.name):
-                state['urls'][bot.name] = {}
-            if not state['urls'][bot.name].has_key(ievent.channel):
-                state['urls'][bot.name][ievent.channel] = []
-            if not i in state['urls'][bot.name][ievent.channel]:
-                state['urls'][bot.name][ievent.channel].append(i)  
+            if not state['urls'].has_key(bot.cfg.name):
+                state['urls'][bot.cfg.name] = {}
+            if not state['urls'][bot.cfg.name].has_key(ievent.channel):
+                state['urls'][bot.cfg.name][ievent.channel] = []
+            if not i in state['urls'][bot.cfg.name][ievent.channel]:
+                state['urls'][bot.cfg.name][ievent.channel].append(i)  
         state.save()
     except Exception, ex:
         handle_exception()
@@ -96,7 +96,7 @@ def handle_urlsearch(bot, ievent):
         return
     result = []
     try:
-        for i in state['urls'][bot.name][ievent.channel]:
+        for i in state['urls'][bot.cfg.name][ievent.channel]:
             if ievent.rest in i:
                 result.append(i)
     except KeyError:

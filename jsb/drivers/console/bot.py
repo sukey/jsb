@@ -105,7 +105,7 @@ class ConsoleBot(BotBase):
 
     def _raw(self, txt):
         """ do raw output to the console. """
-        logging.info("%s - out - %s" % (self.name, txt))             
+        logging.info("%s - out - %s" % (self.cfg.name, txt))             
         sys.stdout.write(txt)
         sys.stdout.write('\n')
 

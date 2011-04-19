@@ -267,7 +267,7 @@ class IRCBot(Irc):
     def handle_join(self, ievent):
         """ handle joins. """
         if ievent.nick in self.nicks401:
-             logging.debug("%s - %s is available again" % (self.name, ievent.nick))
+             logging.debug("%s - %s is available again" % (self.cfg.name, ievent.nick))
              self.nicks401.remove(ievent.nick)
         chan = ievent.channel
         nick = ievent.nick

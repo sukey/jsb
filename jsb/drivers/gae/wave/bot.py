@@ -58,23 +58,20 @@ class WaveBot(BotBase, robot.Robot):
 
     """ bot to implement google wave stuff. """
 
-    def __init__(self, cfg=None, users=None, plugs=None, name="gae-wave", domain=None,
+    def __init__(self, cfg=None, users=None, plugs=None, name=None, domain=None,
                  image_url='http://jsonbot.appspot.com/assets/favicon.png',
                  profile_url='http://jsonbot.appspot.com/', *args, **kwargs):
         sname = 'jsb'
         BotBase.__init__(self, cfg, users, plugs, name, *args, **kwargs)
-        if cfg: self.domain = cfg['domain'] or 'googlewave.com'
-        else: self.domain = domain or 'googlewave.com'
-        if self.cfg and self.cfg['domain'] != self.domain:
-            self.cfg['domain'] = self.domain
-            self.cfg.save()
+        assert self.cfg
         self.type = 'wave'
-        self.nick = name or sname
-        robot.Robot.__init__(self, name=sname, image_url=image_url, profile_url=profile_url)
+        if domain: self.cfg.domain = domain
+        self.cfg.nick = name or "gae-wave"
+        robot.Robot.__init__(self, name=self.cfg.name, image_url=image_url, profile_url=profile_url)
         credentials = _import_byfile("credentials", getdatadir() + os.sep + "config" + os.sep + "credentials.py")
-        self.set_verification_token_info(credentials.verification_token[self.domain], credentials.verification_secret[self.domain])
-        self.setup_oauth(credentials.Consumer_Key[self.domain], credentials.Consumer_Secret[self.domain],
-                             server_rpc_base=credentials.RPC_BASE[self.domain])
+        self.set_verification_token_info(credentials.verification_token[self.cfg.domain], credentials.verification_secret[self.cfg.domain])
+        self.setup_oauth(credentials.Consumer_Key[self.cfg.domain], credentials.Consumer_Secret[self.cfg.domain],
+                             server_rpc_base=credentials.RPC_BASE[self.cfg.domain])
         self.register_handler(events.BlipSubmitted, self.OnBlipSubmitted)
         self.register_handler(events.WaveletSelfAdded, self.OnSelfAdded)
         self.register_handler(events.WaveletParticipantsChanged, self.OnParticipantsChanged)
@@ -120,13 +117,13 @@ class WaveBot(BotBase, robot.Robot):
     def _raw(self, txt, event=None, *args, **kwargs):
         """ output some txt to the wave. """
         assert event.chan
-        if not event.chan: logging.error("%s - event.chan is not set" % self.name) ; return
+        if not event.chan: logging.error("%s - event.chan is not set" % self.cfg.name) ; return
         if event.chan.data.json_data: wavelet = self.blind_wavelet(event.chan.data.json_data)
         else: logging.warn("did not join channel %s" % event.chan.data.id) ; return
         if not wavelet: logging.error("cant get wavelet") ; return
         txt = self.normalize(txt)
         txt = unicode(txt.strip())
-        logging.warn("%s - wave - out - %s" % (self.name, txt))             
+        logging.warn("%s - wave - out - %s" % (self.cfg.name, txt))             
         try:
             annotations = []
             for url in txt.split():
@@ -152,11 +149,11 @@ class WaveBot(BotBase, robot.Robot):
 
     def outnocb(self, waveid, txt, result=[], event=None, origin="", dot=", ", *args, **kwargs):
         """ output to the root id. """
-        if not self.domain in self._server_rpc_base:
+        if not self.cfg.domain in self._server_rpc_base:
             credentials = _import_byfile("credentials", getdatadir() + os.sep + "config" + os.sep + "credentials.py")
             rpc_base = credentials.RPC_BASE[waveid.split("!")[0]]
             self._server_rpc_base = rpc_base
-            logging.warn("%s - %s - server_rpc_base is %s" % (self.name, waveid, self._server_rpc_base))
+            logging.warn("%s - %s - server_rpc_base is %s" % (self.cfg.name, waveid, self._server_rpc_base))
         if not event: logging.error("wave - event not set - %s" % calledfrom(sys._getframe(0)))
         logging.warn("wave - creating new event.")
         wave = Wave(waveid)
@@ -164,17 +161,17 @@ class WaveBot(BotBase, robot.Robot):
 
     def toppost(self, waveid, txt):
         """ output to the root id. """
-        if not self.domain in waveid:
-            logging.warn("%s - not connected - %s" % (self.name, waveid))
+        if not self.cfg.domain in waveid:
+            logging.warn("%s - not connected - %s" % (self.cfg.name, waveid))
             return
         wave = Wave(waveid)
         if wave and wave.data.waveid: wave.toppost(self, txt)
-        else: logging.warn("%s - we are not joined to %s" % (self.name, waveid))
+        else: logging.warn("%s - we are not joined to %s" % (self.cfg.name, waveid))
 
     def newwave(self, domain=None, participants=None, submit=False):
         """ create a new wave. """
         logging.info("wave - new wave on domain %s" % domain)
-        newwave = self.new_wave(domain or self.domain, participants=participants, submit=submit)
+        newwave = self.new_wave(domain or self.cfg.domain, participants=participants, submit=submit)
         return newwave
 
     def run(self):

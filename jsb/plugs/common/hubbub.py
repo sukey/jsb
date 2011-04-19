@@ -499,7 +499,7 @@ examples.add('hb-subscribe', 'subscribe to a feed', 'hb-subscribe jsb-hg http://
 def handle_hubbubclone(bot, event):
     """ clone the feeds running in a channel. """
     if not event.rest: event.missing('<channel>') ; return
-    feeds = watcher.clone(bot.name, bot.type, event.channel, event.rest)
+    feeds = watcher.clone(bot.cfg.name, bot.type, event.channel, event.rest)
     event.reply('cloned the following feeds: ', feeds)
     bot.say(event.rest, "this wave is continued in %s" % event.url)
  
@@ -566,7 +566,7 @@ def handle_hubbubstart(bot, ievent):
     cantstart = []
     if feeds[0] == 'all': feeds = watcher.list()
     for name in feeds:
-        if watcher.start(bot.name, bot.type, name, ievent.channel):
+        if watcher.start(bot.cfg.name, bot.type, name, ievent.channel):
             started.append(name)
             if name not in ievent.chan.data.feeds:
                 ievent.chan.data.feeds.append(name)
@@ -593,9 +593,9 @@ def handle_hubbubstop(bot, ievent):
     feeds = ievent.args
     stopped = []
     cantstop = []
-    if feeds[0] == 'all': feeds = watcher.listfeeds(bot.name, bot.type, ievent.channel)
+    if feeds[0] == 'all': feeds = watcher.listfeeds(bot.cfg.name, bot.type, ievent.channel)
     for name in feeds:
-        if watcher.stop(bot.name, bot.type, name, ievent.channel):
+        if watcher.stop(bot.cfg.name, bot.type, name, ievent.channel):
             stopped.append(name)
             if name in ievent.chan.data.feeds:
                 ievent.chan.data.feeds.remove(name)
@@ -618,7 +618,7 @@ def handle_hubbubstopall(bot, ievent):
     feeds = watcher.getfeeds(target, bot.cfg.name)
     if feeds:
         for feed in feeds:
-            if watcher.stop(bot.name, bot.type, feed, target):
+            if watcher.stop(bot.cfg.name, bot.type, feed, target):
                 if feed in ievent.chan.data.feeds:
                     ievent.chan.data.feeds.remove(feed)
                     ievent.chan.save()
@@ -653,17 +653,17 @@ def handle_hubbubaddchannel(bot, ievent):
     try: (name, botname, type, channel) = ievent.args
     except ValueError:
         try:
-            botname = bot.name
+            botname = bot.cfg.name
             (name, type, channel) = ievent.args
         except ValueError:
             try:
-                botname = bot.name
+                botname = bot.cfg.name
                 type = bot.type
                 (name, channel) = ievent.args
                 type = bot.type
             except ValueError:
                 try:
-                    botname = bot.name
+                    botname = bot.cfg.name
                     name = ievent.args[0]
                     type = bot.type
                     channel = ievent.channel
@@ -804,11 +804,11 @@ def handle_hubbubdelchannel(bot, ievent):
     try: (name, botname, bottype, channel) = ievent.args
     except ValueError:
         try:
-            botname = bot.name
+            botname = bot.cfg.name
             (name, type, channel) = ievent.args
         except ValueError:
             try:
-                botname = bot.name
+                botname = bot.cfg.name
                 name = ievent.args[0]
                 type = bot.type
                 channel = ievent.channel
@@ -981,7 +981,7 @@ def handle_hubbubregister(bot, ievent):
         item = watcher.byname(name)
         if item:
             if not name in watcher.getfeeds(ievent.channel, bot.cfg.name):
-                watcher.start(bot.name, bot.type, name, target)
+                watcher.start(bot.cfg.name, bot.type, name, target)
                 if name not in ievent.chan.data.feeds:
                     ievent.chan.data.feeds.append(name)
                     ievent.chan.save()
@@ -998,7 +998,7 @@ def handle_hubbubregister(bot, ievent):
     result = subscribe(url)
     if int(result.status) > 200 and int(result.status) < 300:
         if watcher.add(name, url, ievent.userhost):
-            watcher.start(bot.name, bot.type, name, target)
+            watcher.start(bot.cfg.name, bot.type, name, target)
             ievent.reply('started %s feed. entries will show up when the feed is updated.' % name)
             if bot.type == "wave":
                 wave = Wave(ievent.waveid)

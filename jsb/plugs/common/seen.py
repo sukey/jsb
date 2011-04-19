@@ -64,8 +64,8 @@ class Seen(Pdod):
         self.data[ievent.nick.lower()] = {
             'time':    time.time(),
             'text':    ievent.origtxt,
-            'bot':     bot.name,
-            'server':  bot.server,
+            'bot':     bot.cfg.name,
+            'server':  bot.cfg.server,
             'channel': ievent.channel,
             'what':    'saying',
             }
@@ -74,8 +74,8 @@ class Seen(Pdod):
         self.data[ievent.nick.lower()] = {
             'time':    time.time(),
             'text':    '',
-            'bot':     bot.name,
-            'server':  bot.server,
+            'bot':     bot.cfg.name,
+            'server':  bot.cfg.server,
             'channel': ievent.channel,
             'what':    'joining %s' % ievent.channel,
             }
@@ -84,8 +84,8 @@ class Seen(Pdod):
         self.data[ievent.nick.lower()] = {
             'time':    time.time(),
             'text':    ievent.txt,
-            'bot':     bot.name,
-            'server':  bot.server,
+            'bot':     bot.cfg.name,
+            'server':  bot.cfg.server,
             'channel': ievent.channel,
             'what':    'parting %s' % ievent.channel,
             }
@@ -94,8 +94,8 @@ class Seen(Pdod):
         self.data[ievent.nick.lower()] = {
             'time':    time.time(),
             'text':    ievent.txt,
-            'bot':     bot.name,
-            'server':  bot.server,
+            'bot':     bot.cfg.name,
+            'server':  bot.cfg.server,
             'channel': ievent.channel,
             'what':    'quitting',
             }
@@ -105,8 +105,8 @@ class Seen(Pdod):
            self.data[ievent.nick.lower()] = {
                'time':    time.time(),
                'text':    ievent.userhost,
-               'bot':     bot.name,
-               'server':  bot.server,
+               'bot':     bot.cfg.name,
+               'server':  bot.cfg.server,
                'channel': ievent.channel,
                'what':    'saindo da sala %s' % ievent.channel,
                }
@@ -114,8 +114,8 @@ class Seen(Pdod):
            self.data[ievent.nick.lower()] = {
                'time':    time.time(),
                'text':    ievent.userhost,
-               'bot':     bot.name,
-               'server':  bot.server,
+               'bot':     bot.cfg.name,
+               'server':  bot.cfg.server,
                'channel': ievent.channel,
                'what':    'entrando na sala %s' % ievent.channel,
                }

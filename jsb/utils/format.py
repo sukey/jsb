@@ -77,10 +77,10 @@ def formatevent(bot, ievent, channels, forwarded=False):
         'datetime': datetime.now(),
         'separator': format_opt('separator'),
         'event_prefix': format_opt('event_prefix'),
-        'network': bot.networkname,
+        'network': bot.cfg.networkname,
         'nick': ievent.nick,
         'target': stripname(ievent.channel),
-        'botname': bot.name,
+        'botname': bot.cfg.name,
         'txt': ievent.txt,
         'type': ievent.cbtype
     }
@@ -108,7 +108,7 @@ def formatevent(bot, ievent, channels, forwarded=False):
         cmd = ievent.cmnd
         nick = cmd == 'NICK' and ievent.txt or ievent.nick
         for c in event.user.channels:
-            if [bot.name, c] in channels:
+            if [bot.cfg.name, c] in channels:
                 if True:
                     if cmd == 'NICK': m.txt = '%s (%s) is now known as %s'% (ievent.nick, ievent.userhost, ievent.txt)
                     else: m.txt= '%s (%s) has quit: %s'% (ievent.nick, ievent.userhost, ievent.txt)
