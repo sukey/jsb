@@ -25,8 +25,11 @@ if opts.datadir and not os.path.isdir(opts.datadir): os.mkdir(opts.datadir)
 
 ## make config from cmndline options
 
+from jsb.lib.config import getmainconfig
 from jsb.utils.log import setloglevel
-setloglevel(opts.loglevel or "warn")
+mainconfig = getmainconfig()
+setloglevel(opts.loglevel or mainconfig.loglevel or "warning")
+if opts.loglevel: mainconfig.loglevel = opts.loglevel ; mainconfig.save()
 
 from jsb.lib.boot import boot
 boot(opts.datadir)
@@ -34,7 +37,7 @@ boot(opts.datadir)
 ## jsb imports
 
 from jsb.utils.generic import waitforqueue, waitevents
-from jsb.lib.convore.bot import ConvoreBot
+from jsb.drivers.convore.bot import ConvoreBot
 from jsb.lib.config import Config
 from jsb.lib.errors import NoOwnerSet
 from jsb.lib.commands import cmnds

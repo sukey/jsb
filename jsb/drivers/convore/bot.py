@@ -78,7 +78,7 @@ class ConvoreBot(BotBase):
 
     def discover(self, channel):
         res = self.get("groups/discover/search.json", {"q": channel })
-        logging.warn("%s - discover result: %s" % (self.cfg.name, str(res)))
+        logging.debug("%s - discover result: %s" % (self.cfg.name, str(res)))
         for g in res.groups:
             group = LazyDict(g)
             self.state["namecache"][group.id] = group.name
@@ -95,12 +95,12 @@ class ConvoreBot(BotBase):
             self.join_id(chans[0]["id"], password)
 
     def join_id(self, id, password=None):
-        logging.warn("%s - join %s" % (self.cfg.name, id))
+        logging.warn("%s - joining %s" % (self.cfg.name, id))
         res = self.post("groups/%s/join.json" % id, {"group_id": id})
         return res
 
     def part(self, channel):
-        logging.warn("%s - part %s" % (self.cfg.name, channel))
+        logging.warn("%s - leaving %s" % (self.cfg.name, channel))
         try:
             id = self.state["idcache"][channel]
             res = self.post("groups/%s/leave.json" % id, {"group_id": id})
@@ -138,17 +138,17 @@ class ConvoreBot(BotBase):
         logging.error("%s - error - %s" % (self.cfg.name, event.error))
 
     def handle_logout(self, event):
-        logging.warn("%s - logout - %s" % (self.cfg.name, event.username))
+        logging.info("%s - logout - %s" % (self.cfg.name, event.username))
 
     def handle_login(self, event):
-        logging.warn("%s - login - %s" % (self.cfg.name, event.username))
+        logging.info("%s - login - %s" % (self.cfg.name, event.username))
 
     def handle_star(self, event):
         pass
         #logging.warn("%s - star - %s" % (self.cfg.name, str(message)))
 
     def handle_topic(self, event):
-        logging.warn("%s - topic - %s" % (self.cfg.name, event.dump()))
+        logging.info("%s - topic - %s" % (self.cfg.name, event.dump()))
 
     def handle_message(self, event):
         self.doevent(event)
