@@ -307,7 +307,7 @@ class SXMPPBot(XMLStream, BotBase):
         for node in m.subelements:
             try: m.jid = node.x.item.jid 
             except (AttributeError, TypeError): continue
-        if self.cfg.user in m.fromm:
+        if self.cfg.user in m.fromm or (m.groupchat and self.cfg.nick == m.nick):
             logging.debug("%s - message to self .. ignoring" % self.cfg.name)
             return 0
         try:

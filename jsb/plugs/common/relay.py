@@ -84,8 +84,8 @@ def relaycallback(bot, event):
                         txt = "[!] %s" % e.txt
                     else:
                         txt = "[%s] %s" % (e.nick, e.txt)
-                    #if event:
-                    #    t = "[%s]" % outbot.cfg.nick
+                    if event:
+                        t = "[%s]" % outbot.cfg.nick
                     #    if "] [" in txt and t in txt: logging.info("relay - %s already relayed" % bot.cfg.name) ; continue
                     #    if outbot.cfg.name not in event.path: event.path.append(outbot.cfg.name)
                     logging.warn("relay - sending to %s (%s)" % (target, outbot.cfg.name)) 

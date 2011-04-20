@@ -32,7 +32,7 @@ def reboot_stateful(bot, ievent, fleet, partyline):
     logging.warn("reboot - doing statefull reboot")
     session = {'bots': {}, 'name': bot.cfg.name, 'channel': ievent.nick, 'partyline': []}
     for i in getfleet().bots:
-        logging.warn("reboot - updating %s" % i.name)
+        logging.warn("reboot - updating %s" % i.cfg.name)
         data = i._resumedata()
         if not data: continue
         session['bots'].update(data)

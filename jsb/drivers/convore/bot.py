@@ -125,7 +125,7 @@ class ConvoreBot(BotBase):
                     try:
                         event = ConvoreEvent()
                         event.parse(self, message, result)
-                        if event.username == self.cfg.username: continue
+                        if event.username.lower() == self.cfg.username.lower(): continue
                         event.bind(self)
                         method = getattr(self, "handle_%s" % event.type)
                         method(event)

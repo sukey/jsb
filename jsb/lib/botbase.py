@@ -147,8 +147,17 @@ class BotBase(LazyDict):
         self.update(data)
 
     def _resumedata(self):
-       """ overload this. """ 
-       pass
+        """ return data needed for resuming. """
+        return {self.cfg.name: {  
+            'type': self.type,
+            'nick': self.cfg.nick,
+            'server': self.cfg.server,
+            'port': self.cfg.port,
+            'password': self.cfg.password,
+            'ipv6': self.cfg.ipv6,
+            'user': self.cfg.user
+            }}
+        pass
 
     def enable(self, modname):
         """ enable plugin given its modulename. """
