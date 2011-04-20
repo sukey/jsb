@@ -473,7 +473,7 @@ class SXMPPBot(XMLStream, BotBase):
         if channel.startswith("#"): return
         try:
             if not nick: nick = channel.split('/')[1]
-        except IndexError: nick = self.nick
+        except IndexError: nick = self.cfg.nick or "jsonbot"
         channel = channel.split('/')[0]
         q = Queue.Queue()
         presence = Presence({'to': channel + '/' + nick})

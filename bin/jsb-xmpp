@@ -40,9 +40,7 @@ print getversion('SXMPP')
 boot(opts.datadir)
 
 cfg = makesxmppconfig(opts)
-if opts.nick: cfg.nick = opts.nick
-else: cfg.nick = 'jsb'
-cfg.save()
+if opts.nick: cfg.nick = opts.nick ; cfg.save()
 
 ## loglevel
 
