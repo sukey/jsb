@@ -66,8 +66,10 @@ noresult = []
 
 ## functions
 
-def gendoc(mod, f, output):
-    mod = mod.replace(os.sep, '.')
+def gendoc(m, f, output):
+    thefile = m.replace(".", os.sep)
+    thefile = thefile + os.sep + f
+    mod = m.replace(os.sep, '.')
     base = os.path.abspath(f).split(os.sep)[-1].replace('.py','')
     plugin = mod + '.' + base
     output.write('=' * (len(base)+2) + '\n')
@@ -135,7 +137,9 @@ def gendoc(mod, f, output):
     output.write("| \n" + '\n')
     teller = 1
     waiting = []
-    for command in data['commands']:
+    c = data['commands']
+    c.sort()
+    for command in c:
         try:
             funcname = cmnds[command].func.func_name
         except AttributeError:
@@ -149,8 +153,9 @@ def gendoc(mod, f, output):
         if data['permissions'].has_key(command):
             output.write('\n    :permissions: %s' % ' .. '.join(data['permissions'][command]) + '\n')
         if data['options'].has_key(command):
-             output.write("\n    :options: %s\n" % data['options'][command])
+            output.write("\n    :options: %s\n" % data['options'][command])
         if data['examples'].has_key(command):
+            output.write("\n    :code: :ref:`%s-%s`.\n" % (thefile, command))
             output.write('\n    :examples:' + '\n')
             for i in data['examples'][command]:
                 if not i:
@@ -174,9 +179,8 @@ def gendoc(mod, f, output):
                         continue
                     result = ""
                     for r in res:
-                        result += bot.normalize(r)
-                    output.write('        <output> %s\n\n' % result)
-                    output.write('\n\n')
+                        output.write('        <output> %s\n' % bot.normalize(r))
+                    output.write("\n\n")
                 except Exception, ex:
                     handle_exception(txt=i)
         teller += 1
@@ -241,6 +245,7 @@ def domodfile(module, dir):
                 f.write("CODE\n----\n\n    ::\n\n")
                 for line in open(thedir, 'r'):
                     if line.startswith("##"):
+                        f.write(".. _%s-%s:\n\n" % (thedir, line.split()[1]))
                         f.write(line[3:].strip() + u"\n")
                         f.write(u"-" * (len(line.strip())-3) + u"\n")
                         f.write(u"\n    ::\n\n")
