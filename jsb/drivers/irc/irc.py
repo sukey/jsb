@@ -279,7 +279,7 @@ class Irc(BotBase):
         username = self.cfg['username'] or "jsb"
         realname = self.cfg['realname'] or "The JSON everywhere bot"
         time.sleep(1)
-        self._raw("NICK %s" % self.nick)
+        self._raw("NICK %s" % self.cfg.nick)
         time.sleep(1)
         self._raw("USER %s localhost %s :%s" % (username, self.server, realname))
 
@@ -615,7 +615,7 @@ class Irc(BotBase):
         """ we are connected.  """
         self.connectok.set()
         self.connected = True
-        self.whois(self.nick)
+        self.whois(self.cfg.nick)
 
     def handle_privmsg(self, ievent):
         """ check if msg is ctcp or not .. return 1 on handling. """

@@ -48,7 +48,6 @@ cfg = makeircconfig(opts)
 cfg.name = opts.name or cfg.name or "default-irc"
 cfg.type = "irc"
 if opts.nick: cfg.nick = opts.nick
-else: cfg.nick = 'jsb'
 if opts.loglevel: cfg.loglevel = opts.loglevel 
 cfg.save()
 
