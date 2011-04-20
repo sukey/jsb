@@ -163,7 +163,7 @@ def gendoc(mod, f, output):
                     if 'deadline' in i: continue
                     e = bot.putevent("test@test", "#test", cmnd, wait=0)
                     if not e: logging.warn("can't execute %s" % cmnd) ; continue
-                    waitforqueue(e.resqueue)
+                    res = waitforqueue(e.resqueue)
                     print res
                     if not res:
                         output.write("        <output> none" + '\n')
