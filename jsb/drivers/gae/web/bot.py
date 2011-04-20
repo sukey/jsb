@@ -30,7 +30,6 @@ class WebBot(BotBase):
     def __init__(self, cfg=None, users=None, plugs=None, botname="gae-web", *args, **kwargs):
         BotBase.__init__(self, cfg, users, plugs, botname, *args, **kwargs)
         assert self.cfg
-        self.cfg.type = u'web'
         self.isgae = True
         self.type = u"web"
 
@@ -45,14 +44,12 @@ class WebBot(BotBase):
         txt = self.normalize(txt)
         if event and event.how != "background":
             logging.warn("%s - out - %s" % (self.cfg.name, txt))
-            #if how == "cache": add(channel, [txt, ])
         if "http://" in txt or "https://" in txt:
              for item in re_url_match.findall(txt):
                  logging.debug("web - raw - found url - %s" % item)
                  url = u'<a href="%s" onclick="window.open(\'%s\'); return false;">%s</a>' % (item, item, item)
                  try: txt = re.sub(item, url, txt)
                  except ValueError:  logging.error("web - invalid url - %s" % url)
-        #if dotime: txt = "[%s] %s" % (hourmin(time.time()), txt)
         if response: self._raw(txt, response)
         else: self.update_web(channel, txt)
 
@@ -87,5 +84,5 @@ class WebBot(BotBase):
             except gchan.InvalidChannelClientIdError:
                 remove.append(c)
         if remove:
-            for c in remove: chan.data.webchannels.remove(c)
+            for c in remove: chan.data.webchannels.remove(c) ; logging.debug("%s - closing channel %s" % (self.cfg.name, chan))
             chan.save()

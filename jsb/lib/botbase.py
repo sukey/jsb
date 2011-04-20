@@ -66,7 +66,7 @@ class BotBase(LazyDict):
 
     def __init__(self, cfg=None, usersin=None, plugs=None, botname=None, nick=None, *args, **kwargs):
         if not botname and cfg and cfg.has_key("name"): botname = cfg["name"]
-        else: botname = u"default-%s" % str(type(self)).split('.')[-1][:-2]
+        else: botname = botname or u"default-%s" % str(type(self)).split('.')[-1][:-2]
         assert botname
         logging.warn("botbase - name is %s" % botname)
         self.fleetdir = u'fleet' + os.sep + stripname(botname)
