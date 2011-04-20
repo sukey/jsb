@@ -160,7 +160,7 @@ class Fleet(Persist):
     def list(self):
         """ return list of bot names. """
         result = []
-        for i in self.bots: result.append(i.name)
+        for i in self.bots: result.append(i.cfg.name)
         return result
 
     def stopall(self):
