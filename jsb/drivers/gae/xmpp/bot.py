@@ -7,7 +7,7 @@
 ## jsb imports
 
 from jsb.lib.botbase import BotBase
-from jsb.lib.socklib.xmpp.presence import Presence
+from jsb.drivers.xmpp.presence import Presence
 from jsb.utils.generic import strippedtxt
 
 ## xmpp import

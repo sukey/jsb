@@ -18,16 +18,14 @@ class Factory(object):
 class BotFactory(Factory):
 
     def create(self, type, cfg):
-        if type == 'xmpp' or type == 'jabber':
+        if 'xmpp' in type:
             try:
+                import waveapi
                 from jsb.drivers.gae.xmpp.bot import XMPPBot
                 bot = XMPPBot(cfg)
             except ImportError:   
                 from jsb.drivers.xmpp.bot import SXMPPBot
                 bot = SXMPPBot(cfg)
-        elif type == 'sxmpp':
-            from jsb.drivers.xmpp.bot import SXMPPBot
-            bot = SXMPPBot(cfg)
         elif type == 'web':
             from jsb.drivers.gae.web.bot import WebBot
             bot = WebBot(cfg)
