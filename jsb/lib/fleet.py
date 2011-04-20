@@ -189,7 +189,6 @@ class Fleet(Persist):
             self.save()
         return True
 
-    @locked
     def addbot(self, bot):
         """
             add a bot to the fleet .. remove all existing bots with the 
@@ -297,10 +296,10 @@ class Fleet(Persist):
         cfg = Config('fleet' + os.sep + stripname(botname) + os.sep + 'config')
         logging.warn("fleet - resuming %s bot - %s - %s" % (botname, str(data), data['type']))
         bot = self.makebot(data['type'], botname)
-        if data['type'] in ["sxmpp"]:
+        if data['type'] in ["sxmpp", ]:
             if oldbot: self.replace(oldbot, bot)
             bot._resume(data, printto)
-            bot.start(False)
+            start_new_thread(bot.start, (False,))
         else: start_new_thread(bot.start, ())
 
 ## global fleet object

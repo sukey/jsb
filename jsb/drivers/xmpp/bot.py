@@ -555,7 +555,7 @@ class SXMPPBot(XMLStream, BotBase):
     def doreconnect(self):
         """ reconnect to the server. """
         botjid = self.cfg.user
-        newbot = getfleet().makebot('sxmpp', self.cfg.name, cfg=self.cfg)
+        newbot = getfleet().makebot('sxmpp', self.cfg.name, config=self.cfg)
         newbot.reconnectcount = self.reconnectcount
         self.exit()
         if newbot.start():

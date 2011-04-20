@@ -22,11 +22,7 @@ import logging
 def globalshutdown():
     """ shutdown the bot. """
     logging.warn('shutting down'.upper())
-    defaultrunner.stop()
-    cmndrunner.stop()
     sys.stdout.write("\n")
-    try:os.remove('jsb.pid')
-    except: pass
     from fleet import getfleet
     fleet = getfleet()
     if fleet:
@@ -35,7 +31,12 @@ def globalshutdown():
     logging.warn('shutting down plugins')
     from jsb.lib.plugins import plugs
     plugs.exit()
+    logging.warn("shutting down runners")
+    defaultrunner.stop()
+    cmndrunner.stop()
     logging.warn('done')
+    try:os.remove('jsb.pid')
+    except: pass
     os._exit(0)
 
 #try: import google

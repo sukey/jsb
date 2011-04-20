@@ -163,8 +163,6 @@ class XMLStream(NodeBuilder):
                     break
                 if True:
                     self.buffer = u"%s%s" % (self.buffer, data)
-                    #splitted = self.buffer.split(">")
-                    #lastitem = splitted[-1]
                     handlers = self.handlers.keys()
                     handlers.append("/")
                     for handler in handlers:
@@ -178,7 +176,12 @@ class XMLStream(NodeBuilder):
                                     self.buffer = ""
                                     break
                             except: handle_exception()
-            except AttributeError, ex: logging.error("%s - connection disappeared: %s" % (self.cfg.name, str(ex))) ; break
+            except AttributeError, ex: 
+                logging.error("%s - connection disappeared: %s" % (self.cfg.name, str(ex)))
+                self.buffer = ""
+                self.error = str(ex)
+                self.disconnectHandler(ex)
+                break
             except xml.parsers.expat.ExpatError, ex:
                 logging.error("%s - %s - %s" % (self.cfg.name, str(ex), data))
                 self.buffer = ""
@@ -190,7 +193,7 @@ class XMLStream(NodeBuilder):
                 self.error = str(ex)
                 self.disconnectHandler(ex)
                 break
-        logging.info('%s - stopping readloop .. %s' % (self.cfg.name, self.error or 'error not set'))
+        logging.warn('%s - stopping readloop .. %s' % (self.cfg.name, self.error or 'error not set'))
 
     @outlocked
     def _raw(self, stanza):
