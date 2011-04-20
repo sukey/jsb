@@ -27,10 +27,11 @@ def handle_feedback(bot, event):
         feedbackbot.start()
         if not feedbackbot.cfg.password: feedbackbot.cfg.password = cfg['password'] ; feedbackbot.cfg.save()
     if not feedbackbot: event.reply("can't make xmpp bot.") ; return
-    feedbackbot.cfg.enable = True
+    feedbackbot.cfg.disable = False
     event.reply("sending to bart@jsonbot.org ... ")
     feedbackbot.say("bart@jsonbot.org", event.rest)
-    feedbackbot.cfg.enable = False
+    feedbackbot.cfg.disable = True
+    feedbackbot.cfg.save()
     event.done()
 
 cmnds.add("feedback", handle_feedback, ["OPER", "USER", "GUEST"])

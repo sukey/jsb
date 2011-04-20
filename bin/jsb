@@ -75,8 +75,8 @@ if opts.args:
     bot.start(False)
     cmndstring = "!%s" % cmndstring.strip()
     event = bot.putevent(userid, opts.channel or userid, cmndstring, wait=1, showall=True)
-    if 'feedback' in cmndstring: time.sleep(30)
-    else: waitforqueue(event.resqueue)
+    #if 'feedback' in cmndstring: time.sleep(30)
+    waitforqueue(event.resqueue, 15000)
     time.sleep(0.1)
     try:
         sys.stdout.close()

@@ -86,7 +86,7 @@ class Fleet(Persist):
             except KeyError: logging.error("no type know for %s bot" % name)
             except Exception, ex: handle_exception()
         for t in threads:
-            t.join()
+            t.join(5)
 
     def avail(self):
         """ return available bots. """
@@ -294,13 +294,13 @@ class Fleet(Persist):
         oldbot = self.byname(botname)
         if oldbot and data['type'] in ["sxmpp", "convore"]: oldbot.exit()
         cfg = Config('fleet' + os.sep + stripname(botname) + os.sep + 'config')
+        if cfg.disable: logging.warn("%s - bot is disabled .. not resuming it" % botname) ; return
         logging.warn("fleet - resuming %s bot - %s - %s" % (botname, str(data), data['type']))
         bot = self.makebot(data['type'], botname)
-        if data['type'] in ["sxmpp", ]:
-            if oldbot: self.replace(oldbot, bot)
-            bot._resume(data, printto)
-            start_new_thread(bot.start, (False,))
-        else: start_new_thread(bot.start, ())
+        #if data['type'] in ["sxmpp", ]:
+        if oldbot: self.replace(oldbot, bot)
+        bot._resume(data, printto)
+        bot.start(False)
 
 ## global fleet object
 

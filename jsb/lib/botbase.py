@@ -451,6 +451,7 @@ class BotBase(LazyDict):
 
     def reconnect(self):
         """ reconnect to the server. """
+        if self.stopped: logging.warn("%s - bot is stopped .. not reconnecting" % self.cfg.name) ; return
         try:
             try: self.exit()
             except Exception, ex: handle_exception()
