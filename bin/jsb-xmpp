@@ -32,7 +32,7 @@ import os
 
 ## options parser
 
-opts = makexmppopts()
+opts = makesxmppopts()
 
 from jsb.version import getversion
 print getversion('SXMPP')
@@ -41,7 +41,7 @@ boot(opts.datadir)
 
 cfg = makesxmppconfig(opts)
 if opts.nick: cfg.nick = opts.nick
-else cfg.nick = 'jsb'
+else: cfg.nick = 'jsb'
 cfg.save()
 
 ## loglevel
