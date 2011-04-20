@@ -12,7 +12,7 @@ from jsb.utils.exception import handle_exception
 from jsb.lib.persist import PlugPersist
 from jsb.lib.callbacks import callbacks
 from jsb.lib.plugins import plugs
-from jsb.lib.gae.wave.waves import Wave
+from jsb.drivers.gae.wave.waves import Wave
 
 ## basic imports
 
