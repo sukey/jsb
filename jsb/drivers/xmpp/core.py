@@ -145,11 +145,11 @@ class XMLStream(NodeBuilder):
         self.buffer = ""
         self.error = ""
         data = ""
-        assert(self.connection)
-        while not self.stopped:
+        while not self.stopped and not self.stopreadloop:
             time.sleep(0.001)
             try:
                 data = jabberstrip(fromenc(self.connection.read()))
+                if self.stopped or self.stopreadloop: break
                 logging.info(u"%s - incoming: %s" % (self.cfg.name, data))
                 if data.endswith("</stream:stream>"):
                     logging.error("%s - end of stream detected" % self.cfg.name)
@@ -178,6 +178,7 @@ class XMLStream(NodeBuilder):
                                     self.buffer = ""
                                     break
                             except: handle_exception()
+            except AttributeError, ex: logging.error("%s - connection disappeared: %s" % (self.cfg.name, str(ex))) ; break
             except xml.parsers.expat.ExpatError, ex:
                 logging.error("%s - %s - %s" % (self.cfg.name, str(ex), data))
                 self.buffer = ""

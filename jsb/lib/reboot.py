@@ -36,7 +36,8 @@ def reboot_stateful(bot, ievent, fleet, partyline):
         data = i._resumedata()
         if not data: continue
         session['bots'].update(data)
-        if i.type == "sxmpp": i.exit()
+        if i.type == "sxmpp": i.exit() ; continue
+        if i.type == "convore": i.exit()
     session['partyline'] = partyline._resumedata()
     sessionfile = tempfile.mkstemp('-session', 'jsb-')[1]
     json.dump(session, open(sessionfile, 'w'))

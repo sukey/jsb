@@ -293,11 +293,11 @@ class Fleet(Persist):
         # see if we need to exit the old bot
         if data['type'] == "console": logging.warn("not resuming console bot %s" % botname) ; return
         oldbot = self.byname(botname)
-        if oldbot and data['type'] == "sxmpp": oldbot.exit()
+        if oldbot and data['type'] in ["sxmpp", "convore"]: oldbot.exit()
         cfg = Config('fleet' + os.sep + stripname(botname) + os.sep + 'config')
         logging.warn("fleet - resuming %s bot - %s - %s" % (botname, str(data), data['type']))
         bot = self.makebot(data['type'], botname)
-        if data['type'] != "sxmpp":
+        if data['type'] in ["sxmpp"]:
             if oldbot: self.replace(oldbot, bot)
             bot._resume(data, printto)
             bot.start(False)

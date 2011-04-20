@@ -146,6 +146,9 @@ class BotBase(LazyDict):
     def copyin(self, data):
         self.update(data)
 
+    def _resume(self, data, botname, *args, **kwargs):
+        pass
+
     def _resumedata(self):
         """ return data needed for resuming. """
         return {self.cfg.name: {  

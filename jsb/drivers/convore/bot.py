@@ -109,13 +109,15 @@ class ConvoreBot(BotBase):
         return res
 
     def _readloop(self):
+        logging.warn("%s - starting readloop" % self.cfg.name)
         self.connectok.wait(15)
         self.auth = requests.AuthObject(self.cfg.username, self.cfg.password)
-        while not self.stopped:
+        while not self.stopped and not self.stopreadloop:
             try:
                 time.sleep(1)
                 if self.cursor: result = self.get("live.json", {"cursor": self.cursor})
                 else: result = self.get("live.json")
+                if self.stopped or self.stopreadloop: break
                 if not result: time.sleep(20) ; continue
                 if result.has_key("_id"): self.cursor = result["_id"]
                 logging.info("%s - incoming - %s" % (self.cfg.name, str(result)))
@@ -133,6 +135,7 @@ class ConvoreBot(BotBase):
                     except: handle_exception()
             except urllib2.URLError, ex: logging.error("%s - url error - %s" % (self.cfg.name, str(ex)))
             except Exception, ex: handle_exception()
+        logging.warn("%s - stopping readloop" % self.cfg.name)
 
     def handle_error(self, event):
         logging.error("%s - error - %s" % (self.cfg.name, event.error))
