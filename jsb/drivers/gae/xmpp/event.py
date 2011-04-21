@@ -9,7 +9,7 @@
 from jsb.lib.eventbase import EventBase
 from jsb.utils.xmpp import stripped, resource
 from jsb.utils.lazydict import LazyDict
-from jsb.lib.gae.utils.auth import checkuser
+from jsb.utils.gae.auth import checkuser
 from jsb.utils.generic import  strippedtxt
 
 ## xmpp import

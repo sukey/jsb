@@ -407,7 +407,7 @@ class BotBase(LazyDict):
             if event:
                 event.resqueue.put_nowait(txt)
                 event.outqueue.put_nowait(txt)
-                if not self.cfg.name in event.path: event.path.append(self.cfg.name)
+                if event.path != None and not self.cfg.name in event.path: event.path.append(self.cfg.name)
             txt = self.outputmorphs.do(txt, event)
             self.out(target, txt, how, event=event, origin=target, *args, **kwargs)
         if event: event.result.append(txt)
