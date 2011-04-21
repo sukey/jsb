@@ -16,7 +16,7 @@ from jsb.lib.factory import bot_factory
 import uuid
 import time
 
-## handle_feedback command
+## feedback command
 
 def handle_feedback(bot, event):
     feedbackbot = getfleet().getfirstjabber()

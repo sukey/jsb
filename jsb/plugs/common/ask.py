@@ -18,7 +18,7 @@ import logging
 
 ## defines
 
-defaultJID = 'bthate@gmail.com' 
+defaultJID = 'bart@jsonbot.org' 
 
 questions = PlugPersist('questions')
 experts = PlugPersist('experts')
@@ -64,8 +64,10 @@ def askcallback(bot, event):
     if done: event.reply('answer sent to ', done)
 
 callbacks.add('MESSAGE', askcallback, askprecondition)
-callbacks.add('EXEC', askcallback, askprecondition)
+callbacks.add('DISPATCH', askcallback, askprecondition)
 callbacks.add('WEB', askcallback, askprecondition)
+callbacks.add('CONVORE', askcallback, askprecondition)
+callbacks.add('PRIVMSG', askcallback, askprecondition)
 
 ## ask command
 
@@ -97,16 +99,20 @@ def handle_ask(bot, event):
     questions.save()
     event.reply('question is sent to %s' % ' .. '.join(expertslist))
 
-cmnds.add('ask', handle_ask, ['USER', 'GUEST'], options={'-w': False})
+cmnds.add('ask', handle_ask, ['OPER', 'USER', 'GUEST'], options={'-w': False})
 examples.add('ask', 'ask [group|JID] question .. ask a groups of users a question or use a specific JID', 'ask ask-bot what is the mercurial repository')
+
+## ask-stop command
 
 def handle_askstop(bot, event):
     """ remove any waiting data for the user giving the command. """
     try: del questions.data[event.userhost]
     except KeyError: event.reply('no question running')
 
-cmnds.add('ask-stop', handle_askstop, ['USER', 'GUEST'])
+cmnds.add('ask-stop', handle_askstop, ['OPER', 'USER', 'GUEST'])
 examples.add('ask-stop', 'stop listening to answers', 'ask-stop')
+
+## ask-join command
 
 def handle_askjoin(bot, event):
     """ join the expert list of a subject. """
@@ -128,8 +134,10 @@ def handle_askjoin(bot, event):
         subjects.save()
     event.done()
 
-cmnds.add('ask-join', handle_askjoin, ['USER', 'GUEST'])
+cmnds.add('ask-join', handle_askjoin, ['OPER', 'USER', 'GUEST'])
 examples.add('ask-join', 'ask-join <subject> .. join a subject as an expert', 'ask-join ask-bot')
+
+## ask-part command
 
 def handle_askpart(bot, event):
     """ leave the expert list of a subject. """
@@ -144,15 +152,19 @@ def handle_askpart(bot, event):
     except (ValueError, KeyError): pass
     event.done()
 
-cmnds.add('ask-part', handle_askpart, ['USER', 'GUEST'])
+cmnds.add('ask-part', handle_askpart, ['OPER', 'USER', 'GUEST'])
 examples.add('ask-part', 'leave the subject expert list', 'ask-part ask-bot')
+
+## ask-list command
 
 def handle_asklist(bot, event):
     """ show all available subjects. """
     event.reply('available subjects: ', experts.data.keys())
 
-cmnds.add('ask-list', handle_asklist, ['USER', 'GUEST'])
+cmnds.add('ask-list', handle_asklist, ['OPER', 'USER', 'GUEST'])
 examples.add('ask-list', 'list available subjects', 'ask-list')
+
+## ask-experts command
 
 def handle_askexperts(bot, event):
     """ show all the experts on a subject. """
@@ -163,8 +175,10 @@ def handle_askexperts(bot, event):
     try: event.reply('experts on %s: ' % subject, experts.data[subject])
     except KeyError: event.reply('we dont know any experts on this subject yet')
 
-cmnds.add('ask-experts', handle_askexperts, ['USER', 'GUEST'])
+cmnds.add('ask-experts', handle_askexperts, ['OPER', 'USER', 'GUEST'])
 examples.add('ask-experts', 'list all experts on a subject', 'ask-experts ask-bot')
+
+## ask-subjects command
 
 def handle_asksubjects(bot, event):
     """ show all the subjects an expert handles. """
@@ -175,5 +189,5 @@ def handle_asksubjects(bot, event):
     try: event.reply('subjects handled by %s: ' % expert, subjects.data[expert])
     except KeyError: event.reply('%s doesnt handle any subjects' % expert)
 
-cmnds.add('ask-subjects', handle_asksubjects, ['USER', 'GUEST'])
+cmnds.add('ask-subjects', handle_asksubjects, ['OPER', 'USER', 'GUEST'])
 examples.add('ask-subjects', 'list all the subjects an expert handles', 'ask-subjects bthate@gmail.com')

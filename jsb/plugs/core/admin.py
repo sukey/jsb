@@ -2,7 +2,7 @@
 #
 #
 
-""" admin related commands. """
+""" admin related commands. these commands are mainly for maintaining the bot. """
 
 ## jsb imports
 
@@ -29,7 +29,7 @@ def handle_adminboot(bot, ievent):
 cmnds.add('admin-boot', handle_adminboot, 'OPER')
 examples.add('admin-boot', 'initialize the bot .. cmndtable and pluginlist', 'admin-boot')
 
-## admin-commands
+## admin-commands command
 
 def handle_admincommands(bot, ievent):
     """ load all available plugins. """
@@ -42,7 +42,7 @@ def handle_admincommands(bot, ievent):
 cmnds.add('admin-commands', handle_admincommands, 'OPER')
 examples.add('admin-commands', 'show runtime command table', 'admin-commands')
 
-## admin-callbacks
+## admin-callbacks command
 
 def handle_admincallbacks(bot, ievent):
     """ load all available plugins. """
@@ -90,6 +90,8 @@ def handle_adminstop(bot, ievent):
 cmnds.add("admin-stop", handle_adminstop, "OPER")
 examples.add("admin-stop", "stop the bot.", "stop")
 
+## admin-upgrade command
+
 def handle_adminupgrade(bot, event):
     if not bot.isgae: event.reply("this command only works in GAE") ; return
     else: import google
@@ -120,6 +122,8 @@ def handle_adminupgrade(bot, event):
 cmnds.add("admin-upgrade", handle_adminupgrade, "OPER", threaded=True)
 examples.add("admin-upgrade", "upgrade the GAE bot", "admin-upgrade")
 
+## admin-setstatus command
+
 def handle_adminsetstatus(bot, event):
     if bot.type != "sxmpp": event.reply("this command only works on sxmpp bots (for now)") ; return
     if not event.rest: event.missing("<status> [<show>]") ; return
@@ -131,12 +135,14 @@ def handle_adminsetstatus(bot, event):
 cmnds.add("admin-setstatus", handle_adminsetstatus, ["STATUS", "OPER"])
 examples.add("admin-setstatus", "set status of sxmpp bot", "admin-setstatus available Yooo dudes !")
 
-def handle_reloadconfig(bot, event):
+## admin-reloadconfig command
+
+def handle_adminreloadconfig(bot, event):
     try:
         bot.cfg.reload()
         getmainconfig().reload()
     except Exception, ex: handle_exception(event)
     event.done()
 
-cmnds.add("admin-reloadconfig", handle_reloadconfig, ["OPER"])
+cmnds.add("admin-reloadconfig", handle_adminreloadconfig, ["OPER"])
 examples.add("admin-reloadconfig", "reload bot.cfg and mainconfig", "admin-reloadconfig")

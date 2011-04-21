@@ -1,10 +1,8 @@
 # jsb/plugs/uniq.py
 #
-# used in a pipeline .. unique elements """
-# Wijnand 'tehmaze' Modderman - http://tehmaze.com
-# BSD License
+#
 
-""" used in a pipeline .. unique elements """
+""" used in a pipeline .. unique elements. """
 
 __author__ = "Wijnand 'tehmaze' Modderman - http://tehmaze.com"
 __license__ = 'BSD'
@@ -30,5 +28,5 @@ def handle_uniq(bot, ievent):
     if not result: ievent.reply('no result')
     else: ievent.reply("result: ", result)
 
-cmnds.add('uniq', handle_uniq, ['USER', 'GUEST', 'CLOUD'])
+cmnds.add('uniq', handle_uniq, ['OPER', 'USER', 'GUEST'])
 examples.add('uniq', 'sort out multiple elements', 'list ! uniq')

@@ -135,7 +135,7 @@ cmnds.add('user-import', handle_import, ['IMPORT', 'OPER'])
 examples.add('user-import', 'user-import <userhost> .. merge record with \
 <name> with userhost from the person giving the command (self merge)', 'user-import bthate@gmail.com')
 
-## delete command
+## user-del command
 
 def handle_delete(bot, ievent):
     """ remove user. """

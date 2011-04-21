@@ -172,7 +172,7 @@ first_callbacks.add('CONSOLE', watchcallback, prewatchcallback)
 first_callbacks.add('WEB', watchcallback, prewatchcallback)
 first_callbacks.add('DISPATCH', watchcallback, prewatchcallback)
 
-## commands
+## watcher-start command
 
 def handle_watcherstart(bot, event):
     """ [<channel>] .. start watching a target (channel/wave). """
@@ -189,6 +189,8 @@ cmnds.add('watcher-start', handle_watcherstart, 'OPER')
 cmnds.add('watch', handle_watcherstart, 'USER')
 examples.add('watcher-start', 'start watching a channel. ', 'watcher-start <channel>')
 
+## watcher-reset command
+
 def handle_watcherreset(bot, event):
     """ [<channel>] .. stop watching a channel/wave. """
     watched.reset(event.channel)
@@ -197,13 +199,12 @@ def handle_watcherreset(bot, event):
 cmnds.add('watcher-reset', handle_watcherreset, 'OPER')
 examples.add('watcher-reset', 'stop watching', 'watcher-reset')
 
+## watcher-stop command
+
 def handle_watcherstop(bot, event):
     """ [<channel>] .. stop watching a channel/wave. """
-    if not event.rest:
-        target = event.origin
-    else:
-        target = event.rest
-
+    if not event.rest: target = event.origin
+    else: target = event.rest
     watched.unsubscribe(bot.cfg.name, bot.type, target, event.channel)
     if target in event.chan.data.watched:
         event.chan.data.watched.remove(target)
@@ -213,26 +214,26 @@ def handle_watcherstop(bot, event):
 cmnds.add('watcher-stop', handle_watcherstop, 'OPER')
 examples.add('watcher-stop', 'stop watching a channel', 'watcher-stop #dunkbots')
 
+## watcher-list command
+
 def handle_watcherlist(bot, event):
     """ see what channels we are watching. """
     chans = watched.channels(event.channel)
-
     if chans:
         res = []
         for chan in chans: 
-            try:
-                res.append(chan)
-            except KeyError:
-                res.append(chan)
-
+            try: res.append(chan)
+            except KeyError: res.append(chan)
         event.reply("channels watched on %s: " % event.channel, res)
 
-cmnds.add('watcher-list', handle_watcherlist, ['USER', 'GUEST'])
+cmnds.add('watcher-list', handle_watcherlist, ['OPER', 'USER', 'GUEST'])
 examples.add('watcher-list', 'show what channels we are watching', 'watcher-channels')
+
+## watcher-subscribers command
 
 def handle_watchersubscribers(bot, event):
     """" show channels that are watching us. """
     event.reply("watchers for %s: " % event.channel, watched.subscribers(event.channel))
 
-cmnds.add('watcher-subscribers', handle_watchersubscribers, ['USER', 'GUEST'])
+cmnds.add('watcher-subscribers', handle_watchersubscribers, ['OPER', 'USER', 'GUEST'])
 examples.add('watcher-subscribers', 'show channels that are watching us. ', 'watcher-list')

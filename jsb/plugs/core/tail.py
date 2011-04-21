@@ -27,5 +27,5 @@ def handle_tail(bot, ievent):
         return
     ievent.reply('results: ', result[-nr:])
     
-cmnds.add('tail', handle_tail, ['USER', 'GUEST'])
+cmnds.add('tail', handle_tail, ['OPER', 'USER', 'GUEST'])
 examples.add('tail', 'show last <nr> lines of pipeline output', 'list ! tail 5')

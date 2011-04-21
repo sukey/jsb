@@ -16,7 +16,7 @@ from jsb.lib.persist import PlugPersist
 
 import logging
 
-## commands
+## learn command
 
 def handle_learn(bot, event):
     """" set an information item. """
@@ -31,8 +31,10 @@ def handle_learn(bot, event):
     items.save()
     event.reply("%s item added to %s database" % (what, event.channel))
 
-cmnds.add('learn', handle_learn, ['USER', 'GUEST'])
+cmnds.add('learn', handle_learn, ['OPER', 'USER', 'GUEST'])
 examples.add('learn', 'learn the bot a description of an item.', "learn dunk is botpapa")
+
+## forget command
 
 def handle_forget(bot, event):
     """" set an information item. """
@@ -50,24 +52,32 @@ def handle_forget(bot, event):
                 break
     event.reply("item removed from %s database" % event.channel)
 
-cmnds.add('forget', handle_forget, ['USER'])
+cmnds.add('forget', handle_forget, ['OPER', 'USER'])
 examples.add('forget', 'forget a description of an item.', "forget dunk and botpapa")
 
+## whatis command
+
 def handle_whatis(bot, event):
+    """ show what the bot has learned about a factoid. """
     items = PlugPersist(event.channel)
     what = event.rest.lower().split('!')[0].strip()
     if what in items.data and items.data[what]: event.reply("%s is " % event.rest, items.data[what], dot=", ")
     else: event.reply("no information known about %s" % what)
 
-cmnds.add('whatis', handle_whatis, ['USER', 'GUEST'])
+cmnds.add('whatis', handle_whatis, ['OPER', 'USER', 'GUEST'])
 examples.add("whatis", "whatis learned about a subject", "whatis jsb")
 
+## items command
+
 def handle_items(bot, event):
+    """ show what items the bot has learned. """
     items = PlugPersist(event.channel).data.keys()
     event.reply("i know %s items: " % len(items), items)
 
-cmnds.add('items', handle_items, ['USER', 'GUEST'])
+cmnds.add('items', handle_items, ['OPER', 'USER', 'GUEST'])
 examples.add("items", "show what items the bot knows", "items")
+
+## callbacks
 
 def prelearn(bot, event):
     if len(event.txt) < 2: return

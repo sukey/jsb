@@ -1,8 +1,8 @@
-# jsb.plugs.common/relay.py
+# jsb/plugs/common/relay.py
 #
 #
 
-""" relay to other users/channels/waves. """
+""" relay to other users/channels. """
 
 ## jsb imports
 
@@ -37,12 +37,8 @@ relay = PlugPersist('relay')
   
 def relayprecondition(bot, event):
     """ check to see whether the callback needs to be executed. """
-    #if event.type == "error": return False
     logging.debug("relay - event path is %s" % event.path)
     if event.isrelayed: logging.info("relay - %s already relayed" % bot.cfg.name) ; return False
-    #if "] [" in event.txt: target = event.chan and "[%s]" % event.chan.data.nick
-    #else: target = None
-    #if target and target in event.txt: logging.info("relay - %s already relayed" % bot.name) ; return False
     origin = event.printto or event.channel
     logging.debug("relay - precondition - origin is %s" % origin)
     if event.txt:
@@ -80,14 +76,9 @@ def relaycallback(bot, event):
                 if outbot:
                     logging.info('relay - outbot found - %s - %s' % (outbot.cfg.name, outbot.type))
                     # we got bot .. use it to send the relayed message
-                    if e.nick == bot.cfg.nick:
-                        txt = "[!] %s" % e.txt
-                    else:
-                        txt = "[%s] %s" % (e.nick, e.txt)
-                    if event:
-                        t = "[%s]" % outbot.cfg.nick
-                    #    if "] [" in txt and t in txt: logging.info("relay - %s already relayed" % bot.cfg.name) ; continue
-                    #    if outbot.cfg.name not in event.path: event.path.append(outbot.cfg.name)
+                    if e.nick == bot.cfg.nick: txt = "[!] %s" % e.txt
+                    else: txt = "[%s] %s" % (e.nick, e.txt)
+                    if event: t = "[%s]" % outbot.cfg.nick
                     logging.warn("relay - sending to %s (%s)" % (target, outbot.cfg.name)) 
                     outbot.outnocb(target, txt, event=e)
                 else: logging.error("can't find bot for (%s,%s,%s)" % (botname, type, target))
@@ -108,34 +99,19 @@ first_callbacks.add('OUTPUT', relaycallback, relayprecondition)
 first_callbacks.add('PRIVMSG', relaycallback, relayprecondition)
 first_callbacks.add('CONVORE', relaycallback, relayprecondition)
 
-# COMMANDS
+## COMMANDS
+
 # this is where the commands for the relay plugin are defined, Arguments to a
 # command function are the bot that the event occured on and the event that
 # triggered the command. Think the code speaks for itself here ;]
 
-def handle_relayclone(bot, event):
-    """ clone relays from one channel to the other. """
-    new = event.origin or event.channel
-    try: old = event.args[0]
-    except IndexError, ex: event.missing('<old target>') ; return
-    try:
-        relay.data[new] = list(relay.data[old])
-        del relay.data[old]
-        relay.save()
-    except KeyError: event.reply("i didn't join the %s wave" % old) ; return
-    except Exception, ex: handle_exception()
-    event.done()
-
-cmnds.add('relay-clone', handle_relayclone, 'OPER')
-examples.add('relay-clone', 'clone relay of old wave to the new', 'relay-clone googlewave.com!w+Pu4YwndxA')
+## relay command
 
 def handle_relay(bot, event):
     """ [<botname>] <type> <target> .. open a relay to a user. all input from us will be relayed. """
     try: (botname, type, target) = event.args
     except ValueError:
-        try:
-             botname = bot.cfg.name
-             (type, target) = event.args
+        try: botname = bot.cfg.name ; (type, target) = event.args
         except ValueError: event.missing('[<botname>] <bottype> <target>') ; return 
     origin = event.channel
     if not relay.data.has_key(origin): relay.data[origin] = []
@@ -146,16 +122,16 @@ def handle_relay(bot, event):
     except KeyError: relay.data[origin] = [[botname, type, target], ] ; relay.save()
     event.done()
 
-cmnds.add('relay', handle_relay, 'USER')
+cmnds.add('relay', handle_relay, ['OPER',])
 examples.add('relay', 'open a relay to another user', 'relay bthate@gmail.com')
+
+## relay-stop command
 
 def handle_relaystop(bot, event):
     """ stop a relay to a user. all relaying to target will be ignore. """
     try: (botname, type, target) = event.args
     except ValueError:
-        try:
-            botname = bot.cfg.name
-            (type, target) = event.args
+        try: botname = bot.cfg.name ; (type, target) = event.args
         except (IndexError, ValueError): botname = bot.cfg.name ; type = bot.type ; target = event.channel 
     origin = event.origin or event.channel
     try:
@@ -165,8 +141,10 @@ def handle_relaystop(bot, event):
     except (KeyError, ValueError): pass
     event.done()
 
-cmnds.add('relay-stop', handle_relaystop, 'USER')
+cmnds.add('relay-stop', handle_relaystop, ['OPER',' USER'])
 examples.add('relay-stop', 'close a relay to another user', 'relay-stop bthate@gmail.com')
+
+## relay-clear command
 
 def handle_relayclear(bot, event):
     """ clear all relays from a channel. all relaying to target will be ignored. """
@@ -178,8 +156,10 @@ def handle_relayclear(bot, event):
     except (KeyError, ValueError): pass
     event.done()
 
-cmnds.add('relay-clear', handle_relayclear, 'OPER')
+cmnds.add('relay-clear', handle_relayclear, ['OPER',])
 examples.add('relay-clear', 'clear all relays from a channel', 'relay-clear')
+
+## relay-list command
 
 def handle_askrelaylist(bot, event):
     """ show all relay's of a user. """
@@ -187,8 +167,10 @@ def handle_askrelaylist(bot, event):
     try: event.reply('relays for %s: ' % origin, relay.data[origin])
     except KeyError: event.reply('no relays for %s' % origin)
 
-cmnds.add('relay-list', handle_askrelaylist, 'USER')
+cmnds.add('relay-list', handle_askrelaylist, ['OPER', 'USER'])
 examples.add('relay-list', 'show all relays of user/channel/wave.', 'relay-list')
+
+## relay-block command
 
 def handle_relayblock(bot, event):
     """ <type> <target> .. block a user/channel/wave from relaying to us. """
@@ -199,8 +181,10 @@ def handle_relayblock(bot, event):
     if not [type, origin] in block.data[target]: block.data[target].append([type, origin]) ; block.save()
     event.done()
 
-cmnds.add('relay-block', handle_relayblock, 'USER')
+cmnds.add('relay-block', handle_relayblock, ['OPER', 'USER'])
 examples.add('relay-block', 'block a relay from another user', 'relay-block bthate@gmail.com')
+
+## relay-unblock command
 
 def handle_relayunblock(bot, event):
     """ <target> .. remove a relay block of an user. """
@@ -211,8 +195,10 @@ def handle_relayunblock(bot, event):
     except (KeyError, ValueError): pass
     event.done()
 
-cmnds.add('relay-unblock', handle_relaystop, 'USER')
+cmnds.add('relay-unblock', handle_relaystop, ['OPER', 'USER'])
 examples.add('relay-unblock', 'remove a block of another user', 'relay-unblock bthate@gmail.com')
+
+## relay-blocklist command
 
 def handle_relayblocklist(bot, event):
     """ show all blocks of a user/channel.wave. """
@@ -220,5 +206,5 @@ def handle_relayblocklist(bot, event):
     try: event.reply('blocks for %s: ' % origin, block.data[origin])
     except KeyError: event.reply('no blocks for %s' % origin)
 
-cmnds.add('relay-blocklist', handle_relayblocklist, 'USER')
+cmnds.add('relay-blocklist', handle_relayblocklist, ['OPER', 'USER'])
 examples.add('relay-blocklist', 'show blocked relays to us', 'relay-blocklist')

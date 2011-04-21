@@ -19,7 +19,6 @@ def handle_plugenable(bot, event):
     event.reply("reloading and enabling %s" % mod)
     bot.enable(mod)
     bot.plugs.reload(mod, force=True)
-    #update_mod(mod)
     event.done()
 
 cmnds.add("plug-enable", handle_plugenable, ["OPER", ])
@@ -35,7 +34,6 @@ def handle_plugdisable(bot, event):
     event.reply("unloading and disabling %s" % mod)
     bot.plugs.unload(mod)
     bot.disable(mod)
-    #remove_plugin(mod)
     event.done()
 
 cmnds.add("plug-disable", handle_plugdisable, ["OPER", ])

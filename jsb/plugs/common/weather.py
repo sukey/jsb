@@ -1,7 +1,6 @@
-# jsb.plugs.common/weather.py
+# jsb/plugs/common/weather.py
 #
 #
-
 
 """ show weather based on Google's weather API """
 
@@ -24,7 +23,7 @@ from urllib import urlencode
 import logging
 import time
 
-## commands
+## weather command
 
 def handle_weather(bot, ievent):
     """ show weather using Google's weather API """
@@ -88,6 +87,5 @@ def handle_weather(bot, ievent):
     else: ievent.reply(resultstr)
     print "YOOO"
 
-cmnds.add('weather', handle_weather, ['USER', 'GUEST'])
-examples.add('weather', 'get weather for <LOCATION> or <nick>', '1) weather London, \
-England 2) weather dunker')
+cmnds.add('weather', handle_weather, ['OPER', 'USER', 'GUEST'])
+examples.add('weather', 'get weather for <LOCATION> or <nick>', '1) weather London, England 2) weather dunker')

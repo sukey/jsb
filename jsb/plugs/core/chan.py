@@ -2,6 +2,8 @@
 #
 #
 
+""" channel related commands. """
+
 ## jsb imports
 
 from jsb.lib.persist import Persist
@@ -20,6 +22,7 @@ import logging
 ## chan-token command
 
 def handle_chantoken(bot, event):
+    """ request a token for the channel. used in channel API on GAE. """
     if not bot.isgae: event.reply("this command only works on the App Engine") ; return
     import google
     try:
@@ -90,19 +93,19 @@ cmnds.add('chan-part', handle_chanpart, 'OPER')
 cmnds.add('part', handle_chanpart, 'OPER')
 examples.add('chan-part', 'chan-part [<channel>]', '1) chan-part 2) chan-part #test')
 
-## channels command
+## chan-list command
 
-def handle_channels(bot, ievent):
+def handle_chanlist(bot, ievent):
     """ channels .. show joined channels. """
     if bot.state: chans = bot.state['joinedchannels']
     else: chans = []
     if chans: ievent.reply("joined channels: ", chans)
     else: ievent.reply('no channels joined')
 
-cmnds.add('channels', handle_channels, ['USER', 'GUEST'])
-examples.add('channels', 'show what channels the bot is on', 'channels')
+cmnds.add('chan-list', handle_chanlist, ['USER', 'GUEST'])
+examples.add('chan-list', 'show what channels the bot is on', 'chan-list')
 
-## cycle command
+## chan-cycle command
 
 def handle_chancycle(bot, ievent):
     """ cycle .. recycle channel. """
@@ -211,6 +214,7 @@ callbacks.add('MODE', modecb)
 ## chan-denyplug command
 
 def handle_chandenyplug(bot, event):
+    """ deny a plugin to be active in a channel. """
     if not event.rest: event.missing("<module name>") ; return
     if not event.rest in event.chan.data.denyplug:
         event.chan.data.denyplug.append(event.rest)
@@ -224,6 +228,7 @@ examples.add("chan-denyplug", "deny a plugin command or callbacks to be executed
 ## chan-allowplug command
 
 def handle_chanallowplug(bot, event):
+    """ allow a plugin to be active in a channel. """
     if not event.rest: event.missing("<module name>") ; return
     if event.rest in event.chan.data.denyplug:
         event.chan.data.denyplug.remove(event.rest)
@@ -234,6 +239,8 @@ def handle_chanallowplug(bot, event):
 cmnds.add("chan-allowplug", handle_chanallowplug, 'OPER')
 examples.add("chan-allowplug", "allow a plugin command or callbacks to be executed in a channel", "chan-denyplug idle")
 
+## chan-allowcommand command
+
 def handle_chanallowcommand(bot, event):
     """ allow a command in the channel. """
     try: cmnd = event.args[0] 
@@ -242,6 +249,8 @@ def handle_chanallowcommand(bot, event):
 
 cmnds.add("chan-allowcommand", handle_chanallowcommand, ["OPER", ])
 examples.add("chan-allowcommand", "add a command to the allow list. allows for all users.", "chan-allowcommand learn")
+
+## chan-silentcommand command
 
 def handle_chansilentcommand(bot, event):
     """ silence a command in the channel. /msg the result of a command."""
@@ -252,6 +261,8 @@ def handle_chansilentcommand(bot, event):
 cmnds.add("chan-silentcommand", handle_chansilentcommand, ["OPER", ])
 examples.add("chan-silentcommand", "add a command to the allow list.", "chan-silentcommand learn")
 
+## chab-loudcommand command
+
 def handle_chanloudcommand(bot, event):
     """ allow output of a command in the channel. """
     try: cmnd = event.args[0] ; event.chan.data.silentcommands.remove(cmnd) ; event.chan.save() ; event.done()
@@ -260,13 +271,17 @@ def handle_chanloudcommand(bot, event):
 cmnds.add("chan-loudcommand", handle_chanloudcommand, ["OPER", ])
 examples.add("chan-loudcommand", "remove a command from the silence list.", "chan-loudcommand learn")
 
+## chan-removecommand 
+
 def handle_chanremovecommand(bot, event):
-    """ allow a command in the channel. """
+    """ remove a command from the allowed list of a channel. """
     try: cmnd = event.args[0] ; event.chan.data.allowcommands.remove(cmnd) ; event.chan.save() ; event.done()
     except (IndexError, ValueError): event.reply("%s is not in the whitelist" % event.rest)
 
 cmnds.add("chan-removecommand", handle_chanremovecommand, ["OPER", ])
 examples.add("chan-removecommand", "remove a command from the allow list.", "chan-removecommand learn")
+
+## chan-upgrade command
 
 def handle_chanupgrade(bot, event):
     """ upgrade the channel. """
@@ -287,6 +302,8 @@ def handle_chanupgrade(bot, event):
 cmnds.add("chan-upgrade", handle_chanupgrade, ["OPER", ])
 examples.add("chan-upgrade", "upgrade the channel.", "chan-upgrade")
 
+## chan-allowwatch command
+
 def handle_chanallowwatch(bot, event):
     """ add a target channel to the allowwatch list. """
     if not event.rest: event.missing("<JID or channel>") ; return
@@ -295,6 +312,8 @@ def handle_chanallowwatch(bot, event):
 
 cmnds.add("chan-allowwatch", handle_chanallowwatch, "OPER")
 examples.add("chan-allowwatch", "allow channel events to be watch when forwarded", "chan-allowwatch bthate@gmail.com")
+
+## chan-delwatch command
 
 def handle_chandelwatch(bot, event):
     """ add a target channel to the allowout list. """
@@ -306,6 +325,8 @@ def handle_chandelwatch(bot, event):
 cmnds.add("chan-delwatch", handle_chandelwatch, "OPER")
 examples.add("chan-delwatch", "deny channel events to be watched when forwarded", "chan-delwatch bthate@gmail.com")
 
+## chan-enable command
+
 def handle_chanenable(bot, event):
     """ enable a channel. """
     event.chan.data.enable = True
@@ -314,6 +335,8 @@ def handle_chanenable(bot, event):
 
 cmnds.add("chan-enable", handle_chanenable, ["OPER", "USER"])
 examples.add("chan-enable", "enable a channel (allow for handling of events concerning this channel (convore for now)", "chan-enable")
+
+## chan-disable command
 
 def handle_chandisable(bot, event):
     """ enable a channel. """

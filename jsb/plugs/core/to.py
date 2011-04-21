@@ -10,7 +10,7 @@ from jsb.lib.commands import cmnds
 from jsb.utils.generic import getwho, waitforqueue
 from jsb.lib.examples import examples
 
-## to commands
+## to command
 
 def handle_to(bot, ievent):
     """ direct pipeline output to <nick>. """
@@ -27,5 +27,5 @@ def handle_to(bot, ievent):
         else: ievent.reply('%s elements sent' % len(result))
     else: ievent.reply('nothing to send')
 
-cmnds.add('to', handle_to, ['OPER', 'TO'])
+cmnds.add('to', handle_to, ['OPER', 'USER', 'TO'])
 examples.add('to', 'send pipeline output to another user', 'list ! to dunker')

@@ -1,13 +1,11 @@
+# jsb/plugs/common/ipcalc.py
+#
 # IP subnet calculator
 # (c) 2007 Wijnand 'tehmaze' Modderman - http://tehmaze.com
 # BSD License
 
-from jsb.lib.commands import cmnds
-from jsb.lib.examples import examples
 
-""" IP subnet calculator. this module allows you to perform network 
-    calculations.
-"""
+""" IP subnet calculator. this module allows you to perform network calculations. """
 
 """
 # IP subnet calculator
@@ -42,9 +40,19 @@ from jsb.lib.examples import examples
 #
 """
 
+## jsb imports
+
+from jsb.lib.commands import cmnds
+from jsb.lib.examples import examples
+
 __version__ = '0.2a'
 
-import types, socket
+## basic imports
+
+import types
+import socket
+
+## IP class
 
 class IP(object):
 
@@ -307,7 +315,9 @@ class IP(object):
         Used for comparisons.
         '''
         return (self.dq, self.mask)
-    
+
+## Network class
+
 class Network(IP):
     '''
     Network slice calculations.
@@ -417,6 +427,8 @@ class Network(IP):
         '''
         return 2 ** ((self.version() == 4 and 32 or 128) - self.mask)
 
+## ipcalc command
+
 def handle_ipcalc(bot, ievent):
     """ <ip>[</size>] .. calculate IP subnets. """
     if not ievent.args:
@@ -430,5 +442,5 @@ def handle_ipcalc(bot, ievent):
     ievent.reply('version: %d, address: %s, network size: %d, network address: %s, netmask: %s, first host in network: %s, last host in network: %s, network info: %s' % \
         (net.version(), str(net), net.mask, net.network(), net.netmask(), net.host_first(), net.host_last(), net.info()))
 
-cmnds.add('ipcalc', handle_ipcalc, ['USER', 'GUEST'])
+cmnds.add('ipcalc', handle_ipcalc, ['OPER', 'USER', 'GUEST'])
 examples.add('ipcalc', 'ip calculator', 'ipcalc 127.0.0.1/12')

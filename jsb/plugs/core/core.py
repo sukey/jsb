@@ -50,7 +50,7 @@ def handle_reboot(bot, ievent):
     else: stateful = True
     if stateful: mainhandler.put(0, reboot_stateful, bot, ievent, getfleet(), partyline)
     else:
-        bot.exit()
+        getfleet().exit()
         mainhandler.put(0, reboot)
 
 cmnds.add("reboot", handle_reboot, "OPER")
@@ -220,6 +220,8 @@ def handle_helpplug(bot, ievent):
 
 cmnds.add('help-plug', handle_helpplug, ['USER', 'GUEST'], how="msg")
 examples.add('help-plug', 'get help on <cmnd> or <plugin>', '1) help-plug 2) help-plug misc')
+
+## help command
 
 def handle_help(bot, event):
      if event.rest:

@@ -87,7 +87,7 @@ def handle_fleetlist(bot, ievent):
     """ fleet-list .. list bot names in fleet. """
     ievent.reply("fleet: ", getfleet().list())
 
-cmnds.add('fleet-list', handle_fleetlist, ['USER', 'GUEST'])
+cmnds.add('fleet-list', handle_fleetlist, ['OPER', 'USER', 'GUEST'])
 examples.add('fleet-list', 'show current fleet list', 'fleet-list')
 
 ## fleet-del command
@@ -159,6 +159,8 @@ def fleet_enable(bot, ievent):
 cmnds.add('fleet-enable', fleet_enable, 'OPER', threaded=True)
 examples.add('fleet-enable', 'enable a fleet bot', 'fleet-enable local')
 
+## fleet-add command
+
 def fleet_add(bot, ievent):
     """ add a fleet bot. """
     try:
@@ -190,6 +192,8 @@ def fleet_add(bot, ievent):
 
 cmnds.add('fleet-add', fleet_add, 'OPER', threaded=True)
 examples.add('fleet-add', 'add a fleet bot', 'fleet-add local irc localhost jsbtest')
+
+## fleet-cmnd command
 
 def fleet_cmnd(bot, ievent):
     """ co cmnd on fleet bot(s). """

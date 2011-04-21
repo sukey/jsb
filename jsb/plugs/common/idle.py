@@ -47,7 +47,7 @@ callbacks.add('WEB', idlecb, preidle)
 callbacks.add('CONSOLE', idlecb, preidle)
 callbacks.add('DISPATCH', idlecb, preidle)
 
-## commands
+## idle command
 
 def handle_idle(bot, ievent):
     """ idle [<nick>] .. show how idle an channel/user has been """

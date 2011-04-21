@@ -1,4 +1,4 @@
-# jsb.plugs.common/remind.py
+# jsb/plugs/common/remind.py
 #
 #
 
@@ -17,7 +17,7 @@ from jsb.lib.persist import PlugPersist
 import time
 import os
 
-## classes
+## Remind class
 
 class Remind(PlugPersist):
 
@@ -86,7 +86,7 @@ callbacks.add('JOIN', remindcb, preremind, threaded=True)
 callbacks.add('MESSAGE', remindcb, preremind, threaded=True)
 callbacks.add('WEB', remindcb, preremind, threaded=True)
 
-## commands
+## remind command
 
 def handle_remind(bot, ievent):
     """ remind <nick> <txt> .. add a remind """
@@ -107,5 +107,5 @@ def handle_remind(bot, ievent):
         remind.add(userhost, [who, ievent.nick, txt, time.time()])
         ievent.reply("remind for %s added" % who)
 
-cmnds.add('remind', handle_remind, ['USER', 'GUEST'], allowqueue=False)
+cmnds.add('remind', handle_remind, ['OPER', 'USER', 'GUEST'], allowqueue=False)
 examples.add('remind', 'remind <nick> <txt>', 'remind dunker check the bot !')

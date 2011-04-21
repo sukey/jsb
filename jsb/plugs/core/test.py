@@ -189,13 +189,21 @@ def handle_testhtml(bot, ievent):
 cmnds.add('test-html', handle_testhtml, 'TEST')
 examples.add('test-html', 'test html output', '1) test-html 2) test-html <h1><YOO</h1>')
 
+## test-uuid command
+
 def handle_testuuid(bot, ievent):
+    """ show a uuid4. """
     import uuid
-    ievent.reply(uuid.uuid4())
+    ievent.reply(str(uuid.uuid4()))
 
 cmnds.add('test-uuid', handle_testuuid, 'TEST')
+examples.add("test-uuid", "show a uuid4.", "test-uuid")
+
+## test-threaded command
 
 def handle_testthreaded(bot, ievent):
+    """ run a threaded command. """
     ievent.reply("yoooo!")
 
 cmnds.add("test-threaded", handle_testthreaded, "TEST", threaded=True)
+examples.add("test-threaded", "run a threaded command.", "test-threaded")

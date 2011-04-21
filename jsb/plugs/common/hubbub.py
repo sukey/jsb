@@ -558,6 +558,8 @@ def handle_hubbubwatch(bot, ievent):
 cmnds.add('hb-watch', handle_hubbubwatch, 'USER')
 examples.add('hb-watch', 'hubbub-watch <name> [seconds to sleep] .. go watching <name>', 'hb-watch gozerbot')
 
+## hubbub-start command
+
 def handle_hubbubstart(bot, ievent):
     """ start sending a feed to an user or channel/wave. """
     feeds = ievent.args

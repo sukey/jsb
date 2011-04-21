@@ -5,12 +5,17 @@
 """
     the rss mantra is of the following:
 
-        1) add a url with rss-add <feedname> <url>
-        2) use rss-start <feed> 
-
+    1) add a url with !rss-add <feedname> <url>
+    2) use !rss-start <feed> in the channel you want the feed to appear
+    3) run !rss-scan <feed> to see what tokens you can use .. add them with !rss-additem <feed> <token>
+    4) change markup with !rss-addmarkup <feed> <markupitem> <value> .. see !rss-markuplist for possible markups
+    5) check with !rss-feeds in a channel to see what feeds are running in a channel
+    6) in case of trouble check !rss-running to see what feeds are monitored
+    7) enjoy
+    
 """
 
-## gozerlib imports
+## jsb imports
 
 from jsb.lib.persist import Persist, PlugPersist
 from jsb.utils.url import geturl2, striphtml, useragent
@@ -35,19 +40,16 @@ from jsb.lib.threads import start_new_thread
 from jsb.lib.errors import NoSuchBotType, FeedAlreadyExists, NameNotSet
 from jsb.lib.datadir import getdatadir
 from jsb.imports import getfeedparser, getjson
-feedparser = getfeedparser()
-json = getjson()
+
+
 ## google imports
 
-try:
-    from google.appengine.api.memcache import get, set, delete
-except ImportError:
-    from jsb.lib.cache import get, set, delete
+try: from google.appengine.api.memcache import get, set, delete
+except ImportError: from jsb.lib.cache import get, set, delete
 
 ## tinyurl import
 
-try:
-    from jsb.plugs.common.tinyurl import get_tinyurl
+try: from jsb.plugs.common.tinyurl import get_tinyurl
 except ImportError:
     def get_tinyurl(url):
         return [url, ]
@@ -65,17 +67,52 @@ import datetime
 import hashlib
 import copy
 
+## exceptions
+
+class RssException(Exception):
+    pass
+
+class Rss301(RssException):
+    pass
+
+class RssStatus(RssException):
+    pass
+
+class RssBozoException(RssException):
+    pass
+
+class RssNoSuchItem(RssException):
+    pass
+
 ## defines
 
+feedparser = getfeedparser()
+json = getjson()
+
 cpy = copy.deepcopy
+
 allowedtokens = ['updated', 'link', 'summary', 'tags', 'author', 'content', 'title', 'subtitle']
 savelist = []
+
 possiblemarkup = {'separator': 'set this to desired item separator', \
 'all-lines': "set this to 1 if you don't want items to be aggregated", \
 'tinyurl': "set this to 1 when you want to use tinyurls", 'skipmerge': \
 "set this to 1 if you want to skip merge commits", 'reverse-order': \
 'set this to 1 if you want the rss items displayed with oldest item first', \
 'nofeedname': "if you don't want the feedname shown"}
+
+## global data
+
+lastpoll = PlugPersist('lastpoll')
+if not lastpoll.data: lastpoll.data = LazyDict() ; lastpoll.save()
+
+sleeptime = PlugPersist('sleeptime')
+if not sleeptime.data: sleeptime.data = LazyDict() ; sleeptime.save()
+
+runners = PlugPersist('runners')
+if not runners.data: runners.data = LazyDict() ; runners.save()
+
+## helper functions
 
 def txtindicts(result, d):
     """ return lowlevel values in (nested) dicts. """
@@ -97,34 +134,6 @@ def find_self_url(links):
         logging.debug("rss - trying link: %s" % (link))
         if link.rel == 'self': return link.href
     return None
-
-## exceptions
-
-class RssException(Exception):
-    pass
-
-class Rss301(RssException):
-    pass
-
-class RssStatus(RssException):
-    pass
-
-class RssBozoException(RssException):
-    pass
-
-class RssNoSuchItem(RssException):
-    pass
-
-## defines
-
-lastpoll = PlugPersist('lastpoll')
-if not lastpoll.data: lastpoll.data = LazyDict() ; lastpoll.save()
-
-sleeptime = PlugPersist('sleeptime')
-if not sleeptime.data: sleeptime.data = LazyDict() ; sleeptime.save()
-
-runners = PlugPersist('runners')
-if not runners.data: runners.data = LazyDict() ; runners.save()
 
 ## Feed class
 
@@ -335,6 +344,7 @@ sleeptime=15*60, running=0):
             if i and search in i: res.append(i)
         return res
 
+## Rssdict class
 
 class Rssdict(PlugPersist):
 
@@ -429,6 +439,8 @@ class Rssdict(PlugPersist):
         sleeptime.data[name] = sleepsec
         sleeptime.save()
         logging.info('rss - started %s rss watch' % name)
+
+## Rsswatcher class
 
 class Rsswatcher(Rssdict):
 
@@ -659,7 +671,7 @@ class Rsswatcher(Rssdict):
             self.start(botname, bottype, feed, newchannel)
         return feeds
 
-# the watcher object 
+## more global defines 
 
 watcher = Rsswatcher('rss')
 urls = PlugPersist('urls')
@@ -668,6 +680,7 @@ etags = PlugPersist('etags')
 assert(watcher)
 
 ## dosync function
+
 def dummycb(bot, event): pass
 
 callbacks.add('START', dummycb)
@@ -694,8 +707,12 @@ def shouldpoll(name, curtime):
     logging.debug("rss - pollcheck - %s - %s - remaining %s" % (name, time.ctime(lp), (lp + st) - curtime))
     if curtime - lp > st: return True
 
+## dodata function
+
 def dodata(data, name):
     watcher.handle_data(data, name=name)    
+
+## rssfetchcb callback
 
 def rssfetchcb(rpc):
     import google
@@ -709,10 +726,12 @@ def rssfetchcb(rpc):
         defer(dodata, data, rpc.feedname)
     else: logging.warn("rss - fetch returned status code %s - %s" % (data.status_code, rpc.feedurl))
 
+## creaete_rsscallback function
+
 def create_rsscallback(rpc):
     return lambda: rssfetchcb(rpc)
 
-## doperiodical function
+## doperiodicalGAE function
 
 def doperiodicalGAE(*args, **kwargs):
     """ rss periodical function. """
@@ -744,6 +763,8 @@ def doperiodicalGAE(*args, **kwargs):
         except Exception, ex: handle_exception()
     if feedstofetch: lastpoll.save()
     if got: urls.save()
+
+## doperiodical function
 
 def doperiodical(*args, **kwargs):
     """ rss periodical function. """

@@ -1,4 +1,4 @@
-# jsb.plugs.common/tinyurl.py
+# jsb/plugs/common/tinyurl.py
 #
 #
 
@@ -20,7 +20,7 @@ from jsb.lib.persistconfig import PersistConfig
 try:
     import waveapi
     from google.appengine.api.memcache import get, set
-except ImportError:
+except ImportError: 
     from jsb.lib.cache import get, set
 
 ## defines
@@ -72,6 +72,7 @@ def privmsgcb(bot, ievent):
             urlcache[bot.cfg.name] = {}
         urlcache[bot.cfg.name][ievent.target] = url
 
+# not enabled right now
 #callbacks.add('PRIVMSG', privmsgcb, precb)
 
 def get_tinyurl(url):
@@ -101,6 +102,8 @@ def get_tinyurl(url):
     set(url, json.dumps(urls), namespace='tinyurl')
     return urls
 
+## tinyurl command
+
 def handle_tinyurl(bot, ievent):
     """ get tinyurl from provided url. """
     if not ievent.rest and (not urlcache.has_key(bot.cfg.name) or not urlcache[bot.cfg.name].has_key(ievent.target)):
@@ -114,8 +117,5 @@ def handle_tinyurl(bot, ievent):
     if tinyurl: ievent.reply(' .. '.join(tinyurl))
     else: ievent.reply('failed to create tinyurl')
 
-cmnds.add('tinyurl', handle_tinyurl, ['USER', 'GUEST'], threaded=True)
+cmnds.add('tinyurl', handle_tinyurl, ['OPER', 'USER', 'GUEST'], threaded=True)
 examples.add('tinyurl', 'show a tinyurl', 'tinyurl http://jsonbbot.org')
-
-def init():
-    plugcfg.save()

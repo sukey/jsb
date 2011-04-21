@@ -66,24 +66,10 @@ def handle_aliasset(bot, ievent):
 cmnds.add('alias', handle_aliasset, 'USER', allowqueue=False)
 examples.add('alias', 'alias <alias> <command> .. define alias', 'alias ll list')
 
-## alias-global command
-
-def handle_aliasglobal(bot, ievent):
-    aliases = ievent.chan.data.aliases
-    if not aliases: ievent.chan.data.aliases = aliases = {}
-    from jsb.lib.aliases import getaliases
-    galiases = getaliases()
-    galiases.data.update(ievent.chan.data.aliases)
-    bot.aliases.data.update(ievent.chan.data.aliases)
-    galiases.save()
-    ievent.reply('global aliases updated')
-
-cmnds.add('alias-global', handle_aliasglobal, 'OPER', allowqueue=False)
-examples.add('alias-global', 'show global aliases', 'alias-global')
-
 ## alias-makeglobal command
 
 def handle_aliasmakeglobal(bot, ievent):
+    """ make channel aliases global. """
     aliases = ievent.chan.data.aliases
     if not aliases: ievent.chan.data.aliases = aliases = {}
     from jsb.lib.aliases import getaliases
@@ -119,11 +105,11 @@ examples.add('alias-del', 'alias-del <what> .. delete alias', 'alias-del ll')
 
 ## alias-get command
 
-def handle_getaliases(bot, ievent):
+def handle_aliasget(bot, ievent):
     """ aliases .. show aliases. (per user) """
     aliases = ievent.chan.data.aliases
     if aliases: ievent.reply("aliases: %s" % str(aliases))
     else: ievent.reply("no aliases yet")
 
-cmnds.add('aliases', handle_getaliases, 'OPER')
-examples.add('aliases', 'aliases <what> .. get aliases', 'aliases')
+cmnds.add('alias-get', handle_aliasget, 'OPER')
+examples.add('alias-get', 'aliases <what> .. get aliases', 'aliases')

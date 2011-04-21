@@ -15,5 +15,5 @@ def handle_welcome(bot, event):
     event.how = "background"
     event.reply("Welcome to JSONBOT - you can give this bot commands. try !help .. or !todo or !shop or !feedback .. ;]")
 
-cmnds.add('welcome', handle_welcome, ['USER', 'GUEST'])
+cmnds.add('welcome', handle_welcome, ['OPER', 'USER', 'GUEST'])
 examples.add('welcome', 'send welcome msg', 'welcome')

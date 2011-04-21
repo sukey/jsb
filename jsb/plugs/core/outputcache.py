@@ -30,7 +30,7 @@ def handle_outputcache(bot, event):
 cmnds.add('outputcache', handle_outputcache, ['USER', 'GUEST'])
 examples.add('outputcache', 'forward the outputcache to the user.', 'outputcache')
 
-## outputcache-clear
+## outputcache-clear command
 
 def handle_outputcacheclear(bot, event):
     """ flush outputcache of a channel. """
