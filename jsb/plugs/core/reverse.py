@@ -1,6 +1,8 @@
-# jsb/plugs/reverse.py
+# jsb/plugs/core/reverse.py
 #
 # 
+
+""" reverse pipeline or reverse <txt>. """
 
 __copyright__ = 'this file is in the public domain'
 __author__ = 'Hans van Kranenburg <hans@knorrie.org>'
@@ -25,5 +27,5 @@ def handle_reverse(bot, ievent):
     if type(result) == types.ListType: ievent.reply("results: ", result[::-1])
     else: ievent.reply(result[::-1])
 
-cmnds.add('reverse', handle_reverse, ['USER', 'GUEST'])
+cmnds.add('reverse', handle_reverse, ['OPER', 'USER', 'GUEST'])
 examples.add('reverse', 'reverse text or pipeline', '1) reverse gozerbot 2) list ! reverse')

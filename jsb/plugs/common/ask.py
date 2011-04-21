@@ -1,8 +1,8 @@
-# jsb.plugs.wave/ask.py
+# jsb/plugs/common/ask.py
 #
 #
 
-""" ask a jabber user a question and relay back the response. """
+""" ask a user a question and relay back the response. """
 
 ## jsb imports
 
@@ -39,9 +39,7 @@ def askcallback(bot, event):
     jid = []
     channels = []
     try: (printto, txt) = event.txt.split(':', 1)
-    except ValueError:
-        printto = False
-        txt = event.txt
+    except ValueError: printto = False ; txt = event.txt
     txt = txt.strip()
     done = []
     fleet = getfleet()
@@ -52,9 +50,7 @@ def askcallback(bot, event):
         logging.debug("ask - %s %s %s %s" % (botname, type, userhost, channel))
         if askbot:
             for jid in channel: askbot.say(channel, "%s says: %s" % (event.userhost, txt))
-        else:
-            logging.warn("ask - can't find %s bot in fleet" % type)
-            continue
+        else: logging.warn("ask - can't find %s bot in fleet" % type) ; continue
         try:
             questions.data[event.userhost].remove([botname, type, userhost, channel])
             questions.save()

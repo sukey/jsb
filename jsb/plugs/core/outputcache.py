@@ -1,4 +1,4 @@
-# jsb/plugs/outputcache.py
+# jsb/plugs/core/outputcache.py
 #
 #
 
@@ -27,7 +27,7 @@ def handle_outputcache(bot, event):
                 try: bot.outnocb(event.channel, result)
                 except Exception, ex: logging.error("outputcache - %s - %s" % (str(ex), result))
 
-cmnds.add('outputcache', handle_outputcache, ['USER', 'GUEST'])
+cmnds.add('outputcache', handle_outputcache, ['OPER', 'USER', 'GUEST'])
 examples.add('outputcache', 'forward the outputcache to the user.', 'outputcache')
 
 ## outputcache-clear command
@@ -37,5 +37,5 @@ def handle_outputcacheclear(bot, event):
     clear(event.channel)
     event.done()
 
-cmnds.add('outputcache-clear', handle_outputcacheclear, ['USER', 'GUEST'])
+cmnds.add('outputcache-clear', handle_outputcacheclear, ['OPER', 'USER', 'GUEST'])
 examples.add('outputcache-clear', 'flush output cache of a channel', 'outputcache-clear')

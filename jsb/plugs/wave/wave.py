@@ -1,4 +1,4 @@
-# jsb.plugs.wave/wave.py
+# jsb/plugs/wave/wave.py
 #
 #
 
@@ -17,6 +17,8 @@ from jsb.drivers.gae.wave.waves import Wave
 ## basic imports
 
 import logging
+
+## wave-start command
 
 def handle_wavestart(bot, event):
     """ start a protected wave. """
@@ -40,6 +42,8 @@ def handle_wavestart(bot, event):
 cmnds.add('wave-start', handle_wavestart, 'USER')
 examples.add('wave-start', 'start a new wave', 'wave-start')
 
+## wave-clone commnad
+
 def handle_waveclone(bot, event):
     """ clone wave into a new one, copying over particpants and feeds. """
     if event.bottype != "wave":
@@ -59,6 +63,8 @@ def handle_waveclone(bot, event):
 cmnds.add('wave-clone', handle_waveclone, 'USER')
 examples.add('wave-clone', 'clone the wave', 'wave-clone')
 
+## wave-new command
+
 def handle_wavenew(bot, event):
     """ make a new wave. """
     if event.bottype != "wave":
@@ -76,6 +82,8 @@ def handle_wavenew(bot, event):
 cmnds.add('wave-new', handle_wavenew, 'USER')
 examples.add('wave-new', 'make a new wave', 'wave-new')
 
+## wave-public command
+
 def handle_wavepublic(bot, event):
     """ make the wave public. """
     if event.bottype != "wave":
@@ -87,6 +95,8 @@ def handle_wavepublic(bot, event):
 
 cmnds.add('wave-public', handle_wavepublic, 'USER')
 examples.add('wave-public', 'make the wave public', 'wave-public')
+
+## wave-invite command
 
 def handle_waveinvite(bot, event):
     """ invite a user to the wave. """
@@ -104,6 +114,8 @@ def handle_waveinvite(bot, event):
 cmnds.add('wave-invite', handle_waveinvite, 'USER')
 examples.add('wave-invite', 'invite a user/bot into the wave', 'wave-invite bthate@googlewave.com')
 
+## wave-id command
+
 def handle_waveid(bot, event):
     """ get the id of the wave. """
     if event.bottype != "wave":
@@ -113,6 +125,8 @@ def handle_waveid(bot, event):
 
 cmnds.add('wave-id', handle_waveid, 'USER')
 examples.add('wave-id', 'show the id of the wave the command is given in.', 'wave-id')
+
+## wave-url command
 
 def handle_waveurl(bot, event):
     """ get the url of the wave. """
@@ -124,6 +138,8 @@ def handle_waveurl(bot, event):
 cmnds.add('wave-url', handle_waveurl, 'USER')
 examples.add('wave-url', 'show the url of the wave the command is given in.', 'wave-url')
 
+## wave-participants command
+
 def handle_waveparticipants(bot, event):
     """ show participants. """
     if event.bottype != "wave":
@@ -133,6 +149,8 @@ def handle_waveparticipants(bot, event):
 
 cmnds.add('wave-participants', handle_waveparticipants, 'USER')
 examples.add('wave-participants', 'show the participants of the wave the command is given in.', 'wave-participants')
+
+## wave-part command
 
 def handle_wavepart(bot, event):
     """ leave a wave. not implemented yet. """
@@ -144,6 +162,8 @@ def handle_wavepart(bot, event):
 
 cmnds.add('wave-part', handle_wavepart, 'OPER')
 examples.add('wave-part', 'leave the wave', 'wave-part')
+
+## wave-title ocmmand
 
 def handle_wavetitle(bot, event):
     """ set title of the wave. """
@@ -160,6 +180,8 @@ def handle_wavetitle(bot, event):
 
 cmnds.add('wave-title', handle_wavetitle, 'OPER')
 examples.add('wave-title', 'set title of the wave', 'wave-title')
+
+## wave-data command
 
 def handle_wavedata(bot, event):
     """ show stored wave data. """
@@ -178,6 +200,8 @@ def handle_wavedata(bot, event):
 
 cmnds.add('wave-data', handle_wavedata, 'OPER')
 examples.add('wave-data', 'show the waves stored data', 'wave-data')
+
+## wave-threshold command
 
 def handle_wavethreshold(bot, event):
     """ set threshold of the wave. after x nr of blips the wave will be cloned. """
@@ -202,6 +226,8 @@ def handle_wavethreshold(bot, event):
 cmnds.add('wave-threshold', handle_wavethreshold, 'OPER')
 examples.add('wave-threshold', 'set nr of blips after which we clone the wave', 'wave-threshold')
 
+## wave-whitelist command
+
 def handle_wavewhitelistadd(bot, event):
     """ add a user to the waves whitelist .. allow modifications. """
     if not event.rest:
@@ -218,6 +244,8 @@ def handle_wavewhitelistadd(bot, event):
 
 cmnds.add("wave-whitelistadd", handle_wavewhitelistadd, "OPER")
 examples.add("wave-whitelistadd", "add a user to the waves whitelist", "wave-whitelistadd bthate@googlewave.com")
+
+## wave-whitelistdel command
 
 def handle_wavewhitelistdel(bot, event):
     """ remove user from the waves whitelist .. deny modifications. """

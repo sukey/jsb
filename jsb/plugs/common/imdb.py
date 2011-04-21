@@ -1,6 +1,6 @@
 # jsb/plugs/common/imdb.py
 #
-#
+# author: melmoth
 
 """ query the imdb database. """
 
@@ -17,15 +17,12 @@ import logging
 
 ## defines
 
-# URL = "http://imdbapi.poromenos.org/js/?name=%s" # for this tweaking is needed, but it doesn't appear to work as adviced. E.g., inception return None
 URL = "http://www.deanclatworthy.com/imdb/?q=%s"
 
 ## imdb command
 
 def handle_imdb(bot, event):
-    if not event.rest: 
-        event.missing("<query>")
-        return
+    if not event.rest:  event.missing("<query>") ; return
     query = event.rest.strip()
     urlquery = query.replace(" ", "+")
     result = {}
@@ -44,4 +41,3 @@ def handle_imdb(bot, event):
 
 cmnds.add("imdb", handle_imdb, ["OPER", "USER", "GUEST"])
 examples.add("imdb", "query the imdb database.", "imdb the matrix")
-

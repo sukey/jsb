@@ -1,4 +1,4 @@
-# plugs/idle.py
+# jsb/plugs/common/idle.py
 #
 #
 
@@ -73,8 +73,6 @@ def handle_idle(bot, ievent):
         ievent.reply("%s is not idle" % who)
         return   
 
-cmnds.add('idle', handle_idle, ['USER', 'GUEST'])
-
 def handle_idle2(bot, ievent):
     """ show how idle a channel has been """
     chan = ievent.channel
@@ -88,5 +86,5 @@ def handle_idle2(bot, ievent):
     else:
         ievent.reply("channel %s is not idle" % chan)
 
-examples.add('idle', 'idle [<nick>] .. show how idle the channel is or show \
-how idle <nick> is', '1) idle 2) idle test')
+cmnds.add('idle', handle_idle, ['OPER', 'USER', 'GUEST'])
+examples.add('idle', 'idle [<nick>] .. show how idle the channel is or show how idle <nick> is', '1) idle 2) idle test')

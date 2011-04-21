@@ -1,4 +1,4 @@
-# jsb.plugs.common/koffie.py
+# jsb/plugs/common/koffie.py
 #
 # Made by WildRover and Junke1990
 

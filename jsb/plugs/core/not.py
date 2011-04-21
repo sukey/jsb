@@ -1,4 +1,4 @@
-# jsb/plugs/not.py
+# jsb/plugs/core/not.py
 #
 #
 

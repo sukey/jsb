@@ -1,4 +1,4 @@
-# jsb/plugs/uniq.py
+# jsb/plugs/core/uniq.py
 #
 #
 

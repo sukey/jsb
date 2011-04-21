@@ -85,7 +85,6 @@ def handle_weather(bot, ievent):
                 resultstr += "[%s: F(%sl/%sh) C(%sl/%sh) %s]" % (day, low_f, high_f, low_c, high_c, condition)
     if not resultstr: ievent.reply('%s not found!' % loc) ; return
     else: ievent.reply(resultstr)
-    print "YOOO"
 
 cmnds.add('weather', handle_weather, ['OPER', 'USER', 'GUEST'])
 examples.add('weather', 'get weather for <LOCATION> or <nick>', '1) weather London, England 2) weather dunker')

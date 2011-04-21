@@ -80,7 +80,6 @@ def remindcb(bot, ievent):
     """ remind callbacks """
     remind.remind(bot, ievent.userhost)
 
-# monitor privmsg and joins
 callbacks.add('PRIVMSG', remindcb, preremind, threaded=True)
 callbacks.add('JOIN', remindcb, preremind, threaded=True)
 callbacks.add('MESSAGE', remindcb, preremind, threaded=True)
@@ -89,20 +88,12 @@ callbacks.add('WEB', remindcb, preremind, threaded=True)
 ## remind command
 
 def handle_remind(bot, ievent):
-    """ remind <nick> <txt> .. add a remind """
-    try:
-        who = ievent.args[0]
-        txt = ' '.join(ievent.args[1:])
-    except IndexError:
-        ievent.missing('<nick> <txt>')
-        return
-    if not txt:
-        ievent.missing('<nick> <txt>')
-        return
+    """ remind <nick> <txt> .. add a remind. """
+    try: who = ievent.args[0] ; txt = ' '.join(ievent.args[1:])
+    except IndexError: ievent.missing('<nick> <txt>') ; return
+    if not txt: ievent.missing('<nick> <txt>') ; return
     userhost = getwho(bot, who)
-    if not userhost:
-        ievent.reply("can't find userhost for %s" % who)
-        return
+    if not userhost: ievent.reply("can't find userhost for %s" % who) ; return
     else:
         remind.add(userhost, [who, ievent.nick, txt, time.time()])
         ievent.reply("remind for %s added" % who)

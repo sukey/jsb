@@ -1,5 +1,6 @@
-# jsb/plugs/test.py
+# jsb/plugs/core/test.py
 # encoding: utf-8
+#
 #
 
 """ test plugin. """
@@ -24,7 +25,7 @@ import logging
 
 cpy = copy.deepcopy
 
-donot = ['urlinfo', 'privmsg', 'notice', 'disable', 'deadline', 'twitter', 'stop', 'admin', 'quit', 'reboot', 'shutdown', 'exit', 'delete', 'halt', 'upgrade', \
+donot = ['whatis', 'urlinfo', 'privmsg', 'notice', 'disable', 'deadline', 'twitter', 'stop', 'admin', 'quit', 'reboot', 'shutdown', 'exit', 'delete', 'halt', 'upgrade', \
 'install', 'reconnect', 'wiki', 'weather', 'sc', 'jump', 'disable', 'dict', \
 'snarf', 'validate', 'popcon', 'twitter', 'tinyurl', 'whois', 'rblcheck', \
 'wowwiki', 'wikipedia', 'tr', 'translate', 'serie', 'sc', 'shoutcast', 'mash', \

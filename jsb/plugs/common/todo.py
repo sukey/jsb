@@ -1,4 +1,4 @@
-# jsb.plugs.common/todo.py
+# jsb/plugs/common/todo.py
 #
 #
 

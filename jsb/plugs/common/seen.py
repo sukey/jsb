@@ -115,6 +115,7 @@ callbacks.add('QUIT', seen.quitcb)
 def handle_seen(bot, ievent):
     """ lookup last seen information. """
     if not ievent.args: ievent.missing('<nick>') ; return
+    if True:
         nick = ievent.args[0].lower()
         if not seen.data.has_key(nick):
             alts = [x for x in seen.data.keys() if nick in x]

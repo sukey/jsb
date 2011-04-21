@@ -1,4 +1,4 @@
-# jsb/plugs/remotecallbacks.py
+# jsb/plugs/core/remotecallbacks.py
 #
 #
 
@@ -56,4 +56,3 @@ def remotecb(bot, event):
     return
 
 remote_callbacks.add("MESSAGE", remotecb)
-	

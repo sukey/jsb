@@ -1,4 +1,4 @@
-# jsb.plugs.common/chatlog.py
+# jsb/plugs/socket/chatlog.py
 #
 #
 
@@ -51,7 +51,7 @@ logfiles = {}
 backends = {}
 stopped = False
 db = None
-eventstolog = ["OUTPUT", "PRIVMSG", "CONSOLE", "PART", "JOIN", "QUIT", "PRESENCE", "MESSAGE", "NOTICE", "MODE", "TOPIC", "KICK"]
+eventstolog = ["OUTPUT", "PRIVMSG", "CONSOLE", "PART", "JOIN", "QUIT", "PRESENCE", "MESSAGE", "NOTICE", "MODE", "TOPIC", "KICK", "CONVORE"]
 
 ## logging part
 
@@ -75,6 +75,8 @@ format = "%(message)s"
 
 def timestr(dt):
     return dt.strftime(format_opt('timestamp_format'))   
+
+## enablelogging function
 
 def enablelogging(botname, channel):
     """ set loglevel to level_name. """
@@ -128,9 +130,7 @@ def log_write(m):
         'type': m.type
     })
     global loggers
-    try:
-        loggers[logname].info(line.strip())
-        #logging.debug("chatlog - logged %s - %s" % (logname, line.strip()))
+    try: loggers[logname].info(line.strip())
     except KeyError: logging.warn("no logger available for channel %s" % logname)
     except Exception, ex: handle_exception()
 
@@ -145,8 +145,10 @@ def log(bot, event):
 ## chatlog precondition
 
 def prechatlogcb(bot, ievent):
-    """Check if event should be logged.  QUIT and NICK are not channel
-    specific, so we will check each channel in log()."""
+    """
+        Check if event should be logged.  QUIT and NICK are not channel
+        specific, so we will check each channel in log().
+    """
     if bot.isgae: return False
     if not cfg.channels: return False
     if not [bot.cfg.name, ievent.channel] in cfg.get('channels'): return False
@@ -179,6 +181,7 @@ def init():
     callbacks.add("PRESENCE", chatlogcb, prechatlogcb)
     callbacks.add("MESSAGE", chatlogcb, prechatlogcb)
     callbacks.add("CONSOLE", chatlogcb, prechatlogcb)
+    callbacks.add("CONVORE", chatlogcb, prechatlogcb)
     first_callbacks.add("OUTPUT", chatlogcb, prechatlogcb)
     return 1
 
@@ -209,14 +212,9 @@ examples.add('chatlog-on', 'enable chatlog on <channel> or the channel the comma
 
 def handle_chatlogoff(bot, ievent):
     """ disable chatlog. """
-    try:
-        cfg['channels'].remove([bot.cfg.name, ievent.channel])
-        cfg.save()
-    except ValueError:
-        ievent.reply('chatlog is not enabled in (%s,%s)' % (bot.cfg.name, ievent.channel))
-        return
-    try:
-        del loggers["%s-%s" % (bot.cfg.name, stripname(ievent.channel))]
+    try: cfg['channels'].remove([bot.cfg.name, ievent.channel]) ; cfg.save()
+    except ValueError: ievent.reply('chatlog is not enabled in (%s,%s)' % (bot.cfg.name, ievent.channel)) ; return
+    try: del loggers["%s-%s" % (bot.cfg.name, stripname(ievent.channel))]
     except KeyError: pass
     except Exception, ex: handle_exception()
     ievent.reply('chatlog disabled on (%s,%s)' % (bot.cfg.name, ievent.channel))

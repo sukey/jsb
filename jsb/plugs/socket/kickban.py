@@ -1,4 +1,4 @@
-# jsb.plugs.socket/kickban.py
+# jsb/plugs/socket/kickban.py
 #
 #
 
@@ -36,6 +36,9 @@ def handle_mode(bot, ievent):
     logging.debug('kick-ban - mode - %s' % str(ievent))
     # [18 Jan 2008 13:41:29] (mode) cmnd=MODE prefix=maze!wijnand@2833335b.cc9dd561.com.hmsk postfix=#eth0-test +b *!*@je.moeder.ook arguments=[u'#eth0-test', u'+b', u'*!*@je.moeder.ook'] nick=maze user=wijnand userhost=wijnand@2833335b.cc9dd561.com.hmsk channel=#eth0-test txt= command= args=[] rest= speed=5 options={}
 
+callbacks.add('367', handle_367)
+callbacks.add('MODE', handle_mode)
+
 ## functions
 
 def get_bans(bot, channel):
@@ -61,55 +64,62 @@ def get_bans(bot, channel):
 def get_bothost(bot):
     return getwho(bot, bot.cfg.nick).split('@')[-1].lower()
 
-## commands
+## ban-list command
 
 def handle_ban_list(bot, ievent):
+    """ list all bans. """
     banslist = get_bans(bot, ievent.channel)
-    if not banslist:
-        ievent.reply('the ban list for %s is empty' % ievent.channel)
-    else:
-        ievent.reply('bans on %s: ' % ievent.channel, banslist, nr=True)
+    if not banslist: ievent.reply('the ban list for %s is empty' % ievent.channel)
+    else: ievent.reply('bans on %s: ' % ievent.channel, banslist, nr=True)
+
+cmnds.add('ban-list', handle_ban_list, 'OPER', threaded=True)
+examples.add("ban-list", "list all bans.", "ban-list")
+
+## ban-remove command
 
 def handle_ban_remove(bot, ievent):
+    """ remove a ban. """
     channel = ievent.channel.lower()
-    if len(ievent.args) != 1 or not ievent.args[0].isdigit():
-        ievent.missing('<banlist index>')
-        return
+    if len(ievent.args) != 1 or not ievent.args[0].isdigit(): ievent.missing('<banlist index>') ; return
     if not bot.cfg.name in bans or not channel in bans[bot.cfg.name]:
         banslist = get_bans(bot, ievent.channel)
     else:
         banslist = bans[bot.cfg.name][channel]
         index = int(ievent.args[0])-1
-        if len(banslist) <= index:
-            ievent.reply('ban index out of range')
+        if len(banslist) <= index: ievent.reply('ban index out of range')
         else:
             unban = banslist[index]
             banslist.remove(unban)
             bot.sendraw('MODE %s -b %s' % (channel, unban))
             ievent.reply('unbanned %s' % (unban, ))
 
+cmnds.add('ban-remove', handle_ban_remove, 'OPER', threaded=True)
+examples.add('ban-remove', 'removes a host from the ban list', 'ban-remove 1')
+
+## ban-add command
+
 def handle_ban_add(bot, ievent):
-    if not ievent.args:
-        ievent.missing('<nick>')
-        return
+    """ add a ban. """
+    if not ievent.args: ievent.missing('<nick>') ; return
     if bot.cfg.nick and ievent.args[0].lower() == bot.cfg.nick.lower():
         ievent.reply('not going to ban myself')
         return
     userhost = getwho(bot, ievent.args[0])
     if userhost:
         host = userhost.split('@')[-1].lower()
-        if host == get_bothost(bot):
-            ievent.reply('not going to ban myself')
-            return
+        if host == get_bothost(bot): ievent.reply('not going to ban myself') ; return
         bot.sendraw('MODE %s +b *!*@%s' % (ievent.channel, host))
         ievent.reply('banned %s' % (host, ))
-    else:
-        ievent.reply('can not get userhost of %s' % ievent.args[0])
+    else: ievent.reply('can not get userhost of %s' % ievent.args[0])
+
+cmnds.add('ban-add', handle_ban_add, 'OPER')
+examples.add('ban-add', 'adds a host to the ban list', 'ban-add *!*@lamers.are.us')
+
+## ban-kickban command
 
 def handle_kickban_add(bot, ievent):
-    if not ievent.args:
-        ievent.missing('<nick> [<reason>]')
-        return
+    """ add a kickban. """
+    if not ievent.args: ievent.missing('<nick> [<reason>]') ; return
     if bot.cfg.nick and ievent.args[0].lower() == bot.cfg.nick.lower():
         ievent.reply('not going to kickban myself')
         return
@@ -117,21 +127,10 @@ def handle_kickban_add(bot, ievent):
     reason = len(ievent.args) > 1 and ' '.join(ievent.args[1:]) or 'Permban requested, bye'
     if userhost:
         host = userhost.split('@')[-1].lower()
-        if host == get_bothost(bot):
-            ievent.reply('not going to kickban myself')
-            return
+        if host == get_bothost(bot): ievent.reply('not going to kickban myself') ; return
         bot.sendraw('MODE %s +b *!*@%s' % (ievent.channel, host))
         bot.sendraw('KICK %s %s :%s' % (ievent.channel, ievent.args[0], reason))
-    else:
-        ievent.reply('can not get userhost of %s' % ievent.args[0])
+    else: ievent.reply('can not get userhost of %s' % ievent.args[0])
 
-callbacks.add('367', handle_367)
-callbacks.add('MODE', handle_mode)
-
-cmnds.add('ban-add', handle_ban_add, 'OPER')
-examples.add('ban-add', 'adds a host to the ban list', 'ban-add *!*@lamers.are.us')
-cmnds.add('ban-list', handle_ban_list, 'OPER', threaded=True)
-cmnds.add('ban-remove', handle_ban_remove, 'OPER', threaded=True)
-examples.add('ban-remove', 'removes a host from the ban list', 'ban-remove 1')
 cmnds.add('ban-kickban', handle_kickban_add, 'OPER')
 examples.add('ban-kickban', 'kickbans the given nick', 'kickban Lam0r Get out of here')

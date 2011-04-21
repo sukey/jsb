@@ -1,4 +1,4 @@
-# jsb/plugs/common/geo.py
+# jsb/plugs/socket/geo.py
 #
 #
 
@@ -8,21 +8,28 @@
 ## jsb imports
 
 from jsb.lib.callbacks import callbacks
+from jsb.lib.examples import examples
 from jsb.lib.commands import cmnds
 from jsb.utils.url import geturl2
 from jsb.utils.exception import handle_exception
 from jsb.imports import getjson
 
-## system imports
+## basic imports
+
 from socket import gethostbyname
 import re
+
 ## defines
 
 URL = "http://geoip.pidgets.com/?ip=%s&format=json"
 
+## querygeoipserver function
+
 def querygeoipserver(ip):
     ipinfo = getjson().loads(geturl2(URL % ip))
     return ipinfo
+
+## host2ip function
 
 def host2ip(query):
     ippattern =   re.match(r"^([0-9]{1,3}\.){3}[0-9]{1,3}$", query)
@@ -47,6 +54,9 @@ def handle_geo(bot, event):
     event.reply("geo of %s is: " % ip, querygeoipserver(ip))
 
 cmnds.add("geo", handle_geo, ["OPER", "GEO"])
+examples.add("geo", "do a geo lookup on ip nr", "geo 127.0.0.1")
+
+## callbacks
 
 def handle_geoPRE(bot, event):
     if "." in event.hostname and event.chan and event.chan.data.dogeo: return True 
@@ -61,6 +71,8 @@ def handle_geoJOIN(bot, event):
 
 callbacks.add("JOIN", handle_geoJOIN, handle_geoPRE)
 
+## geo-on command
+
 def handle_geoon(bot, event):
     """ enable geo lookup on JOIN. """
     event.chan.data.dogeo = True
@@ -68,6 +80,9 @@ def handle_geoon(bot, event):
     event.done()
 
 cmnds.add("geo-on", handle_geoon, ["OPER"])
+examples.add("geo-on", "enable geo loopups.", "geo-on")
+
+## geo-off command
 
 def handle_geooff(bot, event):
     """ disable geo lookup on JOIN. """
@@ -76,3 +91,4 @@ def handle_geooff(bot, event):
     event.done()
 
 cmnds.add("geo-off", handle_geooff, ["OPER"])
+examples.add("geo-off", "disable geo loopups.", "geo-off")

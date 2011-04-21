@@ -1,4 +1,4 @@
-# jsb/plugs/user.py
+# jsb/plugs/core/user.py
 #
 #
 
@@ -23,7 +23,7 @@ def handle_whoami(bot, ievent):
     """ get your username. """
     ievent.reply('%s' % bot.users.getname(ievent.auth))
 
-cmnds.add('user-whoami', handle_whoami, ['USER', 'GUEST'])
+cmnds.add('user-whoami', handle_whoami, ['OPER', 'USER', 'GUEST'])
 examples.add('user-whoami', 'get your username', 'user-whoami')
 
 ## user-meet command

@@ -1,10 +1,10 @@
-# jsb/plugs/fleet.py
+# jsb/plugs/core/fleet.py
 #
 #
 
 """ 
     The fleet makes it possible to run multiple bots in one running instance.
-    It is a list of bots.
+    It is a list of bots. This plugin provides commands to manipulate this list of bots.
 
 """
 
@@ -34,7 +34,6 @@ examples.add('fleet-avail', 'show available fleet bots', 'fleet-avail')
 ## fleet-connect command
 
 def handle_fleetconnect(bot, ievent):
-
     """ connect a fleet bot to it's server. """
     try: botname = ievent.args[0]
     except IndexError:
@@ -196,7 +195,7 @@ examples.add('fleet-add', 'add a fleet bot', 'fleet-add local irc localhost jsbt
 ## fleet-cmnd command
 
 def fleet_cmnd(bot, ievent):
-    """ co cmnd on fleet bot(s). """
+    """ do cmnd on fleet bot(s). """
     try:
         (name, cmndtxt) = ievent.rest.split(' ', 1)
     except ValueError: ievent.missing("<name> <cmndstring>") ; return

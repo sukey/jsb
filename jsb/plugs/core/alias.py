@@ -1,4 +1,4 @@
-# jsb/plugs/alias.py
+# jsb/plugs/core/alias.py
 #
 #
 

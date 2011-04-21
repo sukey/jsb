@@ -1,4 +1,4 @@
-# jsb/plugs/tail.py
+# jsb/plugs/core/tail.py
 #
 #
 

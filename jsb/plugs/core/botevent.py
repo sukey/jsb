@@ -1,4 +1,4 @@
-# jsb/plugs/botevent.py
+# jsb/plugs/core/botevent.py
 #
 #
 

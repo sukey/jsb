@@ -4,14 +4,15 @@
 #
 
 """
-Catches URLs on channel and gives information about them like title, image size, etc.
-Uses http://whatisthisfile.appspot.com/ via XMLRPC
+    Catches URLs on channel and gives information about them like title, image size, etc.
+    Uses http://whatisthisfile.appspot.com/ via XMLRPC
 
-Example:
-19:20 <@raspi> http://www.youtube.com/watch?v=9RZ-hYPAMFQ
-19:20 <@bot> Title: "YouTube - Black Knight Holy Grail"
-19:28 <@raspi> test http://www.raspi.fi foobar http://raspi.fi/wp-includes/images/rss.png
-19:28 <@bot> 1. Title: "raspi.fi" Redirect: http://raspi.fi/  2. Image: 14x14
+    Example:
+    19:20 <@raspi> http://www.youtube.com/watch?v=9RZ-hYPAMFQ
+    19:20 <@bot> Title: "YouTube - Black Knight Holy Grail"
+    19:28 <@raspi> test http://www.raspi.fi foobar http://raspi.fi/wp-includes/images/rss.png
+    19:28 <@bot> 1. Title: "raspi.fi" Redirect: http://raspi.fi/  2. Image: 14x14
+
 """
 
 __author__ = u"Pekka 'raspi' Järvinen - http://raspi.fi/"

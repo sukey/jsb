@@ -1,4 +1,4 @@
-# jsb/plugs/gae.py
+# jsb/plugs/gae/gae.py
 #
 #
 
@@ -9,21 +9,19 @@
 from jsb.lib.commands import cmnds
 from jsb.lib.examples import examples
 
-## commands
+## gae-flushcache command
 
 def handle_gaeflushcache(bot, ievent):
     """ flush the cache .. flush all with no arguments otherwise delete specific. """
     from google.appengine.api.memcache import flush_all, delete
-
-    if not ievent.rest:
-        flush_all()
-    else:
-        delete(ievent.rest)
-
+    if not ievent.rest: flush_all()
+    else: delete(ievent.rest)
     ievent.done()
 
 cmnds.add('gae-flushcache', handle_gaeflushcache, 'OPER')
 examples.add('gae-flushcache', 'flush the bots cache', 'gae-flushcache')
+
+## gae-stats command
 
 def handle_gaeadminstats(bot, ievent):
     """ show bot stats. """

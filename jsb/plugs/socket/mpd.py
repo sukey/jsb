@@ -1,3 +1,6 @@
+# jsb/plugs/socket/mpd.py
+#
+#
 # interact with (your) Music Player Daemon
 # (c) Wijnand 'tehmaze' Modderman - http://tehmaze.com
 # BSD License
@@ -28,7 +31,8 @@
 
 __version__ = '2007111601'
 
-import os, socket, time
+
+## jsb imports
 
 from jsb.lib.commands import cmnds
 from jsb.lib.datadir import getdatadir
@@ -38,6 +42,14 @@ from jsb.utils.pdod import Pdod
 from jsb.lib.persistconfig import PersistConfig
 from jsb.lib.threads import start_new_thread
 
+## basic imports
+
+import os
+import socket
+import time
+
+## defines
+
 cfg = PersistConfig()
 cfg.define('server-host', '127.0.0.1')
 cfg.define('server-port', 6600)
@@ -46,6 +58,8 @@ cfg.define('socket-timeout', 15)
 cfg.define('watcher-interval', 10)
 cfg.define('watcher-enabled', 0)
 cfg.define('song-status', 'now playing: %(artist)s - %(title)s on "%(album)s" (duration: %(time)s)')
+
+## classes
 
 class MPDError(Exception): pass
 
@@ -107,6 +121,8 @@ class MPDWatcher(Pdod):
                 for channel in self.data[name].keys():
                     bot.say(channel, song)
 
+## init
+
 watcher = MPDWatcher()
 if not watcher.data:
     watcher = MPDWatcher()
@@ -121,6 +137,8 @@ def shutdown():
         watcher.stop()
     return 1
 
+## mpd function
+
 def mpd(command):
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -130,9 +148,7 @@ def mpd(command):
         raise MPDError, 'Failed to connect to server: %s' % str(e)
     m = s.makefile('r')
     l = m.readline()
-    if not l.startswith('OK MPD '):
-	s.close()
-	raise MPDError, 'Protocol error'
+    if not l.startswith('OK MPD '): s.close() ; raise MPDError, 'Protocol error'
     if cfg.get('server-pass') and cfg.get('server-pass') != 'off':
         s.send('password %s\n' % cfg.get('server-pass'))
         l = m.readline()
@@ -177,7 +193,10 @@ def mpd_duration(timespec):
         timestr = timestr + '%02dm' % m
     return timestr + '%02ds' % timespec
 
+## mpd command
+
 def handle_mpd(bot, ievent):
+    """ display mpd status. """
     try:
         result = []
         song = MPDDict(mpd('currentsong'))
@@ -190,12 +209,18 @@ def handle_mpd(bot, ievent):
         if status['state'] == 'stop': status['state'] = 'stopped'
         reply += 'volume: %s | repeat: %s | random: %s | single: %s | consume: %s' % (status['volume'], status['repeat'], status['random'], status['single'], status['consume'])
         ievent.reply(reply)
-    except MPDError, e:
-        ievent.reply(str(e))
+    except MPDError, e: ievent.reply(str(e))
+
+#mpd                                           Display status
+cmnds.add('mpd', handle_mpd, 'USER', threaded=True)
+examples.add('mpd', 'Display mpd status', 'mpd')
+
+## mpd-outputs command
 
 def handle_mpd_outputs(bot, ievent):
-#Output 1 (My ALSA Device) is enabled
-#[('outputid', '0'), ('outputname', 'My ALSA Device'), ('outputenabled', '1')]
+    """ show mpd outputs. """
+    # Output 1 (My ALSA Device) is enabled
+    # [('outputid', '0'), ('outputname', 'My ALSA Device'), ('outputenabled', '1')]
     try:
         outputs = mpd('outputs')
         outputid = '?'
@@ -216,6 +241,8 @@ def handle_mpd_outputs(bot, ievent):
     except MPDError, e:
         ievent.reply(str(e))
 
+## mpd-enable command
+
 def handle_mpd_enable(bot, ievent):
     try:
         try: output = int(ievent.args[0])-1
@@ -225,6 +252,8 @@ def handle_mpd_enable(bot, ievent):
     except MPDError, e:
         ievent.reply(str(e))
 
+## mpd-disable command
+
 def handle_mpd_disable(bot, ievent):
     try:
         try: output = int(ievent.args[0])-1
@@ -233,6 +262,8 @@ def handle_mpd_disable(bot, ievent):
         ievent.reply(result)
     except MPDError, e:
         ievent.reply(str(e))
+
+## mpd-playlist command
 
 def handle_mpd_playlist(bot, ievent):
     try:
@@ -249,6 +280,8 @@ def handle_mpd_playlist(bot, ievent):
     except MPDError, e:
         ievent.reply(str(e))
 
+## mpd-lsplaylists command
+
 def handle_mpd_lsplaylists(bot, ievent):
     try:
         playlists = mpd('lsinfo')
@@ -259,6 +292,8 @@ def handle_mpd_lsplaylists(bot, ievent):
         ievent.reply("\n".join(result))
     except MPDError, e:
         ievent.reply(str(e))
+
+## mpd-playlistmanipulation command
 
 def handle_mpd_playlist_manipulation(bot, ievent, command):
     try:
@@ -271,14 +306,22 @@ def handle_mpd_playlist_manipulation(bot, ievent, command):
     except MPDError, e:
         ievent.reply(str(e))
 
+## mpd-load command
+
 def handle_mpd_load(bot, ievent):
      handle_mpd_playlist_manipulation(bot, ievent, 'load')
+
+## mpd-save command
 
 def handle_mpd_save(bot, ievent):
      handle_mpd_playlist_manipulation(bot, ievent, 'save')
 
+## mpd-rm command
+
 def handle_mpd_rm(bot, ievent):
      handle_mpd_playlist_manipulation(bot, ievent, 'rm')
+
+## mpd-np command
 
 def handle_mpd_np(bot, ievent):
     try:
@@ -288,6 +331,13 @@ def handle_mpd_np(bot, ievent):
     except MPDError, e:
         ievent.reply(str(e))
 
+#mpd-current                                   Show the currently playing song
+cmnds.add('mpd-current',    handle_mpd_np,    'USER', threaded=True)
+cmnds.add('mpd-np',    handle_mpd_np,    'USER', threaded=True)
+examples.add('mpd-current', 'Show the currently playing song', 'mpd-current')
+
+## mpd-simpleseek command
+
 def handle_mpd_simple_seek(bot, ievent, command):
     try:
         mpd(command)
@@ -295,22 +345,80 @@ def handle_mpd_simple_seek(bot, ievent, command):
         handle_mpd(bot, ievent)
     except MPDError, e:
         ievent.reply(str(e))
-        
+
+## mpd-next command
+
 handle_mpd_next = lambda b,i: handle_mpd_simple_seek(b,i,'next') 
+
+#mpd-next                                      Play the next song in the current playlist
+cmnds.add('mpd-next',  handle_mpd_next,  'MPD', threaded=True)
+examples.add('mpd-next', 'Play the next song in the current playlist', 'mpd-next')
+
+## mpd-prev command
+
 handle_mpd_prev = lambda b,i: handle_mpd_simple_seek(b,i,'prev') 
+
+#mpd-prev                                      Play the previous song in the current playlist
+cmnds.add('mpd-prev',  handle_mpd_prev,  'MPD', threaded=True)
+examples.add('mpd-prev', 'Play the previous song in the current playlist', 'mpd-prev')
+
+## mpd-play command
+
 handle_mpd_play = lambda b,i: handle_mpd_simple_seek(b,i,'play') 
+
+#mpd-play [<position>]                         Start playing at <position> (default: 1)
+cmnds.add('mpd-play',  handle_mpd_play,  'MPD', threaded=True)
+examples.add('mpd-play', 'Start playing at <position> (default: 1)', 'mpd-play')
+
+## mpd-stop command
+
 handle_mpd_stop = lambda b,i: handle_mpd_simple_seek(b,i,'stop') 
+
+## mpd-pause command
+
 handle_mpd_pause = lambda b,i: handle_mpd_simple_seek(b,i,'pause') 
+
+#mpd-pause                                     Pauses the currently playing song
+cmnds.add('mpd-pause', handle_mpd_pause, 'MPD', threaded=True)
+examples.add('mpd-pause', 'Pauses the currently playing song', 'mpd-pause')
+
+## mpd-clear command
+
 handle_mpd_clear = lambda b,i: handle_mpd_simple_seek(b,i,'clear') 
 
+## mpd-crop command
+
 handle_mpd_crop = lambda b,i: handle_mpd_simple_seek(b,i,'crop') 
+
+#mpd-crop                                      Remove all but the currently playing song
+cmnds.add('mpd-crop', handle_mpd_crop, 'MPD', threaded=True)
+examples.add('mpd-crop', 'Remove all but the currently playing song', 'mpd-crop')
+
+## mpd-shuffle command
+
 handle_mpd_shuffle = lambda b,i: handle_mpd_simple_seek(b,i,'shuffle') 
 
+## mpd-repeat command
+
 handle_mpd_repeat = lambda b,i: handle_mpd_toggle_option(b,i,'repeat') 
+
+## mpd-random command
+
 handle_mpd_random = lambda b,i: handle_mpd_toggle_option(b,i,'random') 
+
+## mpd-single command
+
 handle_mpd_single= lambda b,i: handle_mpd_toggle_option(b,i,'single') 
+
+## mpd-consume command
+
 handle_mpd_consume= lambda b,i: handle_mpd_toggle_option(b,i,'consume') 
+
+## mpd-crossfade command
+
 handle_mpd_crossfade= lambda b,i: handle_mpd_set_option(b,i,'crossfade') 
+
+## mpd-find command
 
 def handle_mpd_find(bot, ievent):
     type = 'title'
@@ -326,6 +434,8 @@ def handle_mpd_find(bot, ievent):
         else: ievent.reply('no result')
     except MPDError, e: ievent.reply(str(e))
 
+## mpd-add command
+
 def handle_mpd_add(bot, ievent):
     if not ievent.args:
         ievent.missing('<file>')
@@ -339,28 +449,38 @@ def handle_mpd_add(bot, ievent):
     except MPDError, e:
         ievent.reply(str(e))
 
+#mpd-add <file>                                Add a song to the current playlist
+cmnds.add('mpd-add', handle_mpd_add, 'MPD', threaded=True)
+cmnds.add('mpd-queue', handle_mpd_add, 'MPD', threaded=True)
+examples.add('mpd-add', 'Add a song to the current playlist', 'mpd-add mp3/bigbeat/fatboy slim/fatboy slim - everybody needs a 303.mp3')
+
+## mpd-del command
+
 def handle_mpd_del(bot, ievent):
-    if not ievent.args:
-        ievent.missing('<position>')
-        return
-    try:
-        result = mpd('delete %d' % int(ievent.args[0]))
-        ievent.reply(result)
-    except MPDError, e:
-        ievent.reply(str(e))
+    if not ievent.args: ievent.missing('<position>') ; return
+    try: result = mpd('delete %d' % int(ievent.args[0])) ; ievent.reply(result)
+    except MPDError, e: ievent.reply(str(e))
+
+#mpd-del <position>                            Remove a song from the current playlist
+cmnds.add('mpd-del',  handle_mpd_del,  'MPD', threaded=True)
+examples.add('mpd-del', 'Remove a song from the current playlist', 'mpd-del 1')
+
+## mpd-jump command
 
 def handle_mpd_jump(bot, ievent):
     pos = 0
     try:    pos = int(ievent.args[0])
     except: pass
-    if not pos:
-        ievent.missing('<playlist id>')
-        return
+    if not pos: ievent.missing('<playlist id>') ; return
     try:
         mpd('playid %d' % pos)
         handle_mpd_np(bot, ievent)
-    except MPDError, e:
-        ievent.reply(str(e))
+    except MPDError, e: ievent.reply(str(e))
+
+cmnds.add('mpd-jump',  handle_mpd_jump, 'MPD', threaded=True)
+examples.add('mpd-jump', 'jump to the specified playlist id', 'mpd-jump 777')
+
+## mpd-stats command
 
 def handle_mpd_stats(bot, ievent):
     try:
@@ -378,6 +498,12 @@ def handle_mpd_stats(bot, ievent):
     except MPDError, e:
         ievent.reply(str(e))
 
+#mpd-stats                                     Display statistics about MPD
+cmnds.add('mpd-stats', handle_mpd_stats, 'USER', threaded=True)
+examples.add('mpd-stats', 'Display statistics about MPD', 'mpd-stats')
+
+## mpd-volume command
+
 def handle_mpd_volume(bot, ievent):
     volume = 0
     try:    volume = int(ievent.args[0])
@@ -391,6 +517,8 @@ def handle_mpd_volume(bot, ievent):
         ievent.reply('Volume set to %d' % volume)
     except MPDError, e:
         ievent.reply(str(s))
+
+## mpd-toggleoption command
 
 def handle_mpd_toggle_option(bot, ievent, option):
     if ievent.args:
@@ -408,6 +536,8 @@ def handle_mpd_toggle_option(bot, ievent, option):
         handle_mpd(bot, ievent)
     except MPDError, e:
         ievent.reply(str(e))
+
+## mpd-setoption command
 
 def handle_mpd_set_option(bot, ievent, option):
     try:
@@ -427,6 +557,8 @@ def handle_mpd_set_option(bot, ievent, option):
     except MPDError, e:
         ievent.reply(str(e))
 
+## mpd-watchstart command
+
 def handle_mpd_watch_start(bot, ievent):
     if not cfg.get('watcher-enabled'):
         ievent.reply('watcher not enabled, use "!%s-cfg watcher-enabled 1" to enable and reload the plugin' % os.path.basename(__file__)[:-3])
@@ -434,12 +566,20 @@ def handle_mpd_watch_start(bot, ievent):
     watcher.add(bot, ievent)
     ievent.reply('ok')
 
+cmnds.add('mpd-watch-start', handle_mpd_watch_start, 'MPD', threaded=True)
+
+## mpd-watchstop command
+
 def handle_mpd_watch_stop(bot, ievent):
     if not cfg.get('watcher-enabled'):
         ievent.reply('watcher not enabled, use "!%s-cfg watcher-enabled 1" to enable and reload the plugin' % os.path.basename(__file__)[:-3])
         return
     watcher.remove(bot, ievent)
     ievent.reply('ok')
+
+cmnds.add('mpd-watch-stop',  handle_mpd_watch_stop, 'MPD', threaded=True)
+
+## mpd-watchlist command
 
 def handle_mpd_watch_list(bot, ievent):
     if not cfg.get('watcher-enabled'):
@@ -456,50 +596,9 @@ def handle_mpd_watch_list(bot, ievent):
     else:
         ievent.reply('no watchers running')
 
-
-cmnds.add('mpd-jump',  handle_mpd_jump,  'MPD', threaded=True)
-examples.add('mpd-jump', 'jump to the specified playlist id', 'mpd-jump 666')
-cmnds.add('mpd-watch-start', handle_mpd_watch_start, 'MPD', threaded=True)
-cmnds.add('mpd-watch-stop',  handle_mpd_watch_stop, 'MPD', threaded=True)
 cmnds.add('mpd-watch-list',  handle_mpd_watch_list, 'MPD', threaded=True)
 
-#mpd                                           Display status
-cmnds.add('mpd', handle_mpd, 'USER', threaded=True)
-examples.add('mpd', 'Display mpd status', 'mpd')
-
-#mpd-add <file>                                Add a song to the current playlist
-cmnds.add('mpd-add', handle_mpd_add, 'MPD', threaded=True)
-cmnds.add('mpd-queue', handle_mpd_add, 'MPD', threaded=True)
-examples.add('mpd-add', 'Add a song to the current playlist', 'mpd-add mp3/bigbeat/fatboy slim/fatboy slim - everybody needs a 303.mp3')
-
-#mpd-crop                                      Remove all but the currently playing song
-cmnds.add('mpd-crop', handle_mpd_crop, 'MPD', threaded=True)
-examples.add('mpd-crop', 'Remove all but the currently playing song', 'mpd-crop')
-
-#mpd-current                                   Show the currently playing song
-cmnds.add('mpd-current',    handle_mpd_np,    'USER', threaded=True)
-cmnds.add('mpd-np',    handle_mpd_np,    'USER', threaded=True)
-examples.add('mpd-current', 'Show the currently playing song', 'mpd-current')
-
-#mpd-del <position>                            Remove a song from the current playlist
-cmnds.add('mpd-del',  handle_mpd_del,  'MPD', threaded=True)
-examples.add('mpd-del', 'Remove a song from the current playlist', 'mpd-del 1')
-
-#mpd-play [<position>]                         Start playing at <position> (default: 1)
-cmnds.add('mpd-play',  handle_mpd_play,  'MPD', threaded=True)
-examples.add('mpd-play', 'Start playing at <position> (default: 1)', 'mpd-play')
-
-#mpd-next                                      Play the next song in the current playlist
-cmnds.add('mpd-next',  handle_mpd_next,  'MPD', threaded=True)
-examples.add('mpd-next', 'Play the next song in the current playlist', 'mpd-next')
-
-#mpd-prev                                      Play the previous song in the current playlist
-cmnds.add('mpd-prev',  handle_mpd_prev,  'MPD', threaded=True)
-examples.add('mpd-prev', 'Play the previous song in the current playlist', 'mpd-prev')
-
-#mpd-pause                                     Pauses the currently playing song
-cmnds.add('mpd-pause', handle_mpd_pause, 'MPD', threaded=True)
-examples.add('mpd-pause', 'Pauses the currently playing song', 'mpd-pause')
+## register command and exmaples
 
 #mpd-toggle                                    Toggles Play/Pause, plays if stopped
 cmnds.add('mpd-toggle', handle_mpd_pause, 'MPD', threaded=True)
@@ -610,9 +709,6 @@ examples.add('mpd-crossfade', 'Set and display crossfade settings', 'mpd-crossfa
 #mpd-sticker <uri> <get|set|list|del> <args..> Sticker management
 #cmnds.add('mpd-sticker', handle_mpd_sticker, 'MPD')
 
-#mpd-stats                                     Display statistics about MPD
-cmnds.add('mpd-stats', handle_mpd_stats, 'USER', threaded=True)
-examples.add('mpd-stats', 'Display statistics about MPD', 'mpd-stats')
 
 #mpd-version                                   Report version of MPD
 #cmnds.add('mpd-version', handle_mpd_version, 'USER')

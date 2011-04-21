@@ -1,4 +1,4 @@
-# jsb.plugs.common/forward.py
+# jsb/plugs/common/forward.py
 #
 #
 
@@ -19,14 +19,13 @@ from jsb.utils.exception import handle_exception
 from jsb.utils.locking import locked
 from jsb.utils.generic import strippedtxt, stripcolor
 
-## jsb.plugs.common imports
+## twitter plugin imports
 
 from jsb.plugs.common.twitter import postmsg
 
 ## xmpp import
 
 from jsb.contrib.xmlstream import NodeBuilder, XMLescape, XMLunescape
-
 
 ## basic imports
 

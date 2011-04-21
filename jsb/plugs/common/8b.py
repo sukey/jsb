@@ -1,4 +1,4 @@
-# jsb.plugs.common/8b.py
+# jsb/plugs/common/8b.py
 #
 #
 
@@ -46,5 +46,5 @@ def handle_8b(bot, ievent):
     """ throw the eight ball. """
     ievent.reply(random.choice(balltxt))
 
-cmnds.add('8b', handle_8b, ['USER', 'GUEST'])
+cmnds.add('8b', handle_8b, ['OPER', 'USER', 'GUEST'])
 examples.add('8b', 'show what the magic 8 ball has to say.', '8b')

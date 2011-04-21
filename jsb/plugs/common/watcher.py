@@ -1,8 +1,8 @@
-# jsb.plugs.wave/watcher.py
+# jsb/plugs/common/watcher.py
 #
 #
 
-""" watch waves through xmpp. a wave is called a channel here. """
+""" watch channels. channels events can be of remote origin. """
 
 ## jsb imports
 
@@ -124,6 +124,7 @@ watched = Watched('channels')
 ## functions
 
 def writeout(botname, type, channel, txt, eventjson):
+    """ output the watched event to the channel. """
     event = EventBase().load(eventjson)
     watchbot = getfleet().byname(botname)
     if not watchbot: watchbot = getfleet().makebot(type, botname)

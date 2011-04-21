@@ -1,4 +1,4 @@
-# plugs/gcalc.py
+# jsb/plugs/common/gcalc.py
 # encoding: utf-8
 #
 #
@@ -32,5 +32,5 @@ def handle_gcalc(bot, ievent):
     except Exception, ex:
         ievent.reply(str(ex))    
 
-cmnds.add('gcalc', handle_gcalc, ['USER', 'GUEST'])
+cmnds.add('gcalc', handle_gcalc, ['OPER', 'USER', 'GUEST'])
 examples.add('gcalc', 'calculate an expression using the google calculator', 'gcalc 1 + 1')

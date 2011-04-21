@@ -26,7 +26,6 @@ from jsb.contrib.tweepy.error import TweepError
 from jsb.contrib.tweepy.models import Status, User
 from jsb.contrib import tweepy
 
-go = True
 
 ## basic imports
 
@@ -48,6 +47,7 @@ def getcreds(datadir):
 ## defines
 
 auth = None
+go = True
 
 def getauth(datadir):
     global auth
@@ -56,7 +56,7 @@ def getauth(datadir):
     auth = OAuthHandler(key, secret)
     return auth
 
-## functions
+## postmsg function
 
 def postmsg(username, txt):
     try:
@@ -162,7 +162,7 @@ def handle_twitter_confirm(bot, ievent):
     twitteruser.add(ievent.user.data.name, access_token.to_string())
     ievent.reply("access token saved.")
 
-cmnds.add('twitter-confirm', handle_twitter_confirm, ['USER', 'GUEST'])
+cmnds.add('twitter-confirm', handle_twitter_confirm, ['OPER', 'USER', 'GUEST'])
 examples.add('twitter-confirm', 'confirm your twitter account', '1) twitter-confirm 6992762')
 
 ## twitter-auth command
@@ -179,7 +179,7 @@ def handle_twitter_auth(bot, ievent):
         ievent.reply("sign in at %s" % auth_url)
         ievent.reply("use the provided code in the twitter-confirm command.")
 
-cmnds.add('twitter-auth', handle_twitter_auth, ['USER', 'GUEST'])
+cmnds.add('twitter-auth', handle_twitter_auth, ['OPER', 'USER', 'GUEST'])
 examples.add('twitter-auth', 'adds your twitter account', '1) twitter-auth')
 
 ## twitter-friends command
@@ -204,5 +204,5 @@ def handle_twitterfriends(bot, ievent):
     except KeyError: ievent.reply('you are not logged in yet. see the twitter-auth command.')
     except (TweepError, urllib2.HTTPError), e: ievent.reply('twitter failed: %s' % (str(e),))
 
-cmnds.add('twitter-friends', handle_twitterfriends, ['USER', 'GUEST'])
+cmnds.add('twitter-friends', handle_twitterfriends, ['OPER', 'USER', 'GUEST'])
 examples.add('twitter-friends', 'show your friends_timeline', 'twitter-friends')

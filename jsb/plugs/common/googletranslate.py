@@ -1,4 +1,5 @@
-# jsb/plugs/common/translate.py
+# jsb/plugs/common/googletranslate.py
+#
 #
 # author: melmoth
 

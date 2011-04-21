@@ -1,4 +1,4 @@
-# jsb.plugs.common/learn.py
+# jsb/plugs/common/learn.py
 #
 #
 

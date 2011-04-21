@@ -1,4 +1,4 @@
-# jsb/plugs/underauth.py
+# jsb/plugs/core/underauth.py
 #
 #
 

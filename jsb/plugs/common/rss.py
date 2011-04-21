@@ -1,4 +1,4 @@
-# commonplugs/rss.py
+# jsb/plugs/common/rss.py
 #
 #
 

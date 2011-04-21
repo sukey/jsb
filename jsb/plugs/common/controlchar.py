@@ -1,4 +1,4 @@
-# jsb.plugs.common/controlchar.py
+# jsb/plugs/common/controlchar.py
 #
 #
 

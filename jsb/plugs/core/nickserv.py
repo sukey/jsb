@@ -1,4 +1,4 @@
-# jsb/plugs/nickserv.py
+# jsb/plugs/core/nickserv.py
 #
 # 
 

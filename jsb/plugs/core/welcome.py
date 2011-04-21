@@ -1,4 +1,4 @@
-# jsb/plugs/welcome.py
+# jsb/plugs/core/welcome.py
 #
 #
 

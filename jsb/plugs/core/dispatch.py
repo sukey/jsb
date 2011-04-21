@@ -1,8 +1,8 @@
-# jsb/plugs/dispatch.py
+# jsb/plugs/core/dispatch.py
 #
 #
 
-""" base class for all bots. """
+""" this is the dispatch plugin that dispatches events to commands. """
 
 ## jsb imports
 
@@ -18,10 +18,10 @@ import copy
 
 cpy = copy.deepcopy
 
-
 ## dispatch precondition
 
 def predispatch(bot, event):
+    """ check whether we should check for commands. """
     if event.status == "done": logging.debug("dispatch - event is done .. ignoring") ; return
     if event.isremote(): logging.debug("dispatch - event is remote .. not dispatching") ; return
     #if event.isrelayed: logging.debug("dispatch - event is relayed .. not dispatching") ; return  

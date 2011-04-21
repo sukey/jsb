@@ -1,4 +1,4 @@
-# jsb/plugs/gatekeeper.py
+# jsb/plugs/core/gatekeeper.py
 #
 #
 
@@ -13,9 +13,7 @@ from jsb.lib.examples import examples
 
 def handle_gatekeeperallow(bot, event):
     """ allow user on bot. """
-    if not event.rest:
-        event.missing("<userhost>")
-        return
+    if not event.rest: event.missing("<userhost>") ; return
     bot.gatekeeper.allow(event.rest)
     event.done()
 
@@ -26,9 +24,7 @@ examples.add('gatekeeper-allow', 'add JID of remote bot that we allow to receice
 
 def handle_gatekeeperdeny(bot, event):
     """ deny user on bot. """
-    if not event.rest:
-        event.missing("<userhost>")
-        return
+    if not event.rest: event.missing("<userhost>") ; return
     bot.gatekeeper.deny(event.rest)
     event.done()
 

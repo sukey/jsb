@@ -1,4 +1,4 @@
-# jsb.plugs.common/echo.py
+# jsb/plugs/common/echo.py
 #
 #
 
@@ -17,10 +17,12 @@ import logging
 ## echo callback
 
 def echopre(bot, event):
+    """ test whether we should echo. """
     if event.how != "background" and bot.type == "web" and not event.forwarded and not event.cbtype == "OUTPUT": return True
     return False
 
 def echocb(bot, event):
+    """ do the echo. """
     bot.outnocb(event.channel, u"[%s] %s" % (event.nick, event.txt), event=event)
 
 first_callbacks.add("DISPATCH", echocb, echopre)
@@ -28,9 +30,9 @@ first_callbacks.add("DISPATCH", echocb, echopre)
 ## echo command
 
 def handle_echo(bot, event):
-    """ echo txt to user. """
+    """ echo txt to channel. """
     if event.how != "background" and not event.iscmnd() and not event.isremote:
         if not event.isdcc: bot.saynocb(event.channel, u"[%s] %s" % (event.nick, event.txt))
             
-cmnds.add("echo", handle_echo, ['OPER'])
+cmnds.add("echo", handle_echo, ['OPER', 'USER'])
 examples.add("echo", "echo input", "echo yoooo dudes")

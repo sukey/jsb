@@ -1,4 +1,4 @@
-# jsb/plugs/chan.py
+# jsb/plugs/core/chan.py
 #
 #
 

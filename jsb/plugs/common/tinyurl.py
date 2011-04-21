@@ -68,8 +68,7 @@ def privmsgcb(bot, ievent):
     test_url = re_url_match.search(ievent.txt)
     if test_url:
         url = test_url.group(1)
-        if not urlcache.has_key(bot.cfg.name):
-            urlcache[bot.cfg.name] = {}
+        if not urlcache.has_key(bot.cfg.name): urlcache[bot.cfg.name] = {}
         urlcache[bot.cfg.name][ievent.target] = url
 
 # not enabled right now
@@ -79,12 +78,10 @@ def get_tinyurl(url):
     """ grab a tinyurl. """
     res = get(url, namespace='tinyurl') ; logging.debug('tinyurl - cache - %s' % unicode(res))
     if res and res[0] == '[': return json.loads(res)
-
     postarray = [
         ('submit', 'submit'),
         ('url', url),
         ]
-
     postdata = urllib.urlencode(postarray)
     req = urllib2.Request(url=plugcfg.url, data=postdata)
     req.add_header('User-agent', useragent())

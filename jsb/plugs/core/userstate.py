@@ -1,4 +1,4 @@
-# jsb/plugs/userstate.py
+# jsb/plugs/core/userstate.py
 #
 #
 

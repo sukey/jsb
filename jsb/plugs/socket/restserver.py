@@ -1,4 +1,4 @@
-# jsb.plugs.socket/restserver.py
+# jsb/plugs/socket/restserver.py
 #
 #
 
@@ -32,11 +32,8 @@ try:
     cfg.define('disable', [])
     hp = "%s:%s" % (cfg.get('host'), cfg.get('port'))
     url = "http://%s" % hp
-    if cfg.enable:
-         enable = True
-except AttributeError:
-    # we are on the GAE
-    enable = False
+    if cfg.enable: enable = True
+except AttributeError: enable = False # we are on GAE
 
 ## server part
 
@@ -45,61 +42,40 @@ server = None
 ## functions
 
 def startserver(force=False):
-    if not enable:
-        logging.debug("rest server is disabled")
-        return
-
+    """ start the rest server. """
+    if not enable: logging.debug("rest server is disabled") ; return
     global server 
-    if server and not force:
-        logging.debug("REST server is already running. ")
-        return server
-
+    if server and not force: logging.debug("REST server is already running. ") ; return server
     try:
         server = RestServer((cfg.get('host'), cfg.get('port')), RestRequestHandler)
-
         if server:
             server.start()
             logging.warn('restserver - running at %s:%s' % (cfg.get('host'), cfg.get('port')))
-
-            for mount in cfg.get('disable'):
-                server.disable(mount)
-        else:
-            logging.error('restserver - failed to start server at %s:%s' % (cfg.get('host'), cfg.get('port')))
-
-    except socket.error, ex:
-        logging.warn('restserver - start - socket error: %s' % str(ex))
-
-    except Exception, ex:
-        handle_exception()
-
+            for mount in cfg.get('disable'): server.disable(mount)
+        else: logging.error('restserver - failed to start server at %s:%s' % (cfg.get('host'), cfg.get('port')))
+    except socket.error, ex: logging.warn('restserver - start - socket error: %s' % str(ex))
+    except Exception, ex: handle_exception()
     return server
 
 def stopserver():
-
+    """ stop server. """
     try:
-        if not server:
-            logging.debug('restserver - server is already stopped')
-            return
-
+        if not server: logging.debug('restserver - server is already stopped') ; return
         server.shutdown()
-
-    except Exception, ex:
-        handle_exception()
-        pass
+    except Exception, ex: handle_exception()
 
 ## plugin init
 
 def init():
-
-    if cfg['enable']:
-        startserver()
+    if cfg['enable']: startserver()
 
 def shutdown():
+    if cfg['enable']: stopserver()
 
-    if cfg['enable']:
-        stopserver()
+## rest-start command
 
 def handle_rest_start(bot, event):
+    """ start the rest server. """
     cfg['enable'] = 1
     cfg.save()
     startserver()
@@ -108,7 +84,10 @@ def handle_rest_start(bot, event):
 cmnds.add('rest-start', handle_rest_start, 'OPER')
 examples.add('rest-start', 'start the REST server', 'rest-start')
 
+## rest-stop command
+
 def handle_rest_stop(bot, event):
+    """ stop the rest server. """
     cfg['enable'] = 0
     cfg.save()
     stopserver()

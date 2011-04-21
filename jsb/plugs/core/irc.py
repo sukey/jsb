@@ -1,10 +1,10 @@
-# jsb/plugs/irc.py
+# jsb/plugs/core/irc.py
 #
 #
 
 """ irc related commands. """
 
-## gozerbot imports
+## jsb imports
 
 from jsb.lib.callbacks import callbacks
 from jsb.lib.partyline import partyline

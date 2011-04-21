@@ -1,10 +1,10 @@
-# jsb/plugs/core.py
+# jsb/plugs/core/core.py
 #
 #
 
 """ core bot commands. """
 
-## gozerbot imports
+## jsb imports
 
 from jsb.utils.statdict import StatDict
 from jsb.utils.log import setloglevel, getloglevel
@@ -33,7 +33,7 @@ import os
 import copy
 import cgi
 
-## define
+## defines
 
 cpy = copy.deepcopy
 

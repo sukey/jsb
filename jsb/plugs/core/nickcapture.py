@@ -1,4 +1,4 @@
-# jsb/plugs/nickcapture.py
+# jsb/plugs/core/nickcapture.py
 #
 #
 

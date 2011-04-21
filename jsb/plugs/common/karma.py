@@ -1,4 +1,4 @@
-# jsb.plugs.common/karma.py
+# jsb/plugs/common/karma.py
 #
 #
 

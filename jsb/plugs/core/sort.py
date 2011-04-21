@@ -1,4 +1,4 @@
-# jsb/plugs/sort.py
+# jsb/plugs/core/sort.py
 #
 # 
 

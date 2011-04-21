@@ -1,4 +1,4 @@
-# plugs/choice.py
+# jsb/plugs/core/choice.py
 #
 #
 

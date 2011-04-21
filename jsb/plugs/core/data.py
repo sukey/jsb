@@ -1,4 +1,4 @@
-# jsb/plugs/data.py
+# jsb/plugs/core/data.py
 #
 #
 

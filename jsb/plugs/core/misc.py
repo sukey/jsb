@@ -1,10 +1,10 @@
-# jsb/plugs/misc.py
+# jsb/plugs/core/misc.py
 #
 #
 
 """ misc commands. """
 
-## gozerbot imports
+## jsb imports
 
 from jsb.utils.exception import handle_exception
 from jsb.lib.commands import cmnds
@@ -40,4 +40,3 @@ def handle_source(bot, ievent):
 
 cmnds.add('source', handle_source, ['USER', 'GUEST'])
 examples.add('source', 'show source url', 'source')
-

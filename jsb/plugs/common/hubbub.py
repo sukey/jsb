@@ -1,4 +1,4 @@
-# jsb.plugs.wave/hubbub.py
+# jsb/plugs/common/hubbub.py
 #
 #
 
@@ -139,6 +139,7 @@ class HubbubItem(Persist):
         if status != 200 and status != 301 and status != 302: raise RssStatus(status)
         return result.entries
 
+## HubbubWatcher class
 
 class HubbubWatcher(PlugPersist):
 

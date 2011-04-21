@@ -1,4 +1,4 @@
-# jsb.plugs.wave/clone.py
+# jsb/plugs/wave/clone.py
 #
 #
 

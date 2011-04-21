@@ -1,4 +1,4 @@
-# jsb/plugs/admin.py
+# jsb/plugs/core.admin.py
 #
 #
 

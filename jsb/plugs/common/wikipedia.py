@@ -1,4 +1,4 @@
-# plugs/wikipedia.py
+# jsb/plugs/common/wikipedia.py
 #
 #
 

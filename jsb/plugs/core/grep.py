@@ -1,4 +1,4 @@
-# jsb/plugs/grep.py
+# jsb/plugs/core/grep.py
 #
 #
 

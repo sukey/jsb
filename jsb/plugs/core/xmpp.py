@@ -1,4 +1,4 @@
-# jsb/plugs/xmpp.py
+# jsb/plugs/core/xmpp.py
 #
 #
 
