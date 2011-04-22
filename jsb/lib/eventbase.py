@@ -94,18 +94,19 @@ class EventBase(LazyDict):
         """ bind event.bot event.user and event.chan to execute a command on it. """
         target = self.auth
         bot = bot or self.bot
+        if not self.chan:
+            if chan: self.chan = chan
+            elif self.channel: self.chan = ChannelBase(self.channel, bot.cfg.name)
+            elif self.userhost: self.chan = ChannelBase(self.userhost, bot.cfg.name)
+            logging.debug("eventbase - binding channel - %s" % str(self.chan))
+        if not target: self.prepare(bot) ; self.bonded = True ; return
         if not self.user and target:
             cfg = Config()
             if cfg.auto_register: 
                 bot.users.addguest(target)
             self.user = user or bot.users.getuser(target)
-            logging.info("eventbase - binding user - %s - from %s" % (str(self.user), whichmodule()))
-        if not self.chan:
-            if chan: self.chan = chan
-            elif self.channel: self.chan = ChannelBase(self.channel, bot.cfg.name)
-            elif self.userhost: self.chan = ChannelBase(self.userhost, bot.cfg.name)
-            logging.info("eventbase - binding channel - %s" % str(self.chan))
-        if not self.user: logging.info("eventbase - no %s user found .. setting nodispatch" % target) ; self.nodispatch = True
+            logging.debug("eventbase - binding user - %s - from %s" % (str(self.user), whichmodule()))
+        if not self.user and target: logging.info("eventbase - no %s user found .. setting nodispatch" % target) ; self.nodispatch = True
         self.prepare(bot)
         self.bonded = True
         return self

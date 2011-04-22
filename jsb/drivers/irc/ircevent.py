@@ -90,6 +90,9 @@ class IrcEvent(EventBase):
                 logging.warn("irc - msg detected - setting channel to %s" % self.userhost)
                 self.msg = True
                 self.channel = self.userhost
+        if not self.channel:
+            for c in self.arguments:
+                if c.startswith("#"): self.channel = c
         try:
             nr = int(self.cmnd)
             if nr > 399 and not nr == 422: logging.error('%s - %s - %s - %s' % (self.bot.cfg.name, self.cmnd, self.arguments, self.txt))

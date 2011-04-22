@@ -206,7 +206,7 @@ def modecb(bot, ievent):
     """ callback to detect change of channel key. """
     if ievent.postfix.find('+k') != -1:
         key = ievent.postfix.split('+k')[1]
-        ievent.chan.data.password = key
+        ievent.chan.data.key = key
         ievent.chan.save()
 
 callbacks.add('MODE', modecb)

@@ -25,6 +25,7 @@ from jsb.lib.channelbase import ChannelBase
 from jsb.lib.exit import globalshutdown
 from jsb.lib.botbase import BotBase
 from jsb.lib.partyline import partyline
+from jsb.lib.wait import waiter
 
 from channels import Channels
 from irc import Irc
@@ -383,6 +384,19 @@ class IRCBot(Irc):
         """ set topic of channel to txt. """
         self.putonqueue(7, None, 'TOPIC %s :%s' % (channel, txt))
 
-    def gettopic(self, channel):
+    def gettopic(self, channel, event=None):
         """ get topic data. """
+        q = Queue.Queue()
+        waiter.register("332", queue=q)
+        waiter.register("333", queue=q)
         self.putonqueue(7, None, 'TOPIC %s' % channel)
+        res = waitforqueue(q, 5000)
+        who = what = when = None
+        for r in res:
+            if r.cmnd == "332": what = r.txt ; continue
+            try:
+                splitted = r.postfix.split()
+                who = splitted[2]
+                when = float(splitted[3])
+            except (IndexError, ValueError): continue
+            return (what, who, when)
