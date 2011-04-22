@@ -232,7 +232,7 @@ class XMLStream(NodeBuilder):
         self.sock.setblocking(0)
         self.sock.settimeout(10)
         logging.warn("%s - connecting to %s:%s" % (self.cfg.name, self.cfg.host, self.cfg.port))
-        self.sock.connect((self.cfg.host, self.cfg.port))
+        self.sock.connect((self.cfg.server or self.cfg.host, self.cfg.port))
         self.sock.settimeout(60)
         time.sleep(1) 
         logging.debug("%s - starting stream" % self.cfg.name)
