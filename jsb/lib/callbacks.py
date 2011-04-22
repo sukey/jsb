@@ -134,6 +134,7 @@ class Callbacks(object):
         """  do the actual callback with provided bot and event as arguments. """
         if event.stop: logging.info("callbacks - event is stopped.") ; return
         event.calledfrom = cb.modname
+        if not event.bonded: event.bind(bot)
         try:
             if event.status == "done":
                 logging.debug("callback - event is done .. ignoring")

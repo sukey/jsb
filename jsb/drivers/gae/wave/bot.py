@@ -12,7 +12,7 @@ from jsb.lib.plugins import plugs
 from jsb.version import getversion
 from jsb.lib.callbacks import callbacks
 from jsb.lib.outputcache import add
-from jsb.lib.config import Config
+from jsb.lib.config import Config, getmainconfig
 from jsb.utils.locking import lockdec
 from jsb.utils.exception import handle_exception
 from jsb.utils.generic import strippedtxt
@@ -66,6 +66,7 @@ class WaveBot(BotBase, robot.Robot):
         assert self.cfg
         self.type = 'wave'
         if domain: self.cfg.domain = domain
+        else: self.cfg.domain = getmainconfig().domain or "wave,google.com"
         self.cfg.nick = name or "gae-wave"
         robot.Robot.__init__(self, name=self.cfg.name, image_url=image_url, profile_url=profile_url)
         credentials = _import_byfile("credentials", getdatadir() + os.sep + "config" + os.sep + "credentials.py")
@@ -149,7 +150,7 @@ class WaveBot(BotBase, robot.Robot):
 
     def outnocb(self, waveid, txt, result=[], event=None, origin="", dot=", ", *args, **kwargs):
         """ output to the root id. """
-        if not self._server_rpc_base or (not self.cfg.domain in self._server_rpc_base):
+        if not self._server_rpc_base or not (self.cfg.domain in self._server_rpc_base):
             credentials = _import_byfile("credentials", getdatadir() + os.sep + "config" + os.sep + "credentials.py")
             rpc_base = credentials.RPC_BASE[waveid.split("!")[0]]
             self._server_rpc_base = rpc_base
