@@ -72,6 +72,7 @@ class Irc(BotBase):
         self.blocking = 1
         self.lastoutput = 0
         self.splitted = []
+        if not self.cfg.server: self.cfg.server = self.cfg.host or "localhost"
         assert self.cfg.port
         assert self.cfg.server
 

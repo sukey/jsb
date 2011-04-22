@@ -71,12 +71,12 @@ if opts.owner:
     users = users_boot()
     users.make_owner(opts.owner)
 
-fleet.loadall(opts.args)
+bots = fleet.loadall(opts.args)
 
 if opts.doresume:
-    start_new_thread(fleet.resume, (opts.doresume,))
-    #os.unlink(opts.doresume)
+    fleet.resume(opts.doresume)
+    os.unlink(opts.doresume)
 else:
-    start_new_thread(fleet.startall, ())
+    start_new_thread(fleet.startall, (bots, ))
 
 mainloop()

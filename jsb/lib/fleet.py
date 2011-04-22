@@ -73,20 +73,18 @@ class Fleet(Persist):
         if not target: logging.error("fleet - no bots in fleet") ; return
         else: logging.warning("fleet - loading %s" % ", ".join(target))
         threads = []
+        bots = []
         for name in target:
             if not name: logging.debug("fleet - name is not set") ; continue
             try:
                 if self.data.types[name] == "console": logging.warn("fleet- skipping console bot %s" % name) ; continue
+                bot = self.makebot(self.data.types[name], name)
+                if bot: bots.append(bot)
             except KeyError: continue
-            try: import waveapi ; self.makebot(self.data.types[name], name)
-            except ImportError:
-                try: threads.append(start_new_thread(self.makebot, (self.data.types[name], name)))
-                except: handle_exception() ; continue
             except BotNotEnabled: pass
             except KeyError: logging.error("no type know for %s bot" % name)
             except Exception, ex: handle_exception()
-        for t in threads:
-            t.join(5)
+        return bots
 
     def avail(self):
         """ return available bots. """
@@ -144,8 +142,8 @@ class Fleet(Persist):
         if not cfg: raise Exception("can't make config for %s" % name)
         cfg.save()
         bot = BotFactory().create(type, cfg)
-        if not bot: raise NoSuchBotType('%s bot .. unproper type %s' % (name, type))
-        else: self.addbot(bot) ; return bot
+        if bot: self.addbot(bot)
+        return bot
 
     def save(self):
         """ save fleet data and call save on all the bots. """
@@ -269,8 +267,9 @@ class Fleet(Persist):
         """ broadcast txt to all bots. """
         for bot in self.bots: bot.broadcast(txt)
 
-    def startall(self):
-        for bot in self.bots: start_new_thread(bot.start, ())
+    def startall(self, bots=None):
+        target = bots or self.bots
+        for bot in target: start_new_thread(bot.start, ())
 
     def resume(self, sessionfile):
         """ resume bot from session file. """
