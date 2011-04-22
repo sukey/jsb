@@ -163,9 +163,16 @@ def runner_status():
 
 cmndrunner = defaultrunner = longrunner = Runners(10, BotEventRunner)
 callbackrunner = Runners(10, BotEventRunner, doready=False)
+waitrunner = Runners(10, BotEventRunner, doready=False)
+
+## cleanup 
 
 def runnercleanup(bot, event):
-    logging.debug("runner sizes: %s" % str(cmndrunner.runnersizes()))
     cmndrunner.cleanup()
+    logging.debug("cmndrunner sizes: %s" % str(cmndrunner.runnersizes()))
+    callbackrunner.cleanup()
+    logging.debug("callbackrunner sizes: %s" % str(cmndrunner.runnersizes()))
+    waitrunner.cleanup()
+    logging.debug("waitrunner sizes: %s" % str(cmndrunner.runnersizes()))
 
 callbacks.add("TICK", runnercleanup)

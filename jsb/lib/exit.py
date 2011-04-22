@@ -8,7 +8,7 @@
 
 from jsb.utils.exception import handle_exception
 from jsb.utils.trace import whichmodule
-from runner import defaultrunner, cmndrunner
+from runner import defaultrunner, cmndrunner, callbackrunner, waitrunner
 
 ## basic imports
 
@@ -34,8 +34,9 @@ def globalshutdown():
         from jsb.lib.plugins import plugs
         plugs.exit()
         logging.warn("shutting down runners")
-        defaultrunner.stop()
         cmndrunner.stop()
+        callbackrunner.stop()
+        waitrunner.stop()
         logging.warn('done')
         try:os.remove('jsb.pid')
         except: pass

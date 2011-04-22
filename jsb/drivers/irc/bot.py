@@ -372,7 +372,7 @@ class IRCBot(Irc):
     def handle_324(self, ievent):
         """ handle mode request responses. """
         if not ievent.chan: ievent.bind(self)
-        ievent.chan.mode = ievent.arguments[2]
+        ievent.chan.data.mode = ievent.arguments[2]
         ievent.chan.save()
 
     def handle_invite(self, ievent):

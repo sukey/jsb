@@ -54,6 +54,8 @@ class EventBase(LazyDict):
         self.resqueue = self.resqueue or Queue.Queue()
         self.inqueue = self.inqueue or Queue.Queue()
         self.outqueue = self.outqueue or Queue.Queue()
+        self.stop = False
+        self.bonded = False
         self.copyin(input)
         
     def __deepcopy__(self, a):
@@ -77,6 +79,7 @@ class EventBase(LazyDict):
             try: cb(self.result)
             except Exception, ex: handle_exception()
         if finish: self.finished.set()
+        self.stop = True
 
     def prepare(self, bot=None):
         """ prepare the event for dispatch. """
@@ -104,6 +107,7 @@ class EventBase(LazyDict):
             logging.info("eventbase - binding channel - %s" % str(self.chan))
         if not self.user: logging.info("eventbase - no %s user found .. setting nodispatch" % target) ; self.nodispatch = True
         self.prepare(bot)
+        self.bonded = True
         return self
 
     def parse(self, event, *args, **kwargs):
@@ -138,12 +142,14 @@ class EventBase(LazyDict):
     @locked
     def reply(self, txt, result=[], event=None, origin="", dot=u", ", nr=375, extend=0, *args, **kwargs):
         """ reply to this event """
+        try: target = self.channel or self.arguments[1]
+        except IndexError: target = self.channel
         if self.checkqueues(result): return self
         if self.silent:
             self.msg = True
-            self.bot.say(self.nick, txt, result, self.userhost, extend=extend, event=self, *args, **kwargs)
-        elif self.isdcc: self.bot.say(self.sock, txt, result, self.userhost, extend=extend, event=self, *args, **kwargs)
-        else: self.bot.say(self.channel, txt, result, self.userhost, extend=extend, event=self, *args, **kwargs)
+            self.bot.say(self.nick, txt, result, self.userhost, extend=extend, event=self, dot=dot, *args, **kwargs)
+        elif self.isdcc: self.bot.say(self.sock, txt, result, self.userhost, extend=extend, event=self, dot=dot, *args, **kwargs)
+        else: self.bot.say(target, txt, result, self.userhost, extend=extend, event=self, dot=dot, *args, **kwargs)
         return self
 
     def missing(self, txt):

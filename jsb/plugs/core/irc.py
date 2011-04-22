@@ -11,6 +11,7 @@ from jsb.lib.partyline import partyline
 from jsb.lib.commands import cmnds
 from jsb.lib.examples import examples
 from jsb.lib.fleet import getfleet
+from jsb.lib.wait import waiter
 import jsb.lib.threads as thr
 
 ## basic imports
@@ -89,41 +90,28 @@ examples.add('sendraw', 'sendraw <txt> .. send raw string to the server', 'sendr
 
 ## nicks command
 
-def handle_nicks(bot, ievent):
-    """ return nicks on channel. """
-    if bot.jabber:
-        ievent.reply('nicks only works on irc bots')
-        return
-    try: chan = ievent.args[0]
-    except IndexError: chan = ievent.channel
-    queue = Queue.Queue()
-    if bot.wait:
-        wait353 = bot.wait.register('353', chan, queue)
-        wait366 = bot.wait.register('366', chan, queue)
-    result = ""
-    ievent.reply('searching for nicks')
-    bot.names(chan)
-    if bot.wait:
-        while(1):
-            qres = queue.get()
-            if qres == None: break
-            if qres.cmnd == '366': break
-            else: result += "%s " % qres.txt
-    if bot.wait:
-        bot.wait.delete(wait353)
-        bot.wait.delete(wait366)
-    if result:
-        res = result.split()
-        for nick in res:
-            for i in ignorenicks:
-                if i in nick:
-                    try: res.remove(nick)
-                    except ValueError: pass
-        res.sort()
-        ievent.reply("nicks on %s (%s): " % (chan, bot.cfg.server), res)
-    else: ievent.reply("can't get nicks of channel %s" % chan)
+nickresult = []
 
-cmnds.add('nicks', handle_nicks, ['USER'], threaded=True)
+def handle_nicks(bot, event):
+    """ return nicks on channel. """
+    if bot.type != 'irc': ievent.reply('nicks only works on irc bots') ; return
+
+    def aggregate(bot, e):
+        global nickresult
+        nickresult.extend(e.txt.split())
+
+    def nickscb(bot, e):
+        global nickresult
+        event.reply("nicks on %s (%s): " % (event.channel, bot.cfg.server), nickresult)
+        nickresult = []
+        waiter.remove("jsb.plugs.core.irc")
+
+    waiter.register('353', aggregate)
+    waiter.register('366', nickscb)
+    event.reply('searching for nicks')
+    bot.names(event.channel)
+
+cmnds.add('nicks', handle_nicks, ['OPER', 'USER'], threaded=True)
 examples.add('nicks', 'show nicks on channel the command was given in', 'nicks')
 
 ## reconnect command

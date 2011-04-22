@@ -63,5 +63,5 @@ def handle_exception(event=None, log=True, txt="", stop=False):
             event.bot.error = errormsg
             if event.bot.type == "irc": target = event.nick
             else: target = event.channel 
-            event.bot.saynocb(target, "*sorry* - an exception occured - %s" % errormsg)
+            if target: event.bot.saynocb(target, "*sorry* - an exception occured - %s" % errormsg)
     if stop: os._exit(1)

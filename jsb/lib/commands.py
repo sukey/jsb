@@ -90,7 +90,6 @@ class Commands(LazyDict):
             command.
 
         """
-        event.bind(bot)
         cmnd = cmnd or event.usercmnd.lower()
         if not cmnd: return
         try:
@@ -129,7 +128,6 @@ class Commands(LazyDict):
             command.
 
         """
-        event.bind(bot)
         if event.groupchat: id = event.auth = event.userhost
         else: id = event.auth
         if not event.user: raise NoSuchUser(event.auth)

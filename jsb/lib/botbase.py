@@ -31,6 +31,7 @@ from tick import tickloop
 from threads import start_new_thread, threaded
 from morphs import inputmorphs, outputmorphs
 from gatekeeper import GateKeeper
+from wait import waiter
 
 ## basic imports
 
@@ -329,7 +330,7 @@ class BotBase(LazyDict):
                     logging.debug(msg)
                 else: logging.info("======== start handling local event ========") ; logging.info(msg)
         logging.debug(event.dump())
-        event.bind(self)
+        if not event.bonded: event.bind(self)
         self.status = "callback"
         starttime = time.time()
         if self.closed:
@@ -346,6 +347,7 @@ class BotBase(LazyDict):
             if not e1.stop: last_callbacks.check(self, e1)
         event.callbackdone = True
         if not self.isgae: import asyncore ; asyncore.loop()
+        waiter.check(self, event)
         return event
 
     def ownercheck(self, userhost):
@@ -522,10 +524,10 @@ class BotBase(LazyDict):
         if ret: return ret
         return ""
     
-    def reloadcheck(self, event):
+    def reloadcheck(self, event, target=None):
         """ check if plugin need to be reloaded for callback, """
         plugloaded = []
-        target = event.cbtype or event.cmnd
+        target = target or event.cbtype or event.cmnd
         try:
             from boot import getcallbacktable   
             p = getcallbacktable()[target]
