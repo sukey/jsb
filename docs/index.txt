@@ -23,8 +23,31 @@ see http://jsonbot.googlecode.com.
 
 if you want to upload this bot to the GAE you need "google_appengine" installed in your home dir.
 
-documentation
-~~~~~~~~~~~~~~
+license
+~~~~~~~
+
+JSONBOT is free code (MIT) and can be cloned where needed. 
+
+contact the developer
+~~~~~~~~~~~~~~~~~~~~~
+
+    * email: bthate@gmail.com
+    * jabber/xmpp: bthate@gmail.com
+    * IRC: dunker on #dunkbots irc.freenode.net
+    * twitter: http://twitter.com/jsonbot
+    * facebook: http://tinyurl.com/bthate
+
+plugins
+~~~~~~~
+
+    .. toctree::        
+        :maxdepth: 3
+        :glob:
+
+        plugins/index
+
+handbook
+~~~~~~~~
 
     .. toctree::
         :maxdepth: 2
@@ -49,17 +72,14 @@ jsb provides the following programs:
 
 see docs/UPLOAD on how to upload your own bot.
 
-license
-~~~~~~~
-
-JSONBOT is free code (MIT) and can be cloned where needed. 
 
 urls
 ~~~~
 
     * Source code: http://jsonbot.googlecode.com
-    * Web: http://jsonbot.appspot.com (web)
-    * Wave/Jabber: jsonbot@appspot.com
+    * web: http://jsonbot.appspot.com (web)
+    * jabber: jsonbot@appspot.com
+    * facebook: http://tinyurl.com/jsonbot
 
 running a development version of the bot
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -71,27 +91,8 @@ first checkout the main bot from the mercurial repository
 now you can run the programs in the bin directory with the
 ``./bin/<program>``  command. try ./bin/jsb for the console app
 
-
-contact the developer
-~~~~~~~~~~~~~~~~~~~~~
-
-    * email: bthate@gmail.com
-    * jabber/xmpp: bthate@gmail.com
-    * IRC: #jsb on Freenode
-    * Twitter: http://twitter.com/jsonbot
-
-
-plugins documentation
-~~~~~~~~~~~~~~~~~~~~~
-
-    .. toctree::        
-        :maxdepth: 3
-        :glob:
-
-        plugins/index
-
 jsb code
-~~~~~~~~~~~
+~~~~~~~~
 
     .. toctree::
         :maxdepth: 2
@@ -145,7 +146,7 @@ jsb.plugs.gae code
         
 
 jsb.plugs.myplugs code
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
 
 
     .. toctree::

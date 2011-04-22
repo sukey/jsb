@@ -224,7 +224,7 @@ class EventBase(LazyDict):
         if self.isremote(): logging.info("eventbase - event is remote") ; return
         logging.debug("eventbase - trying to match %s" % self.txt)
         cc = "!"
-        if not self.chan: self.chan = ChannelBase(self.channel, self.bot.cfg.name) 
+        if not self.chan: logging.warn("eventbase - channel is not set.") ; return False
         cc = self.chan.data.cc
         if not cc: self.chan.data.cc = "!" ; self.chan.save()
         if not cc: cc = "!"
