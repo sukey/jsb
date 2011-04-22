@@ -32,7 +32,7 @@ from time import localtime
 todolock = thread.allocate_lock()
 locked = lockdec(todolock)
 
-## Todo class
+## Todo-class
 
 class Todo(LazyDict):
     pass

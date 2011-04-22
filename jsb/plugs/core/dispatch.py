@@ -18,7 +18,7 @@ import copy
 
 cpy = copy.deepcopy
 
-## dispatch precondition
+## dispatch-precondition
 
 def predispatch(bot, event):
     """ check whether we should check for commands. """
@@ -27,7 +27,7 @@ def predispatch(bot, event):
     #if event.isrelayed: logging.debug("dispatch - event is relayed .. not dispatching") ; return  
     return True
 
-## dispatch callback
+## dispatch-callback
 
 def dispatch(bot, event):
     """ dispatch an event. """

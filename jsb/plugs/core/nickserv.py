@@ -85,13 +85,13 @@ class NSAuth(Pdod):
                 logging.warn('nickserv - sent %s' % i)
         except: pass
 
-## basic init stuff
+## init stuff
 
 nsauth = NSAuth()
 if not nsauth.data:
     nsauth = NSAuth()
 
-## register clallback
+## register callback
 
 callbacks.add('001', nsauth.handle_001, threaded=True)
 

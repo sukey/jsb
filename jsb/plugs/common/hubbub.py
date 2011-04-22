@@ -467,7 +467,7 @@ def work(botname, type, channel, result, item, *args, **kwargs):
      """ worker function used in defer. """
      watcher.work(botname, type, channel, result, item, *args, **kwargs)
 
-## defines
+## the watcher object
 
 watcher = HubbubWatcher('hubbub')
 

@@ -272,7 +272,7 @@ def handle_beledig(bot, ievent):
 cmnds.add('beledig', handle_beledig, 'USER')
 examples.add('beledig', 'get/give an belediging ', 'beledig')
 
-## defines
+## text definitions
 
 koffietxt = """ schenkt een kopje koffie in voor
 schenkt een kopje koffie wiener melange in voor

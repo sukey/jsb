@@ -25,7 +25,7 @@ import time
 cfg = PersistConfig()
 cfg.define('tz', '+0100')
 
-## Seen class
+## Seen-class
 
 class Seen(Pdod):
 

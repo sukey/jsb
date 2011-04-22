@@ -17,7 +17,7 @@ from jsb.lib.persist import PlugPersist
 import time
 import os
 
-## Remind class
+## Remind-class
 
 class Remind(PlugPersist):
 

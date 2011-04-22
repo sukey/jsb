@@ -24,14 +24,14 @@ questions = PlugPersist('questions')
 experts = PlugPersist('experts')
 subjects = PlugPersist('subjects')
 
-## ask precondition
+## ask-precondition
 
 def askprecondition(bot, event):
     """ check to see whether the callback needs to be executed. """
     global questions
     if event.userhost in questions.data and not event.iscmnd: return True
 
-## ask callback
+## ask-callback
 
 def askcallback(bot, event):
     """ this is the callbacks that handles the responses to questions. """

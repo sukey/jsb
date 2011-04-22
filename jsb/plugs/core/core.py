@@ -160,7 +160,7 @@ def handle_whereis(bot, ievent):
 cmnds.add('whereis', handle_whereis, ['USER', 'GUEST'])
 examples.add('whereis', 'whereis <cmnd> .. show in which plugins <what> is', 'whereis test')
 
-## help command
+## help-plug command
 
 def handle_helpplug(bot, ievent):
     """ how help on plugin/command or show basic help msg. """

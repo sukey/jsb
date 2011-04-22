@@ -29,7 +29,7 @@ import logging
 
 cpy = copy.deepcopy
 
-## classes
+## Watched class
 
 class Watched(PlugPersist):
 
@@ -117,7 +117,7 @@ class Watched(PlugPersist):
 
         return res
 
-## defines
+## watched object
 
 watched = Watched('channels')
 

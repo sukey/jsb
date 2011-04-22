@@ -14,7 +14,7 @@ from jsb.lib.callbacks import callbacks, first_callbacks
 
 import logging
 
-## echo callback
+## echo-callback
 
 def echopre(bot, event):
     """ test whether we should echo. """

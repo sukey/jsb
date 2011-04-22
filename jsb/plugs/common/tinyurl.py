@@ -23,7 +23,7 @@ try:
 except ImportError: 
     from jsb.lib.cache import get, set
 
-## defines
+## plug config
 
 plugcfg = PersistConfig()
 plugcfg.define("url", 'http://tinyurl.com/create.php')
@@ -58,6 +58,7 @@ def valid_url(url):
     if parts[4]: cleanurl = '%s?%s' % (cleanurl, parts[4])
     return cleanurl
 
+## callbacks
 
 def precb(bot, ievent):
     test_url = re_url_match.search(ievent.txt)

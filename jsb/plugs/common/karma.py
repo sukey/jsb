@@ -34,7 +34,7 @@ class KarmaItem(PlugPersist):
          self.data.whyup = self.data.whyup or []
          self.data.whydown = self.data.whydown or []
 
-## karma precondition
+## karma-precondition
 
 def prekarma(bot, event):
      # if not event.iscmnd(): return False
@@ -47,7 +47,7 @@ def prekarma(bot, event):
          else: return True
     return False
 
-## karma callbacks
+## karma-callbacks
 
 def karmacb(bot, event):
     event.bind(bot)

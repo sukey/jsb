@@ -50,7 +50,7 @@ if not forward.data.whitelist:
 
 cpy = copy.deepcopy
 
-## forward precondition
+## forward-precondition
 
 def forwardoutpre(bot, event):
     """ preconditon to check if forward callbacks is to be fired. """
@@ -62,7 +62,7 @@ def forwardoutpre(bot, event):
         if event.how != u"background": return True
     return False
 
-## forward callbacks
+## forward-callback
 
 def forwardoutcb(bot, event): 
     """ forward callback. """
