@@ -164,7 +164,7 @@ def prechatlogcb(bot, ievent):
 def chatlogcb(bot, ievent):
     log(bot, ievent)
 
-## plugin start
+## plugin-start
 
 def init():
     global stopped
@@ -185,7 +185,7 @@ def init():
     first_callbacks.add("OUTPUT", chatlogcb, prechatlogcb)
     return 1
 
-## plugin stop
+## plugin-stop
 
 def shutdown():
     global stopped

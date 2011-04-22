@@ -224,17 +224,20 @@ examples.add('help-plug', 'get help on <cmnd> or <plugin>', '1) help-plug 2) hel
 ## help command
 
 def handle_help(bot, event):
-     if event.rest:
-         target = cmnds.whereis(event.rest)
-         target = target or event.rest
-         where = bot.plugs.getmodule(target)
-         if where:
-             theplace = os.sep.join(where.split(".")[-2:])
-             event.reply("help for %s is at http://jsonbot.org/plugins/%s.html or http://jsonbot.appspot.com/docs/html/plugins/%s.html" % (event.rest.upper(), theplace, theplace))
-         else: event.reply("can't find a help url for %s" % event.rest)
-     else:
-         event.reply("documentation for jsonbot can be found at http://jsonbot.org or http://jsonbot.appspot.com/docs")
-         event.reply('see !list for loaded plugins and "!help plugin" for a url to the plugin docs.')
+    """ help commands that gives a pointer to the docs and shows the __doc__ attribute. """
+    if event.rest:
+        target = cmnds.whereis(event.rest)
+        target = target or event.rest
+        where = bot.plugs.getmodule(target)
+        if where:
+            theplace = os.sep.join(where.split(".")[-2:])
+            event.reply("help for %s is at http://jsonbot.org/plugins/%s.html or http://jsonbot.appspot.com/docs/html/plugins/%s.html" % (event.rest.upper(), theplace, theplace))
+        else: event.reply("can't find a help url for %s" % event.rest)
+    else:
+        event.reply("documentation for jsonbot can be found at http://jsonbot.org or http://jsonbot.appspot.com/docs")
+        event.reply('see !list for loaded plugins and "!help plugin" for a url to the plugin docs.')
+    try: event.reply("docstring: ", event.thecommand.func.__doc__.split("\n"))
+    except AttributeError: pass
 
 cmnds.add("help", handle_help, ["OPER", "USER", "GUEST"])
 examples.add("help", "show url pointing to teh docs", "1) help 2) help rss")

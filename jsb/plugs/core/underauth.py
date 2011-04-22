@@ -26,7 +26,7 @@ def pre_underauth_cb(bot, ievent):
     try: return (args[0] == 'AUTH' and args[-3] == '/QUOTE' and args[-2] == 'PASS')
     except Exception, ex: return False
 
-## underayth_cb callback
+## underauth_cb callback
 
 def underauth_cb(bot, ievent):
     """ Send the raw command to the server. """

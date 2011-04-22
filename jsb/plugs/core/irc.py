@@ -94,7 +94,7 @@ nickresult = []
 
 def handle_nicks(bot, event):
     """ return nicks on channel. """
-    if bot.type != 'irc': ievent.reply('nicks only works on irc bots') ; return
+    if bot.type != 'irc': event.reply('nicks only works on irc bots') ; return
 
     def aggregate(bot, e):
         global nickresult

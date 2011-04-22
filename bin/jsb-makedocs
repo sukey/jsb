@@ -45,6 +45,7 @@ try: boot(sys.argv[2], force=True)
 except IndexError: boot(force=True)
 
 donot = ['test-plugs', 'admin-boot', 'admin-reloadall', 'reconnect', 'stop', 'quit', 'rss-peek' , 'rss-register', 'rss-get', 'hb-register', 'reboot', 'admin-stop']
+#donot = ['admin-stop', 'reboot', 'quit', 'admin-reloadall', 'reconnect']
 
 bot = BotBase()
 bot.allowall = True
@@ -156,6 +157,7 @@ def gendoc(m, f, output):
             output.write("\n    :options: %s\n" % data['options'][command])
         if data['examples'].has_key(command):
             output.write("\n    :code: :ref:`%s-%s`.\n" % (thefile, command))
+        if command not in donot and command in data['examples']:
             output.write('\n    :examples:' + '\n')
             for i in data['examples'][command]:
                 if not i:

@@ -8,7 +8,7 @@
 
 from jsb.lib.commands import cmnds
 from jsb.lib.callbacks import callbacks
-from jsb.lib.gae.wave.waves import Wave
+from jsb.drivers.gae.wave.waves import Wave
 from jsb.lib.plugins import plugs
 
 ## basic imports

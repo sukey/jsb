@@ -152,6 +152,7 @@ class Commands(LazyDict):
         id = event.auth or event.userhost
         event.iscommand = True
         event.how = target.how
+        event.thecommand = target
         logging.warning('commands - dispatching %s for %s' % (event.usercmnd, id))
         try:
             if bot.isgae:

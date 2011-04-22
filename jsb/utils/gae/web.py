@@ -87,7 +87,7 @@ def commandbox(response, url="/dispatch/"):
           </form>
           """ % url)
 
-## commandbox (testing purposes)
+## execdbox (testing purposes)
 
 def execbox(response, url="/exec/"):
     """ write html data for the exec box. """

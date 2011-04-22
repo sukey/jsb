@@ -9,7 +9,7 @@
 
 ## jsb imports
 
-from jsb.lib.socklib.utils.generic import istr
+from jsb.utils.generic import istr
 
 ## basic imports
 

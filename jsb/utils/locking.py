@@ -16,7 +16,7 @@ from jsb.lib.threads import getname
 import logging
 import sys
 
-## Locked class
+## Locked-class
 
 class Locked(object):
 

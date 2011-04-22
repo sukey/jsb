@@ -26,6 +26,11 @@ import random
 import Queue 
 import logging
 
+## istr class
+
+class istr(str):
+    pass   
+
 ## fix_format function
 
 def fix_format(s):

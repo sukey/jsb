@@ -137,7 +137,7 @@ def shutdown():
         watcher.stop()
     return 1
 
-## mpd function
+## mpd-function
 
 def mpd(command):
     try:
