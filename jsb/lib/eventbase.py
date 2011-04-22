@@ -43,6 +43,7 @@ class EventBase(LazyDict):
     def __init__(self, input={}, bot=None):
         LazyDict.__init__(self)
         if bot: self.bot = bot
+        self.txt = ""
         self.bottype = "botbase"
         self.relayed = []
         self.path = []
