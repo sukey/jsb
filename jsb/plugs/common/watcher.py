@@ -129,7 +129,7 @@ def writeout(botname, type, channel, txt, eventjson):
     watchbot = getfleet().byname(botname)
     if not watchbot: watchbot = getfleet().makebot(type, botname)
     if watchbot:
-         watchbot.outnocb(channel, txt, event=event, dotime=False)
+         watchbot.outnocb(channel, txt, event=event)
 
 ## callbacks
 
@@ -141,7 +141,6 @@ def prewatchcallback(bot, event):
     if not event.txt: return
     return watched.check(unicode(event.channel)) and event.how != "background" and event.forwarded
 
-@locked
 def watchcallback(bot, event):
     """ the watcher callback, see if channels are followed and if so send data. """
     #if not event.allowwatch: logging.warn("watch - allowwatch is not set - ignoring %s" % event.userhost) ; return
@@ -150,16 +149,17 @@ def watchcallback(bot, event):
     logging.info("watcher - %s - %s" % (event.channel, str(subscribers)))
     for item in subscribers:
         try:
-            (botname, type, channel) = item
-        except ValueError: continue
-        if not event.allowatch: pass
-        elif channel not in event.allowwatch: logging.warn("watcher - allowwatch denied %s - %s" % (channel, event.allowwatch)) ; continue
-        m = formatevent(bot, event, subscribers, True)
-        if event.cbtype in ['OUTPUT', 'JOIN', 'PART', 'QUIT', 'NICK']: txt = u"[!] %s" % m.txt
-        else: txt = u"[%s] %s" % (m.nick or event.nick or event.auth, m.txt)
-        if txt.count('] [') > 2: logging.debug("watcher - %s - skipping %s" % (type, txt)) ; continue
-        logging.warn("watcher - forwarding to %s" % channel)
-        writeout(botname, type, channel, txt, event.tojson())
+            try: (botname, type, channel) = item
+            except ValueError: continue
+            if not event.allowatch: pass
+            elif channel not in event.allowwatch: logging.warn("watcher - allowwatch denied %s - %s" % (channel, event.allowwatch)) ; continue
+            m = formatevent(bot, event, subscribers, True)
+            if event.cbtype in ['OUTPUT', 'JOIN', 'PART', 'QUIT', 'NICK']: txt = u"[!] %s" % m.txt
+            else: txt = u"[%s] %s" % (m.nick or event.nick or event.auth, m.txt)
+            if txt.count('] [') > 2: logging.debug("watcher - %s - skipping %s" % (type, txt)) ; continue
+            logging.warn("watcher - forwarding to %s" % channel)
+            writeout(botname, type, channel, txt, event.tojson())
+        except Exception, ex: handle_exception()
 
 first_callbacks.add('BLIP_SUBMITTED', watchcallback, prewatchcallback)
 first_callbacks.add('PRIVMSG', watchcallback, prewatchcallback)

@@ -149,7 +149,7 @@ class WaveBot(BotBase, robot.Robot):
 
     def outnocb(self, waveid, txt, result=[], event=None, origin="", dot=", ", *args, **kwargs):
         """ output to the root id. """
-        if not self.cfg.domain in self._server_rpc_base:
+        if not self._server_rpc_base or (not self.cfg.domain in self._server_rpc_base):
             credentials = _import_byfile("credentials", getdatadir() + os.sep + "config" + os.sep + "credentials.py")
             rpc_base = credentials.RPC_BASE[waveid.split("!")[0]]
             self._server_rpc_base = rpc_base
