@@ -79,7 +79,7 @@ def relaycallback(bot, event):
                     if e.nick == bot.cfg.nick: txt = "[!] %s" % e.txt
                     else: txt = "[%s] %s" % (e.nick, e.txt)
                     if event: t = "[%s]" % outbot.cfg.nick
-                    logging.warn("relay - sending to %s (%s)" % (target, outbot.cfg.name)) 
+                    logging.debug("relay - sending to %s (%s)" % (target, outbot.cfg.name)) 
                     outbot.outnocb(target, txt, event=e)
                 else: logging.error("can't find bot for (%s,%s,%s)" % (botname, type, target))
             except Exception, ex: handle_exception()

@@ -279,7 +279,7 @@ class BotBase(LazyDict):
                 if self.connectok.isSet():
                     logging.warn('%s - logged on !' % self.cfg.name)
                     if join: start_new_thread(self.joinchannels, ())
-                else: logging.warn("%s - failed to logon - connectok is not set" % self.cfg.name)
+                elif self.type not in ["console", "base"]: logging.warn("%s - failed to logon - connectok is not set" % self.cfg.name)
         self.status == "running"
         self.dostart(self.cfg.name, self.type)
 

@@ -297,7 +297,7 @@ class SXMPPBot(XMLStream, BotBase):
             callbacks.check(self, nm)
             return
         if data.get('x').xmlns == 'jabber:x:delay':
-            logging.warn("%s - ignoring delayed message" % self.cfg.name)
+            logging.debug("%s - ignoring delayed message" % self.cfg.name)
             return
         if m.isresponse:
             logging.debug("%s - message is a response" % self.cfg.name)

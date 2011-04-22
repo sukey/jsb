@@ -70,7 +70,7 @@ class ConvoreBot(BotBase):
             logging.warn("%s - channel %s is not enabled" % (self.cfg.name, event.chan.data.id))
             return
         txt = self.normalize(txt)
-        logging.warn("%s - out - %s - %s" % (self.cfg.name, printto, txt))
+        logging.debug("%s - out - %s - %s" % (self.cfg.name, printto, txt))
         if event and event.msg:
             r = self.post("messages/%s/create.json" % printto, data={"message": txt, "pasted": True})
         else:
@@ -109,7 +109,7 @@ class ConvoreBot(BotBase):
         return res
 
     def _readloop(self):
-        logging.warn("%s - starting readloop" % self.cfg.name)
+        logging.debug("%s - starting readloop" % self.cfg.name)
         self.connectok.wait(15)
         self.auth = requests.AuthObject(self.cfg.username, self.cfg.password)
         while not self.stopped and not self.stopreadloop:
@@ -135,7 +135,7 @@ class ConvoreBot(BotBase):
                     except: handle_exception()
             except urllib2.URLError, ex: logging.error("%s - url error - %s" % (self.cfg.name, str(ex)))
             except Exception, ex: handle_exception()
-        logging.warn("%s - stopping readloop" % self.cfg.name)
+        logging.debug("%s - stopping readloop" % self.cfg.name)
 
     def handle_error(self, event):
         logging.error("%s - error - %s" % (self.cfg.name, event.error))
