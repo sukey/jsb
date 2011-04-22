@@ -103,8 +103,6 @@ def gendoc(m, f, output):
     data['description'] = plugs[plugin].__doc__
     cmndlist = []
     for j, z in cmnds.iteritems():
-        if j in donot:
-            continue
         try:
             if z.plugname == base:
                 cmndlist.append(j)

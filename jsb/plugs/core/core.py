@@ -236,8 +236,8 @@ def handle_help(bot, event):
     else:
         event.reply("documentation for jsonbot can be found at http://jsonbot.org or http://jsonbot.appspot.com/docs")
         event.reply('see !list for loaded plugins and "!help plugin" for a url to the plugin docs.')
-    try: event.reply("docstring: ", event.thecommand.func.__doc__.split("\n"))
-    except AttributeError: pass
+    cmndhelp = cmnds.gethelp(event.rest)
+    if cmndhelp: event.reply("docstring: ", cmndhelp.split("\n"))
 
 cmnds.add("help", handle_help, ["OPER", "USER", "GUEST"])
 examples.add("help", "show url pointing to teh docs", "1) help 2) help rss")

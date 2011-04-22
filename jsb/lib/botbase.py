@@ -670,7 +670,7 @@ class BotBase(LazyDict):
         waitevents([e, ])
         return e.result
 
-    def settopic(self, txt):
+    def settopic(self, channel, txt):
         pass
 
     def gettopic(self, channel):
