@@ -228,6 +228,8 @@ class XMLStream(NodeBuilder):
 
     def connect(self):
         """ connect to the server. """
+        target = self.cfg.server or self.cfg.host
+        logging.warn("%s - TARGET is %s" % (self.cfg.name, target))
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setblocking(0)
         self.sock.settimeout(10)

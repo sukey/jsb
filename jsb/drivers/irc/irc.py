@@ -145,17 +145,17 @@ class Irc(BotBase):
             except socket.gaierror:
                 logging.warn("%s - can't bind to %s" % (self.cfg.name, elite))
                 if not server:
-                    try: socket.inet_pton(socket.AF_INET6, self.server)
+                    try: socket.inet_pton(socket.AF_INET6, self.cfg.server)
                     except socket.error: pass
                     else: server = self.cfg.server
                 if not server:  
-                    try: socket.inet_pton(socket.AF_INET, self.server)
+                    try: socket.inet_pton(socket.AF_INET, self.cfg.server)
                     except socket.error: pass
                     else: server = self.cfg.server
                 if not server:
                     ips = []
                     try:
-                        for item in socket.getaddrinfo(self.server, None):
+                        for item in socket.getaddrinfo(self.cfg.server, None):
                             if item[0] in [socket.AF_INET, socket.AF_INET6] and item[1] == socket.SOCK_STREAM:
                                 ip = item[4][0]
                                 if ip not in ips: ips.append(ip)
@@ -281,7 +281,7 @@ class Irc(BotBase):
         time.sleep(1)
         self._raw("NICK %s" % self.cfg.nick)
         time.sleep(1)
-        self._raw("USER %s localhost %s :%s" % (username, self.server, realname))
+        self._raw("USER %s localhost %s :%s" % (username, self.cfg.server, realname))
 
     def _onconnect(self):
         """ overload this to run after connect. """
@@ -646,7 +646,7 @@ class Irc(BotBase):
         """ show error. """
         txt = ievent.txt
         if txt.startswith('Closing'):
-            if "banned" in txt.lower(): logging.error("WE ARE BANNED !! - %s - %s" % (self.server, ievent.txt)) ; self.exit()
+            if "banned" in txt.lower(): logging.error("WE ARE BANNED !! - %s - %s" % (self.cfg.server, ievent.txt)) ; self.exit()
             else: logging.error("%s - %s" % (self.cfg.name, txt))
         else: logging.error("%s - %s - %s" % (self.cfg.name.upper(), ", ".join(ievent.arguments[1:]), txt))
 
@@ -654,7 +654,7 @@ class Irc(BotBase):
         """ ping the irc server. """
         logging.debug('%s - sending ping' % self.cfg.name)
         try:
-            self._raw('PING :%s' % self.server)
+            self._raw('PING :%s' % self.cfg.server)
             return 1
         except Exception, ex:
             logging.debug("%s - can't send ping: %s" % (self.cfg.name, str(ex)))

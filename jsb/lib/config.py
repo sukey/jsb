@@ -282,7 +282,7 @@ networkname = null
 ipv6 = null
 
 # server to connect to
-server = "localhost"
+server = ""
 
 # whether this is a ssl bot
 ssl = null
@@ -322,7 +322,7 @@ networkname = null
 password = "passje"
 
 # server part of the user variable .. can be set to connect to different server then host
-server = "localhost"
+server = ""
 
 # type of bot .. sxmpp stands for socket xmpp to differentiate from GAE xmpp
 type = "sxmpp"
