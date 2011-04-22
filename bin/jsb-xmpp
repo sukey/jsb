@@ -37,7 +37,6 @@ opts = makesxmppopts()
 from jsb.version import getversion
 print getversion('SXMPP')
 
-boot(opts.datadir)
 
 cfg = makesxmppconfig(opts)
 if opts.nick: cfg.nick = opts.nick ; cfg.save()
@@ -50,6 +49,8 @@ setloglevel(opts.loglevel or mainconfig.loglevel or "warn")
 if opts.loglevel: mainconfig.loglevel = opts.loglevel ; mainconfig.save()
 
 ## start bot
+
+boot(opts.datadir)
 
 try:
     bot = SXMPPBot(cfg)

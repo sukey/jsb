@@ -231,7 +231,7 @@ class XMLStream(NodeBuilder):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setblocking(0)
         self.sock.settimeout(10)
-        logging.warn("%s - connecting to %s:%s" % (self.cfg.name, self.cfg.host, self.cfg.port))
+        logging.warn("%s - connecting to %s:%s" % (self.cfg.name, self.cfg.server or self.cfg.host, self.cfg.port))
         self.sock.connect((self.cfg.server or self.cfg.host, self.cfg.port))
         self.sock.settimeout(60)
         time.sleep(1) 
