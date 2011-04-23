@@ -32,7 +32,7 @@ locked = lockdec(lock)
 ## defines
 
 jsontypes = [types.StringType, types.UnicodeType, types.DictType, types.ListType, types.IntType]
-defaultignore = ['result', 'plugs', 'origevent', 'passwords', 'key', 'finished', 'inqueue', 'resqueue', 'outqueue', 'waitlist', 'comments', 'createdfrom', 'modname', 'cfile', 'dir', 'filename', 'webchannels', 'tokens', 'token', 'cmndperms', 'gatekeeper', 'stanza', 'isremote', 'iscmnd', 'orig', 'bot', 'origtxt', 'body', 'subelements', 'args', 'rest', 'cfg', 'pass', 'password', 'fsock', 'sock', 'handlers', 'users', 'plugins']
+defaultignore = ['userhosts', 'owner', 'comments', 'result', 'plugs', 'origevent', 'passwords', 'key', 'finished', 'inqueue', 'resqueue', 'outqueue', 'waitlist', 'comments', 'createdfrom', 'modname', 'cfile', 'dir', 'filename', 'webchannels', 'tokens', 'token', 'cmndperms', 'gatekeeper', 'stanza', 'isremote', 'iscmnd', 'orig', 'bot', 'origtxt', 'body', 'subelements', 'args', 'rest', 'pass', 'password', 'fsock', 'sock', 'handlers', 'users', 'plugins']
 cpy = copy.deepcopy
 
 ## checkignore function
@@ -47,27 +47,36 @@ def checkignore(name, ignore):
             return True
     return False
 
+## stripignore function
+
+def stripignore(d):
+    for name in defaultignore:
+        try: del d[name]
+        except KeyError: pass
+    return d
+
 #@locked
 def dumpelement(element, prev={}, withtypes=False):
     """ check each attribute of element whether it is dumpable. """
     elem = cpy(element)
     if not elem: elem = element
-    try: new = dict(prev)
-    except (TypeError, ValueError): new = {}
+    try: new = LazyDict(prev)
+    except (TypeError, ValueError): new = LazyDict()
     for name in elem:
         #logging.debug("lazydict - trying dump of %s" % name) 
         if checkignore(name, defaultignore): continue
         #if not elem[name]: continue
         try:
             json.dumps(elem[name])
-            new[name] = elem[name]
+            try: new[name] = stripignore(elem[name])
+            except: new[name] = elem[name]
         except TypeError:
             if type(elem) not in jsontypes:
                 if withtypes: new[name] = unicode(type(elem))
             else:
                 logging.warn("lazydict - dumpelement - %s" % elem[name])
                 new[name] = dumpelement(elem[name], new)
-    return new
+    return stripignore(new)
 
 ## LazyDict class
 
@@ -85,6 +94,9 @@ class LazyDict(dict):
             #if not "queue" in attr: logging.debug("lazydict - %s is not set - %s" % (attr, mod))
             return
         return self[attr]
+
+    def __str__(self): return self.tojson()
+
 
     def __setattr__(self, attr, value):
         """ set attribute. """
@@ -110,13 +122,13 @@ class LazyDict(dict):
 
     def tojson(self, withtypes=False):
         """ dump the lazydict object to json. """
-        try: return json.dumps(dumpelement(self, withtypes))
+        try: return json.dumps(dumpelement(self), withtypes)
         except RuntimeError, ex: handle_exception()
            
     def dump(self, withtypes=False):
         """ just dunp the lazydict object. DON'T convert to json. """
         #logging.warn("lazydict - dumping - %s" %  type(self))
-        try: return dumpelement(cpy(self), withtypes)
+        try: return dumpelement(self, withtypes)
         except RuntimeError, ex: handle_exception()
 
     def load(self, input):

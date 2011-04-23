@@ -387,14 +387,16 @@ class IRCBot(Irc):
     def gettopic(self, channel, event=None):
         """ get topic data. """
         q = Queue.Queue()
-        waiter.register("332", queue=q)
-        waiter.register("333", queue=q)
+        i332 = waiter.register("332", queue=q)
+        i333 = waiter.register("333", queue=q)
         self.putonqueue(7, None, 'TOPIC %s' % channel)
         res = waitforqueue(q, 5000)
         who = what = when = None
         for r in res:
-            if r.cmnd == "332": what = r.txt ; continue
+            if not r.postfix: continue
             try:
+                if r.cmnd == "332": what = r.txt ; waiter.ready(i332) ; continue
+                waiter.ready(i333)
                 splitted = r.postfix.split()
                 who = splitted[2]
                 when = float(splitted[3])

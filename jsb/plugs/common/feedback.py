@@ -24,9 +24,9 @@ def handle_feedback(bot, event):
         if bot.isgae: cfg = {"name": "feedbackbot-gae", "user": "feedback@jsonbot.org", "password": "givesomereply"}
         else: cfg = {"name": "feedbackbot", "user": "feedback@jsonbot.org", "password": "givesomereply"}
         feedbackbot = bot_factory.create("xmpp", cfg)
+        if not feedbackbot: event.reply("can't make xmpp bot.") ; return
         feedbackbot.start()
         if not feedbackbot.cfg.password: feedbackbot.cfg.password = cfg['password'] ; feedbackbot.cfg.save()
-    if not feedbackbot: event.reply("can't make xmpp bot.") ; return
     feedbackbot.cfg.disable = False
     event.reply("sending to bart@jsonbot.org ... ")
     feedbackbot.say("bart@jsonbot.org", event.rest)

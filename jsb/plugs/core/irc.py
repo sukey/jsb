@@ -18,6 +18,7 @@ import jsb.lib.threads as thr
 
 import Queue
 import sets
+import time
 
 ## define
 
@@ -106,10 +107,13 @@ def handle_nicks(bot, event):
         nickresult = []
         waiter.remove("jsb.plugs.core.irc")
 
-    waiter.register('353', aggregate)
-    waiter.register('366', nickscb)
+    w353 = waiter.register('353', aggregate)
+    w366 = waiter.register('366', nickscb)
     event.reply('searching for nicks')
     bot.names(event.channel)
+    time.sleep(5)
+    waiter.ready(w353)
+    waiter.ready(w366)
 
 cmnds.add('nicks', handle_nicks, ['OPER', 'USER'], threaded=True)
 examples.add('nicks', 'show nicks on channel the command was given in', 'nicks')

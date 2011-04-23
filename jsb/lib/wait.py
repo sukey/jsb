@@ -16,6 +16,7 @@ import logging
 import copy
 import types
 import time
+import uuid
 
 ## defines
 
@@ -45,16 +46,15 @@ class Wait(object):
         """ check whether event matches this wait object. if so call callbacks. """
         target = event.cmnd or event.cbtype
         logging.debug("waiter - checking for %s - %s" % (target, self.cbtypes))
+        if target not in self.cbtypes: return 
         if event.channel and self.origevent and not event.channel == self.origevent.channel:
             logging.warn("waiter - %s and %s dont match" % (event.channel, self.origevent.channel))
             return
         if self.userhosts and event.userhost and event.userhost not in self.userhosts:
             logging.warn("waiter - no userhost matched")
             return
-        self.docbs(bot, event)
-        try: self.cbtypes.remove(event.cbtype)
-        except ValueError: pass
         if self.queue: self.queue.put_nowait(event)
+        self.docbs(bot, event)
         return event
 
     def docbs(self, bot, event):
@@ -72,31 +72,39 @@ class Waiter(object):
     """ list of wait object to match. """
 
     def __init__(self):
-        self.waitlist = []
+        self.waiters = {}
 
     def register(self, cbtypes, cbs=None, userhosts=None, event=None, queue=None):
-        """ add a wait object to the waitlist. """
+        """ add a wait object to the waiters dict. """
         logging.warn("waiter - registering wait object: %s - %s" % (str(cbtypes), str(userhosts)))
-        self.waitlist.append(Wait(cbtypes, cbs, userhosts, modname=whichmodule(), event=event, queue=queue))
+        key = str(uuid.uuid4())
+        self.waiters[key] = Wait(cbtypes, cbs, userhosts, modname=whichmodule(), event=event, queue=queue)
+        return key
+
+    def ready(self, key):
+        try: del self.waiters[key]
+        except KeyError: logging.warn("wait - %s key is not in waiters" % key)
 
     def check(self, bot, event):
-        """ scan waitlist for possible wait object that match. """
+        """ scan waiters for possible wait object that match. """
         matches = []
-        for wait in self.waitlist:
+        for wait in self.waiters.values():
             result = wait.check(bot, event)
             if not wait.cbtypes: matches.append(wait)
         if matches: self.delete(matches)
         return matches
 
     def delete(self, removed):
-        """ delete a list of wait items from the waitlist. """
-        logging.debug("waiter - removing from waitlist: %s" % str(removed)) 
-        for w in removed: self.waitlist.remove(w)
+        """ delete a list of wait items from the waiters dict. """
+        logging.debug("waiter - removing from waiters: %s" % str(removed)) 
+        for w in removed:
+            try: del self.waiters[w]
+            except KeyError: pass
 
     def remove(self, modname):
         """ remove all waiter registered by modname. """
         removed = []
-        for wait in self.waitlist:
+        for wait in self.waiters.values():
             if wait.modname == modname: removed.append(wait)
         if removed: self.delete(removed)
 
