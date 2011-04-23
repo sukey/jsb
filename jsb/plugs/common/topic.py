@@ -30,7 +30,6 @@ def handle_gettopic(bot, ievent):
     try: channel = ievent.args[0]
     except IndexError: channel = ievent.channel
     result = bot.gettopic(channel)
-    print result
     try:
         (what, who, when) = result
         ievent.reply('topic on %s is %s made by %s on %s' % (channel, what, who, time.ctime(when)))

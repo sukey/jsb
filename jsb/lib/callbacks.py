@@ -132,7 +132,7 @@ class Callbacks(object):
 
     def callback(self, cb, bot, event):
         """  do the actual callback with provided bot and event as arguments. """
-        if event.stop: logging.info("callbacks - event is stopped.") ; return
+        #if event.stop: logging.info("callbacks - event is stopped.") ; return
         event.calledfrom = cb.modname
         if not event.bonded: event.bind(bot)
         try:
