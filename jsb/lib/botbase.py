@@ -67,12 +67,12 @@ class BotBase(LazyDict):
 
     def __init__(self, cfg=None, usersin=None, plugs=None, botname=None, nick=None, *args, **kwargs):
         if not botname: botname = cfg['name'] or u"default-%s" % str(type(self)).split('.')[-1][:-2] ; 
-        assert botname
-        logging.warn("botbase - name is %s" % botname)
+        cfg['name'] = botname
+        logging.warn("botbase - name is %s" % cfg['name'])
         self.fleetdir = u'fleet' + os.sep + stripname(botname)
         self.cfg = Config(self.fleetdir + os.sep + u'config')
         if cfg: self.cfg.update(cfg)
-        if not self.cfg.name: self.cfg.name = botname
+        if not self.cfg.name: raise Exception("botbase - name is not set in %s config file" % self.fleetdir)
         LazyDict.__init__(self)
         self.ignore = []
         self.ids = []
