@@ -58,9 +58,9 @@ class IRCBot(Irc):
             if not self.state.has_key('opchan'): self.state['opchan'] = []
         if not self.state.has_key('joinedchannels'): self.state['joinedchannels'] = []
 
-    def _resume(self, data, reto=None):
+    def _resume(self, data, botname, reto=None):
         """ resume the bot. """
-        if not Irc._resume(self, data, reto): return 0
+        if not Irc._resume(self, data, botname, reto): return 0
         for channel in self.state['joinedchannels']: self.who(channel)
         return 1
 

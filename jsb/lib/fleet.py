@@ -17,6 +17,7 @@ from threads import start_new_thread
 from eventhandler import mainhandler
 from jsb.utils.name import stripname
 from jsb.lib.factory import BotFactory
+from jsb.utils.lazydict import LazyDict
 
 ## simplejson imports
 from jsb.imports import getjson
@@ -79,7 +80,7 @@ class Fleet(Persist):
             try:
                 if self.data.types[name] == "console": logging.warn("fleet- skipping console bot %s" % name) ; continue
                 bot = self.makebot(self.data.types[name], name)
-                if bot: bots.append(bot)
+                if bot: bots.append(bot) ; self.addbot(bot)
             except KeyError: continue
             except BotNotEnabled: pass
             except KeyError: logging.error("no type know for %s bot" % name)
@@ -275,27 +276,27 @@ class Fleet(Persist):
         """ resume bot from session file. """
         session = json.load(open(sessionfile))
         for name in session['bots'].keys():
-            reto = None
-            if session['name'] == name: reto = session['channel']
-            start_new_thread(self.resumebot, (name, session['bots'][name], reto))
-        time.sleep(5)
+            cfg = LazyDict(session['bots'][name])
+            try: 
+                if not cfg.disable:
+                    logging.warn("fleet - resuming %s" % cfg)
+                    start_new_thread(self.resumebot, (cfg,))
+            except: handle_exception() ; return
+        time.sleep(10)
         self.startok.set()
 
-    def resumebot(self, botname, data={}, printto=None):
-        """
-            resume single bot. """
+    def resumebot(self, botcfg):
+        """ resume single bot. """
+        botname = botcfg.name
         logging.warn("fleet - resuming %s bot" % botname)
-        # see if we need to exit the old bot
-        if data['type'] == "console": logging.warn("not resuming console bot %s" % botname) ; return
+        if botcfg['type'] == "console": logging.warn("not resuming console bot %s" % botname) ; return
         oldbot = self.byname(botname)
-        if oldbot and data['type'] in ["sxmpp", "convore"]: oldbot.exit()
+        if oldbot and botcfg['type'] in ["sxmpp", "convore"]: oldbot.exit()
         cfg = Config('fleet' + os.sep + stripname(botname) + os.sep + 'config')
         if cfg.disable: logging.warn("%s - bot is disabled .. not resuming it" % botname) ; return
-        logging.warn("fleet - resuming %s bot - %s - %s" % (botname, str(data), data['type']))
-        bot = self.makebot(data['type'], botname)
-        #if data['type'] in ["sxmpp", ]:
+        bot = self.makebot(botcfg.type, botname)
         if oldbot: self.replace(oldbot, bot)
-        bot._resume(data, printto)
+        bot._resume(botcfg, botname)
         bot.start(False)
 
 ## global fleet object

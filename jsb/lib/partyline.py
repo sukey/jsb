@@ -34,7 +34,7 @@ class PartyLine(object):
         self.jids = []
         self.lock = thread.allocate_lock()
 
-    def _doresume(self, data, reto=None):
+    def _resume(self, data, reto=None):
         """ resume a party line connection after reboot. """
         fleet = getfleet()
         for i in data['partyline']:

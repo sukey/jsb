@@ -66,8 +66,7 @@ class BotBase(LazyDict):
     """ base class for all bots. """
 
     def __init__(self, cfg=None, usersin=None, plugs=None, botname=None, nick=None, *args, **kwargs):
-        if not botname and cfg and cfg.has_key("name"): botname = cfg["name"]
-        else: botname = botname or u"default-%s" % str(type(self)).split('.')[-1][:-2]
+        if not botname: botname = cfg['name'] or u"default-%s" % str(type(self)).split('.')[-1][:-2] ; 
         assert botname
         logging.warn("botbase - name is %s" % botname)
         self.fleetdir = u'fleet' + os.sep + stripname(botname)
@@ -131,8 +130,8 @@ class BotBase(LazyDict):
         self.cmndperms = getcmndperms()
         self.outputmorphs = outputmorphs
         self.inputmorphs = inputmorphs
-        fleet = getfleet(datadir)
-        if not fleet.byname(self.cfg.name): fleet.bots.append(self) ; 
+        #fleet = getfleet(datadir)
+        #if not fleet.byname(self.cfg.name): fleet.bots.append(self) ; 
         if not self.isgae:
             defaultrunner.start()
             tickloop.start(self)
@@ -152,16 +151,10 @@ class BotBase(LazyDict):
 
     def _resumedata(self):
         """ return data needed for resuming. """
-        return {self.cfg.name: {  
-            'type': self.type,
-            'nick': self.cfg.nick,
-            'server': self.cfg.server,
-            'port': self.cfg.port,
-            'password': self.cfg.password,
-            'ipv6': self.cfg.ipv6,
-            'user': self.cfg.user
-            }}
-        pass
+        data = self.cfg
+        try: data.fd = self.sock.fileno()
+        except: pass
+        return {self.cfg.name: data}
 
     def enable(self, modname):
         """ enable plugin given its modulename. """

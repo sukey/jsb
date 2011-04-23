@@ -288,7 +288,7 @@ class Irc(BotBase):
         """ overload this to run after connect. """
         pass
 
-    def _resume(self, data, reto=None):
+    def _resume(self, data, botname, reto=None):
         """ resume to server/port using nick. """
         try:
             if data['ssl']:
@@ -308,15 +308,11 @@ class Irc(BotBase):
             return 0
         # create socket
         if self.cfg.ipv6:
-            if fd:
-                self.sock = socket.fromfd(fd , socket.AF_INET6, socket.SOCK_STREAM)
-            else:
-                self.sock = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
+            if fd: self.sock = socket.fromfd(fd , socket.AF_INET6, socket.SOCK_STREAM)
+            else: self.sock = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
         else:
-            if fd:
-                self.sock = socket.fromfd(fd, socket.AF_INET, socket.SOCK_STREAM)
-            else:
-                self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            if fd: self.sock = socket.fromfd(fd, socket.AF_INET, socket.SOCK_STREAM)
+            else: self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.settimeout(30)
         self.fsock = self.sock.makefile("r")
         self.sock.setblocking(self.blocking)
@@ -336,25 +332,6 @@ class Irc(BotBase):
         if reto: self.say(reto, 'rebooting done')
         logging.warn("%s - rebooting done" % self.cfg.name)
         return True
-
-    def _resumedata(self):
-        """ return data used for resume. """
-        try:
-            fd = self.sock.fileno()
-        except AttributeError, ex:
-            logging.error("%s - can't detect fileno of socket" % self.cfg.name)
-            fd = None
-            self.exit()
-        return {self.cfg.name: {
-            'type': self.type,
-            'nick': self.cfg.nick,
-            'server': self.cfg.server,
-            'port': self.cfg.port,
-            'password': self.cfg.password,
-            'ipv6': self.cfg.ipv6,
-            'ssl': self.cfg.ssl,
-            'fd': fd
-            }}
 
     def outnocb(self, printto, what, how='msg', *args, **kwargs):
         #if printto in self.nicks401:

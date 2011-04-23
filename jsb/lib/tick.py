@@ -14,8 +14,6 @@ from jsb.lib.callbacks import callbacks
 
 class TickLoop(TimedLoop):
 
-    event = EventBase()
-    event.type = event.cbtype = 'TICK'
 
     def start(self, bot=None):
         """ start the loop. """
@@ -24,7 +22,9 @@ class TickLoop(TimedLoop):
 
     def handle(self):
         """ send TICK events to callback. """
-        callbacks.check(self.bot, self.event)
+        event = EventBase()
+        event.type = event.cbtype = 'TICK'
+        callbacks.check(self.bot, event)
 
 ## global tick loop
 
