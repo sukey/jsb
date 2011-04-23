@@ -7,7 +7,7 @@
 ## jsb imports
 
 from jsb.utils.exception import handle_exception
-from runner import defaultrunner
+from runner import defaultrunner, callbackrunner, waitrunner
 from eventhandler import mainhandler
 from jsb.utils.lazydict import LazyDict
 from plugins import plugs as coreplugs
@@ -66,7 +66,7 @@ class BotBase(LazyDict):
     """ base class for all bots. """
 
     def __init__(self, cfg=None, usersin=None, plugs=None, botname=None, nick=None, *args, **kwargs):
-        if not botname: botname = cfg['name'] or u"default-%s" % str(type(self)).split('.')[-1][:-2] ; 
+        if not botname: botname = cfg['botname'] or cfg['name'] or u"default-%s" % str(type(self)).split('.')[-1][:-2] ; 
         cfg['name'] = botname
         logging.warn("botbase - name is %s" % cfg['name'])
         self.fleetdir = u'fleet' + os.sep + stripname(botname)
@@ -134,6 +134,8 @@ class BotBase(LazyDict):
         #if not fleet.byname(self.cfg.name): fleet.bots.append(self) ; 
         if not self.isgae:
             defaultrunner.start()
+            callbackrunner.start()
+            waitrunner.start()
             tickloop.start(self)
 
     def __deepcopy__(self, a):
@@ -188,7 +190,7 @@ class BotBase(LazyDict):
             event = self.inqueue.get()
             if not event: break
             self.doevent(event)
-        logging.debug("%s - eventloop stopped" % self.cfg.name)
+        logging.error("%s - eventloop stopped" % self.cfg.name)
 
     def _getqueue(self):
         """ get one of the outqueues. """
@@ -309,19 +311,17 @@ class BotBase(LazyDict):
             logging.warn("%s - receiving groupchat from self (%s)" % (self.cfg.name, event.fromm))
             return
         event.txt = self.inputmorphs.do(fromenc(event.txt, self.encoding))
-        msg = "%s - %s - %s - %s" % (self.cfg.name, event.auth, event.how, event.cbtype)
+        logtxt = "%s - %s ======== start handling local event ======== %s" % (self.cfg.name, event.cbtype, event.userhost)
         if event.cbtype in ['NOTICE']: logging.warn("%s - %s - %s" % (self.cfg.name, event.nick, event.txt))
         else:
             try:
                 int(event.cbtype)
-                logging.debug("======== start handling local event ========")
-                logging.debug(msg)
+                logging.debug(logtxt)
             except (ValueError, TypeError):
                 if event.cbtype in ['PING', 'PRESENCE'] or event.how == "background": 
-                    logging.debug("======== start handling local event ========")
-                    logging.debug(msg)
-                else: logging.info("======== start handling local event ========") ; logging.info(msg)
-        logging.debug(event.dump())
+                    logging.debug(logtxt)
+                else: logging.info(logtxt)
+        logging.debug("%s - event dump: %s" % (self.cfg.name, event.dump()))
         if not event.bonded: event.bind(self)
         self.status = "callback"
         starttime = time.time()
@@ -338,7 +338,7 @@ class BotBase(LazyDict):
             callbacks.check(self, e1)
             if not e1.stop: last_callbacks.check(self, e1)
         event.callbackdone = True
-        #if not self.isgae: import asyncore ; asyncore.loop()
+        if not self.isgae: import asyncore ; asyncore.loop()
         waiter.check(self, event)
         return event
 

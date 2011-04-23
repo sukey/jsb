@@ -48,12 +48,12 @@ class Wait(object):
         if event.channel and self.origevent and not event.channel == self.origevent.channel:
             logging.warn("waiter - %s and %s dont match" % (event.channel, self.origevent.channel))
             return
-        if target not in self.cbtypes: logging.warn("waiter - no match for %s found" % target) ; return
         if self.userhosts and event.userhost and event.userhost not in self.userhosts:
             logging.warn("waiter - no userhost matched")
             return
         self.docbs(bot, event)
-        self.cbtypes.remove(event.cbtype)
+        try: self.cbtypes.remove(event.cbtype)
+        except ValueError: pass
         if self.queue: self.queue.put_nowait(event)
         return event
 

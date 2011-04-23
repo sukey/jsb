@@ -37,7 +37,7 @@ def dispatch(bot, event):
         logging.debug("dispatch - nodispatch option is set - ignoring %s" % event.userhost)
         return
     bot.status = "dispatch"
-    event.bind(bot)
+    if not event.bonded: event.bind(bot)
     bot.curevent = event
     go = False
     execstr = event.iscmnd()

@@ -43,6 +43,7 @@ try:
     if not os.path.isdir(LOGDIR): os.mkdir(LOGDIR)
 except: pass
 
+format_short = "%(asctime)s - %(message)s"
 format = "%(asctime)s - %(message)s - <%(threadName)s+%(module)s-%(funcName)s:%(lineno)s>"
 
 try:
@@ -64,7 +65,9 @@ def setloglevel(level_name="warn"):
     root = logging.getLogger("")
     if root and root.handlers:
         for handler in root.handlers: root.removeHandler(handler)
-    if root: logging.basicConfig(level=level, format=format)
+    if root:
+        if level_name in ["debug", "info"]: logging.basicConfig(level=level, format=format)
+        else: logging.basicConfig(level=level, format=format_short)
     root.setLevel(level)
     try: import waveapi
     except ImportError:

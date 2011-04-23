@@ -33,7 +33,7 @@ def handle_367(bot, ievent):
     bans[bot.cfg.name][channel].append(ievent.txt.split()[0])
 
 def handle_mode(bot, ievent):
-    logging.debug('kick-ban - mode - %s' % str(ievent))
+    logging.debug('kick-ban - mode - %s' % ievent.dump())
     # [18 Jan 2008 13:41:29] (mode) cmnd=MODE prefix=maze!wijnand@2833335b.cc9dd561.com.hmsk postfix=#eth0-test +b *!*@je.moeder.ook arguments=[u'#eth0-test', u'+b', u'*!*@je.moeder.ook'] nick=maze user=wijnand userhost=wijnand@2833335b.cc9dd561.com.hmsk channel=#eth0-test txt= command= args=[] rest= speed=5 options={}
 
 callbacks.add('367', handle_367)

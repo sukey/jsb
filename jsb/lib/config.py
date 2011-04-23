@@ -161,7 +161,7 @@ class Config(LazyDict):
             for keyword in keywords:
                 value = self[keyword]
                 if keyword in written: continue
-                if keyword == 'name': continue
+                #if keyword == 'name': continue
                 if keyword == 'createdfrom': continue
                 if keyword == 'cfile': continue
                 if keyword == 'filename': continue
@@ -253,7 +253,7 @@ def getmainconfig():
 irctemplate = """# welcome to JSONBOT .. this file can be written to by the bot
 
 # the name of the bot
-botname = "default-irc"
+name = "default-irc"
 
 # channels to join .. not implemented yet .. use /msg bot !join #channel
 channels = []
@@ -294,7 +294,7 @@ type = "irc"
 xmpptemplate = """# welcome to JSONBOT .. this file can be written to by the bot
 
 # name of the bot
-botname = "default-sxmpp"
+name = "default-sxmpp"
 
 # channels to join .. not implemented yet .. use /msg bot !join <conference>
 channels = []
