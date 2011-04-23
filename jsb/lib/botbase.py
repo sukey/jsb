@@ -303,8 +303,9 @@ class BotBase(LazyDict):
         return
 
     def doevent(self, event):
-        """ dispatch an event. """
-        assert self.cfg
+        """ dispatch an event. """ 
+        time.sleep(0.001)
+        if not self.cfg: raise Exception("eventbase - cfg is not set .. can't handle event.") ; return
         if not event: raise NoEventProvided()
         if event.isremote(): self.doremote(event) ; return
         if event.type == "groupchat" and event.fromm in self.ids:

@@ -32,6 +32,10 @@ import types
 import copy
 import sys
 
+## global list to keeptrack of what persist objects need to be saved
+
+needsaving = []
+
 ## try google first
 
 try:
@@ -251,10 +255,24 @@ except ImportError:
             set(self.fn, self.data)
             return self.data
 
-        def save(self, filename=None):
+        def save(self):
+            global needsaving
+            for p in needsaving:
+                try: p.dosave(); needsaving.remove(p)
+                except (OSError, IOError): logging.error("persist - failed to save %s" % t)
+            try: self.dosave()
+            except IOError:
+                self.sync()
+                if self not in needsaving: needsaving.append(self)
+                time.sleep(0.1)
+                for p in needsaving:
+                    try: p.dosave(); needsaving.remove(p)
+                    except (OSError, IOError): logging.error("persist - failed to save %s" % t)
+
+        def dosave(self):
             """ persist data attribute. """
             try:
-                fn = filename or self.fn
+                fn = self.fn
                 d = []
                 if fn.startswith(os.sep): d = [os.sep,]
                 for p in fn.split(os.sep)[:-1]:
@@ -281,6 +299,7 @@ except ImportError:
                     os.rename(tmp, fn)
                 if 'lastpoll' in self.logname: logging.debug('persist - %s saved (%s)' % (self.logname, len(self.data)))
                 else: logging.info('persist - %s saved (%s)' % (self.logname, len(self.data)))
+            except IOError, ex: logging.warn("persist - not saving %s" % (self.fn, str(ex))) ; raise
             except: handle_exception()
             finally: pass
 

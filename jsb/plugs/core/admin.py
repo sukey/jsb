@@ -146,3 +146,11 @@ def handle_adminreloadconfig(bot, event):
 
 cmnds.add("admin-reloadconfig", handle_adminreloadconfig, ["OPER"])
 examples.add("admin-reloadconfig", "reload bot.cfg and mainconfig", "admin-reloadconfig")
+
+def handle_adminexceptions(bot, event):
+    from jsb.utils.exception import exceptionlist, exceptionevents
+    for e, ex in exceptionevents: logging.warn("%s - exceptions raised is %s" % (e.bot.cfg.name, ex))
+    event.reply("exceptions raised: ", exceptionlist)
+
+cmnds.add("admin-exceptions", handle_adminexceptions, ["OPER"])
+examples.add("admin-exceptions", "show exceptions raised", "admin-exceptions")

@@ -64,6 +64,7 @@ def dotest(bot, event):
             e.bind(bot)
             e.dontclose = False
             #print e.dump()
+            time.sleep(0.001)
             bot.put(e)
             if not bot.isgae: waiting.append(e)
             teller += 1

@@ -27,6 +27,7 @@ parser.add_option('-f', '--fast', action="store_true", default=False, dest='fast
 opts, args = parser.parse_args()
 opts.args = args
 
+if not opts.args: print getversion('CONSOLE')
 if opts.datadir and not os.path.isdir(opts.datadir): os.mkdir(opts.datadir)
 
 ## make config from cmndline options
@@ -83,5 +84,4 @@ if opts.args:
     except: pass
     os._exit(0)
 
-print getversion('CONSOLE')
 bot.startshell()
