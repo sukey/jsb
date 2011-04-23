@@ -56,7 +56,7 @@ def relaycallback(bot, event):
     """ this is the callbacks that handles the responses to questions. """
     # determine where the event came from
     e = cpy(event)
-    origin = e.printto or e.channel
+    origin = e.channel
     e.isrelayed = True
     try:
         # loop over relays for origin

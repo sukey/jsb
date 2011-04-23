@@ -70,7 +70,7 @@ class BotEventRunner(Runner):
         """ schedule a bot command. """
         try:
             self.starttime = time.time()
-            lockmanager.acquire(getname(str(func)))
+            #lockmanager.acquire(getname(str(func)))
             name = getname(str(func))
             self.name = name
             self.working = True
@@ -84,7 +84,7 @@ class BotEventRunner(Runner):
             ievent.ready()
         except Exception, ex:
             handle_exception(ievent)
-        finally: lockmanager.release(getname(str(func)))
+        #finally: lockmanager.release(getname(str(func)))
         self.working = False
         self.name = "finished"
 

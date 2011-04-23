@@ -29,6 +29,7 @@ print getversion('FLEET')
 
 ## jsb imports
 
+from jsb.lib.partyline import partyline
 from jsb.lib.datadir import makedirs
 from jsb.lib.boot import boot
 from jsb.lib.exit import globalshutdown
@@ -74,8 +75,13 @@ if opts.owner:
 bots = fleet.loadall(opts.args)
 
 if opts.doresume:
-    fleet.resume(opts.doresume)
-    os.unlink(opts.doresume)
+    try:
+        fleet.resume(opts.doresume)
+        fleet.startok.wait()
+        partyline.resume(opts.doresume)
+        time.sleep(1)
+        os.unlink(opts.doresume)
+    except: handle_exception()
 else:
     start_new_thread(fleet.startall, (bots, ))
 

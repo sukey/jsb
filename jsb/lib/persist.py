@@ -251,13 +251,10 @@ except ImportError:
             set(self.fn, self.data)
             return self.data
 
-        @persistlocked
         def save(self, filename=None):
             """ persist data attribute. """
             try:
                 fn = filename or self.fn
-                data = json.dumps(self.data)
-                set(fn, self.data)
                 d = []
                 if fn.startswith(os.sep): d = [os.sep,]
                 for p in fn.split(os.sep)[:-1]:
@@ -272,8 +269,9 @@ except ImportError:
                 except IOError, ex:
                     logging.error("persist - can't save %s: %s" % (self.fn, str(ex)))
                     return
-                fcntl.flock(datafile, fcntl.LOCK_EX)
+                fcntl.flock(datafile, fcntl.LOCK_EX | fcntl.LOCK_NB)
                 json.dump(self.data, datafile, indent=True)
+                set(fn, self.data)
                 fcntl.flock(datafile, fcntl.LOCK_UN)
                 datafile.close()
                 try: os.rename(tmp, fn)
@@ -281,8 +279,8 @@ except ImportError:
                     handle_exception()
                     os.remove(fn)
                     os.rename(tmp, fn)
-                if 'lastpoll' in self.logname: logging.debug('persist - %s saved (%s)' % (self.logname, len(data)))
-                else: logging.info('persist - %s saved (%s)' % (self.logname, len(data)))
+                if 'lastpoll' in self.logname: logging.debug('persist - %s saved (%s)' % (self.logname, len(self.data)))
+                else: logging.info('persist - %s saved (%s)' % (self.logname, len(self.data)))
             except: handle_exception()
             finally: pass
 

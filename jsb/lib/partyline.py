@@ -34,11 +34,20 @@ class PartyLine(object):
         self.jids = []
         self.lock = thread.allocate_lock()
 
+    def resume(self, sessionfile):
+        """ resume bot from session file. """
+        try:
+            session = json.load(open(sessionfile, 'r'))
+            self._resume(session) 
+        except: handle_exception()
+
     def _resume(self, data, reto=None):
         """ resume a party line connection after reboot. """
         fleet = getfleet()
         for i in data['partyline']:
+            logging.warn("partyline - resuming %s" % i)
             bot = fleet.byname(i['botname'])
+            if not bot: logging.error("partyline - can't find bot") ; continue
             sock = socket.fromfd(i['fileno'], socket.AF_INET, socket.SOCK_STREAM)
             sock.setblocking(1)
             nick = i['nick']
@@ -54,16 +63,8 @@ class PartyLine(object):
     def _resumedata(self):
         """ return data used for resume. """
         result = []
-        for i in self.socks: result.append({'botname': i['bot'].name, 'fileno': i['sock'].fileno(), 'nick': i['nick'], 'userhost': i['userhost'], 'channel': i['channel'], 'silent': i['silent']})
+        for i in self.socks: result.append({'botname': i['bot'].cfg.name, 'fileno': i['sock'].fileno(), 'nick': i['nick'], 'userhost': i['userhost'], 'channel': i['channel'], 'silent': i['silent']})
         return result
-
-    def resume(self, sessionfile):
-        """ resume from session file. """
-        session = json.load(open(sessionfile, 'r'))
-        try:
-            reto = session['channel']
-            self._doresume(session, reto)
-        except Exception, ex: handle_exception()
 
     def stop(self, bot):
         """ stop all users on bot. """

@@ -107,7 +107,6 @@ class Config(LazyDict):
         self.jsondb.data = cp
         self.jsondb.save()
 
-    @savelocked
     def fromfile(self, filename):
         """ read config object from filename. """
         curline = ""

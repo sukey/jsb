@@ -300,7 +300,6 @@ class BotBase(LazyDict):
         logging.info("======== start handling REMOTE event ========")
         return
 
-    @locked
     def doevent(self, event):
         """ dispatch an event. """
         assert self.cfg
@@ -339,7 +338,7 @@ class BotBase(LazyDict):
             callbacks.check(self, e1)
             if not e1.stop: last_callbacks.check(self, e1)
         event.callbackdone = True
-        if not self.isgae: import asyncore ; asyncore.loop()
+        #if not self.isgae: import asyncore ; asyncore.loop()
         waiter.check(self, event)
         return event
 
@@ -385,7 +384,6 @@ class BotBase(LazyDict):
 
     writenocb = outnocb
 
-    @locked
     def say(self, channel, txt, result=[], how="msg", event=None, nr=375, extend=0, dot=", ", *args, **kwargs):
         if event and event.userhost in self.ignore: logging.warn("%s - ignore on %s - no output done" % (self.cfg.name, event.userhost)) ; return
         if event and event.nooutput:
