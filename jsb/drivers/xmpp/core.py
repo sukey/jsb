@@ -51,7 +51,7 @@ class XMLStream(NodeBuilder):
     """ XMLStream. """
 
     def __init__(self, name=None):
-        assert self.cfg
+        if not self.cfg: raise Exception("sxmpp - config is not set")
         self.cfg.name = name or self.cfg.name
         if not self.cfg.name: raise Exception("bot name is not set in config file %s" % self.cfg.filename)
         self.connection = None
