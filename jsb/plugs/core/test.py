@@ -48,7 +48,6 @@ def dotest(bot, event):
     if True:
         examplez = examples.getexamples()
         random.shuffle(examplez)
-        #logging.warn("test - running examples: %s" % ", ".join(examplez))
         for example in examplez:
             time.sleep(0.001)
             if match and match not in example: continue
@@ -58,17 +57,10 @@ def dotest(bot, event):
             if skip: continue
             teller += 1
             event.reply('command: ' + example)
-            e = cpy(event)
-            e.txt = example
-            e.speed = 6
-            e.bind(bot)
-            e.dontclose = False
-            #print e.dump()
             time.sleep(0.001)
-            bot.put(e)
-            if not bot.isgae: waiting.append(e)
+            bot.putevent(event.userhost, event.channel, example, event=event)
+            if not bot.isgae: waiting.append(event)
             teller += 1
-        #waitevents(waiting)
         event.reply("%s commands executed" % teller)
     if errors:
         event.reply("there are %s errors .. " % len(errors))
