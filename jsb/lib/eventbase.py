@@ -80,7 +80,7 @@ class EventBase(LazyDict):
             try: cb(self.result)
             except Exception, ex: handle_exception()
         if finish: self.finished.set()
-        self.stop = True
+        #self.stop = True
 
     def prepare(self, bot=None):
         """ prepare the event for dispatch. """

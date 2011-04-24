@@ -342,7 +342,7 @@ class BotBase(LazyDict):
             callbacks.check(self, e1)
             if not e1.stop: last_callbacks.check(self, e1)
         event.callbackdone = True
-        if not self.isgae: import asyncore ; asyncore.loop()
+        #if not self.isgae: import asyncore ; asyncore.loop(1)
         waiter.check(self, event)
         return event
 
@@ -531,10 +531,16 @@ class BotBase(LazyDict):
             return
         logging.debug("%s - checking %s" % (self.cfg.name, unicode(p)))
         for name in p:
-            if name in self.plugs: continue
+            if name in self.plugs:
+                logging.warn("%s - %s is already loaded" % (self.cfg.name, name))
+                continue
             if name in default_plugins: pass
-            elif self.cfg.blacklist and name in self.cfg.blacklist: continue
-            elif self.cfg.loadlist and name not in self.cfg.loadlist: continue
+            elif self.cfg.blacklist and name in self.cfg.blacklist:
+                logging.warn("%s - %s is in blacklist" % (self.cfg.name, name))
+                continue
+            elif self.cfg.loadlist and name not in self.cfg.loadlist:
+                logging.warn("%s - %s is not in loadlist" % (self.cfg.name, name))
+                continue
             logging.info("%s - on demand reloading of %s" % (self.cfg.name, name))
             try:
                 mod = self.plugs.reload(name, force=True, showerror=False)
@@ -585,8 +591,9 @@ class BotBase(LazyDict):
 
     def outmonitor(self, origin, channel, txt, event=None):
         """ create an OUTPUT event with provided txt and send it to callbacks. """
-        if event: e = cpy(event)
-        else: e = EventBase()
+        #if event: e = cpy(event)
+        #else: e = EventBase()
+        e = EventBase()
         if e.status == "done":
             logging.debug("%s - outmonitor - event is done .. ignoring" % self.cfg.name)
             return

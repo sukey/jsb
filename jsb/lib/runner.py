@@ -81,7 +81,7 @@ class BotEventRunner(Runner):
             if self.elapsed > 3:
                 logging.info('runner - ALERT %s %s job taking too long: %s seconds' % (descr, str(func), self.elapsed))
             #if ievent.iscommand: ievent.ready()
-            ievent.ready()
+            if not ievent.type == "OUTPUT": ievent.ready()
         except Exception, ex:
             handle_exception(ievent)
         #finally: lockmanager.release(getname(str(func)))
