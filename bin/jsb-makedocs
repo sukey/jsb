@@ -47,7 +47,7 @@ except IndexError: boot(force=True)
 donot = ['test-plugs', 'admin-boot', 'admin-reloadall', 'reconnect', 'stop', 'quit', 'rss-peek' , 'rss-register', 'rss-get', 'hb-register', 'reboot', 'admin-stop']
 #donot = ['admin-stop', 'reboot', 'quit', 'admin-reloadall', 'reconnect']
 
-bot = BotBase()
+bot = BotBase(botname="testbot")
 bot.allowall = True
 bot.start(False)
 

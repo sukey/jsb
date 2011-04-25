@@ -31,6 +31,7 @@ import os
 import types
 import copy
 import sys
+import time
 
 ## global list to keeptrack of what persist objects need to be saved
 
@@ -294,12 +295,12 @@ except ImportError:
                 datafile.close()
                 try: os.rename(tmp, fn)
                 except OSError:
-                    handle_exception()
+                    handle_exception(tmp + ' ' + fn)
                     os.remove(fn)
                     os.rename(tmp, fn)
                 if 'lastpoll' in self.logname: logging.debug('persist - %s saved (%s)' % (self.logname, len(self.data)))
                 else: logging.info('persist - %s saved (%s)' % (self.logname, len(self.data)))
-            except IOError, ex: logging.warn("persist - not saving %s" % (self.fn, str(ex))) ; raise
+            except IOError, ex: logging.warn("persist - not saving %s: %s" % (self.fn, str(ex))) ; raise
             except: handle_exception()
             finally: pass
 

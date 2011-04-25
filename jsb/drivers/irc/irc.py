@@ -538,7 +538,7 @@ class Irc(BotBase):
         if not printto or not what: return
         self.putonqueue(3, None, "NOTICE %s :\001%s\001" % (printto, what))
 
-    def action(self, printto, what):
+    def action(self, printto, what, event=None, *args, **kwargs):
         """ do action. """
         if not printto or not what: return
         self.putonqueue(9, None, "PRIVMSG %s :\001ACTION %s\001" % (printto, what))

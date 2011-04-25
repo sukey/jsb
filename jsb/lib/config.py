@@ -29,11 +29,16 @@ import logging
 import uuid
 import thread
 import getpass
+import copy
 
 ## locks
 
 savelock = thread.allocate_lock()
 savelocked = lockdec(savelock)
+
+## defines
+
+cpy = copy.deepcopy
 
 ## classes
 
@@ -47,18 +52,17 @@ class Config(LazyDict):
 
     def __init__(self, filename=None, verbose=False, input={}, ddir=None, *args, **kw):
         LazyDict.__init__(self, input, *args, **kw)
-        filename = filename or 'mainconfig'
-        datadir = ddir or getdatadir()
-        dir = datadir + os.sep + 'config'
-        if datadir not in filename: cfile = dir + os.sep + filename
-        else: cfile = filename
-        logging.debug("config - filename is %s" % cfile)
+        self.filename = filename or 'mainconfig'
+        self.datadir = ddir or getdatadir()
+        self.dir = self.datadir + os.sep + 'config'
+        self.cfile = self.dir + os.sep + self.filename
+        if not 'mainconfig' in self.filename: logging.warn("config - filename is %s" % self.cfile)
         self.jsondb = None
         try: import waveapi ; self.isdb = True
         except ImportError: self.isdb = False
         if not self.comments: self.comments = {}
         try:
-            try: self.fromfile(cfile)
+            try: self.fromfile(self.cfile)
             except IOError:
                 logging.warn("can't read config from %s" % self.cfile) 
                 import waveapi
@@ -70,9 +74,6 @@ class Config(LazyDict):
         except ImportError:
             handle_exception()
             self.isdb = False
-        self.cfile = cfile
-        self.dir = dir
-        self.filename = filename
         self.init()
         if not self.owner: self.owner = []
         if not self.uuid: self.uuid = str(uuid.uuid4())
@@ -85,6 +86,12 @@ class Config(LazyDict):
         """ accessor function. """
         if not self.has_key(item): return None
         else: return dict.__getitem__(self, item)
+
+    def merge(self, cfg):
+        """ merge in another cfg. """
+        f = self.cfile
+        self.update(cfg)
+        self.cfile = f
 
     def set(self, item, value):
         """ set item to value. """
@@ -107,11 +114,11 @@ class Config(LazyDict):
         self.jsondb.data = cp
         self.jsondb.save()
 
-    def fromfile(self, filename):
+    def fromfile(self, filename=None):
         """ read config object from filename. """
         curline = ""
-        fname = filename
-        logging.debug("config - fromfile - %s" % fname)
+        fname = filename or self.cfile
+        if not fname: raise Exception("config - %s - %s" % (self.cfile, self.dump()))
         if not os.path.exists(fname): return False 
         comment = ""
         for line in open(fname, 'r'):
@@ -127,7 +134,7 @@ class Config(LazyDict):
                     if comment: self.comments[kkey] = comment 
                     comment = ""
                 except ValueError: logging.warn("config - skipping line - unable to parse: %s" % line)
-        self.cfile = fname
+        #self.cfile = fname
         return
 
     @savelocked
@@ -194,9 +201,9 @@ class Config(LazyDict):
      
     def load(self, verbose=False):
         """ load the config file. """
-        self.init()
-        if self.isdb:self.fromdb()
-        if verbose: logging.debug('PRE LOAD config %s' % str(self))
+        if self.isdb: self.fromdb()
+        else: self.fromfile()
+        if verbose: logging.debug('config - %s' % self.dump())
 
     def init(self):
         """ initialize the config object. """
@@ -226,10 +233,10 @@ class Config(LazyDict):
             self.comments["app_id"] = "# application id used by appengine"
             self.setdefault('app_id', "jsonbot")
             self.comments["appname"] = "# application name as used by the bot"
-            self.setdefault('appnamer', "JSONBOT")
+            self.setdefault('appname', "JSONBOT")
             self.comments["domain"] = "# domain .. used for WAVE"
             self.setdefault('domain', "")
-        self.cfile = self.dir + os.sep + self.filename
+        #self.cfile = self.dir + os.sep + self.filename
         self['createdfrom'] = whichmodule()
         self.comments["uuid"] = "# bot generated uuid for this config file"
 

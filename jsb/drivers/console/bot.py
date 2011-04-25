@@ -109,7 +109,7 @@ class ConsoleBot(BotBase):
         sys.stdout.write(txt)
         sys.stdout.write('\n')
 
-    def action(self, channel, txt):
+    def action(self, channel, txt, event=None):
         txt = self.normalize(txt)
         self._raw(txt)
 

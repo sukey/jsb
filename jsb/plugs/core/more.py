@@ -24,7 +24,7 @@ def handle_more(bot, ievent):
     if not txt: ievent.reply('no more data available for %s' % target) ; return
     txt = bot.outputmorphs.do(txt, ievent)
     if size: txt += "<b> - %s more</b>" % str(size)
-    bot.outnocb(target, txt, response=ievent.response)
+    bot.outnocb(target, txt, response=ievent.response, event=ievent)
     bot.outmonitor(ievent.origin or ievent.userhost, ievent.channel, txt)
 
 cmnds.add('more', handle_more, ['USER', 'GUEST'])

@@ -67,14 +67,15 @@ class BotBase(LazyDict):
 
     def __init__(self, cfg=None, usersin=None, plugs=None, botname=None, nick=None, *args, **kwargs):
         logging.warn("botbase - type is %s" % str(type(self)))
-        if cfg and not botname: botname = cfg['botname'] or cfg['name']
+        if cfg: cfg = LazyDict(cfg)
+        if cfg and not botname: botname = cfg.botname or cfg.name
         if not botname: botname = u"default-%s" % str(type(self)).split('.')[-1][:-2]
         if not botname: raise Exception("can't determine type")
         self.fleetdir = u'fleet' + os.sep + stripname(botname)
         self.cfg = Config(self.fleetdir + os.sep + u'config')
+        if cfg: self.cfg.merge(cfg)
         self.cfg.name = botname
         if not self.cfg.name: raise Exception("botbase - name is not set in %s config file" % self.fleetdir)
-        if cfg: self.cfg.update(cfg)
         logging.warn("botbase - name is %s" % self.cfg.name)
         LazyDict.__init__(self)
         self.ignore = []
@@ -119,6 +120,7 @@ class BotBase(LazyDict):
         self.outcache = outcache
         self.userhosts = {}
         self.connectok = threading.Event()
+        self.reconnectcount = 0
         if not self.nick: self.nick = (nick or self.cfg.nick or u'jsb')
         try:
             if not os.isdir(self.datadir): os.mkdir(self.datadir)
@@ -415,6 +417,7 @@ class BotBase(LazyDict):
         txt = self.outputmorphs.do(txt, event)
         if txt:
             self.outnocb(channel, txt, how, event=event, origin=channel, *args, **kwargs)
+            if event: event.result.append(txt)
 
     def less(self, printto, what, nr=365):
         """ split up in parts of <nr> chars overflowing on word boundaries. """
@@ -442,7 +445,7 @@ class BotBase(LazyDict):
         """ leave a channel. """
         pass
 
-    def action(self, channel, txt, *args, **kwargs):
+    def action(self, channel, txt, event=None, *args, **kwargs):
         """ send action to channel. """
         pass
 

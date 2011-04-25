@@ -429,7 +429,7 @@ class SXMPPBot(XMLStream, BotBase):
         if not self.checkifvalid(xml): logging.error("%s - NOT PROPER XML - %s" % (self.cfg.name, xml))
         else: self._raw(xml)
            
-    def action(self, printto, txt, fromm=None, groupchat=True):
+    def action(self, printto, txt, fromm=None, groupchat=True, event=None, *args, **kwargs):
         """ send an action. """
         txt = "/me " + txt
         if self.google:
@@ -558,11 +558,12 @@ class SXMPPBot(XMLStream, BotBase):
         """ reconnect to the server. """
         botjid = self.cfg.user
         newbot = getfleet().makebot('sxmpp', self.cfg.name, config=self.cfg)
+        if not newbot: raise Exception(self.cfg.dump())
         newbot.reconnectcount = self.reconnectcount
         self.exit()
         if newbot.start():
             #self.cfg.user += '.old'
-            #newbot.joinchannels()
+            newbot.joinchannels()
             if fleet.replace(botjid, newbot): return True
         return False
 

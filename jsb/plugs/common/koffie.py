@@ -86,8 +86,8 @@ def init():
 ## functions
 
 def do(bot, ievent, txt):
-    if not bot.isgae: bot.action(ievent.channel, txt)
-    else: bot.say(ievent.channel, txt)
+    if not bot.isgae and not bot.allowall: bot.action(ievent.channel, txt, event=ievent)
+    else: bot.say(ievent.channel, txt, event=ievent)
 
 ## koffie command
 

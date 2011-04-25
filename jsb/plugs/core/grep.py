@@ -19,20 +19,12 @@ import re
 
 def handle_grep(bot, ievent):
     """ grep the result list. """
-    if not ievent.inqueue:
-        ievent.reply('use grep in a pipeline')
-        return
-    if not ievent.rest:
-        ievent.reply('grep <txt>')
-        return
+    if not ievent.inqueue: ievent.reply('use grep in a pipeline') ; return
+    if not ievent.rest: ievent.reply('grep <txt>') ; return
     try: (options, rest) = getopt.getopt(ievent.args, 'riv')
-    except getopt.GetoptError, ex:
-        ievent.reply(str(ex))
-        return
+    except getopt.GetoptError, ex: ievent.reply(str(ex)) ; return
     result = waitforqueue(ievent.inqueue, 3000)
-    if not result:
-        ievent.reply('no data to grep on: %s' % ievent.txt)
-        return
+    if not result: ievent.reply('no data to grep on: %s' % ievent.txt) ; return
     doregex = False
     docasein = False
     doinvert = False
@@ -68,5 +60,5 @@ def handle_grep(bot, ievent):
     if not res: ievent.reply('no result')
     else: ievent.reply('results: ', res)
 
-cmnds.add('grep', handle_grep, ['OPER', 'USER', 'GUEST'])
+cmnds.add('grep', handle_grep, ['OPER', 'USER', 'GUEST'], threaded=True)
 examples.add('grep', 'grep the output of a command', 'list ! grep core')

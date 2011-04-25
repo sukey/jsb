@@ -18,6 +18,10 @@ from jsb.lib.config import getmainconfig
 from jsb.utils.generic import stringsed
 from jsb.utils.exception import handle_exception
 
+## basic imports
+
+import logging
+
 ## admin-boot command
 
 def handle_adminboot(bot, ievent):
@@ -139,13 +143,13 @@ examples.add("admin-setstatus", "set status of sxmpp bot", "admin-setstatus avai
 
 def handle_adminreloadconfig(bot, event):
     try:
-        bot.cfg.reload()
+        #bot.cfg.reload()
         getmainconfig().reload()
-    except Exception, ex: handle_exception(event)
+    except Exception, ex: handle_exception()
     event.done()
 
 cmnds.add("admin-reloadconfig", handle_adminreloadconfig, ["OPER"])
-examples.add("admin-reloadconfig", "reload bot.cfg and mainconfig", "admin-reloadconfig")
+examples.add("admin-reloadconfig", "reload mainconfig", "admin-reloadconfig")
 
 def handle_adminexceptions(bot, event):
     from jsb.utils.exception import exceptionlist, exceptionevents
