@@ -535,7 +535,7 @@ class BotBase(LazyDict):
         logging.debug("%s - checking %s" % (self.cfg.name, unicode(p)))
         for name in p:
             if name in self.plugs:
-                logging.warn("%s - %s is already loaded" % (self.cfg.name, name))
+                logging.debug("%s - %s is already loaded" % (self.cfg.name, name))
                 continue
             if name in default_plugins: pass
             elif self.cfg.blacklist and name in self.cfg.blacklist:

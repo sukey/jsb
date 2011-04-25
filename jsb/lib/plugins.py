@@ -115,7 +115,7 @@ class Plugins(LazyDict):
         if not force and modname in loaded: logging.warn("plugins - skipping %s" % modname) ; return loaded
         if self.has_key(modname):
             try:
-                logging.info("plugins - %s already loaded" % modname)                
+                logging.debug("plugins - %s already loaded" % modname)                
                 if not force: return self[modname]
                 self[modname] = reload(self[modname])
             except Exception, ex: raise
