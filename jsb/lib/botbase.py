@@ -121,7 +121,7 @@ class BotBase(LazyDict):
         self.userhosts = {}
         self.connectok = threading.Event()
         self.reconnectcount = 0
-        self.cfg.nick: nick or self.cfg.nick or u'jsb'
+        self.cfg.nick = nick or self.cfg.nick or u'jsb'
         try:
             if not os.isdir(self.datadir): os.mkdir(self.datadir)
         except: pass
@@ -588,7 +588,7 @@ class BotBase(LazyDict):
         e.cbtype = 'START'
         e.botoutput = False
         e.ttl = 1
-        e.nick = self.nick or self.cfg.name
+        e.nick = self.cfg.nick or self.cfg.name
         self.doevent(e)
         logging.debug("%s - START event send to callbacks" % self.cfg.name)
 
@@ -612,7 +612,7 @@ class BotBase(LazyDict):
         e.botoutput = True
         e.nodispatch = True
         e.ttl = 1
-        e.nick = self.nick or self.cfg.name
+        e.nick = self.cfg.nick or self.cfg.name
         e.bind(self)
         first_callbacks.check(self, e)
 

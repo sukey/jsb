@@ -122,13 +122,13 @@ class LazyDict(dict):
 
     def tojson(self, withtypes=False):
         """ dump the lazydict object to json. """
-        try: return json.dumps(dumpelement(self), withtypes)
+        try: return json.dumps(dumpelement(self, withtypes))
         except RuntimeError, ex: handle_exception()
            
     def dump(self, withtypes=False):
         """ just dunp the lazydict object. DON'T convert to json. """
         #logging.warn("lazydict - dumping - %s" %  type(self))
-        try: return dumpelement(self, withtypes)
+        try: return dumpelement(cpy(self), withtypes)
         except RuntimeError, ex: handle_exception()
 
     def load(self, input):

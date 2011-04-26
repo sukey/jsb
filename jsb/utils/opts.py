@@ -168,6 +168,7 @@ def makeircconfig(opts=None, botname=None):
         cfg.server = cfg.server or "localhost"
         cfg.owner = cfg.owner or []
         cfg.ipv6 = cfg.ipv6 or False
+        cfg.nick = cfg.nick or "jsb"
         return cfg          
     if opts.password: cfg.password = opts.password
     if opts.ssl: cfg.ssl = True
@@ -179,6 +180,8 @@ def makeircconfig(opts=None, botname=None):
     if not cfg.owner: cfg.owner = []
     if opts.owner and opts.owner not in cfg.owner: cfg.owner.append(opts.owner)
     if opts.ipv6: cfg.ipv6 = opts.ipv6
+    if opts.nick: cfg.nick = opts.nick
+    else: cfg.nick = cfg.nick or "jsb"
     return cfg
 
 ## makexmppconfig function
@@ -199,6 +202,7 @@ def makesxmppconfig(opts=None, botname=None):
         cfg.server = cfg.server or ""
         cfg.owner = cfg.owner or []
         cfg.loglevel = cfg.lowlevel or "warn" 
+        cfg.nick = cfg.nick or "jsb"
         return cfg        
     if opts.user: cfg.user = opts.user
     else: cfg.user = cfg.user or "%s@jsonbot.org" % cfg.uuid
@@ -214,4 +218,6 @@ def makesxmppconfig(opts=None, botname=None):
     if opts.name: cfg.jid = opts.name
     if not cfg.owner: cfg.owner = []
     if opts.owner and opts.owner not in cfg.owner: cfg.owner.append(opts.owner)
+    if opts.nick: cfg.nick = opts.nick
+    else: cfg.nick = cfg.nick or "jsb"
     return cfg

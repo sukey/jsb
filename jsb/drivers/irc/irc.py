@@ -577,7 +577,8 @@ class Irc(BotBase):
             return
         randomnick = getrandomnick()
         self._raw("NICK %s" % randomnick)
-        self.nick = randomnick
+        self.cfg.wantnick = self.cfg.nick
+        self.cfg.nick = randomnick
         logging.warn('%s - ALERT: nick %s already in use/unavailable .. using randomnick %s' % (self.cfg.name, nick, randomnick))
         self.nickchanged = 1
 

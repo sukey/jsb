@@ -252,6 +252,7 @@ class Config(LazyDict):
         self.comments["followlist"] = "# who to follow on the bot .. bot maintains this list."
         self.comments["networkname"] = "# networkname .. not used right now."
         self.comments["type"] = "# the bot's type."
+        self.comments["nick"] = "# the bot's nick."
 
     def reload(self):
         """ reload the config file. """
@@ -293,9 +294,11 @@ owner = ["~dev@127.0.0.1"]
 # port to connect to
 port = 6667
 
-
 # networkname .. not used right now
 networkname = null
+
+# nick .. bot's nick
+nick = "jsb"
 
 # whether this is a ipv6 bot
 ipv6 = null
@@ -336,6 +339,9 @@ owner = ["dunk@localhost"]
 
 # networkname .. not used right now
 networkname = null
+
+# nick .. bot's nick
+nick = "jsb"
 
 # password used 
 password = "passje"

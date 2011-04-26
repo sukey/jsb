@@ -251,7 +251,7 @@ class IRCBot(Irc):
         ievent.bot = self
         ievent.sock = self.sock
         chan = ievent.channel
-        if chan == self.nick:
+        if chan == self.cfg.nick:
             ievent.msg = True
             ievent.speed =  4
             ievent.printto = ievent.nick
@@ -272,7 +272,7 @@ class IRCBot(Irc):
              self.nicks401.remove(ievent.nick)
         chan = ievent.channel
         nick = ievent.nick
-        if nick == self.nick:
+        if nick == self.cfg.nick:
             logging.warn("%s - joined %s" % (self.cfg.name, ievent.channel))
             time.sleep(0.5)
             self.who(chan)
