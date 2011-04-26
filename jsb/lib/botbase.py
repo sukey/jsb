@@ -594,9 +594,9 @@ class BotBase(LazyDict):
 
     def outmonitor(self, origin, channel, txt, event=None):
         """ create an OUTPUT event with provided txt and send it to callbacks. """
-        #if event: e = cpy(event)
-        #else: e = EventBase()
-        e = EventBase()
+        if event: e = cpy(event)
+        else: e = EventBase()
+        #e = EventBase()
         if e.status == "done":
             logging.debug("%s - outmonitor - event is done .. ignoring" % self.cfg.name)
             return
