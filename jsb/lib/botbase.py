@@ -121,7 +121,7 @@ class BotBase(LazyDict):
         self.userhosts = {}
         self.connectok = threading.Event()
         self.reconnectcount = 0
-        if not self.nick: self.nick = (nick or self.cfg.nick or u'jsb')
+        self.cfg.nick: nick or self.cfg.nick or u'jsb'
         try:
             if not os.isdir(self.datadir): os.mkdir(self.datadir)
         except: pass
