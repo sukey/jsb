@@ -440,7 +440,7 @@ class HubbubWatcher(PlugPersist):
         try:
             logging.warn("trying to remove %s from %s feed list" % (name, channel))
             if type == "wave": chan = Wave(channel)
-            else: chan = ChannelBase(channel)
+            else: chan = ChannelBase(channel, botname)
             chan.data.feeds.remove(name)
             chan.save()
         except ValueError:
