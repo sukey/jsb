@@ -141,7 +141,7 @@ def makeeventopts(txt):
 
 def makeconsoleconfig(opts=None, botname=None):
     """ make config file based on options. """
-    if not botname: botname = opts.name or "default-%s" % str(type)
+    if not botname: botname = opts.name or "default-console" 
     botname = stripname(botname)
     cfg = Config('fleet' + os.sep + botname + os.sep + 'config')
     cfg.type = "console"

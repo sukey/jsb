@@ -121,7 +121,7 @@ def boot(ddir=None, force=False, encoding="utf-8", umask=None, saveperms=True, f
         else: logging.error("skipped loading of myplugs")
     changed = checktimestamps()
     if changed:
-        logging.error("boot - files changed %s" % str(changed))
+        logging.warn("boot - files changed %s" % str(changed))
         for plugfile in changed: plugs.reloadfile(plugfile, force=True)
     logging.warn("boot - done")
 

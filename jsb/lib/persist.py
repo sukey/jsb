@@ -284,10 +284,7 @@ except ImportError:
                         logging.info("persist - creating %s dir" % pp)
                         os.mkdir(pp)
                 tmp = fn + '.tmp' # tmp file to save to
-                try: datafile = open(tmp, 'w')
-                except IOError, ex:
-                    logging.error("persist - can't save %s: %s" % (self.fn, str(ex)))
-                    return
+                datafile = open(tmp, 'w')
                 fcntl.flock(datafile, fcntl.LOCK_EX | fcntl.LOCK_NB)
                 json.dump(self.data, datafile, indent=True)
                 set(fn, self.data)

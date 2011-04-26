@@ -212,7 +212,6 @@ class Config(LazyDict):
             self.setdefault("whitelist", [])
             self.comments["blacklist"] = "# blacklist used to deny ips .. bot maintains this"
             self.setdefault("blacklist", [])
-            self.comments["owner"] = "# global owner of all bots"
             self.setdefault('owner', [])
             self.comments["loglist"] = "# loglist .. maintained by the bot."
             self.setdefault('loglist',  [])
@@ -238,7 +237,21 @@ class Config(LazyDict):
             self.setdefault('domain', "")
         #self.cfile = self.dir + os.sep + self.filename
         self['createdfrom'] = whichmodule()
-        self.comments["uuid"] = "# bot generated uuid for this config file"
+        self.comments['datadir'] = "# directory to store bot data in."
+        self.comments["owner"] = "# owner of the bot."
+        self.comments["uuid"] = "# bot generated uuid for this config file."
+        self.comments["user"] = "# user used to login on xmpp networks."
+        self.comments["host"] = "# host part of the user, derived from user var."
+        self.comments["server"] = "# server to connect to (on jabber only when different that host."
+        self.comments["password"] = "# password to use in authing the bot."
+        self.comments["port"] = "# port to connect to (IRC)."
+        self.comments["ssl"] = "# whether to enable ssl (set to 1 to enable)."
+        self.comments["ipv6"] = "# whether to enable ssl (set to 1 to enable)."
+        self.comments["name"] = "# the name of the bot."
+        self.comments["disable"] = "# set this to 0 to enable the bot."
+        self.comments["followlist"] = "# who to follow on the bot .. bot maintains this list."
+        self.comments["networkname"] = "# networkname .. not used right now."
+        self.comments["type"] = "# the bot's type."
 
     def reload(self):
         """ reload the config file. """
