@@ -95,8 +95,7 @@ class LazyDict(dict):
             return
         return self[attr]
 
-    def __str__(self): return self.tojson()
-
+    #def __str__(self): return self.tojson()
 
     def __setattr__(self, attr, value):
         """ set attribute. """
