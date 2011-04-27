@@ -1,0 +1,88 @@
+PROGRAMPLUGIN
+=============
+
+::
+
+    For Annemiek, Kirsten, Danny and Doscha ;]
+
+Intro
+~~~~~
+
+
+This document is here to help you program JSONBOT plugins. JSONBOT plugins
+are python files that contain commands and callbacks handlers that receive a
+bot and a event as arguments and can act upon these. Very basic example of a
+JSONBOT command handler is:
+
+::
+
+    from jsb.lib.commands import cmnds
+
+    def handle_demo(bot, event):
+        """ do the command. """
+        event.reply("This is a demo text.")
+
+    cmnds.add("demo", handle_demo, "GUEST")
+
+This example implements a command !demo which just gives a reply. The
+jsb.plugs.core.dispatch plugin termines whether a event triggers a command
+or not. Basically that plugin checks for the cc (control char) in the
+event.txt attribute and if it does, it will check permissions and call the
+handle_demo function with the bot and event paramaters passed along.
+
+To let a plugin react on events, you can add a same kind of handler to the
+callbacks object, and have it called when a particular event takes place on
+the bot. Example:
+
+::
+
+    from jsb.lib.callbacks import callbacks
+
+    def handle_democb(bot, event):
+        bot.say(event.channel, "%s joined the channel." % event.nick)
+
+    callbacks.add("JOIN", handle_democb)
+
+The callback implemented here is registered on JOIN events and thus gets
+called on JOIN received by the bot (JOIN is a IRC message) with both bot and
+the JOIN event passed on as arguments. I used bot.say() here to show that
+the bot can be used for push operations as well (where as reply() always
+responds to the event in question. The handler also shows that the event
+contains data about the event that took place (event.nick, event.channel).
+
+Data Flow
+~~~~~~~~~
+
+So plugin are about handler and handlers are about combining bot and events
+together. Basically the data flow is like this:
+
+::
+
+    bot connects to server
+    bot gets data back (most of the times this is a string)
+    bot creates an event from the data received
+    bot calls the handler with itself and the event as arguments
+    handler does something with the event and sends a response back
+    bot can also push data to a channel, think RSS feeds
+
+For every network that JSONBOT supports there need to be both bot and event
+classes that support the connecting to the network and the contruction of
+the events based upon the data that is received. These classed are in
+JSONBOT 0.7 moved into there own sub package: jsb.drivers, this so writing
+new plugins (bot-event combinations) becomes easier.
+
+Events
+~~~~~~
+
+Bots
+~~~~
+
+
+Myplugs
+~~~~~~~
+
+Administration
+~~~~~~~~~~~~~~
+
+The jsb Package
+~~~~~~~~~~~~~~~
