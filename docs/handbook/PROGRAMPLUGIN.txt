@@ -71,18 +71,89 @@ the events based upon the data that is received. These classed are in
 JSONBOT 0.7 moved into there own sub package: jsb.drivers, this so writing
 new plugins (bot-event combinations) becomes easier.
 
-Events
-~~~~~~
+Using Events
+~~~~~~~~~~~~
 
-Bots
-~~~~
+So events are at the core of the JSONBOT handlers that you can write for
+your plugin. The basic interface of these events are defined in
+:ref:`jsb.lib.eventbase`, i will summ up the most important method and
+atributes:
+
+:: 
+
+    methods:
+
+    def reply(self, txt, result=[], event=None, origin="", dot=u", ",
+              nr=375, extend=0, *args, **kwargs):
+        """ 
+            use this to reply to the event with some text. the result list
+            can be pipelined to other commands and uses the dot paramater to 
+            concat the result list into the string send back to the user. If 
+            you want to use the result of the plugin be sure to pass on the 
+            event with the event parameter as results are aggregated in the 
+            event itself.
+
+            examples: 
+
+            1) event.reply("demo text")
+            2) event.reply("results: ", resultlist)
+            3) event.reply("results: ", resultlist, dot=" | ")
+            4) event.reply("results: ", resultdict)
+            5) event.reply("results: ", resultlist, event=self)
+
+        """
+
+    def missing(self, txt):
+        """
+            use this if the input from the user is not correct. 
+
+            example: event.missing("<nick>")
+
+        """
+
+    def done(self):
+        """ this just prints "done - command. """ 
+
+    def iscmnd(self):
+        """ checks whether an event is a command. returns comandstring. """
 
 
-Myplugs
-~~~~~~~
+    def bind(self, bot=None, user=None, chan=None):
+        """ 
+            use this to bind bot, user and channel object into the event. 
+            note that you dont have to provide arguments but you can if you
+            have these objects already available.
 
-Administration
-~~~~~~~~~~~~~~
+        """
 
-The jsb Package
-~~~~~~~~~~~~~~~
+    def ready(self, finish=True):
+        """ 
+            use this when you are finished handling the event. JSONBOT tried
+            to automatically do this for you, but sometimes you need to do this
+            yourself.
+
+        """
+
+::
+
+    attributes:
+
+        self.stop = False # set this if you want any processing of the
+                          # events stopped
+
+        self.bonded = False # check this to see if EventBase.bind() is
+                            # already called
+
+    after bind():
+
+        # the channel object containing data relataed to the channel
+        self.chan = ChannelBase(self.channel, bot.cfg.name)
+
+        # the user of the bot giving the command
+        self.user = user or bot.users.getuser(target)
+
+
+There are more methods defined on the EventBase class but these are the most
+common used by plugin programmers. The bot will only execute commands when
+the event has bind() called on it so the user and chan attributes will be
+properly set.

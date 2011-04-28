@@ -8,6 +8,7 @@ import sys, os
 
 os.environ['PATH'] = os.getcwd() + os.sep + 'bin:' + os.environ['PATH']
 sys.path.insert(0, os.getcwd())
+sys.path.insert(0, "~/google_appengine/google")
 
 ## jsb imports
 

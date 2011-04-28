@@ -73,9 +73,10 @@ def gendoc(m, f, output):
     mod = m.replace(os.sep, '.')
     base = os.path.abspath(f).split(os.sep)[-1].replace('.py','')
     plugin = mod + '.' + base
-    output.write('=' * (len(base)+2) + '\n')
-    output.write(' %s ' % base.upper() + '\n')
-    output.write('=' * (len(base)+2) + '\n')
+    output.write('.. _plugin:%s:\n\n' % base)
+    output.write('=' * (len(base)) + '\n')
+    output.write('%s' % base.upper() + '\n')
+    output.write('=' * (len(base)) + '\n')
     print "USING %s" % plugin
     if not plugin in plugs:
         output.write("\nERROR: no %s plugin found\n\n" % base)
@@ -238,6 +239,7 @@ def domodfile(module, dir):
                 if not os.path.isdir('docs' + os.sep + dir):
                     os.mkdir('docs' + os.sep + dir)
                 f = open('docs' + os.sep + thedir[:-3] + '.txt', 'w')
+                f.write(".. _%s:\n\n" % p)
                 f.write("%s\n%s\n\n" % (p, '~' * len(p)))
                 f.write(".. automodule:: %s\n        :show-inheritance:\n        :members:\n        :undoc-members:\n\n" % p)
                 data = ""
