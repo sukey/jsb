@@ -40,6 +40,7 @@ needsaving = []
 ## try google first
 
 try:
+    import waveapi
     from google.appengine.ext import db
     import google.appengine.api.memcache as mc
     from google.appengine.api.datastore_errors import Timeout
