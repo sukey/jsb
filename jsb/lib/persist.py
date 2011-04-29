@@ -260,7 +260,7 @@ except ImportError:
             global needsaving
             for p in needsaving:
                 try: p.dosave(); needsaving.remove(p)
-                except (OSError, IOError): logging.error("persist - failed to save %s" % t)
+                except (OSError, IOError): logging.error("persist - failed to save %s" % p)
             try: self.dosave()
             except IOError:
                 self.sync()
@@ -268,7 +268,7 @@ except ImportError:
                 time.sleep(0.1)
                 for p in needsaving:
                     try: p.dosave(); needsaving.remove(p)
-                    except (OSError, IOError): logging.error("persist - failed to save %s" % t)
+                    except (OSError, IOError): logging.error("persist - failed to save %s" % p)
 
         def dosave(self):
             """ persist data attribute. """

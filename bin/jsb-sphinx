@@ -3,5 +3,5 @@
 #
 
 sphinx-build -N docs docs/html
-cd docs/html
-tar zcvf ~/docs.tar.gz .
+#cd docs/html
+#tar zcvf ~/docs.tar.gz .

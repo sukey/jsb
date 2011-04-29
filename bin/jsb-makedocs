@@ -8,15 +8,17 @@
 
 import os
 import sys
+sys.path.insert(0, "..")
 sys.path.insert(0, os.getcwd())
+sys.path.append(os.path.join(os.path.abspath("~"), 'google_appengine'))
+sys.path.append(os.path.join(os.path.abspath("~"), 'google_appengine', 'google'))
+sys.path.append(os.path.join(os.path.abspath("~"), 'google_appengine', 'google', 'appengine'))
 sys.path.append(os.getcwd() + os.sep + 'jsb')
 sys.path.append(os.path.join(os.getcwd(), 'jsb', 'plugs', 'core'))
 sys.path.append(os.path.join(os.getcwd(), 'jsb', 'plugs', 'common'))
 sys.path.append(os.path.join(os.getcwd(), 'jsb', 'plugs', 'wave'))
 sys.path.append(os.path.join(os.getcwd(), 'jsb', 'plugs', 'socket'))
 sys.path.append(os.path.join(os.getcwd(), 'jsb', 'plugs', 'gae'))
-sys.path.append(os.path.abspath("~") + os.sep + 'google_appengine')
-sys.path.insert(0, "..")
 
 ## jsb imports
 

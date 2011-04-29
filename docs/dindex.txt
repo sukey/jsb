@@ -10,9 +10,6 @@ jsb.drivers
     gae/wave/index
     gae/web/index
     gae/xmpp/index
-    gae/utils/index
     irc/index
     xmpp/index
     convore/index
-
-    *

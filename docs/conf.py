@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# GOZERBOT documentation build configuration file, created by
+# JSONBOT documentation build configuration file, created by
 # sphinx-quickstart on Thu Jul  2 23:24:35 2009.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -19,6 +19,7 @@ import sys, os
 # If your extensions (or modules documented by autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
+
 sys.path.insert(0, os.path.abspath(".."))
 sys.path.insert(0, os.path.abspath('..' + os.sep + 'jsb'))
 sys.path.insert(0, os.path.abspath(os.path.join('..', 'jsb', 'drivers')))
@@ -33,10 +34,12 @@ sys.path.insert(0, os.path.abspath(os.path.join('..', 'jsb', 'plugs','socket')))
 sys.path.insert(0, os.path.abspath(os.path.join('..', 'jsb', 'plugs','wave')))
 sys.path.insert(0, os.path.abspath(os.path.join('..', 'jsb', 'plugs','gae')))
 sys.path.insert(0, os.path.abspath(os.path.join('..', 'jsb', 'upload')))
+sys.path.insert(0, os.path.abspath(os.path.join('..', 'jsb', 'upload', 'waveapi')))
+sys.path.insert(0, os.path.abspath(os.path.join('..', 'jsb', 'upload', 'webapp2')))
 sys.path.insert(0, os.path.abspath(os.path.join('..', 'jsb', 'data')))
-sys.path.insert(0, os.path.abspath(os.path.join('..', 'jsb', 'data', 'waveapi')))
 sys.path.insert(0, os.path.abspath(os.path.expanduser("~") + os.sep + "google_appengine"))
 sys.path.insert(0, os.path.abspath(os.path.expanduser("~") + os.sep + "google_appengine" + os.sep +'google'))
+sys.path.insert(0, os.path.abspath(os.path.expanduser("~") + os.sep + "google_appengine" + os.sep +'google' + os.sep + "appengine"))
 
 #print sys.path
 # General configuration
