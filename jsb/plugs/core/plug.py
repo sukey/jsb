@@ -30,7 +30,7 @@ def handle_plugenable(bot, event):
     event.done()
 
 cmnds.add("plug-enable", handle_plugenable, ["OPER", ])
-examples.add("plug-enable", "enable a plugin", "plug-enable jsb.plugs.common.rss")
+examples.add("plug-enable", "enable a plugin", "plug-enable rss")
 
 ## plug-disable command
 
@@ -45,7 +45,7 @@ def handle_plugdisable(bot, event):
     event.done()
 
 cmnds.add("plug-disable", handle_plugdisable, ["OPER", ])
-examples.add("plug-disable", "disable a plugin", "plug-disable jsb.plugs.common.rss")
+examples.add("plug-disable", "disable a plugin", "plug-disable rss")
 
 ## plug-reload command
 
@@ -64,11 +64,11 @@ def handle_plugreload(bot, ievent):
             loaded = bot.plugs.reload(modname, force=True, showerror=True)
             for plug in loaded:
                 reloaded.append(plug)
-                logging.warn("reload - %s reloaded" % plug) 
+                logging.warn("%s reloaded" % plug) 
         except NoSuchPlugin: errors.append("can't find %s plugin" % plug) ; continue
         except Exception, ex:
             if 'No module named' in str(ex) and plug in str(ex):
-                logging.debug('reload - %s - %s' % (modname, str(ex)))
+                logging.debug('%s - %s' % (modname, str(ex)))
                 continue
             errors.append(exceptionmsg())
     for modname in reloaded:
