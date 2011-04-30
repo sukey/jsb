@@ -43,16 +43,17 @@ try:
     if not os.path.isdir(LOGDIR): os.mkdir(LOGDIR)
 except: pass
 
-format_short = "%(asctime)s - %(message)s"
-format = "%(asctime)s - %(message)s - <%(threadName)s+%(module)s-%(funcName)s:%(lineno)s>"
+format_short = "%(asctime)s\t%(filename)s - %(message)s - %(levelname)s"
+format = "%(asctime)s.%(msecs)s\t%(filename)s - %(message)s - <%(threadName)s+%(funcName)s:%(lineno)s> - %(levelname)s"
+datefmt = '%H:%M:%S'
+formatter_short = logging.Formatter(format_short, datefmt=datefmt)
+formatter = logging.Formatter(format, datefmt=datefmt)
 
 try:
     import waveapi
 except ImportError:
     try:
         filehandler = logging.handlers.TimedRotatingFileHandler(LOGDIR + os.sep + "jsb.log", 'midnight')
-        formatter = logging.Formatter(format)
-        filehandler.setFormatter(formatter)  
     except IOError:
         filehandler = None
 
@@ -62,18 +63,21 @@ def setloglevel(level_name="warn"):
     """ set loglevel to level_name. """
     if not level_name: return
     level = LEVELS.get(str(level_name).lower(), logging.NOTSET)
-    root = logging.getLogger("")
+    root = logging.getLogger()
+    root.setLevel(level)
     if root and root.handlers:
         for handler in root.handlers: root.removeHandler(handler)
-    if root:
-        if level_name in ["debug", "info"]: logging.basicConfig(level=level, format=format)
-        else: logging.basicConfig(level=level, format=format_short)
-    root.setLevel(level)
+    ch = logging.StreamHandler()
+    ch.setLevel(level)
+    if level_name in ["debug", "info"]: ch.setFormatter(formatter) ; filehandler.setFormatter(formatter)
+    else: ch.setFormatter(formatter_short) ; filehandler.setFormatter(formatter_short)
     try: import waveapi
     except ImportError:
+        root.addHandler(ch)
         if filehandler: root.addHandler(filehandler)
     logging.warn("loglevel is %s (%s)" % (str(level), level_name))
 
 def getloglevel():
-    root = logging.getLogger("")
+    import logging
+    root = logging.getLogger()
     return RLEVELS.get(root.level)

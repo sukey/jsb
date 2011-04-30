@@ -66,7 +66,7 @@ class BotBase(LazyDict):
     """ base class for all bots. """
 
     def __init__(self, cfg=None, usersin=None, plugs=None, botname=None, nick=None, *args, **kwargs):
-        logging.warn("botbase - type is %s" % str(type(self)))
+        logging.info("botbase - type is %s" % str(type(self)))
         if cfg: cfg = LazyDict(cfg)
         if cfg and not botname: botname = cfg.botname or cfg.name
         if not botname: botname = u"default-%s" % str(type(self)).split('.')[-1][:-2]
@@ -76,7 +76,7 @@ class BotBase(LazyDict):
         if cfg: self.cfg.merge(cfg)
         self.cfg.name = botname
         if not self.cfg.name: raise Exception("botbase - name is not set in %s config file" % self.fleetdir)
-        logging.warn("botbase - name is %s" % self.cfg.name)
+        logging.info("botbase - name is %s" % self.cfg.name)
         LazyDict.__init__(self)
         self.ignore = []
         self.ids = []
