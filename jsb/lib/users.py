@@ -91,7 +91,7 @@ class Users(Persist):
                 user.save()
             self.data.names[userhost] = name
             self.save()
-            logging.warn("users - %s merged with %s" % (userhost, name))
+            logging.warn("%s merged with %s" % (userhost, name))
             return 1
 
     def usersearch(self, userhost):
@@ -107,7 +107,7 @@ class Users(Persist):
             user = self.byname(self.data.names[userhost])
             if user: return user
         except KeyError:
-            logging.debug("user - can't find %s in names cache" % userhost) 
+            logging.debug("can't find %s in names cache" % userhost) 
 
     ## Check functions
 
@@ -123,14 +123,14 @@ class Users(Persist):
         res = None
         user = self.getuser(userhost)
         if not user:
-            logging.warn('users - %s userhost denied' % userhost)
+            logging.warn('%s userhost denied' % userhost)
             return res
         else:
             uperms = set(user.data.perms)
             sperms = set(perms)
             intersection = sperms.intersection(uperms)
             res = list(intersection) or None
-        if not res and log: logging.warn("users - %s perm %s denied (%s)" % (userhost, str(perms), str(uperms)))
+        if not res and log: logging.warn("%s perm %s denied (%s)" % (userhost, str(perms), str(uperms)))
         return res
 
     def permitted(self, userhost, who, what):
@@ -270,7 +270,7 @@ class Users(Persist):
         for userhost in userhosts: self.data.names[userhost] = name
         newuser.save()
         self.save()
-        logging.warn('users - %s %s %s added to user database' % (name, userhosts, perms))
+        logging.warn('%s - %s - %s - added to user database' % (name, userhosts, perms))
         return True
 
     def addguest(self, userhost):

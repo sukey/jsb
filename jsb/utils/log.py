@@ -43,8 +43,8 @@ try:
     if not os.path.isdir(LOGDIR): os.mkdir(LOGDIR)
 except: pass
 
-format_short = "[!] %(asctime)s\t%(levelname)s\t%(filename)s - %(message)s"
-format = "[!] %(asctime)s.%(msecs)s\t%(levelname)s\t%(filename)s - %(message)s - <%(threadName)s+%(funcName)s:%(lineno)s>"
+format_short = "[!] %(asctime)-8s - %(module)+10s.%(funcName)-10s - %(message)s"
+format = "[!] %(asctime)s.%(msecs)-13s - %(module)s.%(funcName)s:%(lineno)s - %(message)s - %(levelname)s - <%(threadName)s>"
 datefmt = '%H:%M:%S'
 formatter_short = logging.Formatter(format_short, datefmt=datefmt)
 formatter = logging.Formatter(format, datefmt=datefmt)
@@ -69,7 +69,7 @@ def setloglevel(level_name="warn"):
         for handler in root.handlers: root.removeHandler(handler)
     ch = logging.StreamHandler()
     ch.setLevel(level)
-    if level_name in ["debug", "info"]: ch.setFormatter(formatter) ; filehandler.setFormatter(formatter)
+    if level_name in ["debug",]: ch.setFormatter(formatter) ; filehandler.setFormatter(formatter)
     else: ch.setFormatter(formatter_short) ; filehandler.setFormatter(formatter_short)
     try: import waveapi
     except ImportError:
