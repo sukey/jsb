@@ -93,6 +93,7 @@ class SXMPPBot(XMLStream, BotBase):
     def _resumedata(self):
         """ return data needed for resuming. """
         return {self.cfg.name: {
+            'name': self.cfg.name,
             'type': self.type,
             'nick': self.cfg.nick,
             'server': self.cfg.server,
