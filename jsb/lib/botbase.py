@@ -312,11 +312,13 @@ class BotBase(LazyDict):
         time.sleep(0.001)
         if not self.cfg: raise Exception("eventbase - cfg is not set .. can't handle event.") ; return
         if not event: raise NoEventProvided()
-        if event.isremote(): self.doremote(event) ; return
-        if event.type == "groupchat" and event.fromm in self.ids:
-            logging.warn("%s - receiving groupchat from self (%s)" % (self.cfg.name, event.fromm))
-            return
-        event.txt = self.inputmorphs.do(fromenc(event.txt, self.encoding), event)
+        try:
+            if event.isremote(): self.doremote(event) ; return
+            if event.type == "groupchat" and event.fromm in self.ids:
+                logging.warn("%s - receiving groupchat from self (%s)" % (self.cfg.name, event.fromm))
+                return
+            event.txt = self.inputmorphs.do(fromenc(event.txt, self.encoding), event)
+        except UnicodeDecodeError: logging.warn("%s - got decode error in input .. ingoring" % self.cfg.name) ; return
         logtxt = "%s - %s ======== start handling local event ======== %s" % (self.cfg.name, event.cbtype, event.userhost)
         if event.cbtype in ['NOTICE']: logging.warn("%s - %s - %s" % (self.cfg.name, event.nick, event.txt))
         else:
