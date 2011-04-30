@@ -99,7 +99,7 @@ class EventBase(LazyDict):
             if chan: self.chan = chan
             elif self.channel: self.chan = ChannelBase(self.channel, bot.cfg.name)
             elif self.userhost: self.chan = ChannelBase(self.userhost, bot.cfg.name)
-            logging.debug("eventbase - binding channel - %s" % str(self.chan))
+            logging.warn("eventbase - binding channel - %s" % str(self.chan))
         if not target: self.prepare(bot) ; self.bonded = True ; return
         if not self.user and target:
             cfg = Config()

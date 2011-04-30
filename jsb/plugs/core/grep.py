@@ -60,5 +60,5 @@ def handle_grep(bot, ievent):
     if not res: ievent.reply('no result')
     else: ievent.reply('results: ', res)
 
-cmnds.add('grep', handle_grep, ['OPER', 'USER', 'GUEST'], threaded=True)
+cmnds.add('grep', handle_grep, ['OPER', 'USER', 'GUEST'])
 examples.add('grep', 'grep the output of a command', 'list ! grep core')

@@ -327,8 +327,8 @@ class BotBase(LazyDict):
                 if event.cbtype in ['PING', 'PRESENCE'] or event.how == "background": 
                     logging.debug(logtxt)
                 else: logging.info(logtxt)
+        event.bind(self)
         logging.debug("%s - event dump: %s" % (self.cfg.name, event.dump()))
-        if not event.bonded: event.bind(self)
         self.status = "callback"
         starttime = time.time()
         if self.closed:

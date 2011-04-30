@@ -23,6 +23,7 @@ from jsb.lib.errors import NoSuchCommand
 
 ## gaelib imports
 
+from jsb.lib.botbase import BotBase
 from jsb.drivers.gae.web.bot import WebBot
 from jsb.drivers.gae.web.event import WebEvent
 from jsb.utils.gae.auth import checkuser
@@ -43,7 +44,7 @@ import google
 
 logging.warn(getversion('GAE DISPATCH'))
 
-bot = WebBot()
+bot = WebBot(botname="gae-web")
 
 class Dispatch_Handler(RequestHandler):
 
