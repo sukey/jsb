@@ -43,8 +43,8 @@ try:
     if not os.path.isdir(LOGDIR): os.mkdir(LOGDIR)
 except: pass
 
-format_short = "%(asctime)s\t%(filename)s - %(message)s - %(levelname)s"
-format = "%(asctime)s.%(msecs)s\t%(filename)s - %(message)s - <%(threadName)s+%(funcName)s:%(lineno)s> - %(levelname)s"
+format_short = "[!] %(asctime)s\t%(levelname)s\t%(filename)s - %(message)s"
+format = "[!] %(asctime)s.%(msecs)s\t%(levelname)s\t%(filename)s - %(message)s - <%(threadName)s+%(funcName)s:%(lineno)s>"
 datefmt = '%H:%M:%S'
 formatter_short = logging.Formatter(format_short, datefmt=datefmt)
 formatter = logging.Formatter(format, datefmt=datefmt)

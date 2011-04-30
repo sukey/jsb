@@ -70,10 +70,10 @@ class Plugins(LazyDict):
             try: imp = _import(module)
             except ImportError, ex:
                 #handle_exception()
-                logging.warn("plugins - no %s plugin package found - %s" % (module, str(ex)))
+                logging.warn("no %s plugin package found - %s" % (module, str(ex)))
                 continue
             except Exception, ex: handle_exception()
-            logging.debug("plugins - got plugin package %s" % module)
+            logging.debug("got plugin package %s" % module)
             try:
                 for plug in imp.__plugs__:
                     try: self.reload("%s.%s" % (module,plug), force=force, showerror=True)
@@ -86,9 +86,9 @@ class Plugins(LazyDict):
         logging.debug("plugins - unloading %s" % modname)
         try:
             self[modname].shutdown()
-            logging.debug('plugins - called %s shutdown' % modname)
+            logging.debug('called %s shutdown' % modname)
         except KeyError:
-            logging.debug("plugins - no %s module found" % modname) 
+            logging.debug("no %s module found" % modname) 
             return False
         except AttributeError: pass
         try: cmnds.unload(modname)
@@ -112,36 +112,36 @@ class Plugins(LazyDict):
     def load(self, modname, force=False, showerror=True, loaded=[]):
         """ load a plugin. """
         if not modname: raise NoSuchPlugin(modname)
-        if not force and modname in loaded: logging.warn("plugins - skipping %s" % modname) ; return loaded
+        if not force and modname in loaded: logging.warn("skipping %s" % modname) ; return loaded
         if self.has_key(modname):
             try:
-                logging.debug("plugins - %s already loaded" % modname)                
+                logging.debug("%s already loaded" % modname)                
                 if not force: return self[modname]
                 self[modname] = reload(self[modname])
             except Exception, ex: raise
         else:
-            logging.debug("plugins - trying %s" % modname)
+            logging.debug("trying %s" % modname)
             mod = _import(modname)
             if not mod: return None
             try: self[modname] = mod
             except KeyError:
-                logging.info("plugins - failed to load %s" % modname)
+                logging.info("failed to load %s" % modname)
                 raise NoSuchPlugin(modname)
         try: init = getattr(self[modname], 'init')
         except AttributeError:
-            logging.warn("plugins - %s loaded" % modname)
+            logging.warn("%s loaded" % modname)
             return self[modname]
         try:
             init()
-            logging.debug('plugins - %s init called' % modname)
+            logging.debug('%s init called' % modname)
         except Exception, ex: raise
-        logging.warn("plugins - %s loaded" % modname)
+        logging.warn("%s loaded" % modname)
         return self[modname]
 
     def loaddeps(self, modname, force=False, showerror=False, loaded=[]):
         try:
             deps = self[modname].__depending__
-            if deps: logging.warn("plugins - dependcies detected: %s" % deps)
+            if deps: logging.warn("dependcies detected: %s" % deps)
         except (KeyError, AttributeError): deps = []
         deps.insert(0, modname)
         for dep in deps:
@@ -209,19 +209,19 @@ class Plugins(LazyDict):
             reload the plugin.
 
         """
-        logging.debug("plugins - checking for reload of %s (%s)" % (event.usercmnd, event.userhost))
+        logging.debug("checking for reload of %s (%s)" % (event.usercmnd, event.userhost))
         plugloaded = None
         try:
             from boot import getcmndtable
             plugin = getcmndtable()[target or event.usercmnd.lower()]
         except KeyError:
-            logging.debug("plugins - can't find plugin to reload for %s" % event.usercmnd)
+            logging.debug("can't find plugin to reload for %s" % event.usercmnd)
             return
-        if plugin in self: logging.debug("plugins - %s already loaded" % plugin) ; return plugloaded
+        if plugin in self: logging.debug(" %s already loaded" % plugin) ; return plugloaded
         if  plugin in default_plugins: pass
         elif bot.cfg.blacklist and plugin in bot.cfg.blacklist: return plugloaded
         elif bot.cfg.loadlist and plugin not in bot.cfg.loadlist: return plugloaded
-        logging.info("plugins - loaded %s on demand (%s)" % (plugin, event.usercmnd))
+        logging.info("loaded %s on demand (%s)" % (plugin, event.usercmnd))
         plugloaded = self.reload(plugin)
         return plugloaded
 
@@ -230,7 +230,7 @@ class Plugins(LazyDict):
             try: imp = _import(module)
             except ImportError, ex:
                 if "No module" in str(ex):
-                    logging.info("plugins - no %s plugin package found" % module)
+                    logging.info("no %s plugin package found" % module)
                     continue
                 raise
             except Exception, ex: handle_exception() ; continue

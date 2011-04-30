@@ -69,7 +69,7 @@ class Callbacks(object):
         if not kwargs: kwargs = {}
         if nr != False: self.cbs.insert(nr, what, Callback(modname, func, prereq, kwargs, threaded, speed))
         else: self.cbs.add(what, Callback(modname, func, prereq, kwargs, threaded, speed))
-        logging.debug('callbacks - added %s (%s)' % (what, modname))
+        logging.debug('added %s (%s)' % (what, modname))
         return self
 
     def unload(self, modname):
@@ -82,7 +82,7 @@ class Callbacks(object):
                 index += 1
         for callback in unload[::-1]:
             self.cbs.delete(callback[0], callback[1])
-            logging.debug('callbacks - unloaded %s (%s)' % (callback[0], modname))
+            logging.debug(' unloaded %s (%s)' % (callback[0], modname))
 
     def disable(self, plugname):
         """ disable all callbacks registered in a plugin. """
@@ -131,7 +131,7 @@ class Callbacks(object):
 
     def callback(self, cb, bot, event):
         """  do the actual callback with provided bot and event as arguments. """
-        #if event.stop: logging.info("callbacks - event is stopped.") ; return
+        #if event.stop: logging.info("callbacks -  event is stopped.") ; return
         event.calledfrom = cb.modname
         if not event.bonded: event.bind(bot)
         try:
@@ -142,7 +142,7 @@ class Callbacks(object):
                 logging.debug("%s denied in %s - %s" % (cb.modname, event.channel, event.auth))
                 return
             if cb.prereq:
-                logging.debug('callbacks - executing in loop %s' % str(cb.prereq))
+                logging.debug(' executing in loop %s' % str(cb.prereq))
                 
                 if not cb.prereq(bot, event): return
             if not cb.func: return

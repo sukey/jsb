@@ -103,7 +103,7 @@ class Commands(LazyDict):
                 event.usercmnd = cmnd.split()[0]
                 event.prepare()
         except (TypeError, KeyError, AttributeError): pass
-        logging.debug("commands - %s" % cmnd)
+        logging.debug("%s" % cmnd)
         bot.plugs.reloadcheck(bot, event)
         result = None
         cmnd = event.usercmnd
@@ -119,7 +119,7 @@ class Commands(LazyDict):
                     cmndlist = self.pre[cmnd]
                     if len(cmndlist) == 1: result = cmndlist[0]
                     else: event.reply("try one of: %s" % ", ".join([x.cmnd for x in cmndlist])) ; return
-        logging.debug("commands - woulddispatch result: %s" % result)
+        logging.debug(" woulddispatch result: %s" % result)
         return result
 
     def dispatch(self, bot, event, wait=0):
@@ -138,7 +138,7 @@ class Commands(LazyDict):
         if bot.allowall: return self.doit(bot, event, c, wait=wait)
         elif event.chan and event.chan.data.allowcommands and event.usercmnd in event.chan.data.allowcommands: 
             if not 'OPER' in perms:  return self.doit(bot, event, c, wait=wait)
-            else: logging.warn("commands - %s is not in allowlist" % c)
+            else: logging.warn("%s is not in allowlist" % c)
         elif not bot.users or bot.users.allowed(id, perms, bot=bot): return self.doit(bot, event, c, wait=wait)
         elif bot.users.allowed(id, perms, bot=bot): return self.doit(bot, event, c, wait=wait)
         return event
@@ -147,17 +147,17 @@ class Commands(LazyDict):
         """ do the dispatching. """
         if not target.enable: return
         if target.modname in event.chan.data.denyplug:
-             logging.warn("commands - %s is denied in channel %s - %s" % (target.plugname, event.channel, event.userhost))
+             logging.warn("%s is denied in channel %s - %s" % (target.plugname, event.channel, event.userhost))
              return
         id = event.auth or event.userhost
         event.iscommand = True
         event.how = target.how
         event.thecommand = target
-        logging.warning('commands - dispatching %s for %s' % (event.usercmnd, id))
+        logging.warning('dispatching %s for %s' % (event.usercmnd, id))
         try:
             if bot.isgae:
                 if not event.notask and (target.threaded or event.threaded) and not event.nothreads:
-                    logging.warn("commands - LAUNCHING AS TASK")
+                    logging.warn("LAUNCHING AS TASK")
                     from jsb.drivers.gae.tasks import start_botevent
                     event.txt = event.origtxt
                     start_botevent(bot, event, event.speed)
@@ -165,12 +165,12 @@ class Commands(LazyDict):
                 else: target.func(bot, event) ; event.ready() ; return event
             else:
                 if target.threaded and not event.nothreads:
-                    logging.warning("commands - launching thread for %s" % event.usercmnd)
+                    logging.warning("launching thread for %s" % event.usercmnd)
                     t = start_bot_command(target.func, (bot, event))
                     event.threads.append(t)
                 else: event.dontclose = False; cmndrunner.put(target.modname, target.func, bot, event)
         except Exception, ex:
-            logging.error('commands - %s - error executing %s' % (whichmodule(), str(target.func)))
+            logging.error('%s - error executing %s' % (whichmodule(), str(target.func)))
             raise
         return event
 
