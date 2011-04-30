@@ -51,13 +51,13 @@ class Runner(RunnerLoop):
             rlockmanager.acquire(getname(str(func)))
             name = getname(str(func))
             self.name = name
-            logging.debug('runner - running %s: %s' % (descr, name))
+            logging.debug('running %s: %s' % (descr, name))
             self.starttime = time.time()
             func(*args, **kwargs)
             self.finished = time.time()
             self.elapsed = self.finished - self.starttime
             if self.elapsed > 3:
-                logging.debug('runner - ALERT %s %s job taking too long: %s seconds' % (descr, str(func), self.elapsed))
+                logging.debug('ALERT %s %s job taking too long: %s seconds' % (descr, str(func), self.elapsed))
         except Exception, ex: handle_exception()
         finally: rlockmanager.release()
         self.working = False
@@ -74,12 +74,12 @@ class BotEventRunner(Runner):
             name = getname(str(func))
             self.name = name
             self.working = True
-            logging.debug("runner - now running %s" % name)
+            logging.debug("now running %s" % name)
             func(bot, ievent, *args, **kwargs)
             self.finished = time.time()
             self.elapsed = self.finished - self.starttime
             if self.elapsed > 3:
-                logging.info('runner - ALERT %s %s job taking too long: %s seconds' % (descr, str(func), self.elapsed))
+                logging.info('ALERT %s %s job taking too long: %s seconds' % (descr, str(func), self.elapsed))
             #if ievent.iscommand: ievent.ready()
             if not ievent.type == "OUTPUT": ievent.ready()
         except Exception, ex:
@@ -116,7 +116,7 @@ class Runners(object):
  
     def put(self, *data):
         """ put a job on a free runner. """
-        logging.debug("runners - size is %s" % len(self.runners))
+        logging.debug("size is %s" % len(self.runners))
         for runner in self.runners:
             if not runner.queue.qsize():
                 runner.put(*data)
@@ -148,9 +148,9 @@ class Runners(object):
         if not len(self.runners): logging.debug("nothing to clean")
         for index in range(len(self.runners)-1, -1, -1):
             runner = self.runners[index]
-            logging.debug("runner - cleanup %s" % runner.name)
+            logging.debug("cleanup %s" % runner.name)
             if not runner.queue.qsize(): runner.stop() ; del self.runners[index]
-            else: logging.info("runners - %s" % runner.nowrunning)
+            else: logging.info("now running: %s" % runner.nowrunning)
 
 ## show runner status
 

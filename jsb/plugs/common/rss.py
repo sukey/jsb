@@ -131,7 +131,7 @@ def checkfordate(data, date):
 
 def find_self_url(links):
     for link in links:
-        logging.debug("rss - trying link: %s" % (link))
+        logging.debug("trying link: %s" % (link))
         if link.rel == 'self': return link.href
     return None
 
@@ -197,8 +197,8 @@ sleeptime=15*60, running=0):
         if result == None:
             result = self.fetchdata()
             set(url, result, namespace='rss')
-            logging.debug("rss - got result from %s" % url)
-        else: logging.debug("rss - got result from %s *cached*" % url)
+            logging.debug("got result from %s" % url)
+        else: logging.debug("got result from %s *cached*" % url)
         return result
 
     def fetchdata(self, data=None):
@@ -214,22 +214,22 @@ sleeptime=15*60, running=0):
             except AttributeError: status = None
         else:
             url = self.data['url']
-            logging.debug("rss - fetching %s" % url)
+            logging.debug("fetching %s" % url)
             result = feedparser.parse(url, agent=useragent(), etag=etag)
             try: status = result.status
             except AttributeError: status = None
-        logging.info("rss - status returned of %s feed is %s" % (name, status))
+        logging.info("status returned of %s feed is %s" % (name, status))
         if status == 304: return []
         if result: set(self.data.url, result.entries, namespace='rss')
         if data:
-            try: etag = etags.data[name] = data.headers.get('etag') ; logging.info("rss - etag of %s set to %s" % (name, etags.data[name])) ; etags.sync()
+            try: etag = etags.data[name] = data.headers.get('etag') ; logging.info("etag of %s set to %s" % (name, etags.data[name])) ; etags.sync()
             except KeyError: etag = None
         else:
-            try: etag = etags.data[name] = result.etag ; logging.info("rss - etag of %s set to %s" % (name, etags.data[name])) ; etags.sync()
+            try: etag = etags.data[name] = result.etag ; logging.info("etag of %s set to %s" % (name, etags.data[name])) ; etags.sync()
             except (AttributeError, KeyError): etag = None
         if not name in urls.data: urls.data[name] = self.data.url ; urls.save()
-        logging.debug("rss - got result from %s" % self.data.url)
-        if result and result.has_key('bozo_exception'): logging.warn('rss - %s bozo_exception: %s' % (self.data.url, result['bozo_exception']))
+        logging.debug("got result from %s" % self.data.url)
+        if result and result.has_key('bozo_exception'): logging.warn('%s bozo_exception: %s' % (self.data.url, result['bozo_exception']))
         l = len(result.entries)
         if l > self.data.length: self.data.length = l ; self.save()
         return result.entries
@@ -237,9 +237,9 @@ sleeptime=15*60, running=0):
     def sync(self):
         """ refresh cached data of a feed. """
         if not self.data.running:
-            logging.info("rss - %s not enabled .. %s not syncing " % (self.data.name, self.data.url))
+            logging.info("%s not enabled .. %s not syncing " % (self.data.name, self.data.url))
             return False
-        logging.info("rss - syncing %s - %s" % (self.data.name, self.data.url))
+        logging.info("syncing %s - %s" % (self.data.name, self.data.url))
         result = self.fetchdata()
         if not result:
             cached = get(self.data.url, namespace="rss")
@@ -258,7 +258,7 @@ sleeptime=15*60, running=0):
                 got = True
                 self.setseen(res)
             if got and save: self.save()
-            logging.debug("rss - %s - %s items ready" % (self.data.name, len(tobereturned)))
+            logging.debug("%s - %s items ready" % (self.data.name, len(tobereturned)))
         return tobereturned
 
     def deliver(self, datalist, save=True):
@@ -271,15 +271,15 @@ sleeptime=15*60, running=0):
                 try:
                     (botname, type, channel) = item
                 except ValueError:
-                    logging.debug('rss - %s is not in the format (botname, type, channel)' % str(item))
+                    logging.debug('%s is not in the format (botname, type, channel)' % str(item))
                     continue
-                if not botname: logging.error("rss - %s - %s is not correct" % (name, str(item))) ; continue
-                if not type: logging.error("rss - %s - %s is not correct" % (name, str(item))) ; continue
+                if not botname: logging.error("%s - %s is not correct" % (name, str(item))) ; continue
+                if not type: logging.error("%s - %s is not correct" % (name, str(item))) ; continue
                 try:
                     bot = getfleet().byname(botname)
                     if not bot: bot = getfleet().makebot(type, botname)
-                except NoSuchBotType, ex: logging.warn("rss - can't make bot - %s" % str(ex)) ; continue
-                if not bot: logging.error("rss - can't find %s bot in fleet" % botname) ; continue
+                except NoSuchBotType, ex: logging.warn("can't make bot - %s" % str(ex)) ; continue
+                if not bot: logging.error("can't find %s bot in fleet" % botname) ; continue
                 res2 = datalist
                 if type == "irc" and not '#' in channel: nick = getwho(bot, channel)
                 else: nick = None                        
@@ -318,7 +318,7 @@ sleeptime=15*60, running=0):
                         if self.markup.get(jsonstring([name, type, channel]), 'tinyurl'):
                             try:
                                 tinyurl = get_tinyurl(item)
-                                logging.debug('rss - tinyurl is: %s' % str(tinyurl))
+                                logging.debug(' tinyurl is: %s' % str(tinyurl))
                                 if not tinyurl: resultstr += u"%s - " % item
                                 else: resultstr += u"%s - " % tinyurl[0]
                             except Exception, ex:
@@ -326,7 +326,7 @@ sleeptime=15*60, running=0):
                                 resultstr += u"%s - " % item
                         else: resultstr += u"%s - " % item
                     else: resultstr += u"%s - " % item.strip()
-                except (KeyError, AttributeError, TypeError), ex: logging.warn('rss - %s - %s' % (name, str(ex))) ; continue
+                except (KeyError, AttributeError, TypeError), ex: logging.warn('%s - %s' % (name, str(ex))) ; continue
             resultstr = resultstr[:-3]
             if resultstr: result += u"%s %s " % (resultstr, sep)
         return result[:-(len(sep)+2)]
@@ -380,7 +380,7 @@ class Rssdict(PlugPersist):
 
     def add(self, name, url, owner):
         """ add rss item. """
-        logging.warn('rss - adding %s - %s - (%s)' % (name, url, owner))
+        logging.warn('adding %s - %s - (%s)' % (name, url, owner))
         if name not in self.data['names']: self.data['names'].append(name)
         self.feeds[name] = Feed(name, url, owner, ['title', 'link'])
         self.data['urls'][url] = name
@@ -413,8 +413,8 @@ class Rssdict(PlugPersist):
         got = []
         for line in data.split('\n'):
             try: (name, url) = line.split()
-            except ValueError: logging.debug("rss - cloneurl - can't split %s line" % line) ; continue
-            if self.byname(name): logging.debug('rss - cloneurl - already got %s feed' % name) ; continue
+            except ValueError: logging.debug("cloneurl - can't split %s line" % line) ; continue
+            if self.byname(name): logging.debug('cloneurl - already got %s feed' % name) ; continue
             if url.endswith('<br>'): url = url[:-4]
             self.add(name, url, auth)
             got.append(name)
@@ -438,7 +438,7 @@ class Rssdict(PlugPersist):
         if not name in runners.data: runners.data[name] = "bla" ; runners.save()
         sleeptime.data[name] = sleepsec
         sleeptime.save()
-        logging.info('rss - started %s rss watch' % name)
+        logging.info('started %s rss watch' % name)
 
 ## Rsswatcher class
 
@@ -449,11 +449,11 @@ class Rsswatcher(Rssdict):
     def checkfeed(self, url, event):
         """ get data of rss feed. """
         result = feedparser.parse(url, agent=useragent())
-        logging.info("rss - fetch - got result from %s" % url)
+        logging.info("fetch - got result from %s" % url)
         if result and result.has_key('bozo_exception'):
-            event.reply('rss - %s bozo_exception: %s' % (url, result['bozo_exception']))
+            event.reply('%s bozo_exception: %s' % (url, result['bozo_exception']))
             return True
-        try: status = result.status ; event.reply("rss - %s - status is %s" % (url, status))
+        try: status = result.status ; event.reply("%s - status is %s" % (url, status))
         except AttributeError: status = 200
         if status != 200 and status != 301 and status != 302: return False
         return True
@@ -469,13 +469,13 @@ class Rsswatcher(Rssdict):
             if name: rssitem = self.byname(name)
             else: url = find_self_url(result.feed.links) ; rssitem = self.byurl(url)
             if rssitem: name = rssitem.data.name
-            else: logging.warn("rss - can't find %s item" % url) ; del data ; return
+            else: logging.warn("can't find %s item" % url) ; del data ; return
             if not name in urls.data: urls.data[name] = url ; urls.save()
             result = rssitem.fetchdata(data)
-            logging.warn("rss - %s - got %s items from feed" % (name, len(result)))
+            logging.warn("%s - got %s items from feed" % (name, len(result)))
             res = rssitem.check(result)
             if res: rssitem.deliver(res, save=True)
-            else: logging.warn("rss - %s - no items to deliver" % name)
+            else: logging.warn("%s - no items to deliver" % name)
         except Exception, ex: handle_exception(txt=name)
         del data
         return True
@@ -528,12 +528,12 @@ class Rsswatcher(Rssdict):
         """ start a watcher. """
         rssitem = self.byname(name)
         if not rssitem == None:
-            logging.error("rss - no %s rss item available" % name)
+            logging.error("no %s rss item available" % name)
             return
         while 1:
             try: self.watch(name)
             except Exception, ex:
-                logging.warn('rss - %s feed error: %s' % (name, str(ex)))
+                logging.warn('%s feed error: %s' % (name, str(ex)))
                 if not rssitem.data.running: break
             else: break
 
@@ -639,7 +639,7 @@ class Rsswatcher(Rssdict):
     def start(self, botname, bottype, name, channel):
         """ start a rss feed (per user/channel). """
         rssitem = self.byname(name)
-        if rssitem == None: logging.warn("rss - we don't have a %s rss object" % name) ; return False
+        if rssitem == None: logging.warn("we don't have a %s rss object" % name) ; return False
         target = channel
         if not jsonstring([botname, bottype, target]) in rssitem.data.watchchannels and not [botname, bottype, target] in rssitem.data.watchchannels:
             rssitem.data.watchchannels.append([botname, bottype, target])
@@ -649,7 +649,7 @@ class Rsswatcher(Rssdict):
         rssitem.data.stoprunning = 0
         rssitem.save()
         watcher.watch(name)
-        logging.warn("rss - started %s feed in %s channel" % (name, channel))
+        logging.warn("started %s feed in %s channel" % (name, channel))
         return True
 
     def stop(self, botname, bottype, name, channel):
@@ -659,7 +659,7 @@ class Rsswatcher(Rssdict):
         try:
             rssitem.data.watchchannels.remove([botname, bottype, channel])
             rssitem.save()
-            logging.warn("rss - stopped %s feed in %s channel" % (name, channel))
+            logging.warn("stopped %s feed in %s channel" % (name, channel))
         except ValueError: return False
         return True
 
@@ -689,10 +689,10 @@ callbacks.add('START', dummycb)
 def dosync(feedname):
     """ main level function to be deferred by periodical. """
     try:
-       logging.info("rss - doing sync of %s" % feedname)
+       logging.info("doing sync of %s" % feedname)
        localwatcher = Rsswatcher('rss', feedname)
        localwatcher.syncdeliver(feedname)
-    except RssException, ex: logging.error("rss - %s - error: %s" % (feedname, str(ex)))
+    except RssException, ex: logging.error("%s - error: %s" % (feedname, str(ex)))
 
 ## shouldpoll function
 
@@ -704,7 +704,7 @@ def shouldpoll(name, curtime):
     global sleeptime
     try: st = sleeptime.data[name]
     except KeyError: st = sleeptime.data[name] = 900 ; sleeptime.sync()
-    logging.debug("rss - pollcheck - %s - %s - remaining %s" % (name, time.ctime(lp), (lp + st) - curtime))
+    logging.debug("pollcheck - %s - %s - remaining %s" % (name, time.ctime(lp), (lp + st) - curtime))
     if curtime - lp > st: return True
 
 ## dodata function
@@ -717,14 +717,14 @@ def dodata(data, name):
 def rssfetchcb(rpc):
     import google
     try: data = rpc.get_result()
-    except google.appengine.api.urlfetch_errors.DownloadError, ex: logging.warn("rss - %s - error: %s" % (rpc.final_url, str(ex))) ; return
+    except google.appengine.api.urlfetch_errors.DownloadError, ex: logging.warn("%s - error: %s" % (rpc.final_url, str(ex))) ; return
     name = rpc.feedname
-    logging.debug("rss - headers of %s: %s" % (name, unicode(data.headers)))
+    logging.debug("headers of %s: %s" % (name, unicode(data.headers)))
     if data.status_code == 200:
-        logging.info("rss - defered %s feed" % rpc.feedname)
+        logging.info("defered %s feed" % rpc.feedname)
         from google.appengine.ext.deferred import defer
         defer(dodata, data, rpc.feedname)
-    else: logging.warn("rss - fetch returned status code %s - %s" % (data.status_code, rpc.feedurl))
+    else: logging.warn("fetch returned status code %s - %s" % (data.status_code, rpc.feedurl))
 
 ## creaete_rsscallback function
 
@@ -742,7 +742,7 @@ def doperiodicalGAE(*args, **kwargs):
     for feed in watcher.runners():
         if not shouldpoll(feed, curtime): continue
         feedstofetch.append(feed)
-    logging.info("rss - feeds to fetch: %s" % str(feedstofetch))
+    logging.info("feeds to fetch: %s" % str(feedstofetch))
     got = False
     for f in feedstofetch:
         if not f: continue
@@ -755,7 +755,7 @@ def doperiodicalGAE(*args, **kwargs):
         rpc.feedurl = url
         try: etag = etags.data[f]
         except KeyError: etag = ""
-        logging.info("rss - %s - sending request - %s" % (f, etag))
+        logging.info("%s - sending request - %s" % (f, etag))
         try: urlfetch.make_fetch_call(rpc, url, headers={"If-None-Match": etag}) ; rpcs.append(rpc)
         except Exception, ex: handle_exception()
     for rpc in rpcs: 
@@ -772,7 +772,7 @@ def doperiodical(*args, **kwargs):
     for feed in watcher.data.names:
         if not shouldpoll(feed, curtime): continue
         lastpoll.data[feed] = curtime
-        logging.debug("rss - periodical - launching %s" % feed)
+        logging.debug("periodical - launching %s" % feed)
         try:
             from google.appengine.ext.deferred import defer
             defer(dosync, feed)
@@ -908,7 +908,7 @@ def handle_rsswatch(bot, ievent):
         if rssitem == None: continue
         if not sleeptime.data.has_key(name): sleeptime.data[feed] = sleepsec ; sleeptime.save()
         try: watcher.watch(feed, sleepsec)
-        except Exception, ex: ievent.reply('rss - %s - %s' % (feed, str(ex))) ; continue
+        except Exception, ex: ievent.reply('%s - %s' % (feed, str(ex))) ; continue
         got.append(feed)
     if got: ievent.reply('watcher started ', got)
     else: ievent.reply('already watching ', target)
@@ -1410,7 +1410,7 @@ def handle_rssimport(bot, ievent):
         try:
             assert(name)
             assert(url)
-            logging.warn("rss - import - adding %s - %s" % (name, url))
+            logging.warn("import - adding %s - %s" % (name, url))
             watcher.add(fromenc(name), fromenc(url), ievent.userhost)
             teller += 1
         except Exception, ex:
