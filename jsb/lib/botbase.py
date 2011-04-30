@@ -316,7 +316,7 @@ class BotBase(LazyDict):
         if event.type == "groupchat" and event.fromm in self.ids:
             logging.warn("%s - receiving groupchat from self (%s)" % (self.cfg.name, event.fromm))
             return
-        event.txt = self.inputmorphs.do(fromenc(event.txt, self.encoding))
+        event.txt = self.inputmorphs.do(fromenc(event.txt, self.encoding), event)
         logtxt = "%s - %s ======== start handling local event ======== %s" % (self.cfg.name, event.cbtype, event.userhost)
         if event.cbtype in ['NOTICE']: logging.warn("%s - %s - %s" % (self.cfg.name, event.nick, event.txt))
         else:
