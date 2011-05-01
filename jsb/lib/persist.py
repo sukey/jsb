@@ -44,7 +44,7 @@ try:
     from google.appengine.ext import db
     import google.appengine.api.memcache as mc
     from google.appengine.api.datastore_errors import Timeout
-    logging.debug("persist - using BigTable based Persist")
+    logging.debug("using BigTable based Persist")
 
     ## JSONindb class
 
@@ -67,7 +67,7 @@ try:
             try: del self.fn
             except: pass 
             self.fn = unicode(filename.strip()) # filename to save to
-            self.logname = os.sep.join(self.fn.split(os.sep)[-2:])
+            self.logname = os.sep.join(self.fn.split(os.sep)[-1:])
             self.type = type
             self.counter = mcounter = mc.incr(self.fn, 1, "counters", 0)
             self.key = None
@@ -77,17 +77,17 @@ try:
         def init(self, default={}, filename=None):
             cachetype = ""
             mcounter = mc.incr(self.fn, 1, "counters")
-            logging.debug("persist - %s - %s" % (self.counter, mcounter))
+            logging.debug("%s - %s" % (self.counter, mcounter))
             if self.type == "mem":
                 tmp = get(self.fn) ; cachetype = "mem"
-                if tmp: self.data = tmp ; logging.debug("persist - %s - loaded %s" % (cachetype, self.fn)) ; return
+                if tmp: self.data = tmp ; logging.debug("%s - loaded %s" % (cachetype, self.fn)) ; return
             jsontxt =  mc.get(self.fn) ; cachetype = "cache"
             if type(default) == types.DictType:
                 default2 = LazyDict()
                 default2.update(default)
             else: default2 = copy.deepcopy(default)
             if jsontxt is None:
-                logging.debug("persist - %s - loading from db" % self.logname) 
+                logging.debug("%s - loading from db" % self.logname) 
                 try:
                     try: self.obj = JSONindb.get_by_key_name(self.fn)
                     except Timeout: self.obj = JSONindb.get_by_key_name(self.fn)
@@ -99,17 +99,17 @@ try:
                         self.data = default2
                         return
                 if self.obj == None:
-                    logging.debug("persist - %s - no entry found" % self.logname)
+                    logging.debug("%s - no entry found" % self.logname)
                     self.obj = JSONindb(key_name=self.fn)
                     self.obj.content = unicode(default)
                     self.data = default2
                     return
                 jsontxt = self.obj.content
                 if jsontxt: mc.set(self.fn, jsontxt)
-                logging.debug('persist - jsontxt is %s' % jsontxt)
+                logging.debug('jsontxt is %s' % jsontxt)
                 cachetype = "file"
             else: cachetype = "cache"
-            logging.debug("persist - %s - loaded %s" % (cachetype, self.fn))
+            logging.debug("%s - loaded %s" % (cachetype, self.fn))
             self.data = json.loads(jsontxt)
             if type(self.data) == types.DictType:
                 d = LazyDict()
@@ -124,13 +124,13 @@ try:
                 cfrom = whichmodule(3)
                 if 'jsb' in cfrom: cfrom = whichmodule(4)
             if not 'run' in self.fn: 
-                if cachetype: logging.debug("persist - %s - loaded %s (%s) - %s - %s" % (cachetype, self.logname, len(jsontxt), self.data.tojson(), cfrom))
-                else: logging.debug("persist - db - loaded %s (%s) - %s - %s" % (self.logname, len(jsontxt), self.data.tojson(), cfrom))
+                if cachetype: logging.debug("%s - loaded %s (%s) - %s - %s" % (cachetype, self.logname, len(jsontxt), self.data.tojson(), cfrom))
+                else: logging.debug("loaded %s (%s) - %s - %s" % (self.logname, len(jsontxt), self.data.tojson(), cfrom))
             if self.data:
                 set(self.fn, self.data)
 
         def sync(self):
-            logging.info("persist - syncing %s" % self.fn)
+            logging.info("syncing %s" % self.fn)
             data = json.dumps(self.data)
             mc.set(self.fn, data)
             delete(self.fn, self.data)
@@ -147,14 +147,14 @@ try:
             self.obj.filename = fn
             from google.appengine.ext import db
             key = db.run_in_transaction(self.obj.put)
-            logging.debug("persist - transaction returned %s" % key)
+            logging.debug("transaction returned %s" % key)
             mc.set(fn, bla)
             delete(fn, self.data)
             cfrom = whichmodule(0)
             if 'jsb' in cfrom: 
                 cfrom = whichmodule(2)
                 if 'jsb' in cfrom: cfrom = whichmodule(3)
-            logging.warn('persist - %s - saved %s (%s)' % (cfrom, fn, len(bla)))
+            logging.warn('saved %s (%s) - %s' % (fn, len(bla), cfrom))
 
         def upgrade(self, filename):
             self.init(self.data, filename=filename)
@@ -186,7 +186,7 @@ except ImportError:
         def __init__(self, filename, default=None, init=True):
             """ Persist constructor """
             self.fn = filename.strip() # filename to save to
-            self.logname = os.sep.join(self.fn.split(os.sep)[-2:])
+            self.logname = os.sep.join(self.fn.split(os.sep)[1:])
             self.lock = thread.allocate_lock() # lock used when saving)
             self.data = LazyDict() # attribute to hold the data
             if init:
@@ -196,7 +196,7 @@ except ImportError:
 
         def init(self, default={}, filename=None):
             """ initialize the data. """
-            logging.debug('persist - reading %s' % self.fn)
+            logging.debug('reading %s' % self.fn)
             cfrom = whichmodule(2)
             if 'jsb' in cfrom: 
                 cfrom = whichmodule(3)
@@ -217,17 +217,17 @@ except ImportError:
                     else: d = data
                     self.data = d
                     cachetype = "mem"
-                    logging.debug("persist - %s - loaded %s" % (cachetype, self.fn))
+                    logging.debug("%s - loaded %s" % (cachetype, self.fn))
                     if not 'run' in self.fn: 
                         size = len(d)
-                        logging.debug("persist - mem - loaded %s (%s) - %s - %s" % (self.logname, size, self.data.tojson(), cfrom))
+                        logging.debug("mem - loaded %s (%s) - %s - %s" % (self.logname, size, self.data.tojson(), cfrom))
                     return
             except IOError, ex:
                 if not 'No such file' in str(ex):
-                    logging.error('persist - failed to read %s: %s' % (self.logname, str(ex)))
+                    logging.error('failed to read %s: %s' % (self.logname, str(ex)))
                     raise
                 else:
-                    logging.debug("persist - %s doesn't exist yet" % self.logname)
+                    logging.debug("%s doesn't exist yet" % self.logname)
                     return
             try:
                 self.data = json.loads(data)
@@ -236,13 +236,13 @@ except ImportError:
                     d = LazyDict()
                     d.update(self.data)
                     self.data = d
-                logging.debug("persist - %s - loaded %s" % (cachetype, self.fn))
+                logging.debug("%s - loaded %s" % (cachetype, self.fn))
                 if not 'run' in self.fn: 
                     size = len(data)
-                    if gotcache: logging.debug("persist - cache - loaded %s (%s) - %s - %s" % (self.logname, size, self.data.tojson(), cfrom))
-                    else: logging.debug("persist - file - loaded %s (%s) - %s - %s" % (self.logname, size, self.data.tojson(), cfrom))
+                    if gotcache: logging.debug("cache - loaded %s (%s) - %s - %s" % (self.logname, size, self.data.tojson(), cfrom))
+                    else: logging.debug("file - loaded %s (%s) - %s - %s" % (self.logname, size, self.data.tojson(), cfrom))
             except Exception, ex:
-                logging.error('persist - ERROR: %s' % self.fn)
+                logging.error('ERROR: %s' % self.fn)
                 raise
 
         def upgrade(self, filename):
@@ -253,7 +253,7 @@ except ImportError:
             return json.loads(get(self.fn)) 
 
         def sync(self):
-            logging.info("persist - syncing %s" % self.fn)
+            logging.info("syncing %s" % self.fn)
             set(self.fn, self.data)
             return self.data
 
@@ -261,7 +261,7 @@ except ImportError:
             global needsaving
             for p in needsaving:
                 try: p.dosave(); needsaving.remove(p)
-                except (OSError, IOError): logging.error("persist - failed to save %s" % p)
+                except (OSError, IOError): logging.error("failed to save %s" % p)
             try: self.dosave()
             except IOError:
                 self.sync()
@@ -269,7 +269,7 @@ except ImportError:
                 time.sleep(0.1)
                 for p in needsaving:
                     try: p.dosave(); needsaving.remove(p)
-                    except (OSError, IOError): logging.error("persist - failed to save %s" % p)
+                    except (OSError, IOError): logging.error("failed to save %s" % p)
 
         def dosave(self):
             """ persist data attribute. """
@@ -282,7 +282,7 @@ except ImportError:
                     d.append(p)
                     pp = os.sep.join(d)
                     if not os.path.isdir(pp):
-                        logging.info("persist - creating %s dir" % pp)
+                        logging.info("creating %s dir" % pp)
                         os.mkdir(pp)
                 tmp = fn + '.tmp' # tmp file to save to
                 datafile = open(tmp, 'w')
@@ -296,9 +296,9 @@ except ImportError:
                     handle_exception(tmp + ' ' + fn)
                     os.remove(fn)
                     os.rename(tmp, fn)
-                if 'lastpoll' in self.logname: logging.debug('persist - %s saved (%s)' % (self.logname, len(self.data)))
-                else: logging.warn('persist - %s saved (%s)' % (self.logname, len(self.data)))
-            except IOError, ex: logging.warn("persist - not saving %s: %s" % (self.fn, str(ex))) ; raise
+                if 'lastpoll' in self.logname: logging.debug('%s saved (%s)' % (self.logname, len(self.data)))
+                else: logging.warn('%s saved (%s)' % (self.logname, len(self.data)))
+            except IOError, ex: logging.warn("not saving %s: %s" % (self.fn, str(ex))) ; raise
             except: handle_exception()
             finally: pass
 
