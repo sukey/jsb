@@ -229,7 +229,7 @@ sleeptime=15*60, running=0):
             except (AttributeError, KeyError): etag = None
         if not name in urls.data: urls.data[name] = self.data.url ; urls.save()
         logging.debug("got result from %s" % self.data.url)
-        if result and result.has_key('bozo_exception'): logging.warn('%s bozo_exception: %s' % (self.data.url, result['bozo_exception']))
+        if result and result.has_key('bozo_exception'): logging.debug('%s bozo_exception: %s' % (self.data.url, result['bozo_exception']))
         l = len(result.entries)
         if l > self.data.length: self.data.length = l ; self.save()
         return result.entries
