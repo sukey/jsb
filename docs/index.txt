@@ -10,6 +10,7 @@ JSONBOT is all of the following:
     * a shell console bot
     * a shell IRC bot
     * a shell XMPP bot
+    * a shell Convore bot
     * a Web bot running on Google Application Engine
     * a XMPP bot running on Google Application Engine
     * a Google Wave bot running op Google Application Engine
@@ -60,8 +61,9 @@ programs
 jsb provides the following programs:
 
     * jsb - console version of jsb
-    * jsb-irc - IRC version of jsb (socket)
-    * jsb-xmpp - XMPP version of jsb (socket)
+    * jsb-irc - IRC version of jsb (shell)
+    * jsb-xmpp - XMPP version of jsb (shell)
+    * jsb-convore - Convore version of jsb (shell)
     * jsb-fleet - mix IRC and XMPP bots
     * jsb-release - create a new release directory
     * jsb-rollback - rollback a release

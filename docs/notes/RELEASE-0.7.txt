@@ -7,8 +7,8 @@ Today I am releasing version 0.7 of JSONBOT, hope you like it.
 
 I want to dedicate this release to Annemiek, Kirsten, Danny and Doscha, i would not have a live without you.
 
-changes in this release:
-------------------------
+changes in this release
+-----------------------
 
 * we got jsonbot.org running .. see http://jsonbot.org ;]
 * convore support
@@ -27,8 +27,8 @@ changes in this release:
 If you have programmed your own plugin see
 http://jsonbot.org/handbook/UPGRADE.html for upgrade notes.
 
-Todo:
------
+Todo
+----
 
 1) fix runtime setting of loglevel
 2) add flood control
@@ -37,38 +37,38 @@ Todo:
 
 see http://code.google.com/p/jsonbot/issues/list
 
-Urls:
------
-
-tarball - http://jsonbot.googlecode.com
-mercurial - http://jsonbot.googlecode.com/hg
-github - https://jsonbot@github.com/jsonbot/jsonbot.git
-
-Demo:
------
-
-webconsole - http://jsonbot.appspot.com
-xmpp - jsonbot@jsonbot.org (shell) and jsonbot@appspot.com (GAE)
-IRC - jsonbot on irc.freenode.net
-convore - https://convore.com/convore-8/welcome-to-convore/ relaying with
-          #convore on irc.freenode.net
-Docs:
------
-
-new jsonbot.org site .. http://jsonbot.org
-GAE backup docs .. http://jsonbot.appspot.com/docs
-
-Contact:
---------
-
-twitter: https://twitter.com/#!/jsonbot
-facebook: http://tinyurl.com/jsonbot
-email: bthate@gmail.com
-IRC: dunker in channel #dunkbots / irc.freenode.net
-xmpp: bthate@gmail.com and bart@jsonbot.org
-
-About:
+Source
 ------
+
+* tarball - http://jsonbot.googlecode.com
+* mercurial - http://jsonbot.googlecode.com/hg
+* github - https://github.com/jsonbot
+
+Demo
+----
+
+* webconsole - http://jsonbot.appspot.com
+* xmpp - jsonbot@jsonbot.org (shell) and jsonbot@appspot.com (GAE)
+* IRC - jsonbot on irc.freenode.net
+* Convore - https://convore.com/convore-8/welcome-to-convore/ relaying with #convore on irc.freenode.net
+
+Docs
+----
+
+* new jsonbot.org site .. http://jsonbot.org
+* GAE backup docs .. http://jsonbot.appspot.com/docs
+
+Contact
+-------
+
+* twitter: https://twitter.com/#!/jsonbot
+* facebook: http://tinyurl.com/jsonbot
+* email: bthate@gmail.com
+* IRC: dunker in channel #dunkbots / irc.freenode.net
+* xmpp: bthate@gmail.com and bart@jsonbot.org
+
+About
+-----
 
 JSONBOT is a remote event-driven framework for building bots that talk JSON
 to each other over XMPP.
@@ -89,8 +89,8 @@ JSONBOT is all of the following:
     * plugin infrastructure to write your own functionality
     * event driven framework by the use of callbacks
 
-Install:
---------
+Install
+-------
 
 You dont need to run the bot on GAE when you just want to use the shell bots of JSONBOT.
 JSONBOT can best be run from the bot dir, the bot is self contained and has all the dependancies that are needed:
