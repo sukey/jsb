@@ -55,6 +55,7 @@ setup(
     description='The bot for you!',
     license='MIT',
     scripts=['bin/jsb',
+             'bin/jsb-convore',
              'bin/jsb-init',
              'bin/jsb-irc', 
              'bin/jsb-fleet', 
