@@ -154,3 +154,10 @@ jsb.plugs.myplugs code
 
         /jsb/plugs/myplugs/index
         
+notes
+~~~~~
+
+    .. toctree::
+        :maxdepth: 2
+
+        notes/index
