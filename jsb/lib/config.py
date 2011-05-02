@@ -56,7 +56,7 @@ class Config(LazyDict):
         self.datadir = ddir or getdatadir()
         self.dir = self.datadir + os.sep + 'config'
         self.cfile = self.dir + os.sep + self.filename
-        logging.debug("config - filename is %s" % self.cfile)
+        logging.debug("filename is %s" % self.cfile)
         self.jsondb = None
         try: import waveapi ; self.isdb = True
         except ImportError: self.isdb = False
@@ -70,7 +70,7 @@ class Config(LazyDict):
                 self.jsondb = Persist(cfile)
                 self.update(self.jsondb.data)
                 self.isdb = True
-                logging.debug("config - fromdb - %s - %s" % (self.cfile, str(self)))
+                logging.debug("fromdb - %s - %s" % (self.cfile, str(self)))
         except ImportError:
             handle_exception()
             self.isdb = False
@@ -92,7 +92,7 @@ class Config(LazyDict):
         """ merge in another cfg. """
         f = self.cfile
         self.update(cfg)
-        self.cfile = f
+        if f: self.cfile = f
 
     def set(self, item, value):
         """ set item to value. """
@@ -101,7 +101,7 @@ class Config(LazyDict):
     def fromdb(self):
         """ read config from database. """
         from jsb.lib.persist import Persist
-        logging.info("config - fromdb - %s" % self.cfile)
+        logging.info("fromdb - %s" % self.cfile)
         tmp = Persist(self.cfile)
         self.update(tmp.data)
 
@@ -119,7 +119,7 @@ class Config(LazyDict):
         """ read config object from filename. """
         curline = ""
         fname = filename or self.cfile
-        if not fname: raise Exception("config - %s - %s" % (self.cfile, self.dump()))
+        if not fname: raise Exception(" %s - %s" % (self.cfile, self.dump()))
         if not os.path.exists(fname): return False 
         comment = ""
         for line in open(fname, 'r'):
@@ -134,7 +134,7 @@ class Config(LazyDict):
                     self[kkey] = json.loads(unicode(value.strip()))
                     if comment: self.comments[kkey] = comment 
                     comment = ""
-                except ValueError: logging.warn("config - skipping line - unable to parse: %s" % line)
+                except ValueError: logging.warn("skipping line - unable to parse: %s" % line)
         #self.cfile = fname
         return
 
@@ -147,7 +147,7 @@ class Config(LazyDict):
         except ImportError:
             logging.debug("can't save %s to file .. os.mkdir() not suported" % filename)
             return
-        logging.debug("config - saving %s" % filename)
+        logging.debug("saving %s" % filename)
         if filename.startswith(os.sep): d = [os.sep,]
         else: d = []
         for p in filename.split(os.sep)[:-1]:
@@ -184,7 +184,7 @@ class Config(LazyDict):
                     configtmp.write(self.comments[keyword] + u"\n")
                 curitem = keyword
                 try: configtmp.write('%s = %s\n' % (keyword, json.dumps(value)))
-                except TypeError: logging.error("config - %s - can't serialize %s" % (filename, keyword)) ; continue
+                except TypeError: logging.error("%s - can't serialize %s" % (filename, keyword)) ; continue
                 teller += 1
                 configtmp.write("\n")
             configtmp.close()
@@ -197,7 +197,7 @@ class Config(LazyDict):
 
     def save(self):
         """ save the config. """
-        logging.info("config - save called from %s" % calledfrom(sys._getframe(1)))
+        logging.info("save called from %s" % calledfrom(sys._getframe(1)))
         if self.isdb: self.todb()
         else: self.tofile()
      
@@ -205,7 +205,7 @@ class Config(LazyDict):
         """ load the config file. """
         if self.isdb: self.fromdb()
         else: self.fromfile()
-        if verbose: logging.debug('config - %s' % self.dump())
+        if verbose: logging.debug('%s' % self.dump())
 
     def init(self):
         """ initialize the config object. """
@@ -369,7 +369,7 @@ def makedefaultconfig(type, ddir=None):
     for i in splitted[:-1]:
         mdir += "%s%s" % (i, os.sep)
         if not os.path.isdir(mdir): os.mkdir(mdir)
-    logging.debug("config - filename is %s" % cfile)
+    logging.debug("filename is %s" % cfile)
     f = open(cfile, "w")
     if type == "irc": f.write(irctemplate) ; f.close()
     elif type == "sxmpp": f.write(xmpptemplate) ; f.close()

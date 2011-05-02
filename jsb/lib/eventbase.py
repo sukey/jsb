@@ -61,7 +61,7 @@ class EventBase(LazyDict):
         
     def __deepcopy__(self, a):
         """ deepcopy an event. """
-        logging.debug("eventbase - cpy - %s" % type(self))
+        logging.debug("cpy - %s" % type(self))
         e = EventBase(self)
         return e
 
@@ -99,15 +99,15 @@ class EventBase(LazyDict):
             if chan: self.chan = chan
             elif self.channel: self.chan = ChannelBase(self.channel, bot.cfg.name)
             elif self.userhost: self.chan = ChannelBase(self.userhost, bot.cfg.name)
-            logging.debug("eventbase - binding channel - %s" % str(self.chan))
+            logging.debug("binding channel - %s" % str(self.chan))
         if not target: self.prepare(bot) ; self.bonded = True ; return
         if not self.user and target:
             cfg = Config()
             if cfg.auto_register: 
                 bot.users.addguest(target)
             self.user = user or bot.users.getuser(target)
-            logging.debug("eventbase - binding user - %s - from %s" % (str(self.user), whichmodule()))
-        if not self.user and target: logging.info("eventbase - no %s user found .. setting nodispatch" % target) ; self.nodispatch = True
+            logging.debug("binding user - %s - from %s" % (str(self.user), whichmodule()))
+        if not self.user and target: logging.info("no %s user found .. setting nodispatch" % target) ; self.nodispatch = True
         self.prepare(bot)
         self.bonded = True
         return self
@@ -123,7 +123,7 @@ class EventBase(LazyDict):
 
     def waitfor(self, cb):
         """ wait for the event to finish. """
-        logging.warn("eventbase - waiting for %s" % self.txt)
+        logging.warn(" waiting for %s" % self.txt)
         #self.finished.wait(5)
         self.cbs.append(cb)
         return True
@@ -175,7 +175,7 @@ class EventBase(LazyDict):
         try: self.options = makeeventopts(self.txt)
         except: return 
         if not self.options: return
-        logging.debug("eventbase - options - %s" % unicode(self.options))
+        logging.debug("options - %s" % unicode(self.options))
         self.txt = ' '.join(self.options.args)
         self.makeargs()
 
@@ -219,18 +219,18 @@ class EventBase(LazyDict):
 
     def iscmnd(self):
         """ check if event is a command. """
-        if not self.txt: logging.debug("eventbase - no txt set.") ; return
+        if not self.txt: logging.debug("no txt set.") ; return
         if self.iscommand: return self.txt
-        if self.isremote(): logging.info("eventbase - event is remote") ; return
-        logging.debug("eventbase - trying to match %s" % self.txt)
+        if self.isremote(): logging.info("event is remote") ; return
+        logging.debug("trying to match %s" % self.txt)
         cc = "!"
-        if not self.chan: logging.warn("eventbase - channel is not set.") ; return False
+        if not self.chan: logging.warn("channel is not set.") ; return False
         cc = self.chan.data.cc
         if not cc: self.chan.data.cc = "!" ; self.chan.save()
         if not cc: cc = "!"
         if self.type == "DISPATCH": cc += "!"
-        if not self.bot: logging.warn("eventbase - bot is not bind into event.") ; return False
-        logging.debug("eventbase - cc for %s is %s (%s)" % (self.title or self.channel or self.userhost, cc, self.bot.cfg.nick))
+        if not self.bot: logging.warn("bot is not bind into event.") ; return False
+        logging.debug("cc for %s is %s (%s)" % (self.title or self.channel or self.userhost, cc, self.bot.cfg.nick))
         if self.txt[0] in cc: return self.txt[1:]
         matchnick = unicode(self.bot.cfg.nick + u":")
         if self.txt.startswith(matchnick): return self.txt[len(matchnick):]

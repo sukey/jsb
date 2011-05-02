@@ -112,7 +112,7 @@ class Fleet(Persist):
         cfg.type = type
         cfg.save()
 
-    def makebot(self, type, name, domain="", config={}, showerror=False):
+    def makebot(self, type, name, config={}, domain="", showerror=False):
         """ create a bot .. use configuration if provided. """
         assert type
         assert name
