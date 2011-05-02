@@ -200,24 +200,27 @@ class BotBase(LazyDict):
     def _getqueue(self):
         """ get one of the outqueues. """
         go = self.tickqueue.get()
+        q = []
         for index in range(len(self.outqueues)):
-            if not self.outqueues[index].empty(): return self.outqueues[index]
+            if not self.outqueues[index].empty(): q.append(self.outqueues[index])
+        return q
 
     def _outloop(self):
         """ output loop. """
         logging.debug('%s - starting output loop' % self.cfg.name)
         self.stopoutloop = 0
         while not self.stopped and not self.stopoutloop:
-            queue = self._getqueue()
-            if queue:
-                try:
-                    res = queue.get() 
-                except Queue.Empty: continue
-                if not res: continue
-                if not self.stopped and not self.stopoutloop:
-                    logging.debug("%s - OUT - %s - %s" % (self.cfg.name, self.type, str(res))) 
-                    self.out(*res)
-            time.sleep(0.1)
+            queues = self._getqueue()
+            if queues:
+                for queue in queues:
+                    try:
+                        res = queue.get_nowait() 
+                    except Queue.Empty: continue
+                    if not res: continue
+                    if not self.stopped and not self.stopoutloop:
+                        logging.debug("%s - OUT - %s - %s" % (self.cfg.name, self.type, str(res))) 
+                        self.out(*res)
+                    time.sleep(0.01)
         logging.debug('%s - stopping output loop' % self.cfg.name)
 
     def putonqueue(self, nr, *args):

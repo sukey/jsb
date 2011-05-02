@@ -77,6 +77,7 @@ class Config(LazyDict):
         self.init()
         if not self.owner: self.owner = []
         if not self.uuid: self.uuid = str(uuid.uuid4())
+        self.cfile = self.dir + os.sep + self.filename
 
     def __deepcopy__(self, a):
         """ accessor function. """
@@ -141,6 +142,7 @@ class Config(LazyDict):
     def tofile(self, filename=None):
         """ save config object to file. """
         if not filename: filename = self.cfile
+        if not filename: raise Exception("no cfile in %s" % str(self))
         try: from os import mkdir
         except ImportError:
             logging.debug("can't save %s to file .. os.mkdir() not suported" % filename)

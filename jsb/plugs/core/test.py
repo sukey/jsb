@@ -59,7 +59,7 @@ def dotest(bot, event):
             cmnd = "!" + example.strip()
             event.reply('command: ' + cmnd)
             time.sleep(0.001)
-            bot.putevent(event.userhost, event.channel, cmnd, event=event)
+            bot.putevent(event.auth, event.channel, cmnd, event=event)
             if not bot.isgae: waiting.append(event)
             teller += 1
         event.reply("%s commands executed" % teller)

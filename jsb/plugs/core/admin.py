@@ -143,7 +143,7 @@ examples.add("admin-setstatus", "set status of sxmpp bot", "admin-setstatus avai
 
 def handle_adminreloadconfig(bot, event):
     try:
-        #bot.cfg.reload()
+        bot.cfg.reload()
         getmainconfig().reload()
     except Exception, ex: handle_exception()
     event.done()
