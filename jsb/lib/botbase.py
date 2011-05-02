@@ -333,7 +333,7 @@ class BotBase(LazyDict):
                     logging.debug(logtxt)
                 else: logging.info(logtxt)
         event.bind(self)
-        logging.debug("%s - event dump: %s" % (self.cfg.name, event.dump()))
+        logging.debug("%s - event dump: %s" % (self.cfg.name, event.tojson()))
         self.status = "callback"
         starttime = time.time()
         if self.closed:

@@ -99,8 +99,8 @@ class LazyDict(dict):
 
     def __setattr__(self, attr, value):
         """ set attribute. """
-        if self.has_key(attr) and type(self[attr]) in [types.FunctionType, types.MethodType]:
-            mod = whichmodule()
+        if not self.overload and self.has_key(attr) and type(self[attr]) in [types.FunctionType, types.MethodType]:
+            mod = whichmodule(2)
             logging.error("lazydict - cannot change a function of method: %s - called from %s" % (attr, mod))
             return
         self[attr] = value

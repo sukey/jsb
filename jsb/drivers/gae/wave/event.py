@@ -39,6 +39,7 @@ class WaveEvent(EventBase):
         self.gadget = None
         self.result = []
         self.cbtype = "BLIP_SUBMITTED"
+        self.overload = True
 
     def parse(self, bot, event, wavelet):
         """ parse properties and context into a WaveEvent. """
