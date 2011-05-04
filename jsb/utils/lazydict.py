@@ -18,7 +18,6 @@ json = getjson()
 from  xml.sax.saxutils import unescape
 import copy
 import logging
-import uuid
 import types
 import threading
 import os

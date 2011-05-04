@@ -76,7 +76,7 @@ class Config(LazyDict):
             self.isdb = False
         self.init()
         if not self.owner: self.owner = []
-        if not self.uuid: self.uuid = str(uuid.uuid4())
+        if not self.uuid: self.uuid = str(uuid.uuid4()) ; self.save()
         self.cfile = self.dir + os.sep + self.filename
 
     def __deepcopy__(self, a):

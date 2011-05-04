@@ -32,11 +32,11 @@ class ConsoleEvent(EventBase):
         self.bot = bot
         self.console = console
         self.nick = getpass.getuser()
-        self.auth = self.nick + '@' + bot.uuid
+        self.auth = self.nick + '@' + bot.cfg.uuid
         self.userhost = self.auth
         self.origin = self.userhost
         self.txt = input
         self.usercmnd = input.split()[0]
         self.channel = self.userhost
         self.cbtype = self.cmnd = unicode("CONSOLE")
-        self.bind(bot)
+        #self.bind(bot)

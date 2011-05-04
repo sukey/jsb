@@ -18,7 +18,6 @@ from jsb.lib.errors import NoChannelProvided, NoChannelSet
 import time
 import os
 import logging
-import uuid
 
 ## classes
 

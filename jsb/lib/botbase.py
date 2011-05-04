@@ -101,11 +101,6 @@ class BotBase(LazyDict):
         self.type = "base"
         self.status = "init"
         self.networkname = self.cfg.networkname or self.cfg.name or ""
-        if not self.uuid:
-            if self.cfg and self.cfg.uuid: self.uuid = self.cfg.uuid
-            else:
-                self.uuid = self.cfg.uuid = uuid.uuid4()
-                self.cfg.save()
         if self.cfg and not self.cfg.followlist: self.cfg.followlist = [] ; self.cfg.save()
         from jsb.lib.datadir import getdatadir
         datadir = getdatadir()
@@ -585,7 +580,7 @@ class BotBase(LazyDict):
         e.botname = botname or self.cfg.name
         e.bottype = bottype or self.type
         e.origin = e.botname
-        e.ruserhost = self.cfg.name +'@' + self.uuid
+        e.ruserhost = self.cfg.name +'@' + self.cfg.uuid
         e.userhost = e.ruserhost
         e.channel = botname
         e.origtxt = str(time.time())
@@ -607,7 +602,7 @@ class BotBase(LazyDict):
             return
         e.bot = self
         e.origin = origin
-        e.ruserhost = self.cfg.name +'@' + self.uuid
+        e.ruserhost = self.cfg.name +'@' + self.cfg.uuid
         e.userhost = e.ruserhost
         e.auth = e.userhost
         e.channel = channel
