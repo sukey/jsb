@@ -48,7 +48,7 @@ def makeircopts(txt=""):
     parser.add_option('', '--ssl', action='store_true', default=False, dest='ssl',  help="use ssl")
     parser.add_option('-y', '--nossl', action='store_true', default=False, dest='nossl',  help="don't use ssl")
     parser.add_option('-6', '--ipv6', action='store_true', default=False, dest='ipv6', help="enable ipv6 bot")
-    parser.add_option('-u', '--user', type="string", default=False, dest='user', help="user to auth to server with")
+    parser.add_option('-u', '--username', type="string", default=False, dest='username', help="user to auth to server with")
     if txt: opts, args = parser.parse_args(txt.split())
     else: opts, args = parser.parse_args()
     opts.args = args
@@ -183,8 +183,8 @@ def makeircconfig(opts=None, botname=None):
     if opts.ipv6: cfg.ipv6 = opts.ipv6
     if opts.nick: cfg.nick = opts.nick
     else: cfg.nick = cfg.nick or "jsb"
-    if opts.user: cfg.user = opts.user
-    else: cfg.user = cfg.user or "jsonbot"
+    if opts.username: cfg.username = opts.username
+    else: cfg.username = cfg.username or "jsonbot"
     return cfg
 
 ## makexmppconfig function
