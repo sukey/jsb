@@ -118,7 +118,7 @@ def fleet_disable(bot, ievent):
     for name in bots:
         bot = fleet.byname(name)
         if bot:
-            bot.cfg['enable'] = 0
+            bot.cfg['disable'] = 1
             bot.cfg.save()
             ievent.reply('disabled %s' % name)
             fleet.exit(name)
