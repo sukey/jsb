@@ -114,6 +114,7 @@ def fleet_disable(bot, ievent):
         return
     bots = ievent.rest.split()
     fleet = getfleet()
+    fleet.loadall()
     for name in bots:
         bot = fleet.byname(name)
         if bot:
