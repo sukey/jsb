@@ -271,9 +271,9 @@ class Irc(BotBase):
     def logon(self):
         """ log on to the network. """
         time.sleep(2)
-        if self.password:
+        if self.cfg.password:
             logging.debug('%s - sending password' % self.cfg.name)
-            self._raw("PASS %s" % self.password)
+            self._raw("PASS %s" % self.cfg.password)
         logging.warn('%s - registering with %s using nick %s' % (self.cfg.name, self.cfg.server, self.cfg.nick))
         logging.warn('%s - this may take a while' % self.cfg.name)
         username = self.cfg['username'] or "jsb"

@@ -48,6 +48,7 @@ def makeircopts(txt=""):
     parser.add_option('', '--ssl', action='store_true', default=False, dest='ssl',  help="use ssl")
     parser.add_option('-y', '--nossl', action='store_true', default=False, dest='nossl',  help="don't use ssl")
     parser.add_option('-6', '--ipv6', action='store_true', default=False, dest='ipv6', help="enable ipv6 bot")
+    parser.add_option('-u', '--user', type="string", default=False, dest='user', help="user to auth to server with")
     if txt: opts, args = parser.parse_args(txt.split())
     else: opts, args = parser.parse_args()
     opts.args = args
@@ -173,8 +174,8 @@ def makeircconfig(opts=None, botname=None):
     if opts.password: cfg.password = opts.password
     if opts.ssl: cfg.ssl = True
     if opts.nossl: cfg.ssl = False
-    if opts.port: cfg.port = opts.port
-    else: cfg.port = 6667
+    if opts.port: cfg.port = opts.port or cfg.port or 6667
+    else: cfg.port = cfg.port or 6667
     if opts.server: cfg.server = opts.server
     else: cfg.server = cfg.server or "localhost"
     if not cfg.owner: cfg.owner = []
@@ -182,6 +183,8 @@ def makeircconfig(opts=None, botname=None):
     if opts.ipv6: cfg.ipv6 = opts.ipv6
     if opts.nick: cfg.nick = opts.nick
     else: cfg.nick = cfg.nick or "jsb"
+    if opts.user: cfg.user = opts.user
+    else: cfg.user = cfg.user or "jsonbot"
     return cfg
 
 ## makexmppconfig function
