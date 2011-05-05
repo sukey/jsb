@@ -114,7 +114,7 @@ class IRCBot(Irc):
                 res = sockfile.readline()
                 logging.debug("%s - dcc - %s got %s" % (self.cfg.name, userhost, res))
                 if self.stopped or not res:
-                    logging.warn('%s - closing dcc with %s' % (self.cfg,name, nick))
+                    logging.warn('%s - closing dcc with %s' % (self.cfg.name, nick))
                     partyline.del_party(nick)
                     return
             except socket.timeout:
