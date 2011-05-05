@@ -30,7 +30,7 @@
 
 ## jsb imports
 
-from jsb.lib.fleet import fleet
+from jsb.lib.fleet import getfleet
 from jsb.utils.exception import handle_exception
 from jsb.utils.generic import strippedtxt
 from jsb.utils.locking import lockdec
@@ -121,7 +121,7 @@ class Udplistener(object):
         """ listen for udp messages .. /msg via bot"""
         if not cfg['udp']: return
         for botname in cfg['udpbots']:
-            if not fleet.byname(botname): logging.info("udp - can't find %s bot" % botname)
+            if not getfleet().byname(botname): logging.info("udp - can't find %s bot" % botname)
         try:
             fleet.startok.wait(5)
             self.sock.bind((cfg['udphost'], cfg['udpport']))
