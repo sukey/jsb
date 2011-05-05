@@ -69,7 +69,7 @@ class WaveBot(BotBase, robot.Robot):
         else: self.cfg.domain = getmainconfig().domain or "wave,google.com"
         self.cfg.nick = self.cfg.nick or name or "gae-wave"
         self.overload = True
-        robot.Robot.__init__(self, name=self.cfg.nick, image_url=image_url, profile_url=profile_url)
+        robot.Robot.__init__(self, name=getmainconfig().app_id or self.cfg.nick, image_url=image_url, profile_url=profile_url)
         credentials = _import_byfile("credentials", getdatadir() + os.sep + "config" + os.sep + "credentials.py")
         self.set_verification_token_info(credentials.verification_token[self.cfg.domain], credentials.verification_secret[self.cfg.domain])
         self.setup_oauth(credentials.Consumer_Key[self.cfg.domain], credentials.Consumer_Secret[self.cfg.domain],

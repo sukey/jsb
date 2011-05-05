@@ -157,6 +157,7 @@ def toenc(what, encoding='utf-8'):
 def fromenc(txt, encoding='utf-8', what=""):
     """ convert from encoding. """
     if not txt: txt = u""
+    if type(txt) == types.UnicodeType: return txt
     try: return txt.decode(encoding)
     except UnicodeDecodeError:
         logging.debug("%s - can't decode %s - decoding per char" % (whichmodule(), encoding))
