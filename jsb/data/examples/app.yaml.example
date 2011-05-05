@@ -31,7 +31,7 @@ handlers:
 
 - url: /tasks.*
   script: handler_task.py
-  login: required
+  login: admin
   secure: always
 
 - url: /assets/(.*)
