@@ -80,7 +80,8 @@ examples.add("items", "show what items the bot knows", "items")
 ## callbacks
 
 def prelearn(bot, event):
-    if len(event.txt) < 2: return
+    if event.iscmnd(): return False
+    if len(event.txt) < 2: return False
     if event.txt and (event.txt[0] == "?" or event.txt[-1] == "?") and not event.forwarded: return True
     return False
 
@@ -88,7 +89,7 @@ def learncb(bot, event):
     if bot.type == "convore" and not event.chan.data.enable: return
     event.bind(bot)
     items = PlugPersist(event.channel)
-    target = event.txt.lower().split('!')[0]
+    target = event.txt.lower()
     if target[0] == "?": target = target[1:]
     if target[-1] == "?": target = target[:-1]
     if target in items.data: event.reply("%s is " % target, items.data[target], dot=", ")
