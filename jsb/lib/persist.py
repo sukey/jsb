@@ -259,8 +259,9 @@ except ImportError:
 
         def save(self):
             global needsaving
+            r = []
             for p in needsaving:
-                try: p.dosave(); needsaving.remove(p)
+                try: p.dosave() ; r.append(p)
                 except (OSError, IOError): logging.error("failed to save %s" % p)
             try: self.dosave()
             except IOError:
@@ -268,8 +269,11 @@ except ImportError:
                 if self not in needsaving: needsaving.append(self)
                 time.sleep(0.1)
                 for p in needsaving:
-                    try: p.dosave(); needsaving.remove(p)
+                    try: p.dosave(); r.append(p)
                     except (OSError, IOError): logging.error("failed to save %s" % p)
+            for p in r:
+                try: needsaving.remove(p)
+                except ValueError: pass
 
         def dosave(self):
             """ persist data attribute. """

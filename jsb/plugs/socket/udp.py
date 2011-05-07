@@ -125,8 +125,8 @@ class Udplistener(object):
             if not fleet.byname(botname): logging.info("udp - can't find %s bot" % botname)
         try:
             fleet.startok.wait(5)
-            self.sock.bind((cfg['udphost'], cfg['udpport']))
             logging.warn('udp listening on %s %s' % (cfg['udphost'], cfg['udpport']))
+            self.sock.bind((cfg['udphost'], cfg['udpport']))
             self.stop = 0
         except IOError:
             handle_exception()
