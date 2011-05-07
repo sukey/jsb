@@ -120,7 +120,7 @@ class Fleet(Persist):
         if config: logging.warn('fleet - making %s (%s) bot - %s' % (type, name, config.dump()))
         bot = None
         cfg = Config('fleet' + os.sep + stripname(name) + os.sep + 'config')
-        if config: cfg.update(config) 
+        if config: cfg.merge(config) 
         if not cfg.name: cfg['name'] = name
         cfg['botname'] = cfg['name']
         if cfg.disable:

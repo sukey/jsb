@@ -264,7 +264,7 @@ except ImportError:
                 try: p.dosave() ; r.append(p)
                 except (OSError, IOError): logging.error("failed to save %s" % p)
             try: self.dosave()
-            except IOError:
+            except (IOError, OSError):
                 self.sync()
                 if self not in needsaving: needsaving.append(self)
                 time.sleep(0.1)
@@ -297,13 +297,13 @@ except ImportError:
                 datafile.close()
                 try: os.rename(tmp, fn)
                 except OSError:
-                    handle_exception(tmp + ' ' + fn)
+                    handle_exception(txt="%s %s" % (tmp, fn))
                     os.remove(fn)
                     os.rename(tmp, fn)
                 if 'lastpoll' in self.logname: logging.debug('%s saved (%s)' % (self.logname, len(self.data)))
                 else: logging.warn('%s saved (%s)' % (self.logname, len(self.data)))
             except IOError, ex: logging.warn("not saving %s: %s" % (self.fn, str(ex))) ; raise
-            except: handle_exception()
+            except: raise
             finally: pass
 
 class PlugPersist(Persist):

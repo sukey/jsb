@@ -16,7 +16,8 @@ def handle_ignore(bot, event):
     nick = event.rest
     userhost = getwho(bot, nick)
     if not userhost: userhost = event.rest
-    if "OPER" in users.getperms(userhost): event.reply("can't ignore OPER") ; return
+    perms = users.getperms(userhost)
+    if perms and "OPER" in perms: event.reply("can't ignore OPER") ; return
     if not userhost in bot.ignore: bot.ignore.append(userhost)
     event.reply("%s added to ignore list" % event.userhost)
 

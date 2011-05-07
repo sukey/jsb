@@ -65,19 +65,21 @@ class BotBase(LazyDict):
 
     """ base class for all bots. """
 
-    def __init__(self, cfg=None, usersin=None, plugs=None, botname=None, nick=None, *args, **kwargs):
+    def __init__(self, cfg=None, usersin=None, plugs=None, botname=None, nick=None, input={}, *args, **kwargs):
+        if input: LazyDict.__init__(self, input) ; return self
+        else: LazyDict.__init__(self)
         logging.info("botbase - type is %s" % str(type(self)))
-        if cfg: cfg = LazyDict(cfg)
-        if cfg and not botname: botname = cfg.botname or cfg.name
+        if cfg and not botname:
+             try: botname = cfg['name']
+             except KeyError: pass
         if not botname: botname = u"default-%s" % str(type(self)).split('.')[-1][:-2]
         if not botname: raise Exception("can't determine type")
         self.fleetdir = u'fleet' + os.sep + stripname(botname)
-        self.cfg = Config(self.fleetdir + os.sep + u'config')
-        if cfg: self.cfg.merge(cfg)
+        if cfg: self.cfg = cfg
+        else: self.cfg = Config(self.fleetdir + os.sep + u'config')
         self.cfg.name = botname
         if not self.cfg.name: raise Exception("botbase - name is not set in %s config file" % self.fleetdir)
         logging.info("botbase - name is %s" % self.cfg.name)
-        LazyDict.__init__(self)
         self.ignore = []
         self.ids = []
         self.aliases = getaliases()
@@ -141,8 +143,7 @@ class BotBase(LazyDict):
     def __deepcopy__(self, a):
         """ deepcopy an event. """  
         logging.debug("botbase - cpy - %s" % type(self))
-        bot = BotBase(self.cfg) 
-        bot.copyin(self)
+        bot = BotBase(self) 
         return bot
 
     def copyin(self, data):

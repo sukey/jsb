@@ -67,7 +67,7 @@ class Config(LazyDict):
                 logging.warn("can't read config from %s" % self.cfile) 
                 import waveapi
                 from persist import Persist
-                self.jsondb = Persist(cfile)
+                self.jsondb = Persist(self.cfile)
                 self.update(self.jsondb.data)
                 self.isdb = True
                 logging.debug("fromdb - %s - %s" % (self.cfile, str(self)))
@@ -142,7 +142,7 @@ class Config(LazyDict):
     def tofile(self, filename=None):
         """ save config object to file. """
         if not filename: filename = self.cfile
-        if not filename: raise Exception("no cfile in %s" % str(self))
+        if not filename: raise Exception("no cfile found  - %s" % whichmodule(1))
         try: from os import mkdir
         except ImportError:
             logging.debug("can't save %s to file .. os.mkdir() not suported" % filename)
