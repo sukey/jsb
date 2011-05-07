@@ -120,8 +120,9 @@ class Udplistener(object):
     def _listen(self):
         """ listen for udp messages .. /msg via bot"""
         if not cfg['udp']: return
+        fleet = getfleet()
         for botname in cfg['udpbots']:
-            if not getfleet().byname(botname): logging.info("udp - can't find %s bot" % botname)
+            if not fleet.byname(botname): logging.info("udp - can't find %s bot" % botname)
         try:
             fleet.startok.wait(5)
             self.sock.bind((cfg['udphost'], cfg['udpport']))
