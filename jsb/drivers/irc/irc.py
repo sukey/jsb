@@ -39,6 +39,7 @@ import random
 import logging
 import types
 import re
+import ssl
 
 ## locks
 
@@ -88,12 +89,7 @@ class Irc(BotBase):
             if not self.sock: logging.warn("%s - socket disappeared - not sending." % self.cfg.name) ; return
             if self.cfg.has_key('ssl') and self.cfg['ssl']: self.sock.write(itxt + '\n')
             else: self.sock.send(itxt[:500] + '\n')
-        except UnicodeEncodeError, ex:
-            logging.error("%s - encoding error: %s" % (self.cfg.name, str(ex)))
-            return
-        except Exception, ex:
-            handle_exception()
-            logging.warn("%s - ERROR: can't send %s" % (self.cfg.name, str(ex)))
+        except Exception, ex: logging.error("%s - can't send: %s" % (self.cfg.name, str(ex)))
 
     def _connect(self):
         """ connect to server/port using nick. """
@@ -209,6 +205,7 @@ class Irc(BotBase):
             except UnicodeError:
                 handle_exception()
                 continue
+            except ssl.SSLError, ex: logging.error("%s - ssl error: %s" % (self.cfg.name, str(ex))) ; break
             except socket.timeout:
                 if self.stopped or self.stopreadloop: break
                 timeout += 1
