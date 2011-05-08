@@ -19,7 +19,7 @@ def handle_ignore(bot, event):
     perms = users.getperms(userhost)
     if perms and "OPER" in perms: event.reply("can't ignore OPER") ; return
     if not userhost in bot.ignore: bot.ignore.append(userhost)
-    event.reply("%s added to ignore list" % event.userhost)
+    event.reply("%s added to ignore list" % userhost)
 
 cmnds.add("ignore", handle_ignore, ["OPER", "IGNORE"])
 examples.add("ignore", "ignore a user or userhost (JID)", "ignore dunker")
