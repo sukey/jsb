@@ -31,7 +31,7 @@ first_callbacks.add("DISPATCH", echocb, echopre)
 
 def handle_echo(bot, event):
     """ echo txt to channel. """
-    if event.how != "background" and not event.iscmnd() and not event.isremote:
+    if event.how != "background" and not event.isremote():
         if not event.isdcc: bot.saynocb(event.channel, u"[%s] %s" % (event.nick, event.txt))
             
 cmnds.add("echo", handle_echo, ['OPER', 'USER'])
