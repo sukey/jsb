@@ -69,7 +69,7 @@ def sanitize(text):
 
 def getUrls(text):
     """ get valid urls. """
-    regex = r"http[s]?://[-A-Za-z0-9+&@#/%=~_()|!:,.;]*[-A-Za-z0-9+&@#/%=~_()|]"
+    regex = r"http[s]?://[-A-Za-z0-9+&@#/%=~_()|!:,.;?]*[-A-Za-z0-9+&@#/%=~_()|?]"
     p = re.compile(regex)
     urls = []
     for i in text.split(' '):
