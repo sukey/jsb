@@ -15,16 +15,9 @@ class Pdod(Persist):
 
     """ pickled dicts of dicts """
 
-    def __init__(self, filename):
-        Persist.__init__(self, filename)
-        if not self.data: self.data = LazyDict()
-
     def __getitem__(self, name):
         """ return item with name """
         if self.data.has_key(name): return self.data[name]
-
-    def save(self):
-        Persist.save(self)
 
     def __delitem__(self, name):
         """ delete name item """

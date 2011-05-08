@@ -61,6 +61,9 @@ if opts.owner:
     u = users.users_boot()
     u.make_owner(opts.owner)
 
+if opts.name: cfg.name = name
+else: cfg.name = "default-irc"
+
 ## resume or start the bot
 
 if opts.doresume and os.path.isfile(opts.doresume):

@@ -31,6 +31,7 @@ class NSAuth(Pdod):
     def __init__(self):
         self.registered = False
         Pdod.__init__(self, getdatadir() + os.sep + 'plugs' + os.sep + 'jsb.plugs.nickserv' + os.sep + 'nickserv')
+        print self.data
 
     def add(self, bot, **kwargs):
         """ add a nickserv entry. """
@@ -63,7 +64,7 @@ class NSAuth(Pdod):
         """ identify a bot to nickserv. """
         if self.has_key(bot.cfg.name):
             logging.warn('nickserv - identify sent on %s' % bot.cfg.server)
-            bot.outnocb(self.get(bot.cfg.name, 'nickserv', ), '%s %s' % (self.get(bot.cfg.name, 'identify'), self.get(bot.cfg.name, 'password')), how="msg")
+            bot.outnocb(self.get(bot.cfg.name, 'nickserv'), '%s %s' % (self.get(bot.cfg.name, 'identify'), self.get(bot.cfg.name, 'password')), how="msg")
 
     def listbots(self):
         """ list all bots know. """

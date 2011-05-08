@@ -236,11 +236,11 @@ except ImportError:
                     d = LazyDict()
                     d.update(self.data)
                     self.data = d
-                logging.debug("%s - loaded %s" % (cachetype, self.fn))
+                logging.warn("%s - loaded %s" % (cachetype, self.fn))
                 if not 'run' in self.fn: 
                     size = len(data)
-                    if gotcache: logging.debug("cache - loaded %s (%s) - %s - %s" % (self.logname, size, self.data.tojson(), cfrom))
-                    else: logging.debug("file - loaded %s (%s) - %s - %s" % (self.logname, size, self.data.tojson(), cfrom))
+                    if gotcache: logging.warn("cache - loaded %s (%s) - %s" % (self.logname, size, cfrom))
+                    else: logging.warn("file - loaded %s (%s) - %s" % (self.logname, size, cfrom))
             except Exception, ex:
                 logging.error('ERROR: %s' % self.fn)
                 raise

@@ -65,21 +65,19 @@ class BotBase(LazyDict):
 
     """ base class for all bots. """
 
-    def __init__(self, cfg=None, usersin=None, plugs=None, botname=None, nick=None, input={}, *args, **kwargs):
-        if input: LazyDict.__init__(self, input) ; return self
-        else: LazyDict.__init__(self)
+    def __init__(self, cfg=None, usersin=None, plugs=None, botname=None, nick=None, *args, **kwargs):
         logging.info("botbase - type is %s" % str(type(self)))
-        if cfg and not botname:
-             try: botname = cfg['name']
-             except KeyError: pass
+        if cfg: cfg = LazyDict(cfg)
+        if cfg and not botname: botname = cfg.botname or cfg.name
         if not botname: botname = u"default-%s" % str(type(self)).split('.')[-1][:-2]
         if not botname: raise Exception("can't determine type")
         self.fleetdir = u'fleet' + os.sep + stripname(botname)
-        if cfg: self.cfg = cfg
-        else: self.cfg = Config(self.fleetdir + os.sep + u'config')
+        self.cfg = Config(self.fleetdir + os.sep + u'config')
+        if cfg: self.cfg.merge(cfg)
         self.cfg.name = botname
         if not self.cfg.name: raise Exception("botbase - name is not set in %s config file" % self.fleetdir)
         logging.info("botbase - name is %s" % self.cfg.name)
+        LazyDict.__init__(self)
         self.ignore = []
         self.ids = []
         self.aliases = getaliases()
@@ -103,6 +101,11 @@ class BotBase(LazyDict):
         self.type = "base"
         self.status = "init"
         self.networkname = self.cfg.networkname or self.cfg.name or ""
+        if not self.uuid:
+            if self.cfg and self.cfg.uuid: self.uuid = self.cfg.uuid
+            else:
+                self.uuid = self.cfg.uuid = uuid.uuid4()
+                self.cfg.save()
         if self.cfg and not self.cfg.followlist: self.cfg.followlist = [] ; self.cfg.save()
         from jsb.lib.datadir import getdatadir
         datadir = getdatadir()
@@ -143,7 +146,8 @@ class BotBase(LazyDict):
     def __deepcopy__(self, a):
         """ deepcopy an event. """  
         logging.debug("botbase - cpy - %s" % type(self))
-        bot = BotBase(self) 
+        bot = BotBase(self.cfg) 
+        bot.copyin(self)
         return bot
 
     def copyin(self, data):
@@ -196,27 +200,24 @@ class BotBase(LazyDict):
     def _getqueue(self):
         """ get one of the outqueues. """
         go = self.tickqueue.get()
-        q = []
         for index in range(len(self.outqueues)):
-            if not self.outqueues[index].empty(): q.append(self.outqueues[index])
-        return q
+            if not self.outqueues[index].empty(): return self.outqueues[index]
 
     def _outloop(self):
         """ output loop. """
         logging.debug('%s - starting output loop' % self.cfg.name)
         self.stopoutloop = 0
         while not self.stopped and not self.stopoutloop:
-            queues = self._getqueue()
-            if queues:
-                for queue in queues:
-                    try:
-                        res = queue.get_nowait() 
-                    except Queue.Empty: continue
-                    if not res: continue
-                    if not self.stopped and not self.stopoutloop:
-                        logging.debug("%s - OUT - %s - %s" % (self.cfg.name, self.type, str(res))) 
-                        self.out(*res)
-                    time.sleep(0.01)
+            queue = self._getqueue()
+            if queue:
+                try:
+                    res = queue.get() 
+                except Queue.Empty: continue
+                if not res: continue
+                if not self.stopped and not self.stopoutloop:
+                    logging.debug("%s - OUT - %s - %s" % (self.cfg.name, self.type, str(res))) 
+                    self.out(*res)
+            time.sleep(0.1)
         logging.debug('%s - stopping output loop' % self.cfg.name)
 
     def putonqueue(self, nr, *args):
@@ -329,7 +330,7 @@ class BotBase(LazyDict):
                     logging.debug(logtxt)
                 else: logging.info(logtxt)
         event.bind(self)
-        logging.debug("%s - event dump: %s" % (self.cfg.name, event.tojson()))
+        logging.debug("%s - event dump: %s" % (self.cfg.name, event.dump()))
         self.status = "callback"
         starttime = time.time()
         if self.closed:
@@ -581,7 +582,7 @@ class BotBase(LazyDict):
         e.botname = botname or self.cfg.name
         e.bottype = bottype or self.type
         e.origin = e.botname
-        e.ruserhost = self.cfg.name +'@' + self.cfg.uuid
+        e.ruserhost = self.cfg.name +'@' + self.uuid
         e.userhost = e.ruserhost
         e.channel = botname
         e.origtxt = str(time.time())
@@ -603,7 +604,7 @@ class BotBase(LazyDict):
             return
         e.bot = self
         e.origin = origin
-        e.ruserhost = self.cfg.name +'@' + self.cfg.uuid
+        e.ruserhost = self.cfg.name +'@' + self.uuid
         e.userhost = e.ruserhost
         e.auth = e.userhost
         e.channel = channel
