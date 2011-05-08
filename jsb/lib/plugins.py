@@ -27,6 +27,7 @@ import Queue
 import copy
 import sys
 import thread
+import types
 
 ## defines
 
@@ -155,9 +156,14 @@ class Plugins(LazyDict):
 
     def reload(self, modname, force=False, showerror=False):
         """ reload a plugin. just load for now. """ 
-        modname = modname.replace("..", ".")
-        if self.has_key(modname): self.unload(modname)
-        return self.loaddeps(modname, force, showerror, [])
+        if type(modname) == types.ListType: loadlist = modname
+        else: loadlist = [modname, ]
+        loaded = []
+        for modname in loadlist:
+            modname = modname.replace("..", ".")
+            if self.has_key(modname): self.unload(modname)
+            loaded.append(self.loaddeps(modname, force, showerror, []))
+        return loaded
 
     def dispatch(self, bot, event, wait=0, *args, **kwargs):
         """ dispatch event onto the cmnds object. check for pipelines first. """
