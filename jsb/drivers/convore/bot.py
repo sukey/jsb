@@ -17,6 +17,7 @@ from jsb.imports import getjson, getrequests
 
 import logging
 import time
+import urllib2
 
 ## defines
 
