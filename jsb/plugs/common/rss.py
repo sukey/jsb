@@ -616,7 +616,7 @@ class Rsswatcher(Rssdict):
         res = []
         for name in self.data['names']:
             feed = self.byname(name)
-            res.append(str(feed.search(item, search)))
+            if feed: res.append(str(feed.search(item, search)))
         return res
 
     def all(self, name, item):

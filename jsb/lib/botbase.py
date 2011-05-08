@@ -15,7 +15,7 @@ from callbacks import callbacks, first_callbacks, last_callbacks, remote_callbac
 from eventbase import EventBase
 from errors import NoSuchCommand, PlugsNotConnected, NoOwnerSet, NameNotSet, NoEventProvided
 from commands import Commands, cmnds
-from config import Config
+from config import Config, getmainconfig
 from jsb.utils.pdod import Pdod
 from channelbase import ChannelBase
 from less import Less, outcache
@@ -113,7 +113,7 @@ class BotBase(LazyDict):
         self.owner = self.cfg.owner
         if not self.owner:
             logging.debug(u"owner is not set in %s - using mainconfig" % self.cfg.cfile)
-            self.owner = Config().owner
+            self.owner = getmainconfig().owner
         self.setusers(usersin)
         logging.info(u"botbase - owner is %s" % self.owner)
         self.users.make_owner(self.owner)
@@ -143,11 +143,14 @@ class BotBase(LazyDict):
             waitrunner.start()
             tickloop.start(self)
 
+    def __setattr__(self, a ,b):
+        if self.cfg and a == "cfg": raise Exception("attempt to overwrite config")
+        else: self[a] = b
+
     def __deepcopy__(self, a):
         """ deepcopy an event. """  
         logging.debug("botbase - cpy - %s" % type(self))
         bot = BotBase(self.cfg) 
-        bot.copyin(self)
         return bot
 
     def copyin(self, data):
@@ -253,7 +256,7 @@ class BotBase(LazyDict):
 
     def joinchannels(self):
         """ join channels. """
-        time.sleep(Config().waitforjoin or 5)
+        time.sleep(getmainconfig().waitforjoin or 5)
         for i in self.state['joinedchannels']:
             try:
                 logging.debug("%s - joining %s" % (self.cfg.name, i))

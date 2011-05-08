@@ -8,7 +8,7 @@
 
 from jsb.utils.exception import handle_exception
 from jsb.utils.generic import waitforqueue
-from config import Config
+from config import Config, getmainconfig
 from users import users
 from plugins import plugs
 from persist import Persist
@@ -138,7 +138,7 @@ class Fleet(Persist):
             raise Exception("no bot type specified")
         if not cfg.owner:
             logging.error("%s - owner not set .. using global config." % cfg.name) 
-            cfg.owner = Config().owner
+            cfg.owner = getmainconfig().owner
         if not cfg.domain and domain: cfg.domain = domain
         if not cfg: raise Exception("can't make config for %s" % name)
         cfg.save()

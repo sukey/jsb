@@ -50,7 +50,8 @@ class Config(LazyDict):
 
     """
 
-    def __init__(self, filename=None, verbose=False, input={}, ddir=None, *args, **kw):
+    def __init__(self, filename, verbose=False, input={}, ddir=None, *args, **kw):
+        assert filename
         LazyDict.__init__(self, input, *args, **kw)
         self.filename = filename or 'mainconfig'
         self.datadir = ddir or getdatadir()
@@ -76,27 +77,28 @@ class Config(LazyDict):
             self.isdb = False
         self.init()
         if not self.owner: self.owner = []
-        if not self.uuid: self.uuid = str(uuid.uuid4()) ; self.save()
-        self.cfile = self.dir + os.sep + self.filename
+        dosave = False
+        if not self.uuid: self.uuid = str(uuid.uuid4()) ; dosave = True
+        if not self.cfile: self.cfile = self.dir + os.sep + self.filename ; dosave = True
+        if dosave: self.save()
+        assert self.cfile
 
     def __deepcopy__(self, a):
         """ accessor function. """
-        return Config(input=self)
+        return Config(self.filename, input=self)
          
     def __getitem__(self, item):
         """ accessor function. """
         if not self.has_key(item): return None
-        else: return dict.__getitem__(self, item)
+        else: return LazyDict.__getitem__(self, item)
 
     def merge(self, cfg):
         """ merge in another cfg. """
-        f = self.cfile
         self.update(cfg)
-        if f: self.cfile = f
 
     def set(self, item, value):
         """ set item to value. """
-        dict.__setitem__(self, item, value)
+        LazyDict.__setitem__(self, item, value)
 
     def fromdb(self):
         """ read config from database. """
@@ -138,11 +140,10 @@ class Config(LazyDict):
         #self.cfile = fname
         return
 
-    @savelocked
     def tofile(self, filename=None):
         """ save config object to file. """
         if not filename: filename = self.cfile
-        if not filename: raise Exception("no cfile found  - %s" % whichmodule(1))
+        if not filename: raise Exception("no cfile found  - %s" % self.createdfrom)
         try: from os import mkdir
         except ImportError:
             logging.debug("can't save %s to file .. os.mkdir() not suported" % filename)
@@ -171,12 +172,12 @@ class Config(LazyDict):
                 value = self[keyword]
                 if keyword in written: continue
                 #if keyword == 'name': continue
-                if keyword == 'createdfrom': continue
-                if keyword == 'cfile': continue
-                if keyword == 'filename': continue
-                if keyword == 'dir': continue
+                #if keyword == 'createdfrom': continue
+                #if keyword == 'cfile': continue
+                #if keyword == 'filename': continue
+                #if keyword == 'dir': continue
                 if keyword == 'jsondb': continue
-                if keyword == 'isdb': continue
+                #if keyword == 'isdb': continue
                 if keyword == 'optionslist': continue
                 if keyword == 'gatekeeper': continue
                 if keyword == "comments": continue
@@ -195,16 +196,18 @@ class Config(LazyDict):
             handle_exception()
             print "ERROR WRITING %s CONFIG FILE: %s .. %s" % (self.cfile, str(ex), curitem)
 
+    @savelocked
     def save(self):
         """ save the config. """
         logging.info("save called from %s" % calledfrom(sys._getframe(1)))
         if self.isdb: self.todb()
-        else: self.tofile()
+        else: self.tofile(self.cfile)
      
     def load(self, verbose=False):
         """ load the config file. """
         if self.isdb: self.fromdb()
-        else: self.fromfile()
+        else: self.fromfile(self.filename)
+        self.init()
         if verbose: logging.debug('%s' % self.dump())
 
     def init(self):
@@ -237,7 +240,6 @@ class Config(LazyDict):
             self.setdefault('appname', "JSONBOT")
             self.comments["domain"] = "# domain .. used for WAVE"
             self.setdefault('domain', "")
-        #self.cfile = self.dir + os.sep + self.filename
         self['createdfrom'] = whichmodule()
         self.comments['datadir'] = "# directory to store bot data in."
         self.comments["owner"] = "# owner of the bot."
@@ -270,7 +272,7 @@ mainconfig = None
 
 def getmainconfig():
     global mainconfig
-    if not mainconfig: mainconfig = Config()
+    if not mainconfig: mainconfig = Config("mainconfig")
     return mainconfig
 
 irctemplate = """# welcome to JSONBOT .. this file can be written to by the bot

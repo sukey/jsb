@@ -8,7 +8,7 @@
 
 from jsb.utils.generic import fromenc
 from jsb.version import getversion
-from jsb.lib.config import Config
+from jsb.lib.config import Config, getmainconfig
 from jsb.utils.lazydict import LazyDict
 
 ## gaelib imports
@@ -57,7 +57,7 @@ def start(response, input={}):
     except AttributeError:
          if os.environ.get('HTTP_HOST'): host = os.environ['HTTP_HOST']
          else: host = os.environ['SERVER_NAME']
-    template = LazyDict({'version': getversion(), 'host': host, 'color': Config().color or "#C54848"})
+    template = LazyDict({'version': getversion(), 'host': host, 'color': getmainconfig().color or "#C54848"})
     if input: template.update(input)
     temp = os.path.join(os.getcwd(), 'templates/console.html')
     outstr = template.render(temp)
@@ -71,7 +71,7 @@ def login(response, input={}):
     except AttributeError:
          if os.environ.get('HTTP_HOST'): host = os.environ['HTTP_HOST']
          else: host = os.environ['SERVER_NAME']
-    template = LazyDict({'version': getversion(), 'host': host, 'color': Config().color or "#C54848"})
+    template = LazyDict({'version': getversion(), 'host': host, 'color': getmainconfig().color or "#C54848"})
     if input: template.update(input)
     temp = os.path.join(os.getcwd(), 'templates/login.html')
     outstr = template.render(temp)

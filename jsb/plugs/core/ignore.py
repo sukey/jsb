@@ -4,7 +4,7 @@
 
 ## jsb imports
 
-from jsb.lib.users import users
+from jsb.lib.users import getusers
 from jsb.lib.commands import cmnds
 from jsb.lib.examples import examples
 from jsb.utils.generic import getwho
@@ -16,7 +16,7 @@ def handle_ignore(bot, event):
     nick = event.rest
     userhost = getwho(bot, nick)
     if not userhost: userhost = event.rest
-    perms = users.getperms(userhost)
+    perms = getusers().getperms(userhost)
     if perms and "OPER" in perms: event.reply("can't ignore OPER") ; return
     if not userhost in bot.ignore: bot.ignore.append(userhost)
     event.reply("%s added to ignore list" % userhost)

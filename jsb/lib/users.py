@@ -14,7 +14,7 @@ from persist import Persist
 from jsb.utils.lazydict import LazyDict
 from datadir import getdatadir
 from errors import NoSuchUser
-from config import Config
+from config import Config, getmainconfig
 
 ## basic imports
 
@@ -23,6 +23,11 @@ import types
 import os
 import time
 import logging
+import copy
+
+## defines
+
+cpy = copy.deepcopy
 
 ## JsonUser class
 
@@ -235,7 +240,8 @@ class Users(Persist):
     def getpermusers(self, perm):
         """ return all users that have the specified perm. """
         result = []
-        for name in self.data.names:
+        names = cpy(self.data.names)
+        for name in names:
             user = JsonUser(name)
             if perm.upper() in user.data.perms: result.append(user.data.name)
         return result
@@ -275,7 +281,7 @@ class Users(Persist):
 
     def addguest(self, userhost):
         if not self.getname(userhost):
-            if Config().guestasuser: self.add(userhost, [userhost, ], ["USER",])
+            if getmainconfig().guestasuser: self.add(userhost, [userhost, ], ["USER",])
             else: self.add(userhost, [userhost, ], ["GUEST",])
 
     def addemail(self, userhost, email):
@@ -500,4 +506,9 @@ def users_boot():
     """ initialize global users object. """
     global users
     users = Users()
+    return users
+
+def getusers():
+    global users
+    if not users: users_boot()
     return users

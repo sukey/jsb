@@ -14,7 +14,7 @@ from jsb.utils.opts import makeeventopts
 from jsb.utils.trace import whichmodule
 from jsb.utils.exception import handle_exception
 from jsb.utils.locking import lockdec
-from jsb.lib.config import Config
+from jsb.lib.config import Config, getmainconfig
 
 ## basic imports
 
@@ -102,7 +102,7 @@ class EventBase(LazyDict):
             logging.debug("binding channel - %s" % str(self.chan))
         if not target: self.prepare(bot) ; self.bonded = True ; return
         if not self.user and target:
-            cfg = Config()
+            cfg = getmainconfig()
             if cfg.auto_register: 
                 bot.users.addguest(target)
             self.user = user or bot.users.getuser(target)

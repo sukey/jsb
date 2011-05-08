@@ -21,7 +21,7 @@ from jsb.utils.pdod import Pdod
 from jsb.lib.channelbase import ChannelBase
 from jsb.lib.morphs import inputmorphs, outputmorphs
 from jsb.lib.exit import globalshutdown
-from jsb.lib.config import Config
+from jsb.lib.config import Config, getmainconfig
 
 ## jsb.irc imports
 
@@ -134,7 +134,7 @@ class Irc(BotBase):
 
     def bind(self):
         server = self.cfg.server
-        elite = self.cfg['bindhost'] or Config()['bindhost']
+        elite = self.cfg['bindhost'] or getmainconfig()['bindhost']
         if elite:
             try:
                 self.oldsock.bind((elite, 0))
