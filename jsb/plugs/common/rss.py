@@ -214,7 +214,7 @@ sleeptime=15*60, running=0):
             except AttributeError: status = None
         else:
             url = self.data['url']
-            logging.debug("fetching %s" % url)
+            logging.warn("fetching %s" % url)
             result = feedparser.parse(url, agent=useragent(), etag=etag)
             try: status = result.status
             except AttributeError: status = None
@@ -438,7 +438,7 @@ class Rssdict(PlugPersist):
         if not name in runners.data: runners.data[name] = "bla" ; runners.save()
         sleeptime.data[name] = sleepsec
         sleeptime.save()
-        logging.info('started %s rss watch' % name)
+        logging.warn('started %s rss watch' % name)
 
 ## Rsswatcher class
 
