@@ -296,8 +296,8 @@ except ImportError:
                 fcntl.flock(datafile, fcntl.LOCK_UN)
                 datafile.close()
                 try: os.rename(tmp, fn)
-                except OSError:
-                    handle_exception(txt="%s %s" % (tmp, fn))
+                except (IOError, OSError):
+                    #handle_exception(txt="%s %s" % (tmp, fn))
                     os.remove(fn)
                     os.rename(tmp, fn)
                 if 'lastpoll' in self.logname: logging.debug('%s saved (%s)' % (self.logname, len(self.data)))
