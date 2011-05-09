@@ -257,6 +257,7 @@ except ImportError:
             set(self.fn, self.data)
             return self.data
 
+        @persistlocked
         def save(self):
             global needsaving
             r = []
@@ -274,7 +275,7 @@ except ImportError:
             for p in r:
                 try: needsaving.remove(p)
                 except ValueError: pass
-
+        
         def dosave(self):
             """ persist data attribute. """
             try:
