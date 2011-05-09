@@ -70,7 +70,7 @@ def dumpelement(element, prev={}, withtypes=False):
             try: new[name] = stripignore(elem[name])
             except: new[name] = elem[name]
         except TypeError:
-            if type(elem) not in jsontypes:
+            if type(elem) not in jsontypes and not name == "cfg":
                 if withtypes: new[name] = unicode(type(elem))
             else:
                 logging.warn("lazydict - dumpelement - %s" % elem[name])

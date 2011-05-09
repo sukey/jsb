@@ -32,6 +32,7 @@ from threads import start_new_thread, threaded
 from morphs import inputmorphs, outputmorphs
 from gatekeeper import GateKeeper
 from wait import waiter
+from factory import bot_factory
 
 ## basic imports
 
@@ -150,7 +151,7 @@ class BotBase(LazyDict):
     def __deepcopy__(self, a):
         """ deepcopy an event. """  
         logging.debug("botbase - cpy - %s" % type(self))
-        bot = BotBase(self.cfg) 
+        bot = bot_factory.create(self.type, self.cfg)
         return bot
 
     def copyin(self, data):
