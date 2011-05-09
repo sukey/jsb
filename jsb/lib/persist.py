@@ -198,9 +198,9 @@ except ImportError:
             """ initialize the data. """
             logging.debug('reading %s' % self.fn)
             cfrom = whichmodule(2)
-            if 'jsb' in cfrom: 
+            if 'lib' in cfrom: 
                 cfrom = whichmodule(3)
-                if 'jsb' in cfrom: cfrom = whichmodule(4)
+                if 'lib' in cfrom: cfrom = whichmodule(4)
             gotcache = False
             cachetype = "cache"
             try:
@@ -217,10 +217,9 @@ except ImportError:
                     else: d = data
                     self.data = d
                     cachetype = "mem"
-                    logging.debug("%s - loaded %s" % (cachetype, self.fn))
                     if not 'run' in self.fn: 
                         size = len(d)
-                        logging.debug("mem - loaded %s (%s) - %s - %s" % (self.logname, size, self.data.tojson(), cfrom))
+                        logging.debug("%s - loaded %s (%s) - %s" % (cachetype, self.logname, size, cfrom))
                     return
             except IOError, ex:
                 if not 'No such file' in str(ex):
@@ -230,17 +229,15 @@ except ImportError:
                     logging.debug("%s doesn't exist yet" % self.logname)
                     return
             try:
+                size = len(data)
                 self.data = json.loads(data)
                 set(self.fn, self.data)
                 if type(self.data) == types.DictType:
                     d = LazyDict()
                     d.update(self.data)
                     self.data = d
-                logging.warn("%s - loaded %s" % (cachetype, self.fn))
                 if not 'run' in self.fn: 
-                    size = len(data)
-                    if gotcache: logging.warn("cache - loaded %s (%s) - %s" % (self.logname, size, cfrom))
-                    else: logging.warn("file - loaded %s (%s) - %s" % (self.logname, size, cfrom))
+                    logging.debug("%s - loaded %s (%s) - %s" % (cachetype, self.logname, size, cfrom))
             except Exception, ex:
                 logging.error('ERROR: %s' % self.fn)
                 raise
@@ -303,7 +300,7 @@ except ImportError:
                     os.rename(tmp, fn)
                 if 'lastpoll' in self.logname: logging.debug('%s saved (%s)' % (self.logname, len(self.data)))
                 else: logging.warn('%s saved (%s)' % (self.logname, len(self.data)))
-            except IOError, ex: logging.warn("not saving %s: %s" % (self.fn, str(ex))) ; raise
+            except IOError, ex: logging.error("not saving %s: %s" % (self.fn, str(ex))) ; raise
             except: raise
             finally: pass
 
