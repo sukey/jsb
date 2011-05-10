@@ -188,7 +188,7 @@ class Udplistener(object):
         if not cfg['udpbots']: bots = [cfg['udpbot'], ]
         else: bots = cfg['udpbots']
         for botname in bots:
-            bot = fleet.byname(botname)
+            bot = getfleet().byname(botname)
             if not bot: logging.warn("udp - can't find %s bot in fleet" % botname) ; continue
             bot.connectok.wait()
             bot.say(printto, txt)
