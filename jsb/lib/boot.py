@@ -48,7 +48,8 @@ pluginlist = None
 callbacktable = None
 cmndperms = None
 timestamps = None
-
+plugwhitelist = None
+plugblacklist = None
 cpy = copy.deepcopy
 
 ## boot function
@@ -91,10 +92,16 @@ def boot(ddir=None, force=False, encoding="utf-8", umask=None, saveperms=True, f
     global cmndperms
     global plugcommands
     global timestamps
+    global plugwhitelist
+    global plugblacklist
     if not cmndtable: cmndtable = Persist(rundir + os.sep + 'cmndtable')
     if not pluginlist: pluginlist = Persist(rundir + os.sep + 'pluginlist')
     if not callbacktable: callbacktable = Persist(rundir + os.sep + 'callbacktable')
     if not timestamps: timestamps = Persist(rundir + os.sep + 'timestamps')
+    if not plugwhitelist: plugwhitelist = Persist(rundir + os.sep + 'plugwhitelist')
+    if not plugwhitelist.data: plugwhitelist.data = []
+    if not plugblacklist: plugblacklist = Persist(rundir + os.sep + 'plugblacklist')
+    if not plugblacklist.data: plugblacklist.data = []
     if not cmndperms: cmndperms = Config('cmndperms', ddir=ddir)
     from jsb.lib.plugins import plugs
     if not cmndtable.data or force:
@@ -272,7 +279,14 @@ def getpluginlist():
     """ get the plugin list. """
     global pluginlist
     if not pluginlist: boot()
-    return pluginlist.data
+    l = plugwhitelist.data or pluginlist.data
+    result = []
+    denied = []
+    for plug in plugblacklist.data:
+        denied.append(plug.split(".")[-1])
+    for plug in l:
+        if plug not in denied: result.append(plug)
+    return result
 
 ## update_mod command
 
@@ -293,3 +307,13 @@ def whatcommands(plug):
 
 def getcmndperms():
     return cmndperms
+
+def plugenable(mod):
+    if plugwhitelist.data and not mod in plugwhitelist.data: plugwhitelist.data.append(mod) ; plugwhtelist.save() ; return
+    if mod in plugblacklist.data: plugblacklist.data.remove(mod) ; plugblacklist.save()
+
+def plugdisable(mod):
+    if plugwhitelist.data and mod in plugwhitelist.data: plugwhitelist.data.remove(mod) ; plugwhtelist.save() ; return
+    if not mod in plugblacklist.data: plugblacklist.data.append(mod) ; plugblacklist.save()
+
+    

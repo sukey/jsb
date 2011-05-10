@@ -12,6 +12,7 @@ from jsb.lib.boot import default_plugins, plugin_packages, remove_plugin, update
 from jsb.utils.exception import handle_exception, exceptionmsg
 from jsb.lib.boot import savecmndtable, savepluginlist, update_mod
 from jsb.lib.errors import NoSuchPlugin
+from jsb.lib.boot import plugenable, plugdisable
 
 ## basic imports
 
@@ -25,6 +26,7 @@ def handle_plugenable(bot, event):
     mod = bot.plugs.getmodule(event.rest)
     if not mod: event.reply("can't find module for %s" % event.rest) ; return
     event.reply("reloading and enabling %s" % mod)
+    plugenable(mod)
     bot.enable(mod)
     bot.plugs.reload(mod, force=True)
     event.done()
@@ -41,6 +43,7 @@ def handle_plugdisable(bot, event):
     if not mod: event.reply("can't find module for %s" % event.rest) ; return
     event.reply("unloading and disabling %s" % mod)
     bot.plugs.unload(mod)
+    plugdisable(mod)
     bot.disable(mod)
     event.done()
 

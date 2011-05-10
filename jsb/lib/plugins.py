@@ -18,6 +18,7 @@ from jsb.utils.locking import lockdec
 from jsbimport import force_import, _import
 from morphs import outputmorphs, inputmorphs
 from wait import waiter
+from boot import plugblacklist
 
 ## basic imports
 
@@ -77,7 +78,9 @@ class Plugins(LazyDict):
             logging.debug("got plugin package %s" % module)
             try:
                 for plug in imp.__plugs__:
-                    try: self.reload("%s.%s" % (module,plug), force=force, showerror=True)
+                    mod = "%s.%s" % (module, plug)
+                    if mod in plugblacklist.data: logging.warn("%s is in blacklist .. not loading." % modname) ; continue
+                    try: self.reload(mod, force=force, showerror=True)
                     except KeyError: logging.debug("failed to load plugin package %s" % module)
                     except Exception, ex: handle_exception()
             except AttributeError: logging.error("no plugins in %s .. define __plugs__ in __init__.py" % module)
@@ -225,7 +228,7 @@ class Plugins(LazyDict):
             return
         if plugin in self: logging.debug(" %s already loaded" % plugin) ; return plugloaded
         if  plugin in default_plugins: pass
-        elif bot.cfg.blacklist and plugin in bot.cfg.blacklist: return plugloaded
+        elif plugin in plugblacklist.data: return plugloaded
         elif bot.cfg.loadlist and plugin not in bot.cfg.loadlist: return plugloaded
         logging.info("loaded %s on demand (%s)" % (plugin, event.usercmnd))
         plugloaded = self.reload(plugin)

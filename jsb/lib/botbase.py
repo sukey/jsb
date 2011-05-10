@@ -19,7 +19,7 @@ from config import Config, getmainconfig
 from jsb.utils.pdod import Pdod
 from channelbase import ChannelBase
 from less import Less, outcache
-from boot import boot, getcmndperms, default_plugins
+from boot import boot, getcmndperms, default_plugins, plugblacklist
 from jsb.utils.locking import lockdec
 from exit import globalshutdown
 from jsb.utils.generic import splittxt, toenc, fromenc, waitforqueue, strippedtxt, waitevents, stripcolor
@@ -544,7 +544,7 @@ class BotBase(LazyDict):
                 logging.debug("%s - %s is already loaded" % (self.cfg.name, name))
                 continue
             if name in default_plugins: pass
-            elif self.cfg.blacklist and name in self.cfg.blacklist:
+            elif name in plugblacklist.data:
                 logging.warn("%s - %s is in blacklist" % (self.cfg.name, name))
                 continue
             elif self.cfg.loadlist and name not in self.cfg.loadlist:
