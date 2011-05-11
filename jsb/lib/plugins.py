@@ -66,6 +66,7 @@ class Plugins(LazyDict):
             otherwise load all plugins for default_plugins list.
 
         """
+        from boot import plugblacklist
         if not paths: paths = plugin_packages
         imp = None
         for module in paths:
@@ -218,6 +219,7 @@ class Plugins(LazyDict):
             reload the plugin.
 
         """
+        from boot import plugblacklist
         logging.debug("checking for reload of %s (%s)" % (event.usercmnd, event.userhost))
         plugloaded = None
         try:
@@ -227,7 +229,7 @@ class Plugins(LazyDict):
             logging.debug("can't find plugin to reload for %s" % event.usercmnd)
             return
         if plugin in self: logging.debug(" %s already loaded" % plugin) ; return plugloaded
-        if  plugin in default_plugins: pass
+        if plugin in default_plugins: pass
         elif plugin in plugblacklist.data: return plugloaded
         elif bot.cfg.loadlist and plugin not in bot.cfg.loadlist: return plugloaded
         logging.info("loaded %s on demand (%s)" % (plugin, event.usercmnd))

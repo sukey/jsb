@@ -19,7 +19,7 @@ from config import Config, getmainconfig
 from jsb.utils.pdod import Pdod
 from channelbase import ChannelBase
 from less import Less, outcache
-from boot import boot, getcmndperms, default_plugins, plugblacklist
+from boot import boot, getcmndperms, default_plugins
 from jsb.utils.locking import lockdec
 from exit import globalshutdown
 from jsb.utils.generic import splittxt, toenc, fromenc, waitforqueue, strippedtxt, waitevents, stripcolor
@@ -530,6 +530,7 @@ class BotBase(LazyDict):
     
     def reloadcheck(self, event, target=None):
         """ check if plugin need to be reloaded for callback, """
+        from boot import plugblacklist
         plugloaded = []
         target = target or event.cbtype or event.cmnd
         try:
