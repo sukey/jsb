@@ -174,7 +174,7 @@ def handle_voice(bot, ievent):
     if len(ievent.args)==0:
         ievent.missing('<nickname>')
         return
-    ievent.reply('setting voide on %s' % str(ievent.args))
+    ievent.reply('setting voice on %s' % str(ievent.args))
     for nick in sets.Set(ievent.args): bot.voice(ievent.channel, nick)
     ievent.done()
 
