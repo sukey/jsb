@@ -80,7 +80,7 @@ class Plugins(LazyDict):
             try:
                 for plug in imp.__plugs__:
                     mod = "%s.%s" % (module, plug)
-                    if mod in plugblacklist.data: logging.warn("%s is in blacklist .. not loading." % modname) ; continue
+                    if mod in plugblacklist.data: logging.warn("%s is in blacklist .. not loading." % mod) ; continue
                     try: self.reload(mod, force=force, showerror=True)
                     except KeyError: logging.debug("failed to load plugin package %s" % module)
                     except Exception, ex: handle_exception()
