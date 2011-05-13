@@ -21,13 +21,13 @@ version = "0.8 DEVELOPMENT"
 
 def getversion(txt=""):
     """ return a version string. """
-    try: 
-        from mercurial import context, hg, node, repo, ui
-        repository = hg.repository(ui.ui(), '.')
-        ctx = context.changectx(repository)
-        tip = str(ctx.rev())
-    except: tip = None
-    if tip: version2 = version + " HG " + tip
-    else: version2 = version
-    if txt: return "JSONBOT %s %s" % (version2, txt)
-    else: return "JSONBOT %s" % version2
+    #try: 
+    #    from mercurial import context, hg, node, repo, ui
+    #    repository = hg.repository(ui.ui(), '.')
+    #    ctx = context.changectx(repository)
+    #    tip = str(ctx.rev())
+    #except: tip = None
+    #if tip: version2 = version + " HG " + tip
+    #else: version2 = version
+    if txt: return "JSONBOT %s %s" % (version, txt)
+    else: return "JSONBOT %s" % version
