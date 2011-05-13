@@ -304,7 +304,8 @@ def handle_loglevel(bot, event):
     mainconfig = getmainconfig()
     mainconfig.loglevel = event.rest
     mainconfig.save()
-    mainhandler.put(4, setloglevel, event.rest)
+    #mainhandler.put(4, setloglevel, event.rest)
+    setloglevel(event.rest)
     event.done()
 
 cmnds.add("loglevel", handle_loglevel, "OPER")
