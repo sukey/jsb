@@ -16,10 +16,9 @@ from jsb.utils.opts import makeircconfig, makeircopts
 opts = makeircopts()
 
 ## print version
-try:
-    from jsb.version import getversion
-    print getversion('IRC')
-except: print "please upgrade your debian plz! k thnx ;]"
+
+from jsb.version import getversion
+print getversion('IRC')
 
 ## jsb imports
 

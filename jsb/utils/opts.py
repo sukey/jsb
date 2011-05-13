@@ -8,7 +8,7 @@
 
 from jsb.lib.errors import NameNotSet
 from jsb.lib.config import Config
-from jsb.version import getversion
+from jsb.version import version
 from jsb.utils.name import stripname
 
 ## basic imports
@@ -32,7 +32,7 @@ class EventOptionParser(optparse.OptionParser):
 
 def makeircopts(txt=""):
     """ create commandline parser options. """
-    parser = optparse.OptionParser(usage='usage: %prog [options]', version=getversion())
+    parser = optparse.OptionParser(usage='usage: %prog [options]', version=version)
     parser.add_option('', '-r', type='string', default=False, dest='doresume',  metavar='PATH', 
                   help="resume the bot from the folder specified")
     parser.add_option('-d', '--datadir', type='string', default=False, dest='datadir',  help="datadir of the bot")
@@ -58,7 +58,7 @@ def makeircopts(txt=""):
 
 def makeconvoreopts(txt=""):
     """ create commandline parser options. """
-    parser = optparse.OptionParser(usage='usage: %prog [options]', version=getversion())
+    parser = optparse.OptionParser(usage='usage: %prog [options]', version=version)
     parser.add_option('-d', '--datadir', type='string', default=False, dest='datadir',  help="datadir of the bot")
     parser.add_option('-o', '--owner', type='string', default=False, dest='owner',  help="owner of the bot")
     parser.add_option('-l', '--loglevel', type='string', default="", dest='loglevel',  help="loglevel of the bot")
@@ -75,7 +75,7 @@ def makeconvoreopts(txt=""):
 
 def makesxmppopts(txt=""):
     """ create commandline parser options. """
-    parser = optparse.OptionParser(usage='usage: %prog [options]', version=getversion())
+    parser = optparse.OptionParser(usage='usage: %prog [options]', version=version)
     parser.add_option('', '-r', type='string', default=False, dest='doresume',  metavar='PATH', 
                   help="resume the bot from the folder specified")
     parser.add_option('-d', '--datadir', type='string', default=False, dest='datadir',  help="datadir of the bot")
@@ -98,7 +98,7 @@ def makesxmppopts(txt=""):
 
 def makeconsoleopts():
     """ create option parser for events. """
-    parser = optparse.OptionParser(usage='usage: %prog [options]', version=getversion("CONSOLE"))
+    parser = optparse.OptionParser(usage='usage: %prog [options]', version=version)
     parser.add_option('-d', '--datadir', type='string', default=False, dest='datadir',  help="datadir of the bot")
     parser.add_option('-l', '--loglevel', type='string', default="", dest='loglevel',  help="loglevel of the bot")
     parser.add_option('', '--name', type='string', default=False, dest='name', help="bot's name")
@@ -113,7 +113,7 @@ def makeconsoleopts():
 
 def makefleetopts():
     """ create option parser for events. """
-    parser = optparse.OptionParser(usage='usage: %prog [options] [list of bot names]', version=getversion("FLEET"))
+    parser = optparse.OptionParser(usage='usage: %prog [options] [list of bot names]', version=version)
     parser.add_option('-a', '--all', action='store_true', default=False, dest='all', help="show available fleet bots")
     parser.add_option('-s', '--show', action='store_true', default=False, dest='show', help="print available fleet bots")
     parser.add_option('-d', '--datadir', type='string', default=False, dest='datadir',  help="datadir of the bot")
