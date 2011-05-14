@@ -40,6 +40,7 @@ print getversion('SXMPP')
 
 cfg = makesxmppconfig(opts)
 if opts.nick: cfg.nick = opts.nick ; cfg.save()
+if opts.port: cfg.port = opts.port ; cfg.save()
 
 ## loglevel
 
