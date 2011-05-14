@@ -140,7 +140,16 @@ examples.add('perm', 'show permission of command', 'perm quit')
 def handle_version(bot, ievent):
     """ show bot's version. """
     from jsb.version import getversion
-    ievent.reply(getversion(bot.type.upper()))
+    version = getversion(bot.type.upper())
+    try: 
+        from mercurial import context, hg, node, repo, ui
+        repository = hg.repository(ui.ui(), '.')
+        ctx = context.changectx(repository)
+        tip = str(ctx.rev())
+    except: tip = None
+    if tip: version2 = version + " HG " + tip
+    else: version2 = version
+    ievent.reply(version2)
 
 cmnds.add('version', handle_version, ['USER', 'GUEST'])
 examples.add('version', 'show version of the bot', 'version')
