@@ -79,6 +79,7 @@ class ConsoleBot(BotBase):
                 input = console.raw_input("> ")
                 event = ConsoleEvent()
                 event.parse(self, input, console)
+                event.showall = True
                 if False and input.startswith('#'):
                     try:
                         env = {"bot": self, "event": event}
