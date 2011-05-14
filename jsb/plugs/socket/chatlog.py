@@ -81,10 +81,10 @@ def timestr(dt):
 def enablelogging(botname, channel):
     """ set loglevel to level_name. """
     global loggers
-    logging.warn("chatlog - enabling on (%s,%s)" % (botname, channel))
+    logging.warn("enabling on (%s,%s)" % (botname, channel))
     channel = stripname(channel)
     logname = "%s_%s" % (botname, channel)
-    #if logname in loggers: logging.warn("chatlog - there is already a logger for %s" % logname) ; return
+    #if logname in loggers: logging.warn("there is already a logger for %s" % logname) ; return
     try:
         filehandler = logging.handlers.TimedRotatingFileHandler(LOGDIR + os.sep + logname + ".log", 'midnight')
         formatter = logging.Formatter(format)
@@ -96,7 +96,7 @@ def enablelogging(botname, channel):
     if chatlogger.handlers:
         for handler in chatlogger.handlers: chatlogger.removeHandler(handler)
     if filehandler: chatlogger.addHandler(filehandler) ; logging.info("%s - logging enabled on %s" % (botname, channel))
-    else: logging.warn("chatlog - no file handler found - not enabling logging.")
+    else: logging.warn("no file handler found - not enabling logging.")
     global lastlogger
     lastlogger = chatlogger
     loggers[logname] = lastlogger
