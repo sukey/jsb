@@ -75,15 +75,25 @@ def getwikidata(url):
 
 ## wikipedia command
 
+resultre1 = re.compile("(<li>.*?</li>)")
+resultre2 = re.compile("(<h2>.*?</h2>)")
+
 def handle_wikipedia(bot, ievent):
     """ <what> .. search wikipedia. """
     if not ievent.rest: ievent.missing('<what>') ; return
     res = searchwiki(ievent.rest)
     if not res[0]: ievent.reply('no result found') ; return
-    result = res[0]
+    prefix = u'%s ===> ' % res[1]
+    result = resultre.findall(res[0])
     if result:
-        prefix = u'%s ===> ' % res[1]
-        ievent.reply(prefix, result.split("-"), dot="<br><br>")
+        if bot.type == "sxmpp" and not ievent.groupchat: ievent.showall = True
+        ievent.reply(prefix, result, dot="<br><br>")
+        return
+    result2 = resultre2.findall(res[0])
+    if result2:
+        if bot.type == "sxmpp" and not ievent.groupchat: ievent.showall = True
+        ievent.reply(prefix, result2, dot="<br><br>")
+        return
     else: ievent.reply("no data found on %s" % event.rest)
 
 cmnds.add('wikipedia', handle_wikipedia, ['USER', 'GUEST'])

@@ -553,6 +553,9 @@ class SXMPPBot(XMLStream, BotBase):
         what = what.replace("</i>", "")
         what = what.replace("&lt;i&gt;", "")
         what = what.replace("&lt;/i&gt;", "")
+        what = what.replace("<br>", "\n")
+        what = what.replace("<li>", "* ")
+        what = what.replace("</li>", "\n")
         return what
 
     def doreconnect(self):
