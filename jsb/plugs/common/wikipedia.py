@@ -84,7 +84,7 @@ def handle_wikipedia(bot, ievent):
     res = searchwiki(ievent.rest)
     if not res[0]: ievent.reply('no result found') ; return
     prefix = u'%s ===> ' % res[1]
-    result = resultre.findall(res[0])
+    result = resultre1.findall(res[0])
     if result:
         if bot.type == "sxmpp" and not ievent.groupchat: ievent.showall = True
         ievent.reply(prefix, result, dot="<br><br>")
