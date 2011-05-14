@@ -149,8 +149,8 @@ class SXMPPBot(XMLStream, BotBase):
         """ connect the xmpp server. """
         try:
             if not XMLStream.connect(self):
-                logging.error('%s - connect to %s:%s failed' % (self.cfg.name, self.host, self.port))
-                return
+                logging.error('%s - connect to %s:%s failed' % (self.cfg.name, self.cfg.server or self.cfg.host, self.cfg.port))
+                return False
             else: logging.warn('%s - connected' % self.cfg.name)
             self.logon(self.cfg.user, self.cfg.password)
             start_new_thread(self._keepalive, ())
@@ -228,8 +228,9 @@ class SXMPPBot(XMLStream, BotBase):
         rsrc = self.cfg['resource'] or self.cfg['resource'] or 'jsb';
         self._raw("""<iq type='get'><query xmlns='jabber:iq:auth'><username>%s</username></query></iq>""" % name)
         result = self.connection.read()
+        print result
         iq = self.loop_one(result)
-        logging.debug('%s - auth - %s' % (self.cfg.name, result))
+        logging.info('%s - auth - %s' % (self.cfg.name, result))
         if ('digest' in result) and digest:
             s = hashlib.new('SHA1')
             s.update(digest)
@@ -242,7 +243,7 @@ class SXMPPBot(XMLStream, BotBase):
         if not iq:
             logging.error('%s - auth failed - %s' % (self.cfg.name, result))
             return False        
-        logging.debug('%s - auth - %s' % (self.cfg.name, result))
+        logging.info('%s - auth - %s' % (self.cfg.name, result))
         if iq.error:
             logging.warn('%s - auth failed - %s' % (self.cfg.name, iq.error.code))
             if iq.error.code == "401":
