@@ -198,7 +198,6 @@ class XMLStream(NodeBuilder):
     @outlocked
     def _raw(self, stanza):
         """ output a xml stanza to the socket. """
-        print stanza
         if not self.connection: logging.error("%s - connection is not set" % self.cfg.name) ; return
         time.sleep(0.01)
         try:
@@ -213,8 +212,6 @@ class XMLStream(NodeBuilder):
                 logging.error('%s - invalid stanza: %s' % (self.cfg.name, what))
                 return
             if what.startswith('<stream') or what.startswith('<message') or what.startswith('<presence') or what.startswith('<iq'):
-                logging.debug(u"%s - sxmpp - out - %s" % (self.cfg.name, what))
-                #if self.cfg.port == 5223: self.sock.send(what)
                 try: self.connection.send(what + u"\r\n")
                 except AttributeError: self.connection.write(what)
             else: logging.error('%s - invalid stanza: %s' % (self.cfg.name, what))
@@ -231,7 +228,7 @@ class XMLStream(NodeBuilder):
     def connect(self):
         """ connect to the server. """
         target = self.cfg.server or self.cfg.host
-        logging.warn("%s - TARGET is %s" % (self.cfg.name, target))
+        logging.debug("%s - TARGET is %s" % (self.cfg.name, target))
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setblocking(0)
         self.sock.settimeout(10)
