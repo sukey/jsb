@@ -228,7 +228,6 @@ class SXMPPBot(XMLStream, BotBase):
         rsrc = self.cfg['resource'] or self.cfg['resource'] or 'jsb';
         self._raw("""<iq type='get'><query xmlns='jabber:iq:auth'><username>%s</username></query></iq>""" % name)
         result = self.connection.read()
-        print result
         iq = self.loop_one(result)
         logging.info('%s - auth - %s' % (self.cfg.name, result))
         if ('digest' in result) and digest:
