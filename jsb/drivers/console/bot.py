@@ -12,6 +12,7 @@ from jsb.lib.errors import NoSuchCommand, NoInput
 from jsb.lib.botbase import BotBase
 from jsb.lib.exit import globalshutdown
 from jsb.utils.generic import strippedtxt, waitevents
+from jsb.utils.url import striphtml
 from jsb.utils.exception import handle_exception
 from event import ConsoleEvent
 
@@ -124,9 +125,18 @@ class ConsoleBot(BotBase):
 
     def normalize(self, what):
         what = strippedtxt(what)
-        what = what.replace("<b>", self.GREEN)
+        what = what.replace("<b>", self.RED)
         what = what.replace("</b>", self.ENDC)
-        what = what.replace("&lt;b&gt;", self.GREEN)
+        what = what.replace("<i>", self.YELLOW)
+        what = what.replace("</i>", self.ENDC)
+        what = what.replace("<h2>", self.GREEN)
+        what = what.replace("</h2>", self.ENDC)
+        what = what.replace("<h3>", self.GREEN)
+        what = what.replace("</h3>", self.ENDC)
+        what = what.replace("&lt;b&gt;", self.BOLD)
         what = what.replace("&lt;/b&gt;", self.ENDC)
+        what = what.replace("<br>", "")
+        what = what.replace("<li>", "* ")
+        what = what.replace("</li>", "\n")
         if what.count(self.ENDC) % 2: what = "%s%s" %  (self.ENDC, what)
         return what

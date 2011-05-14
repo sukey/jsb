@@ -80,10 +80,10 @@ def handle_wikipedia(bot, ievent):
     if not ievent.rest: ievent.missing('<what>') ; return
     res = searchwiki(ievent.rest)
     if not res[0]: ievent.reply('no result found') ; return
-    result = splittxt(res[0])
+    result = res[0]
     if result:
         prefix = u'%s ===> ' % res[1]
-        ievent.reply(prefix, result, dot="<br><br>")
+        ievent.reply(prefix, result.split("-"), dot="<br><br>")
     else: ievent.reply("no data found on %s" % event.rest)
 
 cmnds.add('wikipedia', handle_wikipedia, ['USER', 'GUEST'])
