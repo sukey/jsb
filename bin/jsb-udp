@@ -16,7 +16,7 @@ sys.path.insert(0, os.getcwd())
 
 import jsb
 from jsb.lib.config import Config
-from jsb.lib.version import getversion
+from jsb.version import getversion
 
 from optparse import OptionParser
 
