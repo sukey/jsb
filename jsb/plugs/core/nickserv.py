@@ -31,7 +31,6 @@ class NSAuth(Pdod):
     def __init__(self):
         self.registered = False
         Pdod.__init__(self, getdatadir() + os.sep + 'plugs' + os.sep + 'jsb.plugs.nickserv' + os.sep + 'nickserv')
-        print self.data
 
     def add(self, bot, **kwargs):
         """ add a nickserv entry. """

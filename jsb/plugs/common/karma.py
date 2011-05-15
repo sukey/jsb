@@ -58,7 +58,7 @@ def karmacb(bot, event):
     except IndexError: reason = None
     for target in targets:
         try: item, what, bogus = target
-        except ValueError: print target ; continue
+        except ValueError: logging.debug("%s not in (iten, what, bogus) form" % target) ; continue
         item = item.lower()
         if what == "++":
             i = KarmaItem(event.channel.lower() + "-" + item)
