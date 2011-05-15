@@ -71,12 +71,12 @@ class Fleet(Persist):
     def loadall(self, names=[]):
         """ load all bots. """ 
         target = names or self.data.names
-        if not target: logging.error("fleet - no bots in fleet") ; return
-        else: logging.warning("fleet - loading %s" % ", ".join(target))
+        if not target: logging.error("no bots in fleet") ; return
+        else: logging.warning("loading %s" % ", ".join(target))
         threads = []
         bots = []
         for name in target:
-            if not name: logging.debug("fleet - name is not set") ; continue
+            if not name: logging.debug(" name is not set") ; continue
             try:
                 if self.data.types[name] == "console": logging.warn("fleet- skipping console bot %s" % name) ; continue
                 bot = self.makebot(self.data.types[name], name)
@@ -108,7 +108,7 @@ class Fleet(Persist):
         """ set the type of a bot. """
         cfg = Config('fleet' + os.sep + stripname(name) + os.sep + 'config')
         cfg['name'] = name
-        logging.debug("fleet - %s - setting type to %s" % (self.cfile, type))
+        logging.debug("%s - setting type to %s" % (self.cfile, type))
         cfg.type = type
         cfg.save()
 
@@ -116,19 +116,19 @@ class Fleet(Persist):
         """ create a bot .. use configuration if provided. """
         assert type
         assert name
-        if not name: logging.warn("fleet - name is not correct: %s" % name) ; return
-        if config: logging.warn('fleet - making %s (%s) bot - %s' % (type, name, config.dump()))
+        if not name: logging.warn(" name is not correct: %s" % name) ; return
+        if config: logging.warn('making %s (%s) bot - %s' % (type, name, config.dump()))
         bot = None
         cfg = Config('fleet' + os.sep + stripname(name) + os.sep + 'config')
         if config: cfg.merge(config) 
         if not cfg.name: cfg['name'] = name
         cfg['botname'] = cfg['name']
         if cfg.disable:
-            logging.warn("fleet - %s bot is disabled. see %s" % (name, cfg.cfile))
+            logging.warn("%s bot is disabled. see %s" % (name, cfg.cfile))
             if showerror: raise BotNotEnabled(name)
             return
         if not cfg.type and type:
-            logging.debug("fleet - %s - setting type to %s" % (cfg.cfile, type))
+            logging.debug("%s - setting type to %s" % (cfg.cfile, type))
             cfg.type = type
         if not cfg['type']:
             try:
@@ -193,9 +193,9 @@ class Fleet(Persist):
         assert bot
         for i in range(len(self.bots)-1, -1, -1):
             if self.bots[i].cfg.name == bot.cfg.name:
-                logging.debug('fleet - removing %s from fleet' % bot.botname)
+                logging.debug('removing %s from fleet' % bot.botname)
                 del self.bots[i]
-        logging.info('fleet - adding %s' % bot.cfg.name)
+        logging.info('adding %s' % bot.cfg.name)
         self.bots.append(bot)
         if bot.cfg.name not in self.data['names']:
             self.data['names'].append(bot.cfg.name)
@@ -211,7 +211,7 @@ class Fleet(Persist):
                 self.remove(i)
                 bot.cfg['disable'] = 1
                 bot.cfg.save()
-                logging.debug('fleet - %s disabled' % bot.cfg.name)
+                logging.debug('%s disabled' % bot.cfg.name)
                 return True
         return False
 
@@ -279,7 +279,7 @@ class Fleet(Persist):
             cfg = LazyDict(session['bots'][name])
             try: 
                 if not cfg.disable:
-                    logging.warn("fleet - resuming %s" % cfg)
+                    logging.warn("resuming %s" % cfg)
                     start_new_thread(self.resumebot, (cfg,))
             except: handle_exception() ; return
         time.sleep(10)
@@ -288,7 +288,7 @@ class Fleet(Persist):
     def resumebot(self, botcfg):
         """ resume single bot. """
         botname = botcfg.name
-        logging.warn("fleet - resuming %s bot" % botname)
+        logging.warn("resuming %s bot" % botname)
         if botcfg['type'] == "console": logging.warn("not resuming console bot %s" % botname) ; return
         oldbot = self.byname(botname)
         if oldbot and botcfg['type'] in ["sxmpp", "convore"]: oldbot.exit()
