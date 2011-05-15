@@ -72,16 +72,19 @@ try:
             self.counter = mcounter = mc.incr(self.fn, 1, "counters", 0)
             self.key = None
             self.obj = None
+            self.size = 0
             self.init(default)
 
         def init(self, default={}, filename=None):
             cachetype = ""
             mcounter = mc.incr(self.fn, 1, "counters")
             logging.debug("%s - %s" % (self.counter, mcounter))
-            if self.type == "mem":
-                tmp = get(self.fn) ; cachetype = "mem"
-                if tmp: self.data = tmp ; logging.debug("%s - loaded %s" % (cachetype, self.fn)) ; return
+            #if self.type == "mem":
+            #    tmp = get(self.fn) ; cachetype = "mem"
+            #    if tmp: self.size = len(tmp)
+            #    if tmp: self.data = tmp ; logging.debug("%s - loaded %s" % (cachetype, self.fn)) ; return
             jsontxt =  mc.get(self.fn) ; cachetype = "cache"
+            self.size = len(jsontxt)
             if type(default) == types.DictType:
                 default2 = LazyDict()
                 default2.update(default)
@@ -111,6 +114,7 @@ try:
             else: cachetype = "cache"
             logging.debug("%s - loaded %s" % (cachetype, self.fn))
             self.data = json.loads(jsontxt)
+            self.size = len(jsontxt)
             if type(self.data) == types.DictType:
                 d = LazyDict()
                 d.update(self.data)
@@ -193,6 +197,7 @@ except ImportError:
                 if default == None: default = LazyDict()
                 self.init(default)
             self.count = 0
+            self.size = 0
 
         def init(self, default={}, filename=None):
             """ initialize the data. """
@@ -209,8 +214,10 @@ except ImportError:
                    datafile = open(self.fn, 'r')
                    data = datafile.read()
                    datafile.close()
+                   self.size = len(data)
                    cachetype = "file"
                 else:
+                    self.size = len(data)
                     if type(data) == types.DictType:
                         d = LazyDict()
                         d.update(data)
@@ -218,8 +225,7 @@ except ImportError:
                     self.data = d
                     cachetype = "mem"
                     if not 'run' in self.fn: 
-                        size = len(d)
-                        logging.debug("%s - loaded %s (%s) - %s" % (cachetype, self.logname, size, cfrom))
+                        logging.debug("%s - loaded %s (%s) - %s" % (cachetype, self.logname, self.size, cfrom))
                     return
             except IOError, ex:
                 if not 'No such file' in str(ex):
@@ -229,7 +235,7 @@ except ImportError:
                     logging.debug("%s doesn't exist yet" % self.logname)
                     return
             try:
-                size = len(data)
+                #logging.debug(u"loading: %s" % unicode(data))
                 self.data = json.loads(data)
                 set(self.fn, self.data)
                 if type(self.data) == types.DictType:
@@ -237,7 +243,7 @@ except ImportError:
                     d.update(self.data)
                     self.data = d
                 if not 'run' in self.fn: 
-                    logging.debug("%s - loaded %s (%s) - %s" % (cachetype, self.logname, size, cfrom))
+                    logging.debug("%s - loaded %s (%s) - %s" % (cachetype, self.logname, self.size, cfrom))
             except Exception, ex:
                 logging.error('ERROR: %s' % self.fn)
                 raise
@@ -298,8 +304,8 @@ except ImportError:
                     #handle_exception(txt="%s %s" % (tmp, fn))
                     os.remove(fn)
                     os.rename(tmp, fn)
-                if 'lastpoll' in self.logname: logging.debug('%s saved (%s)' % (self.logname, len(self.data)))
-                else: logging.warn('%s saved (%s)' % (self.logname, len(self.data)))
+                if 'lastpoll' in self.logname: logging.debug('%s saved (%s)' % (self.logname, self.size))
+                else: logging.warn('%s saved (%s)' % (self.logname, self.size))
             except IOError, ex: logging.error("not saving %s: %s" % (self.fn, str(ex))) ; raise
             except: raise
             finally: pass

@@ -67,7 +67,7 @@ class BotBase(LazyDict):
     """ base class for all bots. """
 
     def __init__(self, cfg=None, usersin=None, plugs=None, botname=None, nick=None, *args, **kwargs):
-        logging.info("botbase - type is %s" % str(type(self)))
+        logging.info("type is %s" % str(type(self)))
         if cfg: cfg = LazyDict(cfg)
         if cfg and not botname: botname = cfg.botname or cfg.name
         if not botname: botname = u"default-%s" % str(type(self)).split('.')[-1][:-2]
@@ -76,8 +76,8 @@ class BotBase(LazyDict):
         self.cfg = Config(self.fleetdir + os.sep + u'config')
         if cfg: self.cfg.merge(cfg)
         self.cfg.name = botname
-        if not self.cfg.name: raise Exception("botbase - name is not set in %s config file" % self.fleetdir)
-        logging.info("botbase - name is %s" % self.cfg.name)
+        if not self.cfg.name: raise Exception(" name is not set in %s config file" % self.fleetdir)
+        logging.info("name is %s" % self.cfg.name)
         LazyDict.__init__(self)
         self.ignore = []
         self.ids = []
@@ -94,10 +94,10 @@ class BotBase(LazyDict):
         try:
             import waveapi
             self.isgae = True
-            logging.debug("botbase - bot is a GAE bot (%s)" % self.cfg.name)
+            logging.debug("bot is a GAE bot (%s)" % self.cfg.name)
         except ImportError:
             self.isgae = False
-            logging.debug("botbase - bot is a shell bot (%s)" % self.cfg.name)
+            logging.debug("bot is a shell bot (%s)" % self.cfg.name)
         self.starttime = time.time()
         self.type = "base"
         self.status = "init"
@@ -116,7 +116,7 @@ class BotBase(LazyDict):
             logging.debug(u"owner is not set in %s - using mainconfig" % self.cfg.cfile)
             self.owner = getmainconfig().owner
         self.setusers(usersin)
-        logging.info(u"botbase - owner is %s" % self.owner)
+        logging.info(u"owner is %s" % self.owner)
         self.users.make_owner(self.owner)
         self.outcache = outcache
         self.userhosts = {}
@@ -150,7 +150,7 @@ class BotBase(LazyDict):
 
     def __deepcopy__(self, a):
         """ deepcopy an event. """  
-        logging.debug("botbase - cpy - %s" % type(self))
+        logging.debug("cpy - %s" % type(self))
         bot = bot_factory.create(self.type, self.cfg)
         return bot
 
@@ -298,7 +298,7 @@ class BotBase(LazyDict):
         msg = "%s - %s - %s - %s" % (self.cfg.name, event.auth, event.how, event.cbtype)
         if event.how == "background": logging.debug(msg)
         else: logging.info(msg)
-        logging.debug("botbase - remote - %s" % event.dump())
+        logging.debug("remote - %s" % event.dump())
         if self.closed:
             if self.gatekeeper.isblocked(event.origin): return
         if event.status == "done":
@@ -537,7 +537,7 @@ class BotBase(LazyDict):
             from boot import getcallbacktable   
             p = getcallbacktable()[target]
         except KeyError:
-            logging.debug("botbase - can't find plugin to reload for %s" % event.cmnd)
+            logging.debug("can't find plugin to reload for %s" % event.cmnd)
             return
         logging.debug("%s - checking %s" % (self.cfg.name, unicode(p)))
         for name in p:
