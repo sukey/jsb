@@ -193,11 +193,11 @@ except ImportError:
             self.logname = os.sep.join(self.fn.split(os.sep)[1:])
             self.lock = thread.allocate_lock() # lock used when saving)
             self.data = LazyDict() # attribute to hold the data
+            self.count = 0
+            self.ssize = 0
             if init:
                 if default == None: default = LazyDict()
                 self.init(default)
-            self.count = 0
-            self.size = 0
 
         def init(self, default={}, filename=None):
             """ initialize the data. """
@@ -214,10 +214,10 @@ except ImportError:
                    datafile = open(self.fn, 'r')
                    data = datafile.read()
                    datafile.close()
-                   self.size = len(data)
+                   self.ssize = len(data)
                    cachetype = "file"
                 else:
-                    self.size = len(data)
+                    self.ssize = len(data)
                     if type(data) == types.DictType:
                         d = LazyDict()
                         d.update(data)
@@ -225,7 +225,7 @@ except ImportError:
                     self.data = d
                     cachetype = "mem"
                     if not 'run' in self.fn: 
-                        logging.debug("%s - loaded %s (%s) - %s" % (cachetype, self.logname, self.size, cfrom))
+                        logging.debug("%s - loaded %s (%s) - %s" % (cachetype, self.logname, self.ssize, cfrom))
                     return
             except IOError, ex:
                 if not 'No such file' in str(ex):
@@ -243,7 +243,7 @@ except ImportError:
                     d.update(self.data)
                     self.data = d
                 if not 'run' in self.fn: 
-                    logging.debug("%s - loaded %s (%s) - %s" % (cachetype, self.logname, self.size, cfrom))
+                    logging.debug("%s - loaded %s (%s) - %s" % (cachetype, self.logname, self.ssize, cfrom))
             except Exception, ex:
                 logging.error('ERROR: %s' % self.fn)
                 raise
@@ -304,8 +304,8 @@ except ImportError:
                     #handle_exception(txt="%s %s" % (tmp, fn))
                     os.remove(fn)
                     os.rename(tmp, fn)
-                if 'lastpoll' in self.logname: logging.debug('%s saved (%s)' % (self.logname, self.size))
-                else: logging.warn('%s saved (%s)' % (self.logname, self.size))
+                if 'lastpoll' in self.logname: logging.debug('%s saved (%s)' % (self.logname, self.ssize))
+                else: logging.warn('%s saved (%s)' % (self.logname, self.ssize))
             except IOError, ex: logging.error("not saving %s: %s" % (self.fn, str(ex))) ; raise
             except: raise
             finally: pass
