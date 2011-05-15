@@ -341,15 +341,13 @@ class SXMPPBot(XMLStream, BotBase):
             self.userhosts[nick] = str(frm)
             nickk = nick
         jid = None
-        for node in p.subelements:
-            try:
-                jid = node.x.item.jid 
-            except (AttributeError, TypeError):
-                continue
+        if p.subelements:
+            for node in p.subelements:
+                try: jid = node.x.item.jid 
+                except (AttributeError, TypeError): continue
         if nickk and jid:
             channel = p.channel
-            if not self.jids.has_key(channel):
-                self.jids[channel] = {}
+            if not self.jids.has_key(channel): self.jids[channel] = {}
             self.jids[channel][nickk] = jid
             self.userhosts[nickk] = str(jid)
             logging.debug('%s - setting jid of %s (%s) to %s' % (self.cfg.name, nickk, channel, jid))
@@ -366,24 +364,19 @@ class SXMPPBot(XMLStream, BotBase):
             try:
                 del self.jids[p.channel]
                 logging.debug('%s - removed %s channel jids' % (self.cfg.name, p.channel))
-            except KeyError:
-                pass
+            except KeyError:pass
         else:
             try:
                 del self.jids[p.channel][p.nick]
                 logging.debug('%s - removed %s jid' % (self.cfg.name, p.nick))
-            except KeyError:
-                pass
+            except KeyError: pass
         if p.type == 'error':
-            for node in p.subelements:
-                try:
-                    err = node.error.code
-                except (AttributeError, TypeError):
-                    err = 'no error set'
-                try:
-                    txt = node.text.data
-                except (AttributeError, TypeError):
-                    txt = ""
+            if p.subelements:
+                for node in p.subelements:
+                    try: err = node.error.code
+                    except (AttributeError, TypeError): err = 'no error set'
+                    try: txt = node.text.data
+                    except (AttributeError, TypeError): txt = ""
             if err:
                 logging.error('%s - error - %s - %s'  % (self.cfg.name, err, txt))
             try:
@@ -405,46 +398,32 @@ class SXMPPBot(XMLStream, BotBase):
 
     def send(self, what):
         """ send stanza to the server. """
-        if not what:
-            logging.debug("%s - can't send empty message" % self.cfg.name)
-            return
-        try:
-            to = what['to']
-        except (KeyError, TypeError):
-            logging.error("%s - can't determine where to send %s to" % (self.cfg.name, str(what)))
-            return
-        try:
-            jid = JID(to)
-        except (InvalidJID, AttributeError):
-            logging.error("%s - invalid jid - %s - %s" % (self.cfg.name, str(to), whichmodule(2)))
-            return
+        if not what: logging.debug("%s - can't send empty message" % self.cfg.name) ; return
+        try: to = what['to']
+        except (KeyError, TypeError): logging.error("%s - can't determine where to send %s to" % (self.cfg.name, str(what))) ; return
+        try: jid = JID(to)
+        except (InvalidJID, AttributeError): logging.error("%s - invalid jid - %s - %s" % (self.cfg.name, str(to), whichmodule(2))) ; return
         try: del what['from']
         except KeyError: pass
         try:
             xml = what.tojabber()
-            if not xml:
-                raise Exception("can't convert %s to xml .. bot.send()" % what) 
-        except (AttributeError, TypeError):
-            handle_exception()
-            return
+            if not xml: raise Exception("can't convert %s to xml .. bot.send()" % what) 
+        except (AttributeError, TypeError): handle_exception() ; return
         if not self.checkifvalid(xml): logging.error("%s - NOT PROPER XML - %s" % (self.cfg.name, xml))
         else: self._raw(xml)
            
     def action(self, printto, txt, fromm=None, groupchat=True, event=None, *args, **kwargs):
         """ send an action. """
         txt = "/me " + txt
-        if self.google:
-            fromm = self.cfg.user
-        if printto in self.state['joinedchannels'] and groupchat:
-            message = Message({'to': printto, 'txt': txt, 'type': 'groupchat'})
+        if self.google: fromm = self.cfg.user
+        if printto in self.state['joinedchannels'] and groupchat: message = Message({'to': printto, 'txt': txt, 'type': 'groupchat'})
         else: message = Message({'to': printto, 'txt': txt})
         if fromm: message.fromm = fromm
         self.send(message)
         
     def save(self):
         """ save bot's state. """
-        if self.state:
-            self.state.save()
+        if self.state: self.state.save()
 
     def quit(self):
         """ send unavailable presence. """

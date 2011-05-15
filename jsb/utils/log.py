@@ -14,6 +14,14 @@ import getpass
 
 ## defines
 
+ERASE_LINE = '\033[2K'
+BOLD='\033[1m'
+RED = '\033[91m'
+YELLOW = '\033[93m'
+GREEN = '\033[92m'
+ENDC = '\033[0m'
+
+
 LEVELS = {'debug': logging.DEBUG,
           'info': logging.INFO,
           'warning': logging.WARNING,
@@ -43,8 +51,8 @@ try:
     if not os.path.isdir(LOGDIR): os.mkdir(LOGDIR)
 except: pass
 
-format_short = "[!] %(asctime)-8s - %(module)+12s.%(funcName)-13s - %(message)s"
-format = "[!] %(asctime)s.%(msecs)-13s - %(module)s.%(funcName)s:%(lineno)s - %(message)s - %(levelname)s - <%(threadName)s>"
+format_short = "[\033[1m\033[91m!\033[0m] %(asctime)-8s - \033[1m\033[92m%(module)+12s.%(funcName)-13s\033[0m - \033[93m%(message)s\033[0m"
+format = "[\033[1m\033[91m!\033[0m] %(asctime)s.%(msecs)-13s - \033[1m\033[92m%(module)s.%(funcName)s:%(lineno)s\033[0m - \033[93m%(message)s\033[0m - %(levelname)s - <%(threadName)s>"
 datefmt = '%H:%M:%S'
 formatter_short = logging.Formatter(format_short, datefmt=datefmt)
 formatter = logging.Formatter(format, datefmt=datefmt)
