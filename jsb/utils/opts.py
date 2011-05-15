@@ -160,7 +160,7 @@ def makeircconfig(opts=None, botname=None):
         if not botname: botname = opts.name or "default-irc"
     botname = stripname(botname)
     cfg = Config('fleet' + os.sep + botname + os.sep + 'config')
-    cfg.bottype = 'irc'
+    cfg.type = 'irc'
     cfg.botname = botname
     if not opts:
         cfg.password = cfg.password or ""
