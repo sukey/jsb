@@ -11,6 +11,7 @@ from jsb.lib.commands import cmnds
 from jsb.lib.examples import examples
 from jsb.lib.persist import PlugPersist
 from jsb.utils.statdict import StatDict
+from jsb.lib.persistconfig import PersistConfig
 
 ## basic imports
 
@@ -20,6 +21,9 @@ import re
 ## defines
 
 RE_KARMA = re.compile(r'^(?P<item>\([^\)]+\)|\[[^\]]+\]|\w+)(?P<mod>\+\+|--)( |$)')
+
+cfg = PersistConfig()
+cfg.define('verbose', '1')
 
 ## KarmaItem class
 
@@ -76,7 +80,10 @@ def karmacb(bot, event):
             i.save()
         karma.append("%s: %s" % (item, i.data.count))
         got = item or item2
-    if karma: event.reply("karma - ", karma) ; event.ready()
+    #if karma: event.reply("karma - ", karma) ; event.ready()
+    if karma: 
+        if cfg.get('verbose') == '1': event.reply("karma - ", karma)
+        event.ready()
 
 callbacks.add('PRIVMSG', karmacb, prekarma)
 callbacks.add('MESSAGE', karmacb, prekarma)
