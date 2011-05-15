@@ -149,7 +149,10 @@ class Runners(object):
         for index in range(len(self.runners)-1, -1, -1):
             runner = self.runners[index]
             logging.debug("cleanup %s" % runner.name)
-            if not runner.queue.qsize(): runner.stop() ; del self.runners[index]
+            if not runner.queue.qsize():
+                try: runner.stop() ; del self.runners[index]
+                except IndexError: pass
+                except: handle_exception()
             else: logging.info("now running: %s" % runner.nowrunning)
 
 ## show runner status
