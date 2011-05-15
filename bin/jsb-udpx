@@ -14,13 +14,9 @@ sys.path.insert(0, os.getcwd())
 
 ## commandline options
 
-import jsb
-from jsb.lib.config import Config
-from jsb.version import getversion
-
 from optparse import OptionParser
 
-parser = OptionParser(usage='usage: %prog [options]', version=getversion("UDP"))
+parser = OptionParser(usage='usage: %prog [options]')
 
 parser.add_option('-p', '--printto', type='string', default=False, dest='printto',
                   metavar='PATH', 
@@ -33,19 +29,14 @@ parser.add_option('-s', '--save', action='store_true', default=False, dest='save
 opts, args = parser.parse_args()
 opts.args = args
 
-cfg = Config(ddir='.', filename=opts.configname)
-cfg.reload()
-cfg['host'] = cfg['host'] or 'localhost'
-cfg['port'] = cfg['port'] or 5500
-cfg['passwd'] = cfg['passwd'] or 'mekker'
-cfg['printto'] = cfg['printto'] or '#dunkbots'
-cfg['seed'] = cfg['seed'] or "blablablablablaz"
-cfg['length'] = cfg['length'] or 16
-cfg['ipv6'] = cfg['ipv6'] or 0
-if opts.saveconfig:
-    cfg.save()
+host = 'localhost'
+port = 5500
+passwd = 'mekker'
+printto = '#dunkbots'
+seed = "blablablablablaz"
+length = 16
+ipv6 = 0
 
-assert(cfg)
 
 """
 A pure python (slow) implementation of rijndael with a decent interface
@@ -424,24 +415,24 @@ def test():
     t(32, 24)
     t(32, 32)
 
-if cfg['seed']:
-    crypt = rijndael(cfg['seed'])
+if seed:
+    crypt = rijndael(seed)
 
 def out(what):
-    z = '%s %s %s' % (cfg['passwd'], opts.printto or cfg['printto'], what.strip())
+    z = '%s %s %s' % (passwd, opts.printto or printto, what.strip())
     while len(z) % 16:
         z += "\0"        
-    if cfg['seed']:
+    if seed:
         data = ""
         for i in range((len(z)/16)):
             data += crypt.encrypt(z[i*16:i*16+16])
     else:
         data = z
-    if cfg['ipv6']:
+    if ipv6:
         sock = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
     else:
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.sendto(data, (cfg['host'], cfg'port']))
+    sock.sendto(data, (host, port))
 
 while 1:
     a = sys.stdin.readline()
