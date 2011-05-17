@@ -247,9 +247,9 @@ class SXMPPBot(XMLStream, BotBase):
                 self._raw("""<iq type='set'><query xmlns='jabber:iq:auth'><username>%s</username><digest>%s</digest><resource>%s</resource></query></iq>""" % (name, d, rsrc))
         else: 
             if self.cfg.port == 5223:
-                self._raw("""<iq type='set'><query xmlns='jabber:iq:auth'><username>%s</username><resource>%s</resource><password>%s</password></query></iq>""" % (jid, rsrc, password))
+                self._raw("""<iq type='set'><query xmlns='jabber:iq:auth'><username>%s</username><password>%s</password><resource>%s</resource></query></iq>""" % (jid, password, rsrc))
             else:
-                self._raw("""<iq type='set'><query xmlns='jabber:iq:auth'><username>%s</username><resource>%s</resource><password>%s</password></query></iq>""" % (name, rsrc, password))
+                self._raw("""<iq type='set'><query xmlns='jabber:iq:auth'><username>%s</username><password>%s</password><resource>%s</resource></query></iq>""" % (name, password, rsrc))
         result = self.connection.read()
         iq = self.loop_one(result)
         if not iq:
