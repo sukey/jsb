@@ -39,7 +39,7 @@ import random
 import logging
 import types
 import re
-import ssl
+
 
 ## locks
 
@@ -205,7 +205,7 @@ class Irc(BotBase):
             except UnicodeError:
                 handle_exception()
                 continue
-            except ssl.SSLError, ex: logging.error("%s - ssl error: %s" % (self.cfg.name, str(ex))) ; break
+            #except socket.SSLError, ex: logging.error("%s - ssl error: %s" % (self.cfg.name, str(ex))) ; break
             except socket.timeout:
                 if self.stopped or self.stopreadloop: break
                 timeout += 1
