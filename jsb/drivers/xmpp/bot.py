@@ -201,7 +201,10 @@ class SXMPPBot(XMLStream, BotBase):
             logging.error("%s - unable to register" % self.cfg.name)
             return
         logging.debug('%s - register: %s' % (self.cfg.name, str(iq)))
-        self._raw("""<iq type='set'><query xmlns='jabber:iq:register'><username>%s</username><resource>%s</resource><password>%s</password></query></iq>""" % (jid.split('@')[0], resource, password))
+        if self.cfg.port == 5223:
+            self._raw("""<iq type='set'><query xmlns='jabber:iq:register'><username>%s</username><resource>%s</resource><password>%s</password></query></iq>""" % (jid, resource, password))
+        else:
+            self._raw("""<iq type='set'><query xmlns='jabber:iq:register'><username>%s</username><resource>%s</resource><password>%s</password></query></iq>""" % (jid.split('@')[0], resource, password))
         result = self.connection.read()
         logging.debug('%s - register - %s' % (self.cfg.name, result))
         if not result: return False
@@ -226,7 +229,10 @@ class SXMPPBot(XMLStream, BotBase):
         logging.warn('%s - authing %s' % (self.cfg.name, jid))
         name = jid.split('@')[0]
         rsrc = self.cfg['resource'] or self.cfg['resource'] or 'jsb';
-        self._raw("""<iq type='get'><query xmlns='jabber:iq:auth'><username>%s</username></query></iq>""" % name)
+        if self.cfg.port == 5223:
+            self._raw("""<iq type='get'><query xmlns='jabber:iq:auth'><username>%s</username></query></iq>""" % jid)
+        else:
+            self._raw("""<iq type='get'><query xmlns='jabber:iq:auth'><username>%s</username></query></iq>""" % name)
         result = self.connection.read()
         iq = self.loop_one(result)
         logging.info('%s - auth - %s' % (self.cfg.name, result))
