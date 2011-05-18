@@ -148,11 +148,12 @@ class SXMPPBot(XMLStream, BotBase):
     def connect(self, reconnect=True):
         """ connect the xmpp server. """
         try:
-            if not XMLStream.connect(self):
+            iq = XMLStream.connect(self)
+            if not iq:
                 logging.error('%s - connect to %s:%s failed' % (self.cfg.name, self.cfg.server or self.cfg.host, self.cfg.port))
                 return False
             else: logging.warn('%s - connected' % self.cfg.name)
-            self.logon(self.cfg.user, self.cfg.password)
+            self.logon(self.cfg.user, self.cfg.password, iq.id)
             start_new_thread(self._keepalive, ())
             self.requestroster()
             self._raw("<presence/>")
@@ -164,12 +165,9 @@ class SXMPPBot(XMLStream, BotBase):
             if reconnect:
                 return self.reconnect()
 
-    def logon(self, user, password):
+    def logon(self, user, password, id=None):
         """ logon on the xmpp server. """
-        iq = self.initstream()
-        if not iq: logging.error("sxmpp - cannot init stream") ; return
-        logging.info("%s - initstream response - %s" % (self.cfg.name, iq.orig))
-        if not self.auth(user, password, iq.id):
+        if not self.auth(user, password, id):
             logging.warn("%s - sleeping 20 seconds before register" % self.cfg.name)
             time.sleep(20)
             if self.register(user, password):
@@ -181,15 +179,6 @@ class SXMPPBot(XMLStream, BotBase):
                 return
         XMLStream.logon(self)
  
-    def initstream(self):
-        """ send initial string sequence to the xmpp server. """
-        logging.debug('%s - starting initial stream sequence' % self.cfg.name)
-        self._raw("""<stream:stream to='%s' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams'>""" % (self.cfg.user.split('@')[1], )) 
-        result = self.connection.read()
-        logging.info("%s - initstream - %s" % (self.cfg.name, result))
-        iq = self.loop_one(result)
-        return iq
-
     def register(self, jid, password):
         """ register the jid to the server. """
         try: resource = jid.split("/")[1]

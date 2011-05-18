@@ -75,11 +75,11 @@ class XMLStream(NodeBuilder):
 
     def handle_proceed(self, data):
         """ default stream handler. """
-        logging.debug("%s - proceeding" % self.cfg.name)
+        logging.info("%s - proceeding" % self.cfg.name)
 
     def handle_stream(self, data):
         """ default stream handler. """
-        logging.info("%s - stream - %s" % (self.cfg.name, data.dump()))
+        logging.debug("%s - stream - %s" % (self.cfg.name, data.dump()))
 
     def handle_streamend(self, data):
         """ default stream handler. """
@@ -91,7 +91,7 @@ class XMLStream(NodeBuilder):
  
     def handle_streamfeatures(self, data):
         """ default stream features handler. """
-        logging.debug("%s - STREAMFEATURES: %s" % (self.cfg.name, LazyDict(data).dump()))
+        logging.info("%s - STREAMFEATURES: %s" % (self.cfg.name, LazyDict(data).dump()))
          
     def addHandler(self, namespace, func):
         """ add a namespace handler. """
@@ -225,6 +225,15 @@ class XMLStream(NodeBuilder):
             self.error = str(ex)
             handle_exception()
 
+    def initstream(self, target=None):
+        """ send initial string sequence to the xmpp server. """
+        logging.debug('%s - starting initial stream sequence' % self.cfg.name)
+        self._raw("""<stream:stream to='%s' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams'>""" % self.cfg.host)
+        result = self.connection.read()  
+        logging.info("%s - initstream - %s" % (self.cfg.name, result))
+        iq = self.loop_one(result)
+        return iq
+
     def connect(self):
         """ connect to the server. """
         target = self.cfg.server or self.cfg.host
@@ -236,22 +245,7 @@ class XMLStream(NodeBuilder):
         self.sock.connect((self.cfg.server or self.cfg.host, self.cfg.port))
         self.sock.settimeout(60)
         time.sleep(1) 
-        #if self.cfg.port != 5223:
-        #    #self.sock.send("<?xml version='1.0'?>")
-        #else:
-        #    self.dossl()
-        #    self._raw('<stream:stream to="%s" xmlns="jabber:client" xmlns:stream="http://etherx.jabber.org/streams" version="1.0">\r\n' % self.cfg.user.split('@')[1])
-        #    time.sleep(3)
-        #    result = self.connection.read()
-        #if not result: logging.error("%s - can't receive from server" % self.cfg.name) ; return False
-        #logging.info("%s - %s" %  (self.cfg.name, str(result)))
-        #self.loop_one(result)
-        if not self.cfg.port == 5223:
-            self.sock.send('<stream:stream to="%s" xmlns="jabber:client" xmlns:stream="http://etherx.jabber.org/streams" version="1.0">\r\n' % self.cfg.user.split('@')[1])
-            time.sleep(3)
-            result = self.sock.recv(1500)
-            logging.info("%s - stream response - %s" % (self.cfg.name, result))
-            self.loop_one(result)
+        if self.cfg.port != 5223:
             logging.info("%s - starting TLS" % self.cfg.name)
             self.sock.send('<starttls xmlns="urn:ietf:params:xml:ns:xmpp-tls"/>\r\n')
             time.sleep(3)
@@ -260,9 +254,11 @@ class XMLStream(NodeBuilder):
             self.loop_one(result)
         self.sock.settimeout(60)
         self.sock.setblocking(1)
-        #if not self.cfg.port == 5223: return self.dossl()
-        #else: return True
-        return self.dossl()
+        if self.dossl():
+            iq = self.initstream()
+            if not iq: logging.error("sxmpp - cannot init stream") ; return
+            logging.info("%s - initstream response - %s" % (self.cfg.name, iq.orig))
+            return iq
 
     def dossl(self):
         """ enable ssl on the socket. """
