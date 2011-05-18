@@ -48,6 +48,7 @@ import re
 import hashlib
 import logging
 import cgi
+import base64
 
 ## locks
 
@@ -183,10 +184,21 @@ class SXMPPBot(XMLStream, BotBase):
     def initstream(self):
         """ send initial string sequence to the xmpp server. """
         logging.debug('%s - starting initial stream sequence' % self.cfg.name)
-        self._raw("""<stream:stream to='%s' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams'>""" % (self.cfg.user.split('@')[1], )) 
+        self._raw("""<stream:stream to='%s' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>""" % (self.cfg.user.split('@')[1], )) 
         result = self.connection.read()
         iq = self.loop_one(result)
-        logging.debug("%s - initstream - %s" % (self.cfg.name, result))
+        logging.info("%s - initstream - %s" % (self.cfg.name, result))
+        result = self.connection.read()
+        self.loop_one(result)
+        logging.info("%s - features - %s" % (self.cfg.name, result))
+        self.challenge = None
+        if 'DIGEST' in result:
+            self._raw("""<auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' mechanism='DIGEST-MD5'/>""")
+            result = self.connection.read()
+            self.loop_one(result)
+            logging.info("%s - challenge - %s" % (self.cfg.name, result))
+            self.challenge = re.findall(">(.*?)</challenge>", result)[0]
+        else: self._raw("""<auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' mechanism='PLAIN'/>""")
         return iq
 
     def register(self, jid, password):
@@ -223,34 +235,63 @@ class SXMPPBot(XMLStream, BotBase):
 
     def auth(self, jid, password, digest=""):
         """ auth against the xmpp server. """
-        logging.warn('%s - authing %s' % (self.cfg.name, jid))
-        name = jid.split('@')[0]
+        logging.warn('%s - authing %s - %s' % (self.cfg.name, jid, digest))
+        (name, host) = jid.split('@')
         rsrc = self.cfg['resource'] or self.cfg['resource'] or 'jsb';
-        self._raw("""<iq type='get'><query xmlns='jabber:iq:auth'><username>%s</username></query></iq>""" % name)
-        result = self.connection.read()
-        iq = self.loop_one(result)
-        logging.debug('%s - auth - %s' % (self.cfg.name, result))
-        if ('digest' in result) and digest:
-            s = hashlib.new('SHA1')
-            s.update(digest)
-            s.update(password)
-            d = s.hexdigest()
-            self._raw("""<iq type='set'><query xmlns='jabber:iq:auth'><username>%s</username><digest>%s</digest><resource>%s</resource></query></iq>""" % (name, d, rsrc))
-        else: self._raw("""<iq type='set'><query xmlns='jabber:iq:auth'><username>%s</username><resource>%s</resource><password>%s</password></query></iq>""" % (name, rsrc, password))
-        result = self.connection.read()
-        iq = self.loop_one(result)
-        if not iq:
-            logging.error('%s - auth failed - %s' % (self.cfg.name, result))
-            return False        
-        logging.debug('%s - auth - %s' % (self.cfg.name, result))
-        if iq.error:
-            logging.warn('%s - auth failed - %s' % (self.cfg.name, iq.error.code))
+        if self.challenge:
+            res = base64.decodestring(self.challenge)
+            print res
+            nounce = None
+            realm = None
+            for item in res.split(","):
+                (i, j) = item.split("=")
+                if i == "nonce": nonce = j
+                if i == "realm": realm = j
+            if nonce:
+                #x = "%s:%s:%s" % (name, host, password)
+                s = hashlib.sha1()
+                s.update(nonce)
+                s.update(password)
+                d = s.hexdigest()
+                out = """username="%s",realm="%s",nonce=%s,nc=00000001,qop=auth,digest-uri="xmpp/example.com",response=%s,charset=utf-8""" % (name, realm or self.cfg.host, nonce, d)
+                print out
+                self._raw("<response xmlns='urn:ietf:params:xml:ns:xmpp-sasl'>%s</response>" % base64.encodestring(out))
+                result = self.connection.read()
+                print result
+                logging.info('%s - auth - %s' % (self.cfg.name, result))
+                iq = self.loop_one(result)
+                if not iq or iq.error: return False
+                time.sleep(3)
+                self._raw("<response xmlns='urn:ietf:params:xml:ns:xmpp-sasl'/>")
+                return True
+            return False
+        else:
+            self._raw("""<iq type='get'><query xmlns='jabber:iq:auth'><username>%s</username></query></iq>""" % name)
+            result = self.connection.read()
+            print result
+            iq = self.loop_one(result)
+            logging.info('%s - auth - %s' % (self.cfg.name, result))
+            if ('digest' in result) and digest:
+                s = hashlib.new('SHA1')
+                s.update(digest)
+                s.update(password)
+                d = s.hexdigest()
+                self._raw("""<iq type='set'><query xmlns='jabber:iq:auth'><username>%s</username><digest>%s</digest><resource>%s</resource></query></iq>""" % (name, d, rsrc))
+            else: self._raw("""<iq type='set'><query xmlns='jabber:iq:auth'><username>%s</username><resource>%s</resource><password>%s</password></query></iq>""" % (name, rsrc, password))
+            result = self.connection.read()
+            iq = self.loop_one(result)
+            if not iq:
+                logging.error('%s - auth failed - %s' % (self.cfg.name, result))
+                return False        
+            logging.debug('%s - auth - %s' % (self.cfg.name, result))
+            if iq.error:
+                logging.warn('%s - auth failed - %s' % (self.cfg.name, iq.error.code))
             if iq.error.code == "401":
                 logging.warn("%s - wrong user or password" % self.cfg.name)
             else:
                 logging.warn("%s - %s" % (self.cfg.name, result))
-            self.error = iq.error
-            return False
+                self.error = iq.error
+                return False
         logging.warn('%s - auth ok' % self.cfg.name)
         return True
 

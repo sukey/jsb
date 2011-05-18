@@ -72,6 +72,16 @@ class XMLStream(NodeBuilder):
         self.addHandler('stream:stream', self.handle_stream)
         self.addHandler('stream:error', self.handle_streamerror)
         self.addHandler('stream:features', self.handle_streamfeatures)
+        self.addHandler('challenge', self.handle_challenge)
+        self.addHandler('failure', self.handle_failure)
+
+    def handle_failure(self, data):
+        """ default stream handler. """
+        logging.info("%s - failure is %s" % (self.cfg.name, data.dump()))
+
+    def handle_challenge(self, data):
+        """ default stream handler. """
+        logging.info("%s - challenge is %s" % (self.cfg.name, data.dump()))
 
     def handle_proceed(self, data):
         """ default stream handler. """
@@ -207,11 +217,12 @@ class XMLStream(NodeBuilder):
                 return
             what = jabberstrip(stanza)
             what = toenc(stanza)
-            logging.debug("%s - out - %s" % (self.cfg.name, what))             
+            logging.info("%s - out - %s" % (self.cfg.name, what))             
             if not what.endswith('>') or not what.startswith('<'):
                 logging.error('%s - invalid stanza: %s' % (self.cfg.name, what))
                 return
-            if what.startswith('<stream') or what.startswith('<message') or what.startswith('<presence') or what.startswith('<iq'):
+            start = what[:3]
+            if start in ['<st', '<me', '<pr', '<iq', "<au", "<re"]:
                 logging.debug(u"%s - sxmpp - out - %s" % (self.cfg.name, what))
                 try: self.connection.send(what + u"\r\n")
                 except AttributeError: self.connection.write(what)
@@ -338,6 +349,7 @@ class XMLStream(NodeBuilder):
         res = LazyDict()
         parentname = dom.getName()
         data = dom.getData()
+        print parentname, data
         if data:
             self.final[parentname] = data
             if parentname == 'body': self.final['txt'] = data
