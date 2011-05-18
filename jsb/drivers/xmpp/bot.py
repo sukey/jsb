@@ -148,12 +148,11 @@ class SXMPPBot(XMLStream, BotBase):
     def connect(self, reconnect=True):
         """ connect the xmpp server. """
         try:
-            iq = XMLStream.connect(self)
-            if not iq:
-                logging.error('%s - connect to %s:%s failed' % (self.cfg.name, self.cfg.server or self.cfg.host, self.cfg.port))
-                return False
+            if not XMLStream.connect(self):
+                logging.error('%s - connect to %s:%s failed' % (self.cfg.name, self.host, self.port))
+                return
             else: logging.warn('%s - connected' % self.cfg.name)
-            self.logon(self.cfg.user, self.cfg.password, iq.id)
+            self.logon(self.cfg.user, self.cfg.password)
             start_new_thread(self._keepalive, ())
             self.requestroster()
             self._raw("<presence/>")
@@ -165,9 +164,11 @@ class SXMPPBot(XMLStream, BotBase):
             if reconnect:
                 return self.reconnect()
 
-    def logon(self, user, password, id=None):
+    def logon(self, user, password):
         """ logon on the xmpp server. """
-        if not self.auth(user, password, id):
+        iq = self.initstream()
+        if not iq: logging.error("sxmpp - cannot init stream") ; return
+        if not self.auth(user, password, iq.id):
             logging.warn("%s - sleeping 20 seconds before register" % self.cfg.name)
             time.sleep(20)
             if self.register(user, password):
@@ -179,13 +180,20 @@ class SXMPPBot(XMLStream, BotBase):
                 return
         XMLStream.logon(self)
  
+    def initstream(self):
+        """ send initial string sequence to the xmpp server. """
+        logging.debug('%s - starting initial stream sequence' % self.cfg.name)
+        self._raw("""<stream:stream to='%s' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams'>""" % (self.cfg.user.split('@')[1], )) 
+        result = self.connection.read()
+        iq = self.loop_one(result)
+        logging.debug("%s - initstream - %s" % (self.cfg.name, result))
+        return iq
+
     def register(self, jid, password):
         """ register the jid to the server. """
         try: resource = jid.split("/")[1]
         except IndexError: resource = "jsb"
-        if self.cfg.fulljid: target = jid
-        else: target = jid.split("@")[0]
-        logging.warn('%s - registering %s' % (self.cfg.name, target))
+        logging.warn('%s - registering %s' % (self.cfg.name, jid))
         self._raw("""<iq type='get'><query xmlns='jabber:iq:register'/></iq>""")
         result = self.connection.read()
         iq = self.loop_one(result)
@@ -193,9 +201,9 @@ class SXMPPBot(XMLStream, BotBase):
             logging.error("%s - unable to register" % self.cfg.name)
             return
         logging.debug('%s - register: %s' % (self.cfg.name, str(iq)))
-        self._raw("""<iq type='set'><query xmlns='jabber:iq:register'><username>%s</username><resource>%s</resource><password>%s</password></query></iq>""" % (target, resource, password))
+        self._raw("""<iq type='set'><query xmlns='jabber:iq:register'><username>%s</username><resource>%s</resource><password>%s</password></query></iq>""" % (jid.split('@')[0], resource, password))
         result = self.connection.read()
-        logging.info('%s - register - %s' % (self.cfg.name, result))
+        logging.debug('%s - register - %s' % (self.cfg.name, result))
         if not result: return False
         iq = self.loop_one(result)
         if not iq:
@@ -205,7 +213,7 @@ class SXMPPBot(XMLStream, BotBase):
         if iq.error:
             logging.warn('%s - register FAILED - %s' % (self.cfg.name, iq.error))
             if not iq.error.code: logging.error("%s - can't determine error code" % self.cfg.name) ; return False
-            if iq.error.code == "405": logging.error("%s - this server doesn't allow registration by the bot, you need to create an account for it yourself" % self.cfg.name) 
+            if iq.error.code == "405": logging.error("%s - this server doesn't allow registration by the bot, you need to create an account for it yourself" % self.cfg.name)
             elif iq.error.code == "500": logging.error("%s - %s - %s" % (self.cfg.name, iq.error.code, iq.error.text))
             else: logging.error("%s - %s" % (self.cfg.name, xmpperrors[iq.error.code]))
             self.error = iq.error
@@ -217,28 +225,24 @@ class SXMPPBot(XMLStream, BotBase):
         """ auth against the xmpp server. """
         logging.warn('%s - authing %s' % (self.cfg.name, jid))
         name = jid.split('@')[0]
-        if self.cfg.authjid: target = jid
-        else: target = name
         rsrc = self.cfg['resource'] or self.cfg['resource'] or 'jsb';
-        self._raw("""<iq type='get'><query xmlns='jabber:iq:auth'><username>%s</username></query></iq>""" % target)
+        self._raw("""<iq type='get'><query xmlns='jabber:iq:auth'><username>%s</username></query></iq>""" % name)
         result = self.connection.read()
-        if not result: logging.error("%s - can't get auth response" % self.cfg.name) ; return False
         iq = self.loop_one(result)
-        logging.info('%s - auth - %s' % (self.cfg.name, result))
+        logging.debug('%s - auth - %s' % (self.cfg.name, result))
         if ('digest' in result) and digest:
             s = hashlib.new('SHA1')
             s.update(digest)
             s.update(password)
             d = s.hexdigest()
-            self._raw("""<iq type='set'><query xmlns='jabber:iq:auth'><username>%s</username><digest>%s</digest><resource>%s</resource></query></iq>""" % (target, d, rsrc))
-        else: 
-            self._raw("""<iq type='set'><query xmlns='jabber:iq:auth'><username>%s</username><password>%s</password><resource>%s</resource></query></iq>""" % (target, password, rsrc))
+            self._raw("""<iq type='set'><query xmlns='jabber:iq:auth'><username>%s</username><digest>%s</digest><resource>%s</resource></query></iq>""" % (name, d, rsrc))
+        else: self._raw("""<iq type='set'><query xmlns='jabber:iq:auth'><username>%s</username><resource>%s</resource><password>%s</password></query></iq>""" % (name, rsrc, password))
         result = self.connection.read()
         iq = self.loop_one(result)
         if not iq:
             logging.error('%s - auth failed - %s' % (self.cfg.name, result))
             return False        
-        logging.info('%s - auth - %s' % (self.cfg.name, result))
+        logging.debug('%s - auth - %s' % (self.cfg.name, result))
         if iq.error:
             logging.warn('%s - auth failed - %s' % (self.cfg.name, iq.error.code))
             if iq.error.code == "401":
@@ -337,13 +341,15 @@ class SXMPPBot(XMLStream, BotBase):
             self.userhosts[nick] = str(frm)
             nickk = nick
         jid = None
-        if p.subelements:
-            for node in p.subelements:
-                try: jid = node.x.item.jid 
-                except (AttributeError, TypeError): continue
+        for node in p.subelements:
+            try:
+                jid = node.x.item.jid 
+            except (AttributeError, TypeError):
+                continue
         if nickk and jid:
             channel = p.channel
-            if not self.jids.has_key(channel): self.jids[channel] = {}
+            if not self.jids.has_key(channel):
+                self.jids[channel] = {}
             self.jids[channel][nickk] = jid
             self.userhosts[nickk] = str(jid)
             logging.debug('%s - setting jid of %s (%s) to %s' % (self.cfg.name, nickk, channel, jid))
@@ -360,19 +366,24 @@ class SXMPPBot(XMLStream, BotBase):
             try:
                 del self.jids[p.channel]
                 logging.debug('%s - removed %s channel jids' % (self.cfg.name, p.channel))
-            except KeyError:pass
+            except KeyError:
+                pass
         else:
             try:
                 del self.jids[p.channel][p.nick]
                 logging.debug('%s - removed %s jid' % (self.cfg.name, p.nick))
-            except KeyError: pass
+            except KeyError:
+                pass
         if p.type == 'error':
-            if p.subelements:
-                for node in p.subelements:
-                    try: err = node.error.code
-                    except (AttributeError, TypeError): err = 'no error set'
-                    try: txt = node.text.data
-                    except (AttributeError, TypeError): txt = ""
+            for node in p.subelements:
+                try:
+                    err = node.error.code
+                except (AttributeError, TypeError):
+                    err = 'no error set'
+                try:
+                    txt = node.text.data
+                except (AttributeError, TypeError):
+                    txt = ""
             if err:
                 logging.error('%s - error - %s - %s'  % (self.cfg.name, err, txt))
             try:
@@ -394,32 +405,46 @@ class SXMPPBot(XMLStream, BotBase):
 
     def send(self, what):
         """ send stanza to the server. """
-        if not what: logging.debug("%s - can't send empty message" % self.cfg.name) ; return
-        try: to = what['to']
-        except (KeyError, TypeError): logging.error("%s - can't determine where to send %s to" % (self.cfg.name, str(what))) ; return
-        try: jid = JID(to)
-        except (InvalidJID, AttributeError): logging.error("%s - invalid jid - %s - %s" % (self.cfg.name, str(to), whichmodule(2))) ; return
+        if not what:
+            logging.debug("%s - can't send empty message" % self.cfg.name)
+            return
+        try:
+            to = what['to']
+        except (KeyError, TypeError):
+            logging.error("%s - can't determine where to send %s to" % (self.cfg.name, str(what)))
+            return
+        try:
+            jid = JID(to)
+        except (InvalidJID, AttributeError):
+            logging.error("%s - invalid jid - %s - %s" % (self.cfg.name, str(to), whichmodule(2)))
+            return
         try: del what['from']
         except KeyError: pass
         try:
             xml = what.tojabber()
-            if not xml: raise Exception("can't convert %s to xml .. bot.send()" % what) 
-        except (AttributeError, TypeError): handle_exception() ; return
+            if not xml:
+                raise Exception("can't convert %s to xml .. bot.send()" % what) 
+        except (AttributeError, TypeError):
+            handle_exception()
+            return
         if not self.checkifvalid(xml): logging.error("%s - NOT PROPER XML - %s" % (self.cfg.name, xml))
         else: self._raw(xml)
            
     def action(self, printto, txt, fromm=None, groupchat=True, event=None, *args, **kwargs):
         """ send an action. """
         txt = "/me " + txt
-        if self.google: fromm = self.cfg.user
-        if printto in self.state['joinedchannels'] and groupchat: message = Message({'to': printto, 'txt': txt, 'type': 'groupchat'})
+        if self.google:
+            fromm = self.cfg.user
+        if printto in self.state['joinedchannels'] and groupchat:
+            message = Message({'to': printto, 'txt': txt, 'type': 'groupchat'})
         else: message = Message({'to': printto, 'txt': txt})
         if fromm: message.fromm = fromm
         self.send(message)
         
     def save(self):
         """ save bot's state. """
-        if self.state: self.state.save()
+        if self.state:
+            self.state.save()
 
     def quit(self):
         """ send unavailable presence. """
@@ -528,9 +553,6 @@ class SXMPPBot(XMLStream, BotBase):
         what = what.replace("</i>", "")
         what = what.replace("&lt;i&gt;", "")
         what = what.replace("&lt;/i&gt;", "")
-        what = what.replace("<br>", "\n")
-        what = what.replace("<li>", "* ")
-        what = what.replace("</li>", "\n")
         return what
 
     def doreconnect(self):
