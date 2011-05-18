@@ -168,6 +168,7 @@ class SXMPPBot(XMLStream, BotBase):
         """ logon on the xmpp server. """
         iq = self.initstream()
         if not iq: logging.error("sxmpp - cannot init stream") ; return
+        logging.info("%s - initstream response - %s" % (self.cfg.name, iq.orig))
         if not self.auth(user, password, iq.id):
             logging.warn("%s - sleeping 20 seconds before register" % self.cfg.name)
             time.sleep(20)
@@ -185,15 +186,17 @@ class SXMPPBot(XMLStream, BotBase):
         logging.debug('%s - starting initial stream sequence' % self.cfg.name)
         self._raw("""<stream:stream to='%s' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams'>""" % (self.cfg.user.split('@')[1], )) 
         result = self.connection.read()
+        logging.info("%s - initstream - %s" % (self.cfg.name, result))
         iq = self.loop_one(result)
-        logging.debug("%s - initstream - %s" % (self.cfg.name, result))
         return iq
 
     def register(self, jid, password):
         """ register the jid to the server. """
         try: resource = jid.split("/")[1]
         except IndexError: resource = "jsb"
-        logging.warn('%s - registering %s' % (self.cfg.name, jid))
+        if self.cfg.fulljid: target = jid
+        else: target = jid.split("@")[0]
+        logging.warn('%s - registering %s' % (self.cfg.name, target))
         self._raw("""<iq type='get'><query xmlns='jabber:iq:register'/></iq>""")
         result = self.connection.read()
         iq = self.loop_one(result)
@@ -201,12 +204,9 @@ class SXMPPBot(XMLStream, BotBase):
             logging.error("%s - unable to register" % self.cfg.name)
             return
         logging.debug('%s - register: %s' % (self.cfg.name, str(iq)))
-        if self.cfg.port == 5223:
-            self._raw("""<iq type='set'><query xmlns='jabber:iq:register'><username>%s</username><resource>%s</resource><password>%s</password></query></iq>""" % (jid, resource, password))
-        else:
-            self._raw("""<iq type='set'><query xmlns='jabber:iq:register'><username>%s</username><resource>%s</resource><password>%s</password></query></iq>""" % (jid.split('@')[0], resource, password))
+        self._raw("""<iq type='set'><query xmlns='jabber:iq:register'><username>%s</username><resource>%s</resource><password>%s</password></query></iq>""" % (target, resource, password))
         result = self.connection.read()
-        logging.debug('%s - register - %s' % (self.cfg.name, result))
+        logging.info('%s - register - %s' % (self.cfg.name, result))
         if not result: return False
         iq = self.loop_one(result)
         if not iq:
@@ -228,12 +228,12 @@ class SXMPPBot(XMLStream, BotBase):
         """ auth against the xmpp server. """
         logging.warn('%s - authing %s' % (self.cfg.name, jid))
         name = jid.split('@')[0]
+        if self.cfg.authjid: target = jid
+        else: target = name
         rsrc = self.cfg['resource'] or self.cfg['resource'] or 'jsb';
-        if self.cfg.port == 5223:
-            self._raw("""<iq type='get'><query xmlns='jabber:iq:auth'><username>%s</username></query></iq>""" % jid)
-        else:
-            self._raw("""<iq type='get'><query xmlns='jabber:iq:auth'><username>%s</username></query></iq>""" % name)
+        self._raw("""<iq type='get'><query xmlns='jabber:iq:auth'><username>%s</username></query></iq>""" % target)
         result = self.connection.read()
+        if not result: logging.error("%s - can't get auth response" % self.cfg.name) ; return False
         iq = self.loop_one(result)
         logging.info('%s - auth - %s' % (self.cfg.name, result))
         if ('digest' in result) and digest:
@@ -241,15 +241,9 @@ class SXMPPBot(XMLStream, BotBase):
             s.update(digest)
             s.update(password)
             d = s.hexdigest()
-            if self.cfg.port == 5223:
-                self._raw("""<iq type='set'><query xmlns='jabber:iq:auth'><username>%s</username><digest>%s</digest><resource>%s</resource></query></iq>""" % (jid, d, rsrc))
-            else:
-                self._raw("""<iq type='set'><query xmlns='jabber:iq:auth'><username>%s</username><digest>%s</digest><resource>%s</resource></query></iq>""" % (name, d, rsrc))
+            self._raw("""<iq type='set'><query xmlns='jabber:iq:auth'><username>%s</username><digest>%s</digest><resource>%s</resource></query></iq>""" % (target, d, rsrc))
         else: 
-            if self.cfg.port == 5223:
-                self._raw("""<iq type='set'><query xmlns='jabber:iq:auth'><username>%s</username><password>%s</password><resource>%s</resource></query></iq>""" % (jid, password, rsrc))
-            else:
-                self._raw("""<iq type='set'><query xmlns='jabber:iq:auth'><username>%s</username><password>%s</password><resource>%s</resource></query></iq>""" % (name, password, rsrc))
+            self._raw("""<iq type='set'><query xmlns='jabber:iq:auth'><username>%s</username><password>%s</password><resource>%s</resource></query></iq>""" % (target, password, rsrc))
         result = self.connection.read()
         iq = self.loop_one(result)
         if not iq:

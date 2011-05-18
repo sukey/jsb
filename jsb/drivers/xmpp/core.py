@@ -236,30 +236,33 @@ class XMLStream(NodeBuilder):
         self.sock.connect((self.cfg.server or self.cfg.host, self.cfg.port))
         self.sock.settimeout(60)
         time.sleep(1) 
-        logging.debug("%s - starting stream" % self.cfg.name)
-        if self.cfg.port != 5223:
-            #self.sock.send("<?xml version='1.0'?>")
+        #if self.cfg.port != 5223:
+        #    #self.sock.send("<?xml version='1.0'?>")
+        #else:
+        #    self.dossl()
+        #    self._raw('<stream:stream to="%s" xmlns="jabber:client" xmlns:stream="http://etherx.jabber.org/streams" version="1.0">\r\n' % self.cfg.user.split('@')[1])
+        #    time.sleep(3)
+        #    result = self.connection.read()
+        #if not result: logging.error("%s - can't receive from server" % self.cfg.name) ; return False
+        #logging.info("%s - %s" %  (self.cfg.name, str(result)))
+        #self.loop_one(result)
+        if not self.cfg.port == 5223:
             self.sock.send('<stream:stream to="%s" xmlns="jabber:client" xmlns:stream="http://etherx.jabber.org/streams" version="1.0">\r\n' % self.cfg.user.split('@')[1])
             time.sleep(3)
             result = self.sock.recv(1500)
-        else:
-            return self.dossl()
-            self._raw('<stream:stream to="%s" xmlns="jabber:client" xmlns:stream="http://etherx.jabber.org/streams" version="1.0">\r\n' % self.cfg.user.split('@')[1])
-            time.sleep(3)
-            result = self.connection.read()
-        if not result: logging.error("%s - can't receive from server" % self.cfg.name) ; return False
-        logging.debug("%s - %s" %  (self.cfg.name, str(result)))
-        self.loop_one(result)
-        if not self.cfg.port == 5223:
+            logging.info("%s - stream response - %s" % (self.cfg.name, result))
+            self.loop_one(result)
+            logging.info("%s - starting TLS" % self.cfg.name)
             self.sock.send('<starttls xmlns="urn:ietf:params:xml:ns:xmpp-tls"/>\r\n')
             time.sleep(3)
             result = self.sock.recv(1500)
-            logging.debug("%s - %s" % (self.cfg.name,  unicode(result)))
+            logging.info("%s - TLS result - %s" % (self.cfg.name,  unicode(result)))
             self.loop_one(result)
         self.sock.settimeout(60)
         self.sock.setblocking(1)
-        if not self.cfg.port == 5223: return self.dossl()
-        else: return True
+        #if not self.cfg.port == 5223: return self.dossl()
+        #else: return True
+        return self.dossl()
 
     def dossl(self):
         """ enable ssl on the socket. """
