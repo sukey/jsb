@@ -74,6 +74,11 @@ class XMLStream(NodeBuilder):
         self.addHandler('stream:features', self.handle_streamfeatures)
         self.addHandler('challenge', self.handle_challenge)
         self.addHandler('failure', self.handle_failure)
+        self.addHandler('success', self.handle_success)
+
+    def handle_success(self, data):
+        """ default stream handler. """
+        logging.info("%s - BINGO !! is %s" % (self.cfg.name, data.dump()))
 
     def handle_failure(self, data):
         """ default stream handler. """
@@ -247,15 +252,15 @@ class XMLStream(NodeBuilder):
         logging.warn("%s - connecting to %s:%s" % (self.cfg.name, self.cfg.server or self.cfg.host, self.cfg.port))
         self.sock.connect((self.cfg.server or self.cfg.host, self.cfg.port))
         self.sock.settimeout(60)
-        time.sleep(1) 
+        #time.sleep(1) 
         logging.debug("%s - starting stream" % self.cfg.name)
         self.sock.send('<stream:stream to="%s" xmlns="jabber:client" xmlns:stream="http://etherx.jabber.org/streams" version="1.0">\r\n' % self.cfg.user.split('@')[1])
-        time.sleep(3)
+        #time.sleep(3)
         result = self.sock.recv(1500)
         logging.debug("%s - %s" %  (self.cfg.name, str(result)))
         self.loop_one(result)
         self.sock.send('<starttls xmlns="urn:ietf:params:xml:ns:xmpp-tls"/>\r\n')
-        time.sleep(3)
+        #time.sleep(3)
         result = self.sock.recv(1500)
         logging.debug("%s - %s" % (self.cfg.name, str(result)))
         self.loop_one(result)

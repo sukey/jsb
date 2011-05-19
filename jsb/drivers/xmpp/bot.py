@@ -12,7 +12,7 @@ from jsb.utils.trace import whichmodule
 from jsb.utils.locking import lockdec
 from jsb.utils.pdod import Pdod
 from jsb.utils.dol import Dol
-from jsb.utils.generic import stripcolor
+from jsb.utils.generic import stripcolor, toenc, fromenc
 from jsb.lib.less import Less
 from jsb.lib.callbacks import callbacks, remote_callbacks
 from jsb.lib.threads import start_new_thread
@@ -20,6 +20,7 @@ from jsb.lib.botbase import BotBase
 from jsb.lib.exit import globalshutdown
 from jsb.lib.channelbase import ChannelBase
 from jsb.lib.fleet import getfleet
+from jsb.contrib.digestmd5 import makeresp
 
 ## jsb.socket imports
 
@@ -49,6 +50,8 @@ import hashlib
 import logging
 import cgi
 import base64
+import random
+from hashlib import md5
 
 ## locks
 
@@ -154,8 +157,9 @@ class SXMPPBot(XMLStream, BotBase):
                 return
             else: logging.warn('%s - connected' % self.cfg.name)
             self.logon(self.cfg.user, self.cfg.password)
+            time.sleep(2)
             start_new_thread(self._keepalive, ())
-            self.requestroster()
+            #self.requestroster()
             self._raw("<presence/>")
             self.connectok.set()
             self.sock.settimeout(None)
@@ -176,7 +180,7 @@ class SXMPPBot(XMLStream, BotBase):
                 time.sleep(5)
                 self.auth(user, password)
             else:
-                time.sleep(10)
+                time.sleep(1)
                 self.exit()
                 return
         XMLStream.logon(self)
@@ -239,32 +243,34 @@ class SXMPPBot(XMLStream, BotBase):
         (name, host) = jid.split('@')
         rsrc = self.cfg['resource'] or self.cfg['resource'] or 'jsb';
         if self.challenge:
-            res = base64.decodestring(self.challenge)
-            print res
-            nounce = None
-            realm = None
-            for item in res.split(","):
-                (i, j) = item.split("=")
-                if i == "nonce": nonce = j
-                if i == "realm": realm = j
-            if nonce:
-                #x = "%s:%s:%s" % (name, host, password)
-                s = hashlib.sha1()
-                s.update(nonce)
-                s.update(password)
-                d = s.hexdigest()
-                out = """username="%s",realm="%s",nonce=%s,nc=00000001,qop=auth,digest-uri="xmpp/example.com",response=%s,charset=utf-8""" % (name, realm or self.cfg.host, nonce, d)
-                print out
-                self._raw("<response xmlns='urn:ietf:params:xml:ns:xmpp-sasl'>%s</response>" % base64.encodestring(out))
-                result = self.connection.read()
-                print result
-                logging.info('%s - auth - %s' % (self.cfg.name, result))
-                iq = self.loop_one(result)
-                if not iq or iq.error: return False
-                time.sleep(3)
-                self._raw("<response xmlns='urn:ietf:params:xml:ns:xmpp-sasl'/>")
-                return True
-            return False
+            response = makeresp("xmpp/%s" % self.cfg.server, host, name, password, self.challenge)
+            self._raw("<response xmlns='urn:ietf:params:xml:ns:xmpp-sasl'>%s</response>" % response)
+            result = self.connection.read()
+            if "failure" in result: raise Exception(result)
+            logging.info('%s - auth - %s' % (self.cfg.name, result))
+            #iq = self.loop_one(result)
+            #if not iq or iq.error: return False
+            #time.sleep(3)
+            self._raw("<response xmlns='urn:ietf:params:xml:ns:xmpp-sasl'/>")
+            result = self.connection.read()
+            print result
+            iq = self.loop_one(result)
+            self._raw("<stream:stream xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' to='%s' version='1.0'>" % host)
+            result = self.connection.read()
+            print result
+            iq = self.loop_one(result)
+            self._raw("<iq type='set' id='bind_2'><bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'><resource>%s</resource></bind></iq>" % rsrc)
+            result = self.connection.read()
+            print result
+            iq = self.loop_one(result)
+            #XMLStream.logon(self)
+            #result = self.connection.read()
+            #print result
+            #iq = self.loop_one(result)
+            self._raw("<iq to='%s' type='set' id='sess_1'><session xmlns='urn:ietf:params:xml:ns:xmpp-session'/></iq>" % host)
+            result = self.connection.read()
+            print result
+            iq = self.loop_one(result)
         else:
             self._raw("""<iq type='get'><query xmlns='jabber:iq:auth'><username>%s</username></query></iq>""" % name)
             result = self.connection.read()
