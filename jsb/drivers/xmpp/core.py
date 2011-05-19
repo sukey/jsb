@@ -252,6 +252,7 @@ class XMLStream(NodeBuilder):
         logging.warn("%s - connecting to %s:%s" % (self.cfg.name, self.cfg.server or self.cfg.host, self.cfg.port))
         self.sock.connect((self.cfg.server or self.cfg.host, self.cfg.port))
         self.sock.settimeout(60)
+        if self.cfg.port == 5223: return self.dossl()
         #time.sleep(1) 
         logging.debug("%s - starting stream" % self.cfg.name)
         self.sock.send('<stream:stream to="%s" xmlns="jabber:client" xmlns:stream="http://etherx.jabber.org/streams" version="1.0">\r\n' % self.cfg.user.split('@')[1])

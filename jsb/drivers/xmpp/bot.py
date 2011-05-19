@@ -160,6 +160,7 @@ class SXMPPBot(XMLStream, BotBase):
             time.sleep(2)
             start_new_thread(self._keepalive, ())
             #self.requestroster()
+            time.sleep(2)
             self._raw("<presence/>")
             self.connectok.set()
             self.sock.settimeout(None)
