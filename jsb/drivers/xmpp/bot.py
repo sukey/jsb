@@ -172,16 +172,16 @@ class SXMPPBot(XMLStream, BotBase):
         """ logon on the xmpp server. """
         iq = self.initstream()
         if not iq: logging.error("sxmpp - cannot init stream") ; return
-        if not self.auth(user, password, iq.id):
+        try: self.auth(user, password, iq.id)
+        except Exception, ex:
+            if not "not-authorized" in str(ex): raise
             logging.warn("%s - sleeping 20 seconds before register" % self.cfg.name)
             time.sleep(20)
-            if self.register(user, password):
-                time.sleep(5)
-                self.auth(user, password)
-            else:
-                time.sleep(1)
+            try: self.register(user, password)
+            except Exception, ex:
                 self.exit()
-                return
+                raise
+            self.auth(user, password, iq.id)
         XMLStream.logon(self)
  
     def initstream(self):
