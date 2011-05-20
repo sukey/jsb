@@ -355,7 +355,6 @@ class XMLStream(NodeBuilder):
         res = LazyDict()
         parentname = dom.getName()
         data = dom.getData()
-        print parentname, data
         if data:
             self.final[parentname] = data
             if parentname == 'body': self.final['txt'] = data

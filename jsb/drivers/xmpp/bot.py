@@ -157,10 +157,8 @@ class SXMPPBot(XMLStream, BotBase):
                 return
             else: logging.warn('%s - connected' % self.cfg.name)
             self.logon(self.cfg.user, self.cfg.password)
-            time.sleep(2)
             start_new_thread(self._keepalive, ())
             #self.requestroster()
-            time.sleep(2)
             self._raw("<presence/>")
             self.connectok.set()
             self.sock.settimeout(None)
@@ -254,28 +252,24 @@ class SXMPPBot(XMLStream, BotBase):
             #time.sleep(3)
             self._raw("<response xmlns='urn:ietf:params:xml:ns:xmpp-sasl'/>")
             result = self.connection.read()
-            print result
+            logging.info("%s - %s" % (self.cfg.name, result))
             iq = self.loop_one(result)
             self._raw("<stream:stream xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' to='%s' version='1.0'>" % host)
             result = self.connection.read()
-            print result
+            logging.info("%s - %s" % (self.cfg.name, result))
             iq = self.loop_one(result)
             self._raw("<iq type='set' id='bind_2'><bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'><resource>%s</resource></bind></iq>" % rsrc)
             result = self.connection.read()
-            print result
+            logging.info("%s - %s" % (self.cfg.name, result))
             iq = self.loop_one(result)
-            #XMLStream.logon(self)
-            #result = self.connection.read()
-            #print result
-            #iq = self.loop_one(result)
             self._raw("<iq to='%s' type='set' id='sess_1'><session xmlns='urn:ietf:params:xml:ns:xmpp-session'/></iq>" % host)
             result = self.connection.read()
-            print result
+            logging.info("%s - %s" % (self.cfg.name, result))
             iq = self.loop_one(result)
         else:
             self._raw("""<iq type='get'><query xmlns='jabber:iq:auth'><username>%s</username></query></iq>""" % name)
             result = self.connection.read()
-            print result
+            logging.info("%s - %s" % (self.cfg.name, result))
             iq = self.loop_one(result)
             logging.info('%s - auth - %s' % (self.cfg.name, result))
             if ('digest' in result) and digest:
