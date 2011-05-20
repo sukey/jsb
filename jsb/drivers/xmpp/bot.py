@@ -158,7 +158,8 @@ class SXMPPBot(XMLStream, BotBase):
             return
         else: logging.warn('%s - connected' % self.cfg.name)
         methods = self.auth_methods(iq)
-        logging.warn("%s - auth methods are %s" % (self.cfg.name, ", ".join(methods)))
+        if methods: logging.warn("%s - auth methods are %s" % (self.cfg.name, ", ".join(methods)))
+        else: logging.warn("%s - not features found" % self.cfg.name)
         self.auth_sasl(methods)
         if self.cfg.port == 5223: self.init_stream()
         self.sock.settimeout(60)
@@ -182,7 +183,8 @@ class SXMPPBot(XMLStream, BotBase):
             self.stopped = False
             try: self.register(user, password)
             except Exception, ex: self.exit() ; raise
-            self.auth(user, password, iq.id)
+            time.sleep(5)
+            self.auth(user, password, iq)
         XMLStream.logon(self)
  
     def register(self, jid, password):
@@ -208,7 +210,7 @@ class SXMPPBot(XMLStream, BotBase):
 
     def auth(self, jid, password, iq=None):
         """ auth against the xmpp server. """
-        logging.warn('%s - authing %s - %s' % (self.cfg.name, jid, iq.digest))
+        logging.warn('%s - authing %s' % (self.cfg.name, jid))
         (name, host) = jid.split('@')
         rsrc = self.cfg['resource'] or self.cfg['resource'] or 'jsb';
         if "DIGEST-MD5" in self.features:
@@ -221,9 +223,9 @@ class SXMPPBot(XMLStream, BotBase):
             self.waiter("<iq to='%s' type='set' id='sess_1'><session xmlns='urn:ietf:params:xml:ns:xmpp-session'/></iq>" % host)
         else:
             resp = self.waiter("""<iq type='get'><query xmlns='jabber:iq:auth'><username>%s</username></query></iq>""" % name)
-            if ('digest' in resp.orig):
+            if 'digest' in resp:
                 s = hashlib.new('SHA1')
-                s.update(digest)
+                s.update(resp.digest)
                 s.update(password)
                 d = s.hexdigest()
                 iq = self.waiter("""<iq type='set'><query xmlns='jabber:iq:auth'><username>%s</username><digest>%s</digest><resource>%s</resource></query></iq>""" % (name, d, rsrc))
