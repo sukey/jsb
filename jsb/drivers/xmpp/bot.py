@@ -149,82 +149,52 @@ class SXMPPBot(XMLStream, BotBase):
                     p = Presence({'to': chan})
                     self.send(p)
 
-    def connect(self, reconnect=True):
+    def connect(self, reconnect=False):
         """ connect the xmpp server. """
-        try:
-            if not XMLStream.connect(self):
-                logging.error('%s - connect to %s:%s failed' % (self.cfg.name, self.host, self.port))
-                return
-            else: logging.warn('%s - connected' % self.cfg.name)
-            self.logon(self.cfg.user, self.cfg.password)
-            start_new_thread(self._keepalive, ())
-            #self.requestroster()
-            self._raw("<presence/>")
-            self.connectok.set()
-            self.sock.settimeout(None)
-            return True
-        except Exception, ex:
-            handle_exception()
-            if reconnect:
-                return self.reconnect()
+        XMLStream.doconnect(self)
+        iq = self.makeready()
+        if not iq:
+            logging.error('%s - connect to %s:%s failed' % (self.cfg.name, self.host, self.port))
+            return
+        else: logging.warn('%s - connected' % self.cfg.name)
+        methods = self.auth_methods(iq)
+        logging.warn("%s - auth methods are %s" % (self.cfg.name, ", ".join(methods)))
+        self.auth_sasl(methods)
+        if self.cfg.port == 5223: self.init_stream()
+        self.sock.settimeout(60)
+        self.sock.setblocking(1)
+        self.logon(self.cfg.user, self.cfg.password, iq)
+        self._raw("<presence/>")
+        start_new_thread(self._keepalive, ())
+        #self.requestroster()
+        self.connectok.set()
+        self.sock.settimeout(None)
+        return True
 
-    def logon(self, user, password):
+    def logon(self, user, password, iq):
         """ logon on the xmpp server. """
-        iq = self.initstream()
-        if not iq: logging.error("sxmpp - cannot init stream") ; return
-        try: self.auth(user, password, iq.id)
+                
+        try: self.auth(user, password, iq)
         except Exception, ex:
             if not "not-authorized" in str(ex): raise
             logging.warn("%s - sleeping 20 seconds before register" % self.cfg.name)
             time.sleep(20)
+            self.stopped = False
             try: self.register(user, password)
-            except Exception, ex:
-                self.exit()
-                raise
+            except Exception, ex: self.exit() ; raise
             self.auth(user, password, iq.id)
         XMLStream.logon(self)
  
-    def initstream(self):
-        """ send initial string sequence to the xmpp server. """
-        logging.debug('%s - starting initial stream sequence' % self.cfg.name)
-        self._raw("""<stream:stream to='%s' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>""" % (self.cfg.user.split('@')[1], )) 
-        result = self.connection.read()
-        iq = self.loop_one(result)
-        logging.info("%s - initstream - %s" % (self.cfg.name, result))
-        result = self.connection.read()
-        self.loop_one(result)
-        logging.info("%s - features - %s" % (self.cfg.name, result))
-        self.challenge = None
-        if 'DIGEST' in result:
-            self._raw("""<auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' mechanism='DIGEST-MD5'/>""")
-            result = self.connection.read()
-            self.loop_one(result)
-            logging.info("%s - challenge - %s" % (self.cfg.name, result))
-            self.challenge = re.findall(">(.*?)</challenge>", result)[0]
-        else: self._raw("""<auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' mechanism='PLAIN'/>""")
-        return iq
-
     def register(self, jid, password):
         """ register the jid to the server. """
         try: resource = jid.split("/")[1]
         except IndexError: resource = "jsb"
         logging.warn('%s - registering %s' % (self.cfg.name, jid))
-        self._raw("""<iq type='get'><query xmlns='jabber:iq:register'/></iq>""")
-        result = self.connection.read()
-        iq = self.loop_one(result)
+        iq = self.waiter("""<iq type='get'><query xmlns='jabber:iq:register'/></iq>""")
         if not iq:
             logging.error("%s - unable to register" % self.cfg.name)
             return
-        logging.debug('%s - register: %s' % (self.cfg.name, str(iq)))
-        self._raw("""<iq type='set'><query xmlns='jabber:iq:register'><username>%s</username><resource>%s</resource><password>%s</password></query></iq>""" % (jid.split('@')[0], resource, password))
-        result = self.connection.read()
-        logging.debug('%s - register - %s' % (self.cfg.name, result))
-        if not result: return False
-        iq = self.loop_one(result)
-        if not iq:
-            logging.error("%s - can't decode data - %s" % (self.cfg.name, result))
-            return False
-        logging.debug('sxmpp - register - %s' % result)
+        iq = self.waiter("""<iq type='set'><query xmlns='jabber:iq:register'><username>%s</username><resource>%s</resource><password>%s</password></query></iq>""" % (jid.split('@')[0], resource, password))
         if iq.error:
             logging.warn('%s - register FAILED - %s' % (self.cfg.name, iq.error))
             if not iq.error.code: logging.error("%s - can't determine error code" % self.cfg.name) ; return False
@@ -232,59 +202,36 @@ class SXMPPBot(XMLStream, BotBase):
             elif iq.error.code == "500": logging.error("%s - %s - %s" % (self.cfg.name, iq.error.code, iq.error.text))
             else: logging.error("%s - %s" % (self.cfg.name, xmpperrors[iq.error.code]))
             self.error = iq.error
-            return False
+            raise Exception(iq.error)
         logging.warn('%s - register ok' % self.cfg.name)
         return True
 
-    def auth(self, jid, password, digest=""):
+    def auth(self, jid, password, iq=None):
         """ auth against the xmpp server. """
-        logging.warn('%s - authing %s - %s' % (self.cfg.name, jid, digest))
+        logging.warn('%s - authing %s - %s' % (self.cfg.name, jid, iq.digest))
         (name, host) = jid.split('@')
         rsrc = self.cfg['resource'] or self.cfg['resource'] or 'jsb';
-        if self.challenge:
+        if "DIGEST-MD5" in self.features:
             response = makeresp("xmpp/%s" % self.cfg.server, host, name, password, self.challenge)
-            self._raw("<response xmlns='urn:ietf:params:xml:ns:xmpp-sasl'>%s</response>" % response)
-            result = self.connection.read()
-            if "failure" in result: raise Exception(result)
-            logging.info('%s - auth - %s' % (self.cfg.name, result))
-            #iq = self.loop_one(result)
-            #if not iq or iq.error: return False
-            #time.sleep(3)
-            self._raw("<response xmlns='urn:ietf:params:xml:ns:xmpp-sasl'/>")
-            result = self.connection.read()
-            logging.info("%s - %s" % (self.cfg.name, result))
-            iq = self.loop_one(result)
-            self._raw("<stream:stream xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' to='%s' version='1.0'>" % host)
-            result = self.connection.read()
-            logging.info("%s - %s" % (self.cfg.name, result))
-            iq = self.loop_one(result)
-            self._raw("<iq type='set' id='bind_2'><bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'><resource>%s</resource></bind></iq>" % rsrc)
-            result = self.connection.read()
-            logging.info("%s - %s" % (self.cfg.name, result))
-            iq = self.loop_one(result)
-            self._raw("<iq to='%s' type='set' id='sess_1'><session xmlns='urn:ietf:params:xml:ns:xmpp-session'/></iq>" % host)
-            result = self.connection.read()
-            logging.info("%s - %s" % (self.cfg.name, result))
-            iq = self.loop_one(result)
+            resp = self.waiter("<response xmlns='urn:ietf:params:xml:ns:xmpp-sasl'>%s</response>" % response)
+            if "failure" in str(resp.orig): raise Exception(resp.orig)
+            self.waiter("<response xmlns='urn:ietf:params:xml:ns:xmpp-sasl'/>")
+            self.waiter("<stream:stream xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' to='%s' version='1.0'>" % host)
+            self.waiter("<iq type='set' id='bind_2'><bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'><resource>%s</resource></bind></iq>" % rsrc)
+            self.waiter("<iq to='%s' type='set' id='sess_1'><session xmlns='urn:ietf:params:xml:ns:xmpp-session'/></iq>" % host)
         else:
-            self._raw("""<iq type='get'><query xmlns='jabber:iq:auth'><username>%s</username></query></iq>""" % name)
-            result = self.connection.read()
-            logging.info("%s - %s" % (self.cfg.name, result))
-            iq = self.loop_one(result)
-            logging.info('%s - auth - %s' % (self.cfg.name, result))
-            if ('digest' in result) and digest:
+            resp = self.waiter("""<iq type='get'><query xmlns='jabber:iq:auth'><username>%s</username></query></iq>""" % name)
+            if ('digest' in resp.orig):
                 s = hashlib.new('SHA1')
                 s.update(digest)
                 s.update(password)
                 d = s.hexdigest()
-                self._raw("""<iq type='set'><query xmlns='jabber:iq:auth'><username>%s</username><digest>%s</digest><resource>%s</resource></query></iq>""" % (name, d, rsrc))
-            else: self._raw("""<iq type='set'><query xmlns='jabber:iq:auth'><username>%s</username><resource>%s</resource><password>%s</password></query></iq>""" % (name, rsrc, password))
-            result = self.connection.read()
-            iq = self.loop_one(result)
+                iq = self.waiter("""<iq type='set'><query xmlns='jabber:iq:auth'><username>%s</username><digest>%s</digest><resource>%s</resource></query></iq>""" % (name, d, rsrc))
+            else: iq = self.waiter("""<iq type='set'><query xmlns='jabber:iq:auth'><username>%s</username><resource>%s</resource><password>%s</password></query></iq>""" % (name, rsrc, password))
             if not iq:
                 logging.error('%s - auth failed - %s' % (self.cfg.name, result))
                 return False        
-            logging.debug('%s - auth - %s' % (self.cfg.name, result))
+            logging.debug('%s - auth - %s' % (self.cfg.name, iq.orig))
             if iq.error:
                 logging.warn('%s - auth failed - %s' % (self.cfg.name, iq.error.code))
             if iq.error.code == "401":
@@ -603,10 +550,8 @@ class SXMPPBot(XMLStream, BotBase):
         newbot = getfleet().makebot('sxmpp', self.cfg.name, config=self.cfg)
         if not newbot: raise Exception(self.cfg.dump())
         newbot.reconnectcount = self.reconnectcount
-        self.exit()
-        if newbot.start():
-            #self.cfg.user += '.old'
-            newbot.joinchannels()
-            if fleet.replace(botjid, newbot): return True
+        newbot.start()
+        newbot.joinchannels()
+        if fleet.replace(botjid, newbot): return True
         return False
 

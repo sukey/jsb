@@ -34,6 +34,7 @@ import logging
 import thread
 import cgi
 import xml
+import re
 
 ## locks
 
@@ -56,13 +57,14 @@ class XMLStream(NodeBuilder):
         if not self.cfg.name: raise Exception("bot name is not set in config file %s" % self.cfg.filename)
         self.connection = None
         self.encoding = "utf-8"
-        self.stop = False
+        self.stopped = False
         self.result = LazyDict()
         self.final = LazyDict()
         self.subelements = []
         self.reslist = []
         self.cur = u""
         self.tags = []
+        self.features = []
         self.handlers = LazyDict()
         self.addHandler('proceed', self.handle_proceed)
         self.addHandler('message', self.handle_message)
@@ -83,7 +85,7 @@ class XMLStream(NodeBuilder):
     def handle_failure(self, data):
         """ default stream handler. """
         logging.info("%s - failure is %s" % (self.cfg.name, data.dump()))
-
+        self.stopped = True
     def handle_challenge(self, data):
         """ default stream handler. """
         logging.info("%s - challenge is %s" % (self.cfg.name, data.dump()))
@@ -99,10 +101,12 @@ class XMLStream(NodeBuilder):
     def handle_streamend(self, data):
         """ default stream handler. """
         logging.warn("%s - stream END - %s" % (self.cfg.name, data))
-        
+        self.stopped = True
+
     def handle_streamerror(self, data):
         """ default stream error handler. """
         logging.error("%s - STREAMERROR - %s" % (self.cfg.name, data.dump()))
+        self.stopped = True
  
     def handle_streamfeatures(self, data):
         """ default stream features handler. """
@@ -213,7 +217,7 @@ class XMLStream(NodeBuilder):
     @outlocked
     def _raw(self, stanza):
         """ output a xml stanza to the socket. """
-        if not self.connection: return
+        if self.stopped: logging.warn("%s - bot is stopped .. not sending" % self.cfg.name) ; return
         time.sleep(0.01)
         try:
             stanza = stanza.strip()
@@ -222,15 +226,16 @@ class XMLStream(NodeBuilder):
                 return
             what = jabberstrip(stanza)
             what = toenc(stanza)
-            logging.info("%s - out - %s" % (self.cfg.name, what))             
             if not what.endswith('>') or not what.startswith('<'):
                 logging.error('%s - invalid stanza: %s' % (self.cfg.name, what))
                 return
             start = what[:3]
             if start in ['<st', '<me', '<pr', '<iq', "<au", "<re"]:
-                logging.debug(u"%s - sxmpp - out - %s" % (self.cfg.name, what))
+                logging.info(u"%s - sxmpp - out - %s" % (self.cfg.name, what))
                 try: self.connection.send(what + u"\r\n")
-                except AttributeError: self.connection.write(what)
+                except AttributeError:
+                    try: self.connection.write(what)
+                    except AttributeError: self.sock.send(what)
             else: logging.error('%s - invalid stanza: %s' % (self.cfg.name, what))
         except socket.error, ex:
             if 'Broken pipe' in str(ex):
@@ -242,7 +247,21 @@ class XMLStream(NodeBuilder):
             self.error = str(ex)
             handle_exception()
 
-    def connect(self):
+    def waiter(self, txt=None, find=None):
+        if txt: self._raw(txt)
+        res = None
+        while 1:
+            try: result = self.connection.read()
+            except AttributeError: result = self.sock.recv(1500)
+            if self.stopped: break
+            if not result: time.sleep(0.1) ; continue
+            logging.info("%s - %s" %  (self.cfg.name, result))
+            res = self.loop_one(result)
+            if not find: break
+            elif find in result: break
+        return res
+
+    def doconnect(self):
         """ connect to the server. """
         target = self.cfg.server or self.cfg.host
         logging.warn("%s - TARGET is %s" % (self.cfg.name, target))
@@ -251,37 +270,58 @@ class XMLStream(NodeBuilder):
         self.sock.settimeout(10)
         logging.warn("%s - connecting to %s:%s" % (self.cfg.name, self.cfg.server or self.cfg.host, self.cfg.port))
         self.sock.connect((self.cfg.server or self.cfg.host, self.cfg.port))
-        self.sock.settimeout(60)
+        logging.warn("%s - connected to server." % self.cfg.name)
+        return True
+
+    def makeready(self):
         if self.cfg.port == 5223: return self.dossl()
-        time.sleep(1) 
-        logging.debug("%s - starting stream" % self.cfg.name)
-        self.sock.send('<stream:stream to="%s" xmlns="jabber:client" xmlns:stream="http://etherx.jabber.org/streams" version="1.0">\r\n' % self.cfg.user.split('@')[1])
-        time.sleep(3)
-        result = self.sock.recv(1500)
-        logging.info("%s - %s" %  (self.cfg.name, result))
-        self.loop_one(result)
-        self.sock.send('<starttls xmlns="urn:ietf:params:xml:ns:xmpp-tls"/>\r\n')
-        #time.sleep(3)
-        result = self.sock.recv(1500)
-        logging.info("%s - %s" % (self.cfg.name, result))
-        self.loop_one(result)
+        iq = self.init_stream()
+        self.init_tls()
         self.sock.settimeout(60)
         self.sock.setblocking(1)
-        return self.dossl()
+        self.dossl()
+        return iq
+
+    def init_stream(self):
+        if self.stopped: return
+        logging.info("%s - starting stream" % self.cfg.name)
+        iq = self.waiter('<stream:stream to="%s" xmlns="jabber:client" xmlns:stream="http://etherx.jabber.org/streams" version="1.0">' % self.cfg.user.split('@')[1], "mechanism")
+        time.sleep(1)
+        return iq
+
+    def auth_methods(self, iq):
+        if self.stopped: return
+        if not iq.orig: raise Exception("%s - can't detect auth method" % self.cfg.name)
+        self.features = re.findall("<mechanism>(.*?)</mechanism>", iq.orig)
+        return self.features
+
+    def auth_sasl(self, methods):
+        if self.stopped: return
+        self.init_stream()
+        if 'DIGEST-MD5' in methods:
+            logging.warn("%s - login method is DIGEST-MD5" % self.cfg.name)
+            resp = self.waiter("""<auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' mechanism='DIGEST-MD5'/>""", "challenge")
+            print resp.dump()
+            challenge = re.findall(">(.*?)</challenge>", resp.orig)
+            if not challenge: logging.error("%s - can't find challenge" % self.cfg.name)
+            else: self.challenge = challenge[0]
+        else:
+            logging.warn("%s - login method is PLAIN" % self.cfg.name)
+            resp = self.waiter("""<auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' mechanism='PLAIN'/>""")
+        return resp
+
+    def init_tls(self):
+        if self.stopped: return
+        logging.info("%s - starting TLS" % self.cfg.name)
+        return self.waiter('<starttls xmlns="urn:ietf:params:xml:ns:xmpp-tls"/>')
 
     def dossl(self):
         """ enable ssl on the socket. """
-        try:
-            import ssl
-            logging.debug("%s - wrapping ssl socket" % self.cfg.name)
-            self.connection = ssl.wrap_socket(self.sock)
-        except ImportError:
-            logging.debug("%s - making ssl socket" % self.cfg.name)
-            self.connection = socket.ssl(self.sock)
-        if self.connection:
-            return True
-        else:
-            return False
+        if self.stopped: return
+        try: import ssl ; self.connection = ssl.wrap_socket(self.sock)
+        except ImportError: self.connection = socket.ssl(self.sock)
+        if self.connection: return True
+        else: return False
 
     def logon(self):
         """ called upon logon on the server. """

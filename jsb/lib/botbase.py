@@ -458,15 +458,16 @@ class BotBase(LazyDict):
     def reconnect(self):
         """ reconnect to the server. """
         if self.stopped: logging.warn("%s - bot is stopped .. not reconnecting" % self.cfg.name) ; return
-        try:
-            try: self.exit()
-            except Exception, ex: handle_exception()
-            self.reconnectcount += 1
-            logging.warn('%s - reconnecting .. sleeping %s seconds' % (self.cfg.name, self.reconnectcount*15))
-            time.sleep(self.reconnectcount * 15)   
-            self.doreconnect()
-        except Exception, ex: 
-            handle_exception()
+        while 1:
+            try:
+                self.exit()
+                self.reconnectcount += 1
+                logging.warn('%s - reconnecting .. sleeping %s seconds' % (self.cfg.name, self.reconnectcount*15))
+                time.sleep(self.reconnectcount * 15)   
+                self.doreconnect()
+                break
+            except Exception, ex: 
+                handle_exception()
 
     def doreconnect(self):
         self.start(connect=True)
@@ -487,7 +488,7 @@ class BotBase(LazyDict):
         """ close connection with the server. """
         pass
 
-    def connect(self, reconnect=True, *args, **kwargs):
+    def connect(self, reconnect=False, *args, **kwargs):
         """ connect to the server. """
         pass
 
