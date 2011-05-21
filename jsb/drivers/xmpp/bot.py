@@ -156,13 +156,6 @@ class SXMPPBot(XMLStream, BotBase):
         if not iq:
             logging.error('%s - connect to %s:%s failed' % (self.cfg.name, self.host, self.port))
             return
-        methods = self.auth_methods(iq)
-        if methods: logging.warn("%s - auth methods are %s" % (self.cfg.name, ", ".join(methods)))
-        else: logging.warn("%s - not features found" % self.cfg.name)
-        if self.cfg.port == 5223: self.auth_sasl(False)
-        else: self.auth_sasl(True)
-        self.sock.settimeout(60)
-        self.sock.setblocking(1)
         self.logon(self.cfg.user, self.cfg.password, iq)
         self._raw("<presence/>")
         start_new_thread(self._keepalive, ())
@@ -205,43 +198,6 @@ class SXMPPBot(XMLStream, BotBase):
             self.error = iq.error
             raise Exception(iq.error)
         logging.warn('%s - register ok' % self.cfg.name)
-        return True
-
-    def auth(self, jid, password, iq=None):
-        """ auth against the xmpp server. """
-        logging.warn('%s - authing %s' % (self.cfg.name, jid))
-        (name, host) = jid.split('@')
-        rsrc = self.cfg['resource'] or self.cfg['resource'] or 'jsb';
-        if "DIGEST-MD5" in self.features:
-            response = makeresp("xmpp/%s" % self.cfg.server, host, name, password, self.challenge)
-            resp = self.waiter("<response xmlns='urn:ietf:params:xml:ns:xmpp-sasl'>%s</response>" % response)
-            if "failure" in str(resp.orig): raise Exception(resp.orig)
-            self.waiter("<response xmlns='urn:ietf:params:xml:ns:xmpp-sasl'/>")
-            self.waiter("<stream:stream xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' to='%s' version='1.0'>" % host)
-            self.waiter("<iq type='set' id='bind_2'><bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'><resource>%s</resource></bind></iq>" % rsrc)
-            self.waiter("<iq to='%s' type='set' id='sess_1'><session xmlns='urn:ietf:params:xml:ns:xmpp-session'/></iq>" % host)
-        else:
-            resp = self.waiter("""<iq type='get'><query xmlns='jabber:iq:auth'><username>%s</username></query></iq>""" % name)
-            if 'digest' in resp:
-                s = hashlib.new('SHA1')
-                s.update(resp.digest)
-                s.update(password)
-                d = s.hexdigest()
-                iq = self.waiter("""<iq type='set'><query xmlns='jabber:iq:auth'><username>%s</username><digest>%s</digest><resource>%s</resource></query></iq>""" % (name, d, rsrc))
-            else: iq = self.waiter("""<iq type='set'><query xmlns='jabber:iq:auth'><username>%s</username><resource>%s</resource><password>%s</password></query></iq>""" % (name, rsrc, password))
-            if not iq:
-                logging.error('%s - auth failed - %s' % (self.cfg.name, result))
-                return False        
-            logging.debug('%s - auth - %s' % (self.cfg.name, iq.orig))
-            if iq.error:
-                logging.warn('%s - auth failed - %s' % (self.cfg.name, iq.error.code))
-            if iq.error.code == "401":
-                logging.warn("%s - wrong user or password" % self.cfg.name)
-            else:
-                logging.warn("%s - %s" % (self.cfg.name, result))
-                self.error = iq.error
-                return False
-        logging.warn('%s - auth ok' % self.cfg.name)
         return True
 
     def requestroster(self):

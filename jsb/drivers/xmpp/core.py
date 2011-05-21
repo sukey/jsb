@@ -19,6 +19,7 @@ from jsb.lib.threads import start_new_thread
 from jsb.utils.trace import whichmodule
 from jsb.lib.gozerevent import GozerEvent
 from jsb.lib.fleet import getfleet
+from jsb.contrib.digestmd5 import makeresp
 
 ## xmpp import
 
@@ -133,7 +134,7 @@ class XMLStream(NodeBuilder):
         except xml.parsers.expat.ExpatError, ex: 
             if 'not well-formed' in str(ex):  
                 logging.error("%s - data is not well formed" % self.cfg.name)
-                logging.debug(data)
+                logging.info(data)
                 handle_exception()
                 logging.debug("buffer: %s previous: %s" % (self.buffer, self.prevbuffer))
                 return {}
@@ -230,7 +231,7 @@ class XMLStream(NodeBuilder):
                 logging.error('%s - invalid stanza: %s' % (self.cfg.name, what))
                 return
             start = what[:3]
-            if start in ['<st', '<me', '<pr', '<iq', "<au", "<re"]:
+            if start in ['<st', '<me', '<pr', '<iq', "<au", "<re", "<fa"]:
                 logging.info(u"%s - sxmpp - out - %s" % (self.cfg.name, what))
                 try: self.connection.send(what + u"\r\n")
                 except AttributeError:
@@ -287,7 +288,18 @@ class XMLStream(NodeBuilder):
         logging.info("%s - starting stream" % self.cfg.name)
         iq = self.waiter('<stream:stream to="%s" xmlns="jabber:client" xmlns:stream="http://etherx.jabber.org/streams" version="1.0">' % self.cfg.user.split('@')[1], "mechanism")
         time.sleep(1)
+        self.auth_methods(iq)
         return iq
+
+    def auth(self, jid, password, iq=None, initstream=True):
+        """ auth against the xmpp server. """
+        logging.warn('%s - authing %s' % (self.cfg.name, jid))
+        (name, host) = jid.split('@')
+        rsrc = self.cfg['resource'] or self.cfg['resource'] or 'jsb';
+        if self.cfg.port == 5223: self.auth_sasl(jid, password, iq, False)
+        else: self.auth_sasl(jid, password, iq, initstream)
+        self.sock.settimeout(60)
+        self.sock.setblocking(1)
 
     def auth_methods(self, iq):
         if self.stopped: return []
@@ -295,18 +307,59 @@ class XMLStream(NodeBuilder):
         self.features = re.findall("<mechanism>(.*?)</mechanism>", iq.orig)
         return self.features
 
-    def auth_sasl(self, initstream=True):
+    def auth_sasl(self, jid, password, iq=None, initstream=True):
         if self.stopped: return
         if initstream: self.init_stream()
-        if 'DIGEST-MD5' in self.features:
-            logging.warn("%s - login method is DIGEST-MD5" % self.cfg.name)
-            resp = self.waiter("""<auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' mechanism='DIGEST-MD5'/>""", "challenge")
-            challenge = re.findall(">(.*?)</challenge>", resp.orig)
-            if not challenge: logging.error("%s - can't find challenge" % self.cfg.name)
-            else: self.challenge = challenge[0]
-        else:
-            logging.warn("%s - login method is PLAIN" % self.cfg.name)
-            resp = self.waiter("""<auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' mechanism='PLAIN'/>""")
+        for method in self.features:
+            if not method in ["DIGEST-MD5", "PLAIN"]: logging.warn("skipping %s" % method) ; continue
+            try:
+                meth = getattr(self, "auth_%s" % method.replace("-", "_").lower())
+                logging.warn("%s - calling auth method %s" % (self.cfg.name, method))
+                meth(jid, password, iq)
+                self.authmethod = method
+                logging.warn("%s - login method is %s" % (self.cfg.name, method))
+                return
+            except Exception, ex: handle_exception()
+        #logging.error("%s - can't use sasl .. falling back to nonsasl" % self.cfg.name)
+        #self.auth_nonsasl(jid, password, iq)
+
+    def auth_nonsasl(self, jid, password, iq=None):
+        """ auth against the xmpp server. """
+        logging.warn('%s - authing %s' % (self.cfg.name, jid))
+        (name, host) = jid.split('@')
+        rsrc = self.cfg['resource'] or self.cfg['resource'] or 'jsb';
+        self._raw("<failure xmlns='urn:ietf:params:xml:ns:xmpp-sasl'><aborted/></failure>")
+        time.sleep(2)
+        iq = self._raw('<stream:stream to="%s" xmlns="jabber:client" xmlns:stream="http://etherx.jabber.org/streams">' % self.cfg.user.split('@')[1])
+        time.sleep(1)
+        resp = self.waiter("""<iq type='get'><query xmlns='jabber:iq:auth'><username>%s</username></query></iq>""" % name)
+        if 'digest' in resp:
+            s = hashlib.new('SHA1')
+            s.update(resp.digest)
+            s.update(password)
+            d = s.hexdigest()
+            iq = self.waiter("""<iq type='set'><query xmlns='jabber:iq:auth'><username>%s</username><digest>%s</digest><resource>%s</resource></query></iq>""" % (name, d, rsrc))
+        else: iq = self.waiter("""<iq type='set'><query xmlns='jabber:iq:auth'><username>%s</username><resource>%s</resource><password>%s</password></query></iq>""" % (name, rsrc, password))
+
+    def auth_digest_md5(self, jid, password, iq=None):
+        (name, host) = jid.split('@')
+        rsrc = self.cfg['resource'] or self.cfg['resource'] or 'jsb';
+        resp = self.waiter("""<auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' mechanism='DIGEST-MD5'/>""", "challenge")
+        challenge = re.findall(">(.*?)</challenge>", resp.orig)
+        if not challenge: logging.error("%s - can't find challenge" % self.cfg.name)
+        else: self.challenge = challenge[0]
+        response = makeresp("xmpp/%s" % self.cfg.server, host, name, password, self.challenge)
+        resp = self.waiter("<response xmlns='urn:ietf:params:xml:ns:xmpp-sasl'>%s</response>" % response)
+        if "failure" in str(resp.orig): raise Exception(resp.orig)
+        self.waiter("<response xmlns='urn:ietf:params:xml:ns:xmpp-sasl'/>")
+        self.waiter("<stream:stream xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' to='%s' version='1.0'>" % host)
+        self.waiter("<iq type='set' id='bind_2'><bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'><resource>%s</resource></bind></iq>" % rsrc)
+        self.waiter("<iq to='%s' type='set' id='sess_1'><session xmlns='urn:ietf:params:xml:ns:xmpp-session'/></iq>" % host)
+
+    def auth_plain(self, jid, password, iq=None):
+        (name, host) = jid.split('@')
+        rsrc = self.cfg['resource'] or self.cfg['resource'] or 'jsb';
+        resp = self.waiter("""<auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' mechanism='PLAIN'/>""")
         return resp
 
     def init_tls(self):
