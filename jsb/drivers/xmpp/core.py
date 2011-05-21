@@ -231,7 +231,7 @@ class XMLStream(NodeBuilder):
                 logging.error('%s - invalid stanza: %s' % (self.cfg.name, what))
                 return
             start = what[:3]
-            if start in ['<st', '<me', '<pr', '<iq', "<au", "<re", "<fa"]:
+            if start in ['<st', '<me', '<pr', '<iq', "<au", "<re", "<fa", "<ab"]:
                 logging.info(u"%s - sxmpp - out - %s" % (self.cfg.name, what))
                 try: self.connection.send(what + u"\r\n")
                 except AttributeError:
@@ -311,7 +311,7 @@ class XMLStream(NodeBuilder):
         if self.stopped: return
         if initstream: self.init_stream()
         for method in self.features:
-            if not method in ["DIGEST-MD5", "PLAIN"]: logging.warn("skipping %s" % method) ; continue
+            if method not in ["DIGEST-MD5", "PLAIN"]: logging.warn("skipping %s" % method) ; continue
             try:
                 meth = getattr(self, "auth_%s" % method.replace("-", "_").lower())
                 logging.warn("%s - calling auth method %s" % (self.cfg.name, method))
@@ -320,16 +320,15 @@ class XMLStream(NodeBuilder):
                 logging.warn("%s - login method is %s" % (self.cfg.name, method))
                 return
             except Exception, ex: handle_exception()
-        #logging.error("%s - can't use sasl .. falling back to nonsasl" % self.cfg.name)
-        #self.auth_nonsasl(jid, password, iq)
+        logging.error("%s - can't use sasl .. falling back to nonsasl" % self.cfg.name)
+        self.waiter("<abort xmlns='urn:ietf:params:xml:ns:xmpp-sasl'/>\r\n")
+        self.auth_nonsasl(jid, password, iq)
 
     def auth_nonsasl(self, jid, password, iq=None):
         """ auth against the xmpp server. """
         logging.warn('%s - authing %s' % (self.cfg.name, jid))
         (name, host) = jid.split('@')
         rsrc = self.cfg['resource'] or self.cfg['resource'] or 'jsb';
-        self._raw("<failure xmlns='urn:ietf:params:xml:ns:xmpp-sasl'><aborted/></failure>")
-        time.sleep(2)
         iq = self._raw('<stream:stream to="%s" xmlns="jabber:client" xmlns:stream="http://etherx.jabber.org/streams">' % self.cfg.user.split('@')[1])
         time.sleep(1)
         resp = self.waiter("""<iq type='get'><query xmlns='jabber:iq:auth'><username>%s</username></query></iq>""" % name)
