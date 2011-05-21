@@ -301,7 +301,6 @@ class XMLStream(NodeBuilder):
         if 'DIGEST-MD5' in self.features:
             logging.warn("%s - login method is DIGEST-MD5" % self.cfg.name)
             resp = self.waiter("""<auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' mechanism='DIGEST-MD5'/>""", "challenge")
-            print resp.dump()
             challenge = re.findall(">(.*?)</challenge>", resp.orig)
             if not challenge: logging.error("%s - can't find challenge" % self.cfg.name)
             else: self.challenge = challenge[0]
