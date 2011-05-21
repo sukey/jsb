@@ -274,7 +274,7 @@ class XMLStream(NodeBuilder):
         return True
 
     def makeready(self):
-        if self.cfg.port == 5223: return self.dossl()
+        if self.cfg.port == 5223: self.dossl() ; iq = self.init_stream() ; return iq
         iq = self.init_stream()
         self.init_tls()
         self.sock.settimeout(60)
@@ -290,15 +290,15 @@ class XMLStream(NodeBuilder):
         return iq
 
     def auth_methods(self, iq):
-        if self.stopped: return
+        if self.stopped: return []
         if not iq.orig: raise Exception("%s - can't detect auth method" % self.cfg.name)
         self.features = re.findall("<mechanism>(.*?)</mechanism>", iq.orig)
         return self.features
 
-    def auth_sasl(self, methods):
+    def auth_sasl(self, initstream=True):
         if self.stopped: return
-        self.init_stream()
-        if 'DIGEST-MD5' in methods:
+        if initstream: self.init_stream()
+        if 'DIGEST-MD5' in self.features:
             logging.warn("%s - login method is DIGEST-MD5" % self.cfg.name)
             resp = self.waiter("""<auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' mechanism='DIGEST-MD5'/>""", "challenge")
             print resp.dump()

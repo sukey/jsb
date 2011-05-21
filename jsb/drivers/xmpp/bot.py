@@ -156,25 +156,23 @@ class SXMPPBot(XMLStream, BotBase):
         if not iq:
             logging.error('%s - connect to %s:%s failed' % (self.cfg.name, self.host, self.port))
             return
-        else: logging.warn('%s - connected' % self.cfg.name)
         methods = self.auth_methods(iq)
         if methods: logging.warn("%s - auth methods are %s" % (self.cfg.name, ", ".join(methods)))
         else: logging.warn("%s - not features found" % self.cfg.name)
-        self.auth_sasl(methods)
-        if self.cfg.port == 5223: self.init_stream()
+        if self.cfg.port == 5223: self.auth_sasl(False)
+        else: self.auth_sasl(True)
         self.sock.settimeout(60)
         self.sock.setblocking(1)
         self.logon(self.cfg.user, self.cfg.password, iq)
         self._raw("<presence/>")
         start_new_thread(self._keepalive, ())
-        #self.requestroster()
+        if self.cfg.doroster: self.requestroster()
         self.connectok.set()
         self.sock.settimeout(None)
         return True
 
     def logon(self, user, password, iq):
         """ logon on the xmpp server. """
-                
         try: self.auth(user, password, iq)
         except Exception, ex:
             if not "not-authorized" in str(ex): raise
@@ -184,6 +182,7 @@ class SXMPPBot(XMLStream, BotBase):
             try: self.register(user, password)
             except Exception, ex: self.exit() ; raise
             time.sleep(5)
+            self.auth_sasl(False)
             self.auth(user, password, iq)
         XMLStream.logon(self)
  
