@@ -36,6 +36,7 @@ import thread
 import cgi
 import xml
 import re
+import hashlib
 
 ## locks
 
@@ -296,7 +297,8 @@ class XMLStream(NodeBuilder):
         logging.warn('%s - authing %s' % (self.cfg.name, jid))
         (name, host) = jid.split('@')
         rsrc = self.cfg['resource'] or self.cfg['resource'] or 'jsb';
-        if self.cfg.port == 5223: self.auth_sasl(jid, password, iq, False)
+        if self.cfg.nosasl: self.auth_nosasl(jid, password, iq)
+        elif self.cfg.port == 5223: self.auth_sasl(jid, password, iq, False)
         else: self.auth_sasl(jid, password, iq, initstream)
         self.sock.settimeout(60)
         self.sock.setblocking(1)
@@ -318,13 +320,13 @@ class XMLStream(NodeBuilder):
                 meth(jid, password, iq)
                 self.authmethod = method
                 logging.warn("%s - login method is %s" % (self.cfg.name, method))
-                return
+                return method
             except Exception, ex: handle_exception()
-        logging.error("%s - can't use sasl .. falling back to nonsasl" % self.cfg.name)
-        self.waiter("<abort xmlns='urn:ietf:params:xml:ns:xmpp-sasl'/>\r\n")
-        self.auth_nonsasl(jid, password, iq)
+        #logging.error("%s - can't use sasl .. falling back to nonsasl" % self.cfg.name)
+        #self.waiter("<abort xmlns='urn:ietf:params:xml:ns:xmpp-sasl'/>\r\n")
+        #self.auth_nonsasl(jid, password, iq)
 
-    def auth_nonsasl(self, jid, password, iq=None):
+    def auth_nosasl(self, jid, password, iq=None):
         """ auth against the xmpp server. """
         logging.warn('%s - authing %s' % (self.cfg.name, jid))
         (name, host) = jid.split('@')
@@ -332,9 +334,10 @@ class XMLStream(NodeBuilder):
         iq = self._raw('<stream:stream to="%s" xmlns="jabber:client" xmlns:stream="http://etherx.jabber.org/streams">' % self.cfg.user.split('@')[1])
         time.sleep(1)
         resp = self.waiter("""<iq type='get'><query xmlns='jabber:iq:auth'><username>%s</username></query></iq>""" % name)
-        if 'digest' in resp:
+        self.waiter()
+        if resp and resp.id:
             s = hashlib.new('SHA1')
-            s.update(resp.digest)
+            s.update(resp.id)
             s.update(password)
             d = s.hexdigest()
             iq = self.waiter("""<iq type='set'><query xmlns='jabber:iq:auth'><username>%s</username><digest>%s</digest><resource>%s</resource></query></iq>""" % (name, d, rsrc))
