@@ -509,6 +509,6 @@ class SXMPPBot(XMLStream, BotBase):
         newbot.reconnectcount = self.reconnectcount
         newbot.start()
         newbot.joinchannels()
-        if fleet.replace(botjid, newbot): return True
+        if getfleet().replace(botjid, newbot): return True
         return False
 
