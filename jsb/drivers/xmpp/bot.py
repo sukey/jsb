@@ -93,7 +93,7 @@ class SXMPPBot(XMLStream, BotBase):
         try: self.cfg.port = int(self.cfg.port)
         except (ValueError, TypeError): self.cfg.port = 5222
         logging.warn("%s - user is %s" % (self.cfg.name, self.cfg.user))
-
+        
     def _resumedata(self):
         """ return data needed for resuming. """
         return {self.cfg.name: {
@@ -154,7 +154,7 @@ class SXMPPBot(XMLStream, BotBase):
         XMLStream.doconnect(self)
         iq = self.makeready()
         if not iq:
-            logging.error('%s - connect to %s:%s failed' % (self.cfg.name, self.host, self.port))
+            logging.error('%s - connect to %s:%s (%s) failed' % (self.cfg.name, self.cfg.host, self.cfg.port, self.cfg.server))
             return
         self.logon(self.cfg.user, self.cfg.password, iq)
         self._raw("<presence/>")
@@ -175,7 +175,7 @@ class SXMPPBot(XMLStream, BotBase):
             try: self.register(user, password)
             except Exception, ex: self.exit() ; raise
             time.sleep(5)
-            self.auth_sasl(False)
+            self.auth_sasluser, password, (False)
             self.auth(user, password, iq)
         XMLStream.logon(self)
  

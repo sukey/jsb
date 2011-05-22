@@ -20,6 +20,7 @@ from jsb.lib.factory import BotFactory
 from jsb.utils.lazydict import LazyDict
 
 ## simplejson imports
+
 from jsb.imports import getjson
 json = getjson()
 
@@ -137,7 +138,7 @@ class Fleet(Persist):
             except ValueError: pass
             raise Exception("no bot type specified")
         if not cfg.owner:
-            logging.error("%s - owner not set .. using global config." % cfg.name) 
+            logging.info("%s - owner not set .. using global config." % cfg.name) 
             cfg.owner = getmainconfig().owner
         if not cfg.domain and domain: cfg.domain = domain
         if not cfg: raise Exception("can't make config for %s" % name)

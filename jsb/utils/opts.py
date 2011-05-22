@@ -217,7 +217,7 @@ def makesxmppconfig(opts=None, botname=None):
         except ValueError: print "user is not in the nick@server format"
     if opts.password: cfg.password = opts.password
     if opts.server: cfg.server = opts.server
-    else: cfg.server = cfg.server or "localhost"
+    else: cfg.server = cfg.server or ""
     if opts.name: cfg.jid = opts.name
     if not cfg.owner: cfg.owner = []
     if opts.owner and opts.owner not in cfg.owner: cfg.owner.append(opts.owner)

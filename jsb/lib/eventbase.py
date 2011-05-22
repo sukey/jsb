@@ -107,7 +107,7 @@ class EventBase(LazyDict):
                 bot.users.addguest(target)
             self.user = user or bot.users.getuser(target)
             logging.debug("binding user - %s - from %s" % (str(self.user), whichmodule()))
-        if not self.user and target: logging.info("no %s user found .. setting nodispatch" % target) ; self.nodispatch = True
+        if not self.user and target: logging.debug("no %s user found .. setting nodispatch" % target) ; self.nodispatch = True
         self.prepare(bot)
         self.bonded = True
         return self

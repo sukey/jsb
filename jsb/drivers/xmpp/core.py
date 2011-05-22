@@ -321,10 +321,9 @@ class XMLStream(NodeBuilder):
                 self.authmethod = method
                 logging.warn("%s - login method is %s" % (self.cfg.name, method))
                 return method
-            except Exception, ex: handle_exception()
-        #logging.error("%s - can't use sasl .. falling back to nonsasl" % self.cfg.name)
-        #self.waiter("<abort xmlns='urn:ietf:params:xml:ns:xmpp-sasl'/>\r\n")
-        #self.auth_nonsasl(jid, password, iq)
+            except Exception, ex: 
+                if "not-authorized" in str(ex): raise
+                else: handle_exception()
 
     def auth_nosasl(self, jid, password, iq=None):
         """ auth against the xmpp server. """
@@ -359,6 +358,7 @@ class XMLStream(NodeBuilder):
         self.waiter("<iq to='%s' type='set' id='sess_1'><session xmlns='urn:ietf:params:xml:ns:xmpp-session'/></iq>" % host)
 
     def auth_plain(self, jid, password, iq=None):
+        raise Exception("SASL PLAIN is not suported yet.")
         (name, host) = jid.split('@')
         rsrc = self.cfg['resource'] or self.cfg['resource'] or 'jsb';
         resp = self.waiter("""<auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' mechanism='PLAIN'/>""")
