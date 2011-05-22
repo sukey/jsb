@@ -136,8 +136,6 @@ class BotBase(LazyDict):
         self.cmndperms = getcmndperms()
         self.outputmorphs = outputmorphs
         self.inputmorphs = inputmorphs
-        #fleet = getfleet(datadir)
-        #if not fleet.byname(self.cfg.name): fleet.bots.append(self) ; 
         if not self.isgae:
             defaultrunner.start()
             callbackrunner.start()
@@ -350,7 +348,6 @@ class BotBase(LazyDict):
             callbacks.check(self, e1)
             if not e1.stop: last_callbacks.check(self, e1)
         event.callbackdone = True
-        #if not self.isgae: import asyncore ; asyncore.loop(1)
         waiter.check(self, event)
         return event
 
@@ -463,8 +460,9 @@ class BotBase(LazyDict):
                 self.exit()
                 self.reconnectcount += 1
                 logging.warn('%s - reconnecting .. sleeping %s seconds' % (self.cfg.name, self.reconnectcount*15))
-                time.sleep(self.reconnectcount * 15)   
+                time.sleep(0.1)
                 self.doreconnect()
+                time.sleep(self.reconnectcount * 15)   
                 break
             except Exception, ex: 
                 handle_exception()
