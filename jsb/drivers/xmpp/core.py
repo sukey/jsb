@@ -37,6 +37,8 @@ import cgi
 import xml
 import re
 import hashlib
+import sys
+import base64
 
 ## locks
 
@@ -351,17 +353,24 @@ class XMLStream(NodeBuilder):
         else: self.challenge = challenge[0]
         response = makeresp("xmpp/%s" % self.cfg.server, host, name, password, self.challenge)
         resp = self.waiter("<response xmlns='urn:ietf:params:xml:ns:xmpp-sasl'>%s</response>" % response)
-        if "failure" in str(resp.orig): raise Exception(resp.orig)
+        if "not-authorized" in str(resp.orig): raise Exception(resp.orig)
         self.waiter("<response xmlns='urn:ietf:params:xml:ns:xmpp-sasl'/>")
         self.waiter("<stream:stream xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' to='%s' version='1.0'>" % host)
         self.waiter("<iq type='set' id='bind_2'><bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'><resource>%s</resource></bind></iq>" % rsrc)
         self.waiter("<iq to='%s' type='set' id='sess_1'><session xmlns='urn:ietf:params:xml:ns:xmpp-session'/></iq>" % host)
 
     def auth_plain(self, jid, password, iq=None):
-        raise Exception("SASL PLAIN is not suported yet.")
         (name, host) = jid.split('@')
         rsrc = self.cfg['resource'] or self.cfg['resource'] or 'jsb';
-        resp = self.waiter("""<auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' mechanism='PLAIN'/>""")
+        if sys.version_info < (3, 0):
+            user = bytes(jid)
+            passw = bytes(password)
+        else:
+            user = bytes(jid, 'utf-8')
+            passw = bytes(password, 'utf-8')
+        auth = base64.b64encode(b'\x00' + user + \
+                                        b'\x00' + passw).decode('utf-8')
+        resp = self.waiter("""<auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' mechanism='PLAIN'>%s</auth>""" % auth)
         return resp
 
     def init_tls(self):
