@@ -84,7 +84,7 @@ try:
             #    if tmp: self.size = len(tmp)
             #    if tmp: self.data = tmp ; logging.debug("%s - loaded %s" % (cachetype, self.fn)) ; return
             jsontxt =  mc.get(self.fn) ; cachetype = "cache"
-            self.size = len(jsontxt)
+            #self.size = len(jsontxt)
             if type(default) == types.DictType:
                 default2 = LazyDict()
                 default2.update(default)
