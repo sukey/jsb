@@ -53,9 +53,13 @@ except: pass
 
 format_short = "[\033[1m\033[91m!\033[0m] %(asctime)-8s - \033[1m\033[92m%(module)+12s.%(funcName)-14s\033[0m - \033[93m%(message)s\033[0m"
 format = "[\033[1m\033[91m!\033[0m] %(asctime)s.%(msecs)-13s - \033[1m\033[92m%(module)s.%(funcName)s:%(lineno)s\033[0m - \033[93m%(message)s\033[0m - %(levelname)s - <%(threadName)s>"
+format_short_plain = "[!] %(asctime)-8s - %(module)+12s.%(funcName)-14s - %(message)s"
+format_plain = "[!] %(asctime)s.%(msecs)-13s - %(module)s.%(funcName)s:%(lineno)s - %(message)s - %(levelname)s - <%(threadName)s>"
 datefmt = '%H:%M:%S'
 formatter_short = logging.Formatter(format_short, datefmt=datefmt)
 formatter = logging.Formatter(format, datefmt=datefmt)
+formatter_short_plain = logging.Formatter(format_short_plain, datefmt=datefmt)
+formatter_plain = logging.Formatter(format_plain, datefmt=datefmt)
 
 try:
     import waveapi
@@ -77,8 +81,8 @@ def setloglevel(level_name="warn"):
         for handler in root.handlers: root.removeHandler(handler)
     ch = logging.StreamHandler()
     ch.setLevel(level)
-    if level_name in ["debug",]: ch.setFormatter(formatter) ; filehandler.setFormatter(formatter)
-    else: ch.setFormatter(formatter_short) ; filehandler.setFormatter(formatter_short)
+    if level_name in ["debug",]: ch.setFormatter(formatter) ; filehandler.setFormatter(formatter_plain)
+    else: ch.setFormatter(formatter_short) ; filehandler.setFormatter(formatter_short_plain)
     try: import waveapi
     except ImportError:
         root.addHandler(ch)
