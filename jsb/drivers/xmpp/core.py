@@ -169,7 +169,6 @@ class XMLStream(NodeBuilder):
         self.error = ""
         data = ""
         while not self.stopped and not self.stopreadloop:
-            time.sleep(0.001)
             try:
                 data = jabberstrip(fromenc(self.connection.read()))
                 if self.stopped or self.stopreadloop: break
@@ -222,7 +221,6 @@ class XMLStream(NodeBuilder):
     def _raw(self, stanza):
         """ output a xml stanza to the socket. """
         if self.stopped: logging.warn("%s - bot is stopped .. not sending" % self.cfg.name) ; return
-        time.sleep(0.01)
         try:
             stanza = stanza.strip()
             if not stanza:
@@ -241,6 +239,8 @@ class XMLStream(NodeBuilder):
                     try: self.connection.write(what)
                     except AttributeError: self.sock.send(what)
             else: logging.error('%s - invalid stanza: %s' % (self.cfg.name, what))
+            if self.cfg.sleeptime: time.sleep(self.cfg.sleeptime)
+            else: time.sleep(0.1)
         except socket.error, ex:
             if 'Broken pipe' in str(ex):
                 logging.debug('%s - core - broken pipe .. ignoring' % self.cfg.name)

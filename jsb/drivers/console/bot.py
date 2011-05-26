@@ -62,6 +62,7 @@ class ConsoleBot(BotBase):
     BOLD='\033[1m'
     RED = '\033[91m'
     YELLOW = '\033[93m'
+    BLUE = '\033[94m'
     GREEN = '\033[92m'
     ENDC = '\033[0m'
 
@@ -93,7 +94,7 @@ class ConsoleBot(BotBase):
                         handle_exception()
                         continue
                 self.put(event)
-                waitforqueue(event.resqueue)
+                if self.shouldwait: waitforqueue(event.resqueue)
                 time.sleep(0.2)
             except NoInput: continue
             except (KeyboardInterrupt, EOFError): break
@@ -125,7 +126,7 @@ class ConsoleBot(BotBase):
 
     def normalize(self, what):
         what = strippedtxt(what)
-        what = what.replace("<b>", self.RED)
+        what = what.replace("<b>", self.BLUE)
         what = what.replace("</b>", self.ENDC)
         what = what.replace("<i>", self.YELLOW)
         what = what.replace("</i>", self.ENDC)

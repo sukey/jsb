@@ -51,8 +51,8 @@ try:
     if not os.path.isdir(LOGDIR): os.mkdir(LOGDIR)
 except: pass
 
-format_short = "[\033[1m\033[91m!\033[0m] %(asctime)-8s - \033[92m%(module)+12s.%(funcName)-14s\033[0m - \033[93m%(message)s\033[0m"
-format = "[\033[1m\033[91m!\033[0m] %(asctime)s.%(msecs)-13s - \033[92m%(module)s.%(funcName)s:%(lineno)s\033[0m - \033[93m%(message)s\033[0m - %(levelname)s - <%(threadName)s>"
+format_short = "\033[1m[\033[94m!\033[0m] \033[98m%(asctime)-8s\033[0m - \033[92m%(module)+12s.%(funcName)-14s\033[0m - \033[93m%(message)s\033[0m"
+format = "\033[1m[\033[94m!\033[0m] \033[98m%(asctime)s.%(msecs)-13s\033[0m - \033[92m%(module)s.%(funcName)s:%(lineno)s\033[0m - \033[93m%(message)s\033[0m - %(levelname)s - <%(threadName)s>"
 format_short_plain = "[!] %(asctime)-8s - %(module)+12s.%(funcName)-14s - %(message)s"
 format_plain = "[!] %(asctime)s.%(msecs)-13s - %(module)s.%(funcName)s:%(lineno)s - %(message)s - %(levelname)s - <%(threadName)s>"
 datefmt = '%H:%M:%S'

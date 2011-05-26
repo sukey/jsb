@@ -54,6 +54,7 @@ def dispatch(bot, event):
             if not e.options: e.makeoptions()
             e.bind(bot)
             if event.chan and e.usercmnd in event.chan.data.silentcommands: e.silent = True
+            e.shouldwait = True
             result = bot.plugs.dispatch(bot, e)
         else:
             logging.debug("dispatch - no go for %s (cc is %s)" % (event.auth or event.userhost, execstr))

@@ -39,4 +39,4 @@ class ConsoleEvent(EventBase):
         self.usercmnd = input.split()[0]
         self.channel = self.userhost
         self.cbtype = self.cmnd = unicode("CONSOLE")
-        #self.bind(bot)
+        self.bind(bot)
