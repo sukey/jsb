@@ -71,7 +71,7 @@ except ImportError:
 
 ## setloglevel function
 
-def setloglevel(level_name="warn"):
+def setloglevel(level_name="warn", colors=False):
     """ set loglevel to level_name. """
     if not level_name: return
     level = LEVELS.get(str(level_name).lower(), logging.NOTSET)
@@ -81,8 +81,14 @@ def setloglevel(level_name="warn"):
         for handler in root.handlers: root.removeHandler(handler)
     ch = logging.StreamHandler()
     ch.setLevel(level)
-    if level_name in ["debug",]: ch.setFormatter(formatter) ; filehandler.setFormatter(formatter_plain)
-    else: ch.setFormatter(formatter_short) ; filehandler.setFormatter(formatter_short_plain)
+    if level_name in ["debug",]: 
+         if colors: ch.setFormatter(formatter)
+         else: ch.setFormatter(formatter_plain)
+         filehandler.setFormatter(formatter_plain)
+    else:
+         if colors: ch.setFormatter(formatter_short)
+         else: ch.setFormatter(formatter_short_plain)
+         filehandler.setFormatter(formatter_short_plain)
     try: import waveapi
     except ImportError:
         root.addHandler(ch)

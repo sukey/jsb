@@ -61,7 +61,7 @@ if not fleet.avail(): logging.error("fleet - no bots found.") ; os._exit(1)
 from jsb.lib.config import getmainconfig
 mainconfig = getmainconfig()
 from jsb.utils.log import setloglevel
-setloglevel(opts.loglevel or mainconfig.loglevel or "warn") 
+setloglevel(opts.loglevel or mainconfig.loglevel or "warn", opts.colors) 
 if opts.loglevel: mainconfig.loglevel = opts.loglevel ; mainconfig.save()
 
 ## start the fleet

@@ -28,7 +28,7 @@ if opts.datadir and not os.path.isdir(opts.datadir): os.mkdir(opts.datadir)
 from jsb.lib.config import getmainconfig
 from jsb.utils.log import setloglevel
 mainconfig = getmainconfig()
-setloglevel(opts.loglevel or mainconfig.loglevel or "warning")
+setloglevel(opts.loglevel or mainconfig.loglevel or "warning", opts.colors)
 if opts.loglevel: mainconfig.loglevel = opts.loglevel ; mainconfig.save()
 
 from jsb.lib.boot import boot

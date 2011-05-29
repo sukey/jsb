@@ -44,6 +44,7 @@ def makeircopts(txt=""):
     parser.add_option('', '--name', type='string', default=False, dest='name', help="bot's name")
     parser.add_option('', '--port', type='string', default=False, dest='port',  help="set port of server to connect to")
     parser.add_option('', '--save', action='store_true', default=False, dest='save',  help="save to config file")
+    parser.add_option('', '--colors', action='store_true', default=False, dest='colors',  help="enable the use of colors")
     parser.add_option('-n', '--nick', type='string', default=False, dest='nick',  help="nick of the bot")
     parser.add_option('', '--ssl', action='store_true', default=False, dest='ssl',  help="use ssl")
     parser.add_option('-y', '--nossl', action='store_true', default=False, dest='nossl',  help="don't use ssl")
@@ -65,6 +66,7 @@ def makeconvoreopts(txt=""):
     parser.add_option('-p', '--password', type='string', default=False, dest='password', help="set password used to connect to the server")
     parser.add_option('-c', '--channel', type='string', default=False, dest='channel',  help="channel to join")
     parser.add_option('', '--name', type='string', default=False, dest='name', help="bot's name")
+    parser.add_option('', '--colors', action='store_true', default=False, dest='colors',  help="enable the use of colors")
     parser.add_option('-u', '--username', type='string', default=False, dest='username',  help="username of the bot")
     if txt: opts, args = parser.parse_args(txt.split())
     else: opts, args = parser.parse_args()
@@ -88,6 +90,7 @@ def makesxmppopts(txt=""):
     parser.add_option('', '--name', type='string', default=False, dest='name', help="bot's name")
     parser.add_option('', '--port', type='string', default=False, dest='port',  help="set port of server to connect to")
     parser.add_option('', '--save', action='store_true', default=False, dest='save',  help="save to config file")
+    parser.add_option('', '--colors', action='store_true', default=False, dest='colors',  help="enable the use of colors")
     parser.add_option('-n', '--nick', type='string', default=False, dest='nick',  help="nick of the bot")
     if txt: opts, args = parser.parse_args(txt.split())
     else: opts, args = parser.parse_args()
@@ -103,7 +106,7 @@ def makeconsoleopts():
     parser.add_option('-l', '--loglevel', type='string', default="", dest='loglevel',  help="loglevel of the bot")
     parser.add_option('', '--name', type='string', default=False, dest='name', help="bot's name")
     parser.add_option('-x', '--exec', type='string', default="", dest='command', help="give a command to execute")
-#    parser.add_option('-z', '--forward', action='store_true', default=False, dest='forward', help="enable forwarding bot")
+    parser.add_option('', '--colors', action='store_true', default=False, dest='colors',  help="enable the use of colors")
     try: opts, args = parser.parse_args()
     except Exception, ex: logging.warn("opts - can't parse %s" % txt) ; return
     opts.args = args
@@ -119,6 +122,7 @@ def makefleetopts():
     parser.add_option('-d', '--datadir', type='string', default=False, dest='datadir',  help="datadir of the bot")
     parser.add_option('-l', '--loglevel', type='string', default="", dest='loglevel',  help="loglevel of the bot")
     parser.add_option('-o', '--owner', type='string', default=False, dest='owner',  help="owner of the bot")
+    parser.add_option('', '--colors', action='store_true', default=False, dest='colors',  help="enable the use of colors")
     parser.add_option('', '-r', type='string', default=False, dest='doresume',  metavar='PATH', 
                   help="resume the bot from the folder specified")
     try: opts, args = parser.parse_args()
