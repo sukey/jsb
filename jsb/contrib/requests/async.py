@@ -38,7 +38,7 @@ if not 'eventlet' in locals():
     raise ImportError('No Async adaptations of urllib2 found!')
 
 
-from .core import *
+from jsb.contrib.requests.core import *
 
 
 __all__ = [

@@ -271,8 +271,10 @@ class BotBase(LazyDict):
 
     def start(self, connect=True, join=True):
         """ start the mainloop of the bot. """
-        if not self.isgae: 
-            if connect: self.connect()
+        if not self.isgae:
+            try: 
+               if connect: self.connect()
+            except Exception, ex: logging.error("%s - can't connect: %s" % (self.cfg.name, str(ex))) ; return
             start_new_thread(self._outloop, ())
             start_new_thread(self._eventloop, ())
             start_new_thread(self._readloop, ())
