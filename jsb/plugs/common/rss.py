@@ -214,7 +214,7 @@ sleeptime=15*60, running=0):
             except AttributeError: status = None
         else:
             url = self.data['url']
-            logging.warn("fetching %s" % url)
+            logging.info("fetching %s" % url)
             result = feedparser.parse(url, agent=useragent(), etag=etag)
             try: status = result.status
             except AttributeError: status = None

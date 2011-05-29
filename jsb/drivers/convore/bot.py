@@ -121,9 +121,9 @@ class ConvoreBot(BotBase):
                 if self.stopped or self.stopreadloop: break
                 if not result: time.sleep(20) ; continue
                 if result.has_key("_id"): self.cursor = result["_id"]
-                logging.info("%s - incoming - %s" % (self.cfg.name, str(result)))
                 if not result: continue
                 if not result.messages: continue
+                logging.info("%s - incoming - %s" % (self.cfg.name, str(result)))
                 for message in result.messages:
                     try:
                         event = ConvoreEvent()
