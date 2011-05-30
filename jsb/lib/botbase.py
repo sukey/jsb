@@ -462,9 +462,9 @@ class BotBase(LazyDict):
                 self.exit()
                 self.reconnectcount += 1
                 logging.warn('%s - reconnecting .. sleeping %s seconds' % (self.cfg.name, self.reconnectcount*15))
+                time.sleep(self.reconnectcount * 15)   
                 time.sleep(0.1)
                 self.doreconnect()
-                time.sleep(self.reconnectcount * 15)   
                 break
             except Exception, ex: 
                 handle_exception()

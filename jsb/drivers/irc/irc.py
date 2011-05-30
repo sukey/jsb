@@ -373,7 +373,7 @@ class Irc(BotBase):
         """ save state data. """
         if self.state: self.state.save()
 
-    def connect(self):
+    def connect(self, reconnect=True):
         """ 
             connect to server/port using nick .. connect can timeout so catch
             exception .. reconnect if enabled.
@@ -388,12 +388,13 @@ class Irc(BotBase):
             self._onconnect()
             self.connected = True
             self.connecting = False
+            return True
         except (socket.gaierror, socket.error), ex:
             logging.error('%s - connecting error: %s' % (self.cfg.name, str(ex)))
-            return
         except Exception, ex:
             handle_exception()
             logging.error('%s - connecting error: %s' % (self.cfg.name, str(ex)))
+        if reconnect: self.reconnect()
 
     def shutdown(self):
         """ shutdown the bot. """
