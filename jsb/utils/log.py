@@ -4,6 +4,10 @@
 
 """ log module. """
 
+## jsb import
+
+from jsb.lib.config import getmainconfig
+
 ## basic imports
 
 import logging
@@ -74,6 +78,8 @@ except ImportError:
 def setloglevel(level_name="warn", colors=False):
     """ set loglevel to level_name. """
     if not level_name: return
+    mainconfig = getmainconfig()
+    docolors = colors or mainconfig.color
     level = LEVELS.get(str(level_name).lower(), logging.NOTSET)
     root = logging.getLogger()
     root.setLevel(level)
@@ -82,11 +88,11 @@ def setloglevel(level_name="warn", colors=False):
     ch = logging.StreamHandler()
     ch.setLevel(level)
     if level_name in ["debug",]: 
-         if colors: ch.setFormatter(formatter)
+         if docolors: ch.setFormatter(formatter)
          else: ch.setFormatter(formatter_plain)
          filehandler.setFormatter(formatter_plain)
     else:
-         if colors: ch.setFormatter(formatter_short)
+         if docolors: ch.setFormatter(formatter_short)
          else: ch.setFormatter(formatter_short_plain)
          filehandler.setFormatter(formatter_short_plain)
     try: import waveapi
@@ -94,6 +100,7 @@ def setloglevel(level_name="warn", colors=False):
         root.addHandler(ch)
         if filehandler: root.addHandler(filehandler)
     logging.warn("loglevel is %s (%s)" % (str(level), level_name))
+    if colors: mainconfig.color = True ; mainconfig.save()
 
 def getloglevel():
     import logging

@@ -142,8 +142,7 @@ class Callbacks(object):
                 logging.debug("%s denied in %s - %s" % (cb.modname, event.channel, event.auth))
                 return
             if cb.prereq:
-                logging.debug(' executing in loop %s' % str(cb.prereq))
-                
+                logging.debug('executing in loop %s' % str(cb.prereq))
                 if not cb.prereq(bot, event): return
             if not cb.func: return
             if event.isremote(): logging.info('%s - executing REMOTE %s - %s' % (bot.cfg.name, getname(cb.func), event.cbtype))

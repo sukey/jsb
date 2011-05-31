@@ -232,7 +232,7 @@ class Plugins(LazyDict):
         if plugin in default_plugins: pass
         elif plugin in plugblacklist.data: return plugloaded
         elif bot.cfg.loadlist and plugin not in bot.cfg.loadlist: return plugloaded
-        logging.info("loaded %s on demand (%s)" % (plugin, event.usercmnd))
+        logging.debug("loaded %s on demand (%s)" % (plugin, event.usercmnd))
         plugloaded = self.reload(plugin)
         return plugloaded
 

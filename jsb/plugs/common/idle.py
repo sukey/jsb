@@ -25,21 +25,25 @@ idle = PlugPersist('idle.data')
 if not idle.data:
     idle.data = {}
 
+## save on shutdown
+
+def shutdown():
+    global idle
+    idle.save()
+
 ## callbacks
 
 def preidle(bot, event):
     """ idle precondition aka check if it is not a command """
-    if event.iscmnd() or (bot.isgae and event.userhost not in bot.cfg.followlist):
-        return False
-    else:
-        return True
+    if not event.iscmnd(): return True
+    if bot.isgae and event.userhost in bot.cfg.followlist: return True
         
 def idlecb(bot, event):
     """ idle PRIVMSG callback .. set time for channel and nick """
     ttime = time.time()
     idle.data[event.userhost] = ttime
     idle.data[event.channel] = ttime
-    idle.save()
+    idle.sync()
 
 callbacks.add('PRIVMSG', idlecb, preidle)
 callbacks.add('MESSAGE', idlecb, preidle)

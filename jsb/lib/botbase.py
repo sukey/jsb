@@ -67,7 +67,7 @@ class BotBase(LazyDict):
     """ base class for all bots. """
 
     def __init__(self, cfg=None, usersin=None, plugs=None, botname=None, nick=None, *args, **kwargs):
-        logging.info("type is %s" % str(type(self)))
+        logging.debug("type is %s" % str(type(self)))
         if cfg: cfg = LazyDict(cfg)
         if cfg and not botname: botname = cfg.botname or cfg.name
         if not botname: botname = u"default-%s" % str(type(self)).split('.')[-1][:-2]
@@ -77,7 +77,7 @@ class BotBase(LazyDict):
         if cfg: self.cfg.merge(cfg)
         self.cfg.name = botname
         if not self.cfg.name: raise Exception(" name is not set in %s config file" % self.fleetdir)
-        logging.info("name is %s" % self.cfg.name)
+        logging.debug("name is %s" % self.cfg.name)
         LazyDict.__init__(self)
         self.ignore = []
         self.ids = []
@@ -116,7 +116,7 @@ class BotBase(LazyDict):
             logging.debug(u"owner is not set in %s - using mainconfig" % self.cfg.cfile)
             self.owner = getmainconfig().owner
         self.setusers(usersin)
-        logging.info(u"owner is %s" % self.owner)
+        logging.debug(u"owner is %s" % self.owner)
         self.users.make_owner(self.owner)
         self.outcache = outcache
         self.userhosts = {}
@@ -437,7 +437,7 @@ class BotBase(LazyDict):
         res = txtlist[0]
         length = len(txtlist)
         if length > 1:
-            logging.info("addding %s lines to %s outputcache" % (len(txtlist), printto))
+            logging.debug("addding %s lines to %s outputcache" % (len(txtlist), printto))
             outcache.set(u"%s-%s" % (self.cfg.name, printto), txtlist[1:])
             res += "<b> - %s more</b>" % (length - 1) 
         return [res, length]
@@ -552,7 +552,7 @@ class BotBase(LazyDict):
             elif self.cfg.loadlist and name not in self.cfg.loadlist:
                 logging.warn("%s - %s is not in loadlist" % (self.cfg.name, name))
                 continue
-            logging.info("%s - on demand reloading of %s" % (self.cfg.name, name))
+            logging.debug("%s - on demand reloading of %s" % (self.cfg.name, name))
             try:
                 mod = self.plugs.reload(name, force=True, showerror=False)
                 if mod: plugloaded.append(mod) ; continue
