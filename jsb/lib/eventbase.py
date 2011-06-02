@@ -149,9 +149,9 @@ class EventBase(LazyDict):
         if self.checkqueues(result): return self
         if self.silent:
             self.msg = True
-            self.bot.say(self.nick, txt, result, self.userhost, extend=extend, event=self, dot=dot, *args, **kwargs)
-        elif self.isdcc: self.bot.say(self.sock, txt, result, self.userhost, extend=extend, event=self, dot=dot, *args, **kwargs)
-        else: self.bot.say(target, txt, result, self.userhost, extend=extend, event=self, dot=dot, *args, **kwargs)
+            self.bot.say(self.nick, txt, result, self.userhost, extend=extend, event=self, dot=dot, nr=nr, *args, **kwargs)
+        elif self.isdcc: self.bot.say(self.sock, txt, result, self.userhost, extend=extend, event=self, dot=dot, nr=nr, *args, **kwargs)
+        else: self.bot.say(target, txt, result, self.userhost, extend=extend, event=self, dot=dot, nr=nr, *args, **kwargs)
         return self
 
     def missing(self, txt):
