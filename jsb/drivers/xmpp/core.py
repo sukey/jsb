@@ -374,7 +374,7 @@ class XMLStream(NodeBuilder):
         auth = base64.b64encode(b'\x00' + user + \
                                         b'\x00' + passw).decode('utf-8')
         resp = self.waiter("""<auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' mechanism='PLAIN'>%s</auth>""" % auth)
-        if self.failure: raise CannotAuth()
+        if self.failure: raise CannotAuth(self.failure)
         #self.waiter("<response xmlns='urn:ietf:params:xml:ns:xmpp-sasl'/>")
         self.waiter("<stream:stream xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' to='%s' version='1.0'>" % host)
         self.waiter("<iq type='set' id='bind_2'><bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'><resource>%s</resource></bind></iq>" % rsrc)

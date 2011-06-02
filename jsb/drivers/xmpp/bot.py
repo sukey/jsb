@@ -177,7 +177,7 @@ class SXMPPBot(XMLStream, BotBase):
             except Exception, ex: self.exit() ; raise
             time.sleep(5)
             iq = self.auth_sasl(user, password, iq, False)
-            self.auth(user, password, iq)
+            #self.auth(user, password, iq)
         XMLStream.logon(self)
  
     def register(self, jid, password):
