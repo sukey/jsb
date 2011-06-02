@@ -18,6 +18,9 @@ import sys
 class JsonBotError(Exception):
     pass
 
+class CannotAuth(JsonBotError):
+    pass
+
 class NotConnected(JsonBotError):
     pass
 

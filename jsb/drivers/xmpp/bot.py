@@ -6,6 +6,7 @@
 
 ## jsb imports
 
+from jsb.lib.errors import CannotAuth
 from jsb.lib.users import users
 from jsb.utils.exception import handle_exception
 from jsb.utils.trace import whichmodule
@@ -167,10 +168,10 @@ class SXMPPBot(XMLStream, BotBase):
     def logon(self, user, password, iq):
         """ logon on the xmpp server. """
         try: self.auth(user, password, iq)
-        except Exception, ex:
-            if not "not-authorized" in str(ex): raise
+        except CannotAuth:
             logging.warn("%s - sleeping 20 seconds before register" % self.cfg.name)
             time.sleep(20)
+            self.failure = ""
             self.stopped = False
             try: self.register(user, password)
             except Exception, ex: self.exit() ; raise

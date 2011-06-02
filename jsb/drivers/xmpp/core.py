@@ -9,6 +9,7 @@
 
 ## jsb imports
 
+from jsb.lib.errors import CannotAuth
 from jsb.lib.eventbase import EventBase
 from jsb.lib.config import Config
 from jsb.utils.generic import toenc, jabberstrip, fromenc
@@ -62,6 +63,7 @@ class XMLStream(NodeBuilder):
         self.connection = None
         self.encoding = "utf-8"
         self.stopped = False
+        self.failure = ""
         self.result = LazyDict()
         self.final = LazyDict()
         self.subelements = []
@@ -89,7 +91,8 @@ class XMLStream(NodeBuilder):
     def handle_failure(self, data):
         """ default stream handler. """
         logging.info("%s - failure is %s" % (self.cfg.name, data.dump()))
-        self.stopped = True
+        self.failure = data
+
     def handle_challenge(self, data):
         """ default stream handler. """
         logging.info("%s - challenge is %s" % (self.cfg.name, data.dump()))
@@ -220,7 +223,7 @@ class XMLStream(NodeBuilder):
     @outlocked
     def _raw(self, stanza):
         """ output a xml stanza to the socket. """
-        if self.stopped: logging.warn("%s - bot is stopped .. not sending" % self.cfg.name) ; return
+        if self.stopped or self.failure: logging.warn("%s - bot is stopped .. not sending" % self.cfg.name) ; return
         try:
             stanza = stanza.strip()
             if not stanza:
@@ -257,7 +260,7 @@ class XMLStream(NodeBuilder):
         while 1:
             try: result = self.connection.read()
             except AttributeError: result = self.sock.recv(1500)
-            if self.stopped: break
+            if self.stopped or self.failure: break
             if not result: time.sleep(0.1) ; continue
             logging.info("%s - %s" %  (self.cfg.name, result))
             res = self.loop_one(result)
@@ -302,9 +305,10 @@ class XMLStream(NodeBuilder):
         if self.cfg.nosasl: self.auth_nosasl(jid, password, iq)
         elif self.cfg.port == 5223: self.auth_sasl(jid, password, iq, False)
         else: self.auth_sasl(jid, password, iq, initstream)
+        if self.failure: raise CannotAuth(self.failure)
         self.sock.settimeout(60)
         self.sock.setblocking(1)
-
+        
     def auth_methods(self, iq):
         if self.stopped: return []
         if not iq.orig: raise Exception("%s - can't detect auth method" % self.cfg.name)
@@ -324,9 +328,7 @@ class XMLStream(NodeBuilder):
                 self.authmethod = method
                 logging.warn("%s - login method is %s" % (self.cfg.name, method))
                 return method
-            except Exception, ex: 
-                if "not-authorized" in str(ex): raise
-                else: handle_exception()
+            except CannotAuth: raise
 
     def auth_nosasl(self, jid, password, iq=None):
         """ auth against the xmpp server. """
@@ -372,6 +374,7 @@ class XMLStream(NodeBuilder):
         auth = base64.b64encode(b'\x00' + user + \
                                         b'\x00' + passw).decode('utf-8')
         resp = self.waiter("""<auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' mechanism='PLAIN'>%s</auth>""" % auth)
+        if self.failure: raise CannotAuth()
         #self.waiter("<response xmlns='urn:ietf:params:xml:ns:xmpp-sasl'/>")
         self.waiter("<stream:stream xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' to='%s' version='1.0'>" % host)
         self.waiter("<iq type='set' id='bind_2'><bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'><resource>%s</resource></bind></iq>" % rsrc)
