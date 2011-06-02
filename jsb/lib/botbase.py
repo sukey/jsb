@@ -395,7 +395,7 @@ class BotBase(LazyDict):
 
     writenocb = outnocb
 
-    def say(self, channel, txt, result=[], how="msg", event=None, nr=375, extend=0, dot=", ", *args, **kwargs):
+    def say(self, channel, txt, result=[], how="msg", event=None, nr=375, extend=0, dot=", ", showall=False, *args, **kwargs):
         if event and event.userhost in self.ignore: logging.warn("%s - ignore on %s - no output done" % (self.cfg.name, event.userhost)) ; return
         if event and event.nooutput:
             logging.debug("%s - event has nooutput set, not outputing" % self.cfg.name)
@@ -405,7 +405,7 @@ class BotBase(LazyDict):
              if self.type == "irc": target = event.nick
              else: target = channel
         else: target = channel
-        if event and event.showall: txt = self.makeresponse(txt, result, dot, *args, **kwargs)
+        if showall or (event and event.showall): txt = self.makeresponse(txt, result, dot, *args, **kwargs)
         else: txt = self.makeoutput(channel, txt, result, nr, extend, dot, origin=target, *args, **kwargs)
         if txt:
             if event:
