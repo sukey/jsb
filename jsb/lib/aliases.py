@@ -15,6 +15,7 @@ import os
 ## getaliases function
 
 def getaliases():
+    """ return global aliases. """
     from jsb.lib.persist import Persist
     p = Persist(getdatadir() + os.sep + "aliases")
     if not p.data: p.data = {}
