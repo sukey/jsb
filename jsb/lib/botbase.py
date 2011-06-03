@@ -298,7 +298,8 @@ class BotBase(LazyDict):
         msg = "%s - %s - %s - %s" % (self.cfg.name, event.auth, event.how, event.cbtype)
         if event.how == "background": logging.debug(msg)
         else: logging.info(msg)
-        logging.debug("remote - %s" % event.dump())
+        try: logging.debug("remote - %s" % event.dump())
+        except: pass
         if self.closed:
             if self.gatekeeper.isblocked(event.origin): return
         if event.status == "done":
@@ -334,7 +335,8 @@ class BotBase(LazyDict):
                     logging.debug(logtxt)
                 else: logging.info(logtxt)
         event.bind(self)
-        if not self.type == "wave": logging.debug("%s - event dump: %s" % (self.cfg.name, event.dump()))
+        try: logging.debug("%s - event dump: %s" % (self.cfg.name, event.dump()))
+        except: pass
         self.status = "callback"
         starttime = time.time()
         if self.closed:

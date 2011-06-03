@@ -41,6 +41,12 @@ import hashlib
 import sys
 import base64
 
+## python 2.5 shim
+
+try: bytes()
+except:
+    def bytes(txt): return str(txt)    
+
 ## locks
 
 outlock = thread.allocate_lock()   
@@ -371,8 +377,7 @@ class XMLStream(NodeBuilder):
         else:
             user = bytes(jid, 'utf-8')
             passw = bytes(password, 'utf-8')
-        auth = base64.b64encode(b'\x00' + user + \
-                                        b'\x00' + passw).decode('utf-8')
+        auth = base64.b64encode('\x00' + user + '\x00' + passw).decode('utf-8')
         resp = self.waiter("""<auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' mechanism='PLAIN'>%s</auth>""" % auth)
         if self.failure: raise CannotAuth(self.failure)
         #self.waiter("<response xmlns='urn:ietf:params:xml:ns:xmpp-sasl'/>")
