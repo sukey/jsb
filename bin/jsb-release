@@ -78,7 +78,7 @@ homedir = os.path.expanduser("~")
 def copyover(source, target, silent=True):
     if os.path.exists(source + os.sep + "NOGAE"): print "IGNORE %s" % source ; return
     print "COPYING RESULTS TO %s" % target
-    shutil.copytree(source, target, False, shutil.ignore_patterns("\..*"))
+    shutil.copytree(source, target, False)
     if len(sys.argv) > 1:
         sed(source, target)
   
