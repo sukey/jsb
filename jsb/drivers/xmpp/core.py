@@ -41,6 +41,7 @@ import re
 import hashlib
 import sys
 import base64
+import random
 
 ## python 2.5 shim
 
@@ -279,6 +280,7 @@ class XMLStream(NodeBuilder):
     def doconnect(self):
         """ connect to the server. """
         target = None
+        port = None
         dns = getdns()
         try: import dns.resolver
         except: pass
@@ -308,13 +310,13 @@ class XMLStream(NodeBuilder):
                         target = addresses[priority]
                         break
 
-        if not target or self.cfg.noresolver: target = self.cfg.server or self.cfg.host
+        if not target or self.cfg.noresolver: target = (self.cfg.server or self.cfg.host, self.cfg.port)
         logging.warn("%s - TARGET is %s" % (self.cfg.name, target))
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setblocking(0)
         self.sock.settimeout(10)
-        logging.warn("%s - connecting to %s:%s" % (self.cfg.name, self.cfg.server or self.cfg.host, self.cfg.port))
-        self.sock.connect((self.cfg.server or self.cfg.host, self.cfg.port))
+        logging.warn("%s - connecting to %s" % (self.cfg.name, target))
+        self.sock.connect(target)
         logging.warn("%s - connected to server." % self.cfg.name)
         return True
 
