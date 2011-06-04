@@ -308,7 +308,7 @@ class XMLStream(NodeBuilder):
                         target = addresses[priority]
                         break
 
-        if not target: target = self.cfg.server or self.cfg.host
+        if not target or self.cfg.noresolver: target = self.cfg.server or self.cfg.host
         logging.warn("%s - TARGET is %s" % (self.cfg.name, target))
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setblocking(0)
