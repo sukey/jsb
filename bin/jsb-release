@@ -75,14 +75,14 @@ homedir = os.path.expanduser("~")
 
 ## functions
 
-def copyover(source, target):
+def copyover(source, target, silent=True):
     if os.path.exists(source + os.sep + "NOGAE"): print "IGNORE %s" % source ; return
     print "COPYING RESULTS TO %s" % target
     shutil.copytree(source, target, False, shutil.ignore_patterns("\..*"))
     if len(sys.argv) > 1:
         sed(source, target)
   
-def sed(source, target):
+def sed(source, target, silent=True):
     print "== source: %s target: %s" % (source, target)
 
     for f in os.listdir(target):
@@ -96,7 +96,7 @@ def sed(source, target):
             sed(source + os.sep + f, target + os.sep + f)
             continue
         else:
-            print "sedding %s (%s) - %s" % (f, orig, targetin)
+            if not silent: print "sedding %s (%s) - %s" % (f, orig, targetin)
             dosed(target + os.sep + f, 's/%s/%s/' % (orig, targetin))
             dosed(target + os.sep + f, 's/%s/%s/' % (orig.upper(), targetin.upper()))
 
@@ -107,8 +107,9 @@ source = getsource("jsb.upload")
 copyover(source, release)
 source = getsource("jsb.data")
 copyover(source, release + os.sep + "data")
-if os.path.isdir("jsb/plugs/myplugs"): source = "jsb/plugs/myplugs"
-elif os.path.isdir(homedir + os.sep + ".jsb" + os.sep + "myplugs"): source = homedir + os.sep + ".jsb" + os.sep + "myplugs"
+if os.path.isdir(getdatadir() + os.sep + 'myplugs'): source = getdatadir() + os.sep + "myplugs"
+elif os.path.isdir("jsb/plugs/myplugs"): source = "jsb/plugs/myplugs"
+#elif os.path.isdir(homedir + os.sep + ".jsb" + os.sep + "myplugs"): source = homedir + os.sep + ".jsb" + os.sep + "myplugs"
 else:
     source = getsource("myplugs")
 if source: copyover(source, release + os.sep + "myplugs")
@@ -147,7 +148,6 @@ except (OSError, IOError), ex:
 
 if os.path.isdir('docs'):
     copyover('docs', release + os.sep + 'docs')
-
 
 if not opts.backup:
     print "REMOVING BACKUP"
