@@ -21,6 +21,7 @@ from jsb.utils.trace import whichmodule
 from jsb.lib.gozerevent import GozerEvent
 from jsb.lib.fleet import getfleet
 from jsb.contrib.digestmd5 import makeresp
+from jsb.imports import getdns
 
 ## xmpp import
 
@@ -277,7 +278,37 @@ class XMLStream(NodeBuilder):
 
     def doconnect(self):
         """ connect to the server. """
-        target = self.cfg.server or self.cfg.host
+        target = None
+        dns = getdns()
+        try: import dns.resolver
+        except: pass
+        else:
+            # taken from SleekXMPP. see https://github.com/fritzy/SleekXMPP
+            try:
+                xmpp_srv = "_xmpp-client._tcp.%s" % (self.cfg.server or self.cfg.host)
+                answers = dns.resolver.query(xmpp_srv, dns.rdatatype.SRV)
+            except ImportError:
+                loging.warn("resolver is not available.")
+            except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer):
+                logging.warn("no appropriate SRV record found.")
+            else:
+                # Pick a random server, weighted by priority.
+                addresses = {}
+                intmax = 0
+                for answer in answers:
+                    intmax += answer.priority
+                    addresses[intmax] = (answer.target.to_text()[:-1], answer.port)
+                #python3 returns a generator for dictionary keys
+                priorities = [x for x in addresses.keys()]
+                priorities.sort()
+
+                picked = random.randint(0, intmax)
+                for priority in priorities:
+                    if picked <= priority:
+                        target = addresses[priority]
+                        break
+
+        if not target: target = self.cfg.server or self.cfg.host
         logging.warn("%s - TARGET is %s" % (self.cfg.name, target))
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setblocking(0)

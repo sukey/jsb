@@ -12,6 +12,15 @@ from lib.jsbimport import _import
 
 import logging
 
+## getdns function
+
+def getdns():
+    try:
+        mod = _import("dns")
+    except: mod = _import("jsb.contrib.dns")
+    logging.debug("imports - dns module is %s" % str(mod))
+    return mod
+
 ## getjson function
 
 def getjson():
