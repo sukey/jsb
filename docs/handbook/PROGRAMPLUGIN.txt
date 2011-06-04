@@ -8,11 +8,24 @@ PROGRAMPLUGIN
 Intro
 ~~~~~
 
-
 This document is here to help you program JSONBOT plugins. JSONBOT plugins
 are python files that contain commands and callbacks handlers that receive a
-bot and a event as arguments and can act upon these. Very basic example of a
-JSONBOT command handler is:
+bot and a event as arguments and can act upon these. 
+
+First you must know that plugins you write yourself should be placed in one
+of the ~/.jsb/myplugs subdirs. The bot will detect if code has changed in
+these directories: use "gae" for GAE specific plugins, "socket" for plugins that
+run on shell bots and "common" for both.
+
+Second thing to remember is to call the !admin-boot command if you add new
+commands or callbacks so the bot can recreate its command and callback
+indexes (used to load a plugin on demand).
+
+
+Example
+~~~~~~~
+
+Very basic example of a JSONBOT command handler is:
 
 ::
 
@@ -58,18 +71,18 @@ together. Basically the data flow is like this:
 
 ::
 
-    bot connects to server
-    bot gets data back (most of the times this is a string)
-    bot creates an event from the data received
-    bot calls the handler with itself and the event as arguments
-    handler does something with the event and sends a response back
-    bot can also push data to a channel, think RSS feeds
+    * bot connects to server
+    * bot gets data back (most of the times this is a string)
+    * bot creates an event from the data received
+    * bot calls the handler with itself and the event as arguments
+    * handler does something with the event and sends a response back
+    * bot can also push data to a channel, think RSS feeds
 
 For every network that JSONBOT supports there need to be both bot and event
 classes that support the connecting to the network and the contruction of
 the events based upon the data that is received. These classed are in
-JSONBOT 0.7 moved into there own sub package: jsb.drivers, this so writing
-new plugins (bot-event combinations) becomes easier.
+JSONBOT 0.7 moved into there own sub package: :ref:`jsb.drivers`, so writing
+new bot-event combinations becomes easier.
 
 Using Events
 ~~~~~~~~~~~~
@@ -79,10 +92,11 @@ your plugin. The basic interface of these events are defined in
 :ref:`jsb.lib.eventbase`, i will summ up the most important method and
 atributes:
 
+methods:
+
 :: 
 
-    methods:
-
+    
     def reply(self, txt, result=[], event=None, origin="", dot=u", ",
               nr=375, extend=0, *args, **kwargs):
         """ 
@@ -103,6 +117,8 @@ atributes:
 
         """
 
+::
+
     def missing(self, txt):
         """
             use this if the input from the user is not correct. 
@@ -111,12 +127,17 @@ atributes:
 
         """
 
+::
+
     def done(self):
         """ this just prints "done - command. """ 
+
+::
 
     def iscmnd(self):
         """ checks whether an event is a command. returns comandstring. """
 
+::
 
     def bind(self, bot=None, user=None, chan=None):
         """ 
@@ -126,6 +147,8 @@ atributes:
 
         """
 
+::
+
     def ready(self, finish=True):
         """ 
             use this when you are finished handling the event. JSONBOT tried
@@ -134,17 +157,19 @@ atributes:
 
         """
 
+attributes:
+
 ::
 
-    attributes:
-
         self.stop = False # set this if you want any processing of the
-                          # events stopped
+                             # events stopped
 
         self.bonded = False # check this to see if EventBase.bind() is
                             # already called
 
-    after bind():
+after bind():
+
+::
 
         # the channel object containing data relataed to the channel
         self.chan = ChannelBase(self.channel, bot.cfg.name)

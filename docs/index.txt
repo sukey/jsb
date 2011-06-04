@@ -99,10 +99,13 @@ jsb code
     .. toctree::
         :maxdepth: 2
 
+        jsb/index
         jsb/drivers/index
         jsb/lib/index
+        jsb/lib/gae/index
+        jsb/lib/rest/index
         jsb/utils/index
-
+        jsb/utils/gae/index
 
 jsb.plugs.core code
 ~~~~~~~~~~~~~~~~~~~

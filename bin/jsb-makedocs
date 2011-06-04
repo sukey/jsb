@@ -220,10 +220,11 @@ def domodfile(module, dir):
     plugin = dir.split(os.sep)[-1]
     print "writing %s" % plugin
     if True:
-        f = open('docs' + os.sep + dir + os.sep + 'index.txt', 'w')
-        f.write(doindexfile(dir))
-        f.flush()
-        f.close()
+        if module not in ["jsb", "jsb.drivers", "jsb.utils", "jsb.lib"]:
+            f = open('docs' + os.sep + dir + os.sep + 'index.txt', 'w')
+            f.write(doindexfile(dir))
+            f.flush()
+            f.close()
         for mod in os.listdir(dir):
             if '__init__' in mod or mod.endswith('.pyc') or mod.endswith('~'): continue
             m = mod.split(os.sep)[-1]
@@ -298,7 +299,11 @@ if __name__ == '__main__':
          os.mkdir(os.path.join('docs', 'jsb', 'utils'))
          os.mkdir(os.path.join('docs', 'jsb', 'utils', 'gae'))
          os.mkdir(os.path.join('docs', 'jsb', 'drivers'))
+         os.mkdir(os.path.join('docs', 'jsb', 'drivers', 'console'))
+         os.mkdir(os.path.join('docs', 'jsb', 'drivers', 'convore'))
          os.mkdir(os.path.join('docs', 'jsb', 'drivers', 'gae'))
+         os.mkdir(os.path.join('docs', 'jsb', 'drivers', 'irc'))
+         os.mkdir(os.path.join('docs', 'jsb', 'drivers', 'xmpp'))
          os.mkdir(os.path.join('docs', 'jsb', 'plugs', 'core'))
          os.mkdir(os.path.join('docs', 'jsb', 'plugs', 'common'))
          os.mkdir(os.path.join('docs', 'jsb', 'plugs', 'socket'))
@@ -306,6 +311,41 @@ if __name__ == '__main__':
          os.mkdir(os.path.join('docs', 'jsb', 'plugs', 'gae'))
          os.mkdir(os.path.join('docs', 'jsb', 'plugs', 'myplugs'))
     except: pass
+
+    domods(os.path.join('jsb', 'lib'))
+    domods(os.path.join('jsb', 'lib', 'gae'))
+    domods(os.path.join('jsb', 'lib', 'rest'))
+    domods(os.path.join('jsb', 'utils'))
+    domods(os.path.join('jsb', 'utils', 'gae'))
+    domods(os.path.join('jsb', 'drivers'))
+    domods(os.path.join('jsb', 'drivers', 'gae'))
+    domods(os.path.join('jsb', 'drivers', 'console'))
+    domods(os.path.join('jsb', 'drivers', 'convore'))
+    domods(os.path.join('jsb', 'drivers', 'irc'))
+    domods(os.path.join('jsb', 'drivers', 'xmpp'))
+    domods(os.path.join('jsb','plugs'))
+    domods(os.path.join('jsb','plugs', 'core'))
+    domods(os.path.join('jsb','plugs', 'common'))
+    domods(os.path.join('jsb','plugs', 'wave'))
+    domods(os.path.join('jsb','plugs', 'socket'))
+    domods(os.path.join('jsb','plugs', 'gae'))
+
+    shutil.copyfile(os.path.join(os.getcwd(), 'docs', 'jsbindex.txt'), os.path.join('docs', 'jsb', 'index.txt'))
+    shutil.copyfile(os.path.join(os.getcwd(), 'docs', 'lindex.txt'), os.path.join('docs', 'jsb', 'lib', 'index.txt'))
+    shutil.copyfile(os.path.join(os.getcwd(), 'docs', 'dindex.txt'), os.path.join('docs', 'jsb', 'drivers', 'index.txt'))
+    shutil.copyfile(os.path.join(os.getcwd(), 'docs', 'uindex.txt'), os.path.join('docs', 'jsb', 'utils', 'index.txt'))
+    shutil.copyfile(os.path.join(os.getcwd(), 'docs', 'plugsdocindex.txt'), os.path.join('docs', 'plugins', 'index.txt'))
+    try:
+        shutil.copyfile(os.path.join(os.path.expanduser("~"), 'jsbregs', 'jsb', 'credentials.py'), os.path.join(os.getcwd(), 'jsb', 'data', 'config', 'credentials.py'))
+        touch(os.path.join(os.getcwd(), 'jsb', 'data', 'config', '__init__.py'))
+    except IOError:
+        print "CAN'T COPY OVER ~/jsbregs/jsb/credentials.py"
+    except:
+        handle_exception()
+
+    print "sleeping 5 seconds."
+    time.sleep(5)
+
     if True:
         for file in os.listdir(os.path.join('jsb', 'plugs', 'core')):
             if not file.endswith('.py') or '__init__' in file:
@@ -340,32 +380,6 @@ if __name__ == '__main__':
 
         for t in threads:
             t.join(30)
-
-    time.sleep(5)
-    domods(os.path.join('jsb', 'lib'))
-    domods(os.path.join('jsb', 'utils'))
-    domods(os.path.join('jsb', 'utils', 'gae'))
-    domods(os.path.join('jsb', 'drivers'))
-    domods(os.path.join('jsb', 'drivers', 'gae'))
-    domods(os.path.join('jsb','plugs'))
-    domods(os.path.join('jsb','plugs', 'core'))
-    domods(os.path.join('jsb','plugs', 'common'))
-    domods(os.path.join('jsb','plugs', 'wave'))
-    domods(os.path.join('jsb','plugs', 'socket'))
-    domods(os.path.join('jsb','plugs', 'gae'))
-
-    shutil.copyfile(os.path.join(os.getcwd(), 'docs', 'jsbindex.txt'), os.path.join('docs', 'jsb', 'index.txt'))
-    shutil.copyfile(os.path.join(os.getcwd(), 'docs', 'lindex.txt'), os.path.join('docs', 'jsb', 'lib', 'index.txt'))
-    shutil.copyfile(os.path.join(os.getcwd(), 'docs', 'dindex.txt'), os.path.join('docs', 'jsb', 'drivers', 'index.txt'))
-    shutil.copyfile(os.path.join(os.getcwd(), 'docs', 'uindex.txt'), os.path.join('docs', 'jsb', 'utils', 'index.txt'))
-    shutil.copyfile(os.path.join(os.getcwd(), 'docs', 'plugsdocindex.txt'), os.path.join('docs', 'plugins', 'index.txt'))
-    try:
-        shutil.copyfile(os.path.join(os.path.expanduser("~"), 'jsbregs', 'jsb', 'credentials.py'), os.path.join(os.getcwd(), 'jsb', 'data', 'config', 'credentials.py'))
-        touch(os.path.join(os.getcwd(), 'jsb', 'data', 'config', '__init__.py'))
-    except IOError:
-        print "CAN'T COPY OVER ~/jsbregs/jsb/credentials.py"
-    except:
-        handle_exception()
 
     for ex in exceptionlist:
         print ex
