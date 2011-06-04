@@ -86,11 +86,14 @@ class LazyDict(dict):
     def __deepcopy__(self, a):
         return LazyDict(a) 
 
+    def __unicode__(self):
+        return str(self).encode("utf-8")
+
     def __getattr__(self, attr, default=None):
         """ get attribute. """
         if not self.has_key(attr):
             #mod = whichmodule()
-            #if not "queue" in attr: logging.debug("lazydict - %s is not set - %s" % (attr, mod))
+            #if not "queue" in attr: logging.info("lazydict - %s is not set - %s" % (attr, mod))
             return
         return self[attr]
 
