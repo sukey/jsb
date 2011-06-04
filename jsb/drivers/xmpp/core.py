@@ -396,7 +396,8 @@ class XMLStream(NodeBuilder):
         else: self.challenge = challenge[0]
         response = makeresp("xmpp/%s" % self.cfg.server, host, name, password, self.challenge)
         resp = self.waiter("<response xmlns='urn:ietf:params:xml:ns:xmpp-sasl'>%s</response>" % response)
-        if "not-authorized" in str(resp.orig): raise Exception(resp.orig)
+        if self.failure: raise CannotAuth(self.failure)
+        #if "not-authorized" in str(resp.orig): raise Exception(resp.orig)
         self.waiter("<response xmlns='urn:ietf:params:xml:ns:xmpp-sasl'/>")
         self.waiter("<stream:stream xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' to='%s' version='1.0'>" % host)
         self.waiter("<iq type='set' id='bind_2'><bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'><resource>%s</resource></bind></iq>" % rsrc)
