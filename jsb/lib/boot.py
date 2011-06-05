@@ -126,10 +126,12 @@ def boot(ddir=None, force=False, encoding="utf-8", umask=None, saveperms=True, f
             if ongae: plugs.loadall(["myplugs.common", "myplugs.gae", "jsb.plugs.myplugs.gae", "jsb.plugs.myplugs.common"], force=True)
             else: plugs.loadall(["myplugs.common", "myplugs.socket", "jsb.plugs.myplugs.socket", "jsb.plugs.myplugs.common"], force=True)
         else: logging.error("skipped loading of myplugs")
-    changed = checktimestamps()
-    if changed:
-        logging.warn("boot - files changed %s" % str(changed))
-        for plugfile in changed: plugs.reloadfile(plugfile, force=True)
+    try:
+        changed = checktimestamps()
+        if changed:
+            logging.warn("boot - files changed %s" % str(changed))
+            for plugfile in changed: plugs.reloadfile(plugfile, force=True)
+    except Exception, ex: logging.error("boot - can't read myplugs dir.")
     logging.warn("boot - done")
 
 ## filestamps stuff
