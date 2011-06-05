@@ -281,8 +281,9 @@ class XMLStream(NodeBuilder):
         """ connect to the server. """
         target = None
         port = None
-        dns = getdns()
-        try: import dns.resolver
+        try:
+            dns = getdns()
+            import dns.resolver
         except: pass
         else:
             # taken from SleekXMPP. see https://github.com/fritzy/SleekXMPP
