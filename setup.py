@@ -94,6 +94,7 @@ setup(
               'jsb.plugs.myplugs.gae',
               'jsb.plugs.myplugs.common',
               'jsb.contrib',
+              'jsb.contrib.dns',
               'jsb.contrib.simplejson',
               'jsb.contrib.tweepy',
               'jsb.contrib.requests',
