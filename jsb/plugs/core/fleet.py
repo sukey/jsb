@@ -120,7 +120,7 @@ def fleet_disable(bot, ievent):
         if bot:
             bot.cfg['disable'] = 1
             bot.cfg.save()
-            ievent.reply('disabled %s' % name)
+            ievent.reply('disabled %s bot.' % name)
             fleet.exit(name)
         else: ievent.reply("can't find %s bot in fleet" % name)
 
@@ -144,7 +144,7 @@ def fleet_enable(bot, ievent):
             if not bot.cfg.name: bot.cfg.name = name
             bot.cfg.save()
             ievent.reply('enabled %s' % name)
-            start_new_thread(bot.connect, ())
+            #start_new_thread(bot.connect, ())
         elif name in fleet.avail():
             cfg = Config('fleet' + os.sep + stripname(name) + os.sep + 'config')
             cfg['disable'] = 0
@@ -152,8 +152,8 @@ def fleet_enable(bot, ievent):
             cfg.save()
             bot = fleet.makebot(cfg.type, cfg.name, cfg)
             if not bot: ievent.reply("can't make %s bot - %s" % (cfg.name, cfg.type)) ; return
-            ievent.reply('enabled and started %s bot' % name)
-            start_new_thread(bot.start, ())
+            ievent.reply('enabled %s bot' % name)
+            #start_new_thread(bot.start, ())
         else: ievent.reply('no %s bot in fleet' % name)
 
 cmnds.add('fleet-enable', fleet_enable, 'OPER', threaded=True)

@@ -299,8 +299,10 @@ class XMLStream(NodeBuilder):
                 addresses = {}
                 intmax = 0
                 for answer in answers:
-                    intmax += answer.priority
-                    addresses[intmax] = (answer.target.to_text()[:-1], answer.port)
+                    try:
+                        intmax += answer.priority
+                        addresses[intmax] = (answer.target.to_text()[:-1], answer.port)
+                    except Exception, ex: logging.warn("%s - skipping %s: %s" % (self.cfg.name, str(answer), str(ex)))
                 #python3 returns a generator for dictionary keys
                 priorities = [x for x in addresses.keys()]
                 priorities.sort()
