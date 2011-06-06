@@ -45,6 +45,9 @@ print execstring
 proc = Popen(execstring.split())
 proc.wait()
 print "STARTING %s" % target
-execstring = '%s/google_appengine/dev_appserver.py %s%sreleases%s%s' % (homedir, ddir, os.sep, os.sep, target)
-proc = Popen(execstring.split())
-proc.wait()
+try: 
+    execstring = '%s/google_appengine/dev_appserver.py %s%sreleases%s%s' % (homedir, ddir, os.sep, os.sep, target)
+    proc = Popen(execstring.split())
+    proc.wait()
+except: print """ google_appengine is not installed in your home dir. \
+see http://code.google.com/appengine/downloads.html """

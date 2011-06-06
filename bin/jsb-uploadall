@@ -49,7 +49,12 @@ for item in target:
     proc = Popen(execstring.split())
     proc.wait()
     print "UPLOADING %s" % item
-    execstring = '%s/google_appengine/appcfg.py update %s%sreleases%s%s' % (homedir, ddir, os.sep, os.sep, item)
-    print execstring
-    proc = Popen(execstring.split())
-    proc.wait()
+    try:
+        execstring = '%s/google_appengine/appcfg.py update %s%sreleases%s%s' % (homedir, ddir, os.sep, os.sep, item)
+        print execstring
+        proc = Popen(execstring.split())
+        proc.wait()
+    except:
+        print """ google_appengine is not installed in your home dir. \
+    see http://code.google.com/appengine/downloads.html """
+    os._exit(1)
