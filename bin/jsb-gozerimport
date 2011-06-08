@@ -1,0 +1,36 @@
+#!/usr/bin/env python
+#
+#
+
+""" convert gozerbot pickled data to jsonbot. """
+
+## boot
+
+import os, sys
+sys.path.insert(0, os.getcwd())
+
+## jsb imports
+
+from jsb.utils.exception import handle_exception
+from jsb.lib.persist import Persist
+
+## basic imports
+
+import os
+import pickle
+
+## convert function
+
+def convert(source, target):
+    for file in os.listdir(source):
+        try:
+            f = open(source + os.sep + file, "r")
+            obj = pickle.load(f)
+            p = Persist(target + os.sep + file)
+            p.data = obj
+            p.save()
+        except Exception, ex: print "ERROR: %s - %s" % (source + os.sep + file, str(ex))
+
+try:
+    convert(sys.argv[1], sys.argv[2])
+except IndexError: print "jsb-gozerimport <gozerdata dir> <output dir>"
