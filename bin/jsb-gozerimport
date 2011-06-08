@@ -13,6 +13,7 @@ sys.path.insert(0, os.getcwd())
 
 from jsb.utils.exception import handle_exception
 from jsb.lib.persist import Persist
+from jsb.lib.config import Config
 
 ## basic imports
 
@@ -26,9 +27,17 @@ def convert(source, target):
         try:
             f = open(source + os.sep + file, "r")
             obj = pickle.load(f)
-            p = Persist(target + os.sep + file)
-            p.data = obj
-            p.save()
+            if file.endswith("-config"):
+                d = {}
+                for key, option in obj.iteritems():
+                    d[key] = option.value
+                print d
+                c = Config(file, ddir=target, input=d)
+                c.tofile(target + os.sep + file)
+            else:
+                p = Persist(target + os.sep + file)
+                p.data = obj
+                p.save()
         except Exception, ex: print "ERROR: %s - %s" % (source + os.sep + file, str(ex))
 
 try:
