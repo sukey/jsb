@@ -55,6 +55,7 @@ def makedirs(ddir=None):
         logging.info("making dirs in %s" % ddir)
     try: os.chmod(ddir, 0700)
     except: pass
+    if ddir: setdatadir(ddir)
     last = datadir.split(os.sep)[-1]
     #if not os.path.isdir(ddir): doit(ddir, "jsb.data")
     try: doit(ddir, "jsb.plugs.myplugs")
