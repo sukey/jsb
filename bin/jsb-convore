@@ -21,7 +21,10 @@ print getversion('CONVORE')
 from jsb.utils.opts import makeconvoreopts
 opts = makeconvoreopts()
 
-if opts.datadir and not os.path.isdir(opts.datadir): os.mkdir(opts.datadir)
+if opts.datadir:
+    if not os.path.isdir(opts.datadir): os.mkdir(opts.datadir)
+    from jsb.lib.datadir import setdatadir
+    setdatadir(opts.datadir)
 
 ## make config from cmndline options
 
