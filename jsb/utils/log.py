@@ -7,6 +7,7 @@
 ## jsb import
 
 from jsb.lib.config import getmainconfig
+from jsb.lib.datadir import getdatadir
 
 ## basic imports
 
@@ -41,43 +42,45 @@ RLEVELS = {logging.DEBUG: 'debug',
            logging.CRITICAL: 'critical'
           }
 
-try:
-    import waveapi
-except ImportError:
-    LOGDIR = os.path.expanduser("~") + os.sep + ".jsb" + os.sep + "botlogs" # BHJTW change this for debian
-
-try:
-    ddir = os.sep.join(LOGDIR.split(os.sep)[:-1])
-    if not os.path.isdir(ddir): os.mkdir(ddir)
-except: pass
-
-try:
-    if not os.path.isdir(LOGDIR): os.mkdir(LOGDIR)
-except: pass
-
-format_short = "\033[94m[!]\033[0m\033[0m \033[97m%(asctime)-8s\033[0m - \033[92m%(module)+12s.%(funcName)-14s\033[0m - \033[93m%(message)s\033[0m"
-format = "\033[94m[!]\033[0m\033[0m \033[97m%(asctime)s.%(msecs)-13s\033[0m - \033[92m%(module)s.%(funcName)s:%(lineno)s\033[0m - \033[93m%(message)s\033[0m - %(levelname)s - <%(threadName)s>"
-format_short_plain = "[!] %(asctime)-8s - %(module)+12s.%(funcName)-14s - %(message)s"
-format_plain = "[!] %(asctime)s.%(msecs)-13s - %(module)s.%(funcName)s:%(lineno)s - %(message)s - %(levelname)s - <%(threadName)s>"
-datefmt = '%H:%M:%S'
-formatter_short = logging.Formatter(format_short, datefmt=datefmt)
-formatter = logging.Formatter(format, datefmt=datefmt)
-formatter_short_plain = logging.Formatter(format_short_plain, datefmt=datefmt)
-formatter_plain = logging.Formatter(format_plain, datefmt=datefmt)
-
-try:
-    import waveapi
-except ImportError:
+def init():
     try:
-        filehandler = logging.handlers.TimedRotatingFileHandler(LOGDIR + os.sep + "jsb.log", 'midnight')
-    except IOError:
-        filehandler = None
+        import waveapi
+    except ImportError:
+        LOGDIR = getdatadir() + os.sep + "botlogs" # BHJTW change this for debian
+
+    try:
+        ddir = os.sep.join(LOGDIR.split(os.sep)[:-1])
+        if not os.path.isdir(ddir): os.mkdir(ddir)
+    except: pass
+
+    try:
+        if not os.path.isdir(LOGDIR): os.mkdir(LOGDIR)
+    except: pass
+    return LOGDIR
 
 ## setloglevel function
 
 def setloglevel(level_name="warn", colors=False):
     """ set loglevel to level_name. """
     if not level_name: return
+    LOGDIR = init()
+    format_short = "\033[94m[!]\033[0m\033[0m \033[97m%(asctime)-8s\033[0m - \033[92m%(module)+12s.%(funcName)-14s\033[0m - \033[93m%(message)s\033[0m"
+    format = "\033[94m[!]\033[0m\033[0m \033[97m%(asctime)s.%(msecs)-13s\033[0m - \033[92m%(module)s.%(funcName)s:%(lineno)s\033[0m - \033[93m%(message)s\033[0m - %(levelname)s - <%(threadName)s>"
+    format_short_plain = "[!] %(asctime)-8s - %(module)+12s.%(funcName)-14s - %(message)s"
+    format_plain = "[!] %(asctime)s.%(msecs)-13s - %(module)s.%(funcName)s:%(lineno)s - %(message)s - %(levelname)s - <%(threadName)s>"
+    datefmt = '%H:%M:%S'
+    formatter_short = logging.Formatter(format_short, datefmt=datefmt)
+    formatter = logging.Formatter(format, datefmt=datefmt)
+    formatter_short_plain = logging.Formatter(format_short_plain, datefmt=datefmt)
+    formatter_plain = logging.Formatter(format_plain, datefmt=datefmt)
+
+    try:
+        import waveapi
+    except ImportError:
+        try:
+            filehandler = logging.handlers.TimedRotatingFileHandler(LOGDIR + os.sep + "jsb.log", 'midnight')
+        except IOError:
+            filehandler = None
     mainconfig = getmainconfig()
     docolors = colors or mainconfig.color
     level = LEVELS.get(str(level_name).lower(), logging.NOTSET)
