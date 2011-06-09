@@ -21,6 +21,7 @@ from jsb.lib.errors import NoOwnerSet
 from jsb.lib.fleet import getfleet
 from jsb.utils.mainloop import mainloop
 from jsb.utils.opts import makesxmppopts, makesxmppconfig
+from jsb.lib.datadir import setdatadir
 import jsb.lib.users as users
 import jsb
 
@@ -32,8 +33,9 @@ import os
 
 ## options parser
 
-opts = makesxmppopts()
 
+opts = makesxmppopts()
+if opts.datadir: setdatadir(opts.datadir) 
 from jsb.version import getversion
 print getversion('SXMPP')
 

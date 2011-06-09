@@ -13,7 +13,10 @@ sys.path.insert(0, os.getcwd())
 ## options parser
 
 from jsb.utils.opts import makeircconfig, makeircopts
+from jsb.lib.datadir import setdatadir
+
 opts = makeircopts()
+if opts.datadir: setdatadir(opts.datadir)
 
 ## print version
 
@@ -48,7 +51,7 @@ cfg = makeircconfig(opts)
 cfg.save()
 
 mainconfig = getmainconfig()
-setloglevel(opts.loglevel or mainconfig.loglevel or "warning", opts.colors)
+setloglevel(opts.loglevel or mainconfig.loglevel or "warning", opts.colors, opts.datadir)
 if opts.loglevel: mainconfig.loglevel = opts.loglevel ; mainconfig.save()
 
 ## boot

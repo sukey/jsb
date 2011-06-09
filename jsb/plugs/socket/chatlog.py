@@ -22,6 +22,7 @@ from jsb.lib.datadir import getdatadir
 from jsb.utils.name import stripname
 from jsb.utils.url import striphtml
 from jsb.utils.format import formatevent, format_opt
+from jsb.utils.log import init
 
 ## basic imports
 
@@ -59,17 +60,19 @@ eventstolog = ["OUTPUT", "PRIVMSG", "CONSOLE", "PART", "JOIN", "QUIT", "PRESENCE
 
 loggers = {}
 
-try: LOGDIR = os.path.expanduser("~") + os.sep + ".jsb" + os.sep + "chatlogs"
-except ImportError: LOGDIR = os.getcwd() + os.sep + ".jsb" + os.sep + "chatlogs"
+def initlog(d):
+    try: LOGDIR = d + os.sep + "chatlogs"
+    except ImportError: LOGDIR = d + os.sep + "chatlogs"
 
-try:
-    ddir = os.sep.join(LOGDIR.split(os.sep)[:-1])
-    if not os.path.isdir(ddir): os.mkdir(ddir)   
-except: pass  
+    try:
+        ddir = os.sep.join(LOGDIR.split(os.sep)[:-1])
+        if not os.path.isdir(ddir): os.mkdir(ddir)   
+    except: pass  
 
-try:
-    if not os.path.isdir(LOGDIR): os.mkdir(LOGDIR)
-except: pass
+    try:
+        if not os.path.isdir(LOGDIR): os.mkdir(LOGDIR)
+    except: pass
+    return LOGDIR
 
 format = "%(message)s"
 
@@ -81,6 +84,7 @@ def timestr(dt):
 def enablelogging(botname, channel):
     """ set loglevel to level_name. """
     global loggers
+    LOGDIR = initlog(getdatadir())
     logging.warn("enabling on (%s,%s)" % (botname, channel))
     channel = stripname(channel)
     logname = "%s_%s" % (botname, channel)

@@ -42,11 +42,11 @@ RLEVELS = {logging.DEBUG: 'debug',
            logging.CRITICAL: 'critical'
           }
 
-def init():
+def init(d):
     try:
         import waveapi
     except ImportError:
-        LOGDIR = getdatadir() + os.sep + "botlogs" # BHJTW change this for debian
+        LOGDIR = d + os.sep + "botlogs" # BHJTW change this for debian
 
     try:
         ddir = os.sep.join(LOGDIR.split(os.sep)[:-1])
@@ -60,10 +60,10 @@ def init():
 
 ## setloglevel function
 
-def setloglevel(level_name="warn", colors=False):
+def setloglevel(level_name="warn", colors=False, datadir=None):
     """ set loglevel to level_name. """
     if not level_name: return
-    LOGDIR = init()
+    LOGDIR = init(datadir or getdatadir())
     format_short = "\033[94m[!]\033[0m\033[0m \033[97m%(asctime)-8s\033[0m - \033[92m%(module)+12s.%(funcName)-14s\033[0m - \033[93m%(message)s\033[0m"
     format = "\033[94m[!]\033[0m\033[0m \033[97m%(asctime)s.%(msecs)-13s\033[0m - \033[92m%(module)s.%(funcName)s:%(lineno)s\033[0m - \033[93m%(message)s\033[0m - %(levelname)s - <%(threadName)s>"
     format_short_plain = "[!] %(asctime)-8s - %(module)+12s.%(funcName)-14s - %(message)s"

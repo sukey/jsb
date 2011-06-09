@@ -29,7 +29,10 @@ opts, args = parser.parse_args()
 opts.args = args
 
 if not opts.args: print getversion('CONSOLE')
-if opts.datadir and not os.path.isdir(opts.datadir): os.mkdir(opts.datadir)
+if opts.datadir:
+    if not os.path.isdir(opts.datadir): os.mkdir(opts.datadir)
+    from jsb.lib.datadir import setdatadir
+    setdatadir(opts.datadir)
 
 ## make config from cmndline options
 
