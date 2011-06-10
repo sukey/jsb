@@ -39,6 +39,7 @@ from jsb.lib.threadloop import TimedLoop
 from jsb.lib.threads import start_new_thread
 from jsb.lib.errors import NoSuchBotType, FeedAlreadyExists, NameNotSet
 from jsb.lib.datadir import getdatadir
+from jsb.lib.channelbase import ChannelBase
 from jsb.imports import getfeedparser, getjson
 
 
@@ -931,10 +932,14 @@ def handle_rssstart(bot, ievent):
     if not feeds: ievent.missing('<list of feeds>') ; return
     started = []
     if feeds[0] == 'all': feeds = watcher.list()
+    if ievent.options and ievent.options.channel: target = ievent.options.channel
+    else: target = ievent.channel
     for name in feeds:
-        watcher.start(bot.cfg.name, bot.type, name, ievent.channel)
-        if name not in ievent.chan.data.feeds: ievent.chan.data.feeds.append(name) ; ievent.chan.save()
+        watcher.start(bot.cfg.name, bot.type, name, target)
         started.append(name)
+    for chan in started:
+        tchan = ChannelBase(target)
+        if name not in tchan.data.feeds: tchan.data.feeds.append(name) ; tchan.save()
     ievent.reply('started: ', started)
 
 cmnds.add('rss-start', handle_rssstart, ['RSS', 'USER'])
