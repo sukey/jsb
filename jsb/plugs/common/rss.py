@@ -1277,11 +1277,7 @@ def handle_rssurl(bot, ievent):
     if not watcher.ownercheck(name, ievent.userhost): ievent.reply("you are not the owner of the %s feed" % name) ; return
     result = watcher.url(name)
     if not result: ievent.reply("don't know url for %s" % name) ; return
-    try:
-        if ':' in result.split('/')[1]:
-            if not ievent.msg: ievent.reply('run this command in a private message') ; return
-    except (TypeError, ValueError, IndexError): pass
-    ievent.reply('url of %s: %s' % (name, result))
+    ievent.reply('url of %s: %s' % (name, strippassword(result)))
 
 cmnds.add('rss-url', handle_rssurl, ['OPER', ])
 examples.add('rss-url', 'get url of feed', 'rss-url jsonbot')
