@@ -102,8 +102,6 @@ possiblemarkup = {'separator': 'set this to desired item separator', \
 'set this to 1 if you want the rss items displayed with oldest item first', \
 'nofeedname': "if you don't want the feedname shown"}
 
-passre = re.compile("")
-
 ## global data
 
 lastpoll = PlugPersist('lastpoll')
@@ -139,11 +137,8 @@ def find_self_url(links):
     return None
 
 def strippassword(url):
-    try:
-        first = url.split("@")[0]
-        password = first.split(":")[2]
-        url = url.replace(password, "passwdstripped")
-    except IndexError: pass
+    newurl = re.sub(r'^(https?://[^:/]*):([^@]*)@(\S+)$', r'\1:passwdblanked@\3', url)
+    if newurl: return newurl
     return url
 
 ## Feed class
@@ -462,9 +457,9 @@ class Rsswatcher(Rssdict):
         result = feedparser.parse(url, agent=useragent())
         logging.info("fetch - got result from %s" % strippassword(url))
         if result and result.has_key('bozo_exception'):
-            event.reply('%s bozo_exception: %s' % (url, result['bozo_exception']))
+            event.reply('%s bozo_exception: %s' % (strippassword(url), result['bozo_exception']))
             return True
-        try: status = result.status ; event.reply("%s - status is %s" % (url, status))
+        try: status = result.status ; event.reply("%s - status is %s" % (strippedpassword(url), status))
         except AttributeError: status = 200
         if status != 200 and status != 301 and status != 302: return False
         return True
@@ -824,7 +819,7 @@ def handle_rssclone(bot, event):
     if not event.rest: event.missing('<channel>') ; event.done()
     feeds = watcher.clone(bot.cfg.name, event.channel, event.rest)
     event.reply('cloned the following feeds: ', feeds)
-    bot.say(event.rest, "this wave is continued in %s" % event.url)
+    bot.say(event.rest, "this wave is continued in %s" % strippassword(event.url))
  
 cmnds.add('rss-clone', handle_rssclone, 'USER')
 examples.add('rss-clone', 'clone feeds into new channel', 'wave-clone waveid')
@@ -847,7 +842,7 @@ def handle_rssadd(bot, ievent):
     try: (name, url) = ievent.args
     except ValueError: ievent.missing('<name> <url>') ; return
     if watcher.checkfeed(url, ievent): watcher.add(name, url, ievent.userhost) ; ievent.reply('rss item added')
-    else: ievent.reply('%s is not valid' % url)
+    else: ievent.reply('%s is not valid' % strippassword(url))
 
 cmnds.add('rss-add', handle_rssadd, 'USER')
 examples.add('rss-add', 'rss-add <name> <url> to the rsswatcher', 'rss-add jsonbot http://code.google.com/feeds/p/jsonbot/hgchanges/basic')
@@ -866,7 +861,7 @@ def handle_rssregister(bot, ievent):
         watcher.start(bot.cfg.name, bot.type, name, ievent.channel)
         if name not in ievent.chan.data.feeds: ievent.chan.data.feeds.append(name) ; ievent.chan.save()
         ievent.reply('rss item added and started in channel %s' % ievent.channel)
-    else: ievent.reply('%s is not valid' % url)
+    else: ievent.reply('%s is not valid' % strippassword(url))
 
 cmnds.add('rss-register', handle_rssregister, 'USER')
 examples.add('rss-register', 'rss-register <name> <url> - register and start a rss feed', 'rss-register jsonbot-hg http://code.google.com/feeds/p/jsonbot/hgchanges/basic')
@@ -1295,7 +1290,7 @@ def handle_rssseturl(bot, ievent):
         rssitem = watcher.byname(name)
         rssitem.sync()
         ievent.reply('url of %s changed' % name)
-    else: ievent.reply('failed to set url of %s to %s' % (name, url))
+    else: ievent.reply('failed to set url of %s to %s' % (name, strippassword(url)))
 
 cmnds.add('rss-seturl', handle_rssseturl, ['USER', ])
 examples.add('rss-seturl', 'change url of rssitem', 'rss-seturl jsonbot-hg http://code.google.com/feeds/p/jsonbot/hgchanges/basic')
