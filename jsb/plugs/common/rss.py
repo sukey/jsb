@@ -1053,7 +1053,8 @@ def handle_rssadditem(bot, ievent):
     """ add an item (token) to a feeds itemslist. """
     try: (name, item) = ievent.args
     except ValueError: ievent.missing('<name> <item>') ; return
-    target = ievent.channel
+    if ievent.options and ievent.options.channel: target = ievent.options.channel
+    else: target = ievent.channel
     feed = watcher.byname(name)
     if not feed: ievent.reply("we don't have a %s feed" % name) ; return
     try: feed.itemslists.data[jsonstring([name, bot.type, target])].append(item)
@@ -1071,7 +1072,8 @@ def handle_rssdelitem(bot, ievent):
     """ delete item from a feeds itemlist. """
     try: (name, item) = ievent.args
     except ValueError: ievent.missing('<name> <item>') ; return
-    target = ievent.channel
+    if ievent.options and ievent.options.channel: target = ievent.options.channel
+    else: target = ievent.channel
     rssitem =  watcher.byname(name)
     if not rssitem: ievent.reply("we don't have a %s feed" % name) ; return
     try:
@@ -1100,7 +1102,8 @@ def handle_rssmarkup(bot, ievent):
     except IndexError: ievent.missing('<name>') ; return
     rssitem =  watcher.byname(name)
     if not rssitem: ievent.reply("we don't have a %s feed" % name) ; return
-    target = ievent.channel
+    if ievent.options and ievent.options.channel: target = ievent.options.channel
+    else: target = ievent.channel
     try: ievent.reply(str(rssitem.markup[jsonstring([name, bot.type, target])]))
     except KeyError: pass
 
@@ -1115,7 +1118,8 @@ def handle_rssaddmarkup(bot, ievent):
     except ValueError: ievent.missing('<name> <item> <value>') ; return
     rssitem =  watcher.byname(name)
     if not rssitem: ievent.reply("we don't have a %s feed" % name) ; return
-    target = ievent.channel
+    if ievent.options and ievent.options.channel: target = ievent.options.channel
+    else: target = ievent.channel
     try: value = int(value)
     except ValueError: pass
     try:
@@ -1135,7 +1139,8 @@ def handle_rssdelmarkup(bot, ievent):
     except ValueError: ievent.missing('<name> <item>') ; return
     rssitem =  watcher.byname(name)
     if not rssitem: ievent.reply("we don't have a %s feed" % name) ; return
-    target = ievent.channel
+    if ievent.options and ievent.options.channel: target = ievent.options.channel
+    else: target = ievent.channel
     try: del rssitem.markup[jsonstring([name, bot.type, target])][item]
     except (KeyError, TypeError): ievent.reply("can't remove %s from %s feed's markup" %  (item, name)) ; return
     rssitem.markup.save()
@@ -1309,9 +1314,11 @@ def handle_rssitemslist(bot, ievent):
     except IndexError: ievent.missing('<name>') ; return
     rssitem = watcher.byname(name)
     if not rssitem: ievent.reply("we don't have a %s feed." % name) ; return
-    try: itemslist = rssitem.itemslists[jsonstring([name, bot.type, ievent.channel])]
-    except KeyError: ievent.reply("no itemslist set for (%s, %s)" % (name, ievent.channel)) ; return
-    ievent.reply("itemslist of (%s, %s): " % (name, ievent.channel), itemslist)
+    if ievent.options and ievent.options.channel: target = ievent.options.channel
+    else: target = ievent.channel
+    try: itemslist = rssitem.itemslists[jsonstring([name, bot.type, target])]
+    except KeyError: ievent.reply("no itemslist set for (%s, %s)" % (name, target)) ; return
+    ievent.reply("itemslist of (%s, %s): " % (name, target), itemslist)
 
 cmnds.add('rss-itemslist', handle_rssitemslist, ['RSS', 'USER'])
 examples.add('rss-itemslist', 'get itemslist of feed', 'rss-itemslist jsonbot')
@@ -1337,11 +1344,11 @@ examples.add('rss-scan', 'rss-scan <name> .. get possible items of <name> ', 'rs
 
 def handle_rssfeeds(bot, ievent):
     """ show what feeds are running in a channel. """
-    try: channel = ievent.args[0]
-    except IndexError: channel = ievent.channel
-    result = watcher.getfeeds(bot.cfg.name, bot.type, channel)
-    if result: ievent.reply("feeds running in %s: " % channel, result)
-    else: ievent.reply('%s has no feeds running' % channel)
+    if ievent.options and ievent.options.channel: target = ievent.options.channel
+    else: target = ievent.channel
+    result = watcher.getfeeds(bot.cfg.name, bot.type, target)
+    if result: ievent.reply("feeds running in %s: " % target, result)
+    else: ievent.reply('%s has no feeds running' % target)
 
 cmnds.add('rss-feeds', handle_rssfeeds, ['USER', 'RSS'])
 examples.add('rss-feeds', 'rss-feeds <name> .. show what feeds are running in a channel', '1) rss-feeds 2) rss-feeds #dunkbots')
