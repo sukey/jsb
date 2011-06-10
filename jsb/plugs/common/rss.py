@@ -1036,7 +1036,8 @@ def handle_rsssetitems(bot, ievent):
     """ set items of a rss feed. """
     try: (name, items) = ievent.args[0], ievent.args[1:]
     except (ValueError, IndexError): ievent.missing('<name> <items>') ; return
-    target = ievent.channel
+    if ievent.options and ievent.options.channel: target = ievent.options.channel
+    else: target = ievent.channel
     rssitem = watcher.byname(name)
     if not rssitem: ievent.reply("we don't have a %s feed" % name) ; return
     rssitem.itemslists.data[jsonstring([name, bot.type, target])] = items
