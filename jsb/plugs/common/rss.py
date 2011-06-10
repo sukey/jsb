@@ -648,7 +648,7 @@ class Rsswatcher(Rssdict):
         rssitem.data.running = 1
         rssitem.data.stoprunning = 0
         rssitem.save()
-        watcher.watch(name)
+        if name not in self.runners(): watcher.watch(name)
         logging.warn("started %s feed in %s channel" % (name, channel))
         return True
 
