@@ -66,6 +66,7 @@ import logging
 import datetime
 import hashlib
 import copy
+import re
 
 ## exceptions
 
@@ -101,6 +102,8 @@ possiblemarkup = {'separator': 'set this to desired item separator', \
 'set this to 1 if you want the rss items displayed with oldest item first', \
 'nofeedname': "if you don't want the feedname shown"}
 
+passre = re.compile("")
+
 ## global data
 
 lastpoll = PlugPersist('lastpoll')
@@ -131,9 +134,17 @@ def checkfordate(data, date):
 
 def find_self_url(links):
     for link in links:
-        logging.debug("trying link: %s" % (link))
+        logging.debug("trying link: %s" % (strippassword(link)))
         if link.rel == 'self': return link.href
     return None
+
+def strippassword(url):
+    try:
+        first = url.split("@")[0]
+        password = first.split(":")[2]
+        url = url.replace(password, "passwdstripped")
+    except IndexError: pass
+    return url
 
 ## Feed class
 
@@ -197,8 +208,8 @@ sleeptime=15*60, running=0):
         if result == None:
             result = self.fetchdata()
             set(url, result, namespace='rss')
-            logging.debug("got result from %s" % url)
-        else: logging.debug("got result from %s *cached*" % url)
+            logging.debug("got result from %s" % strippassword(url))
+        else: logging.debug("got result from %s *cached*" % stripppassword(url))
         return result
 
     def fetchdata(self, data=None):
@@ -214,7 +225,7 @@ sleeptime=15*60, running=0):
             except AttributeError: status = None
         else:
             url = self.data['url']
-            logging.info("fetching %s" % url)
+            logging.info("fetching %s" % strippassword(url))
             result = feedparser.parse(url, agent=useragent(), etag=etag)
             try: status = result.status
             except AttributeError: status = None
@@ -228,8 +239,8 @@ sleeptime=15*60, running=0):
             try: etag = etags.data[name] = result.etag ; logging.info("etag of %s set to %s" % (name, etags.data[name])) ; etags.sync()
             except (AttributeError, KeyError): etag = None
         if not name in urls.data: urls.data[name] = self.data.url ; urls.save()
-        logging.debug("got result from %s" % self.data.url)
-        if result and result.has_key('bozo_exception'): logging.debug('%s bozo_exception: %s' % (self.data.url, result['bozo_exception']))
+        logging.debug("got result from %s" % strippassword(self.data.url))
+        if result and result.has_key('bozo_exception'): logging.debug('%s bozo_exception: %s' % (strippassword(self.data.url), result['bozo_exception']))
         l = len(result.entries)
         if l > self.data.length: self.data.length = l ; self.save()
         return result.entries
@@ -237,9 +248,9 @@ sleeptime=15*60, running=0):
     def sync(self):
         """ refresh cached data of a feed. """
         if not self.data.running:
-            logging.info("%s not enabled .. %s not syncing " % (self.data.name, self.data.url))
+            logging.info("%s not enabled .. %s not syncing " % (self.data.name,strippassword( self.data.url)))
             return False
-        logging.info("syncing %s - %s" % (self.data.name, self.data.url))
+        logging.info("syncing %s - %s" % (self.data.name, strippassword(self.data.url)))
         result = self.fetchdata()
         if not result:
             cached = get(self.data.url, namespace="rss")
@@ -380,7 +391,7 @@ class Rssdict(PlugPersist):
 
     def add(self, name, url, owner):
         """ add rss item. """
-        logging.warn('adding %s - %s - (%s)' % (name, url, owner))
+        logging.warn('adding %s - %s - (%s)' % (name, strippassword(url), owner))
         if name not in self.data['names']: self.data['names'].append(name)
         self.feeds[name] = Feed(name, url, owner, ['title', 'link'])
         self.data['urls'][url] = name
@@ -449,7 +460,7 @@ class Rsswatcher(Rssdict):
     def checkfeed(self, url, event):
         """ get data of rss feed. """
         result = feedparser.parse(url, agent=useragent())
-        logging.info("fetch - got result from %s" % url)
+        logging.info("fetch - got result from %s" % strippassword(url))
         if result and result.has_key('bozo_exception'):
             event.reply('%s bozo_exception: %s' % (url, result['bozo_exception']))
             return True
@@ -469,7 +480,7 @@ class Rsswatcher(Rssdict):
             if name: rssitem = self.byname(name)
             else: url = find_self_url(result.feed.links) ; rssitem = self.byurl(url)
             if rssitem: name = rssitem.data.name
-            else: logging.warn("can't find %s item" % url) ; del data ; return
+            else: logging.warn("can't find %s item" % strippassword(url)) ; del data ; return
             if not name in urls.data: urls.data[name] = url ; urls.save()
             result = rssitem.fetchdata(data)
             logging.warn("%s - got %s items from feed" % (name, len(result)))
@@ -717,14 +728,14 @@ def dodata(data, name):
 def rssfetchcb(rpc):
     import google
     try: data = rpc.get_result()
-    except google.appengine.api.urlfetch_errors.DownloadError, ex: logging.warn("%s - error: %s" % (rpc.final_url, str(ex))) ; return
+    except google.appengine.api.urlfetch_errors.DownloadError, ex: logging.warn("%s - error: %s" % (strippassword(rpc.final_url), str(ex))) ; return
     name = rpc.feedname
     logging.debug("headers of %s: %s" % (name, unicode(data.headers)))
     if data.status_code == 200:
         logging.info("defered %s feed" % rpc.feedname)
         from google.appengine.ext.deferred import defer
         defer(dodata, data, rpc.feedname)
-    else: logging.warn("fetch returned status code %s - %s" % (data.status_code, rpc.feedurl))
+    else: logging.warn("fetch returned status code %s - %s" % (data.status_code, strippassword(rpc.feedurl)))
 
 ## creaete_rsscallback function
 
@@ -1410,7 +1421,7 @@ def handle_rssimport(bot, ievent):
         try:
             assert(name)
             assert(url)
-            logging.warn("import - adding %s - %s" % (name, url))
+            logging.warn("import - adding %s - %s" % (name, strippassword(url)))
             watcher.add(fromenc(name), fromenc(url), ievent.userhost)
             teller += 1
         except Exception, ex:
