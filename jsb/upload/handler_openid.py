@@ -67,7 +67,6 @@ class OpenIdLoginHandler(webapp.RequestHandler):
                 self.redirect(login_url)
             else:
                 logging.warn("denied access for %s - %s - %s" % (self.request.remote_addr, cont, openid))
-                self.send_error(400)
         except Exception, ex:
             handle_exception()
 

@@ -52,14 +52,8 @@ class HomePageHandler(RequestHandler):
         logging.warn("web_handler - in")
         try:
             user = finduser()
-            if not user:
-                login(self.response, {'appname': 'JSONBOT' , 'who': 'not logged in yet', 'loginurl': 'not logged in', 'logouturl': 'JSONBOT', 'onload': 'consoleinit();'})
-            else:
+            if user:
                 logout = logouturl(self.request, self.response)
-                #channel = ChannelBase(user, botname="gae-web")
-                #(chan, token) = channel.gae_create()
-                #logging.warn("%s - %s" % (chan, token))
-                #channel.save()
                 start(self.response, {'appname': 'JSONBOT' , 'who': user, 'loginurl': 'logged in', 'logouturl': logout, 'onload': 'consoleinit();'})
         except google.appengine.runtime.DeadlineExceededError:
             self.response.out.write("DeadLineExceededError .. this request took too long to finish.")
