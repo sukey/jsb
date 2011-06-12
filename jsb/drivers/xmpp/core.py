@@ -397,7 +397,7 @@ class XMLStream(NodeBuilder):
         challenge = re.findall(">(.*?)</challenge>", resp.orig)
         if not challenge: logging.error("%s - can't find challenge" % self.cfg.name)
         else: self.challenge = challenge[0]
-        response = makeresp("xmpp/%s" % self.cfg.server, host, name, password, self.challenge)
+        response = makeresp("xmpp/%s" % host, host, name, password, self.challenge)
         resp = self.waiter("<response xmlns='urn:ietf:params:xml:ns:xmpp-sasl'>%s</response>" % response)
         if self.failure: raise CannotAuth(self.failure)
         #if "not-authorized" in str(resp.orig): raise Exception(resp.orig)
