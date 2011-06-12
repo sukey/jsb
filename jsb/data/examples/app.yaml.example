@@ -17,6 +17,11 @@ handlers:
 - url: /
   script: handler_web.py
   secure: always
+  login: required
+
+- url: /_ah/assets/(.*)
+  static_files: assets/\1
+  upload: assets/(.*)
 
 - url: /_ah/login.*
   script: handler_openid.py

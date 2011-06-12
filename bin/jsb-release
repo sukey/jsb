@@ -71,7 +71,7 @@ if os.path.isdir(release):
 ## define
 
 orig = 'jsonbot'
-homedir = os.path.expanduser("~")
+homedir = os.path.abspath(os.path.expanduser("~"))
 
 ## functions
 
@@ -103,48 +103,63 @@ def sed(source, target, silent=True):
 
 ## doit
 
-source = getsource("jsb.upload")
-copyover(source, release)
-source = getsource("jsb.data")
-copyover(source, release + os.sep + "data")
-if os.path.isdir(getdatadir() + os.sep + 'myplugs'): source = getdatadir() + os.sep + "myplugs"
-elif os.path.isdir("jsb/plugs/myplugs"): source = "jsb/plugs/myplugs"
-#elif os.path.isdir(homedir + os.sep + ".jsb" + os.sep + "myplugs"): source = homedir + os.sep + ".jsb" + os.sep + "myplugs"
-else:
-    source = getsource("myplugs")
-if source: copyover(source, release + os.sep + "myplugs")
-else: print "can't find myplugs directory".upper()
-source = getsource("jsb")
-copyover(source, release + os.sep + 'jsb')
+def install():
+    source = getsource("jsb.upload")
+    copyover(source, release)
+    source = getsource("jsb.data")
+    copyover(source, release + os.sep + "data")
+    if os.path.isdir(getdatadir() + os.sep + 'myplugs'): source = getdatadir() + os.sep + "myplugs"
+    elif os.path.isdir("jsb/plugs/myplugs"): source = "jsb/plugs/myplugs"
+    else: source = getsource("myplugs")
+    if source: copyover(source, release + os.sep + "myplugs")
+    else: print "can't find myplugs directory".upper()
+    source = getsource("jsb")
+    copyover(source, release + os.sep + 'jsb')
 
-homedir = os.path.expanduser("~")
-try:
-    shutil.move(os.path.join(release, 'data', 'config'), os.path.join(release, 'data', 'config.bck'))
-except IOError, ex:
-    print "TAKE NOTE ! no %s dir available" % os.path.join(release, "data", "config")
+    try:
+        shutil.move(os.path.join(release, 'data', 'config'), os.path.join(release, 'data', 'config.bck'))
+    except IOError, ex:
+        print "TAKE NOTE ! no %s dir available" % os.path.join(release, "data", "config")
 
-if not os.path.isdir(homedir + os.sep + 'jsbregs'):
-   os.mkdir(homedir + os.sep + 'jsbregs')
+    if not os.path.isdir(homedir + os.sep + 'jsbregs'):
+        os.mkdir(homedir + os.sep + 'jsbregs')
+        copyregs()
 
-try:
-    copyover(os.path.join(homedir, 'jsbregs', targetin), os.path.join(release, 'data', 'config'))
-    shutil.copy(os.path.join(homedir, "jsbregs", targetin, 'app.yaml'), release + os.sep + 'app.yaml')
-    shutil.copy(os.path.join(homedir, "jsbregs" , targetin,'cron.yaml'), release + os.sep + 'cron.yaml')
-    shutil.copy(os.path.join(homedir, "jsbregs", targetin, 'queue.yaml'), release + os.sep + 'queue.yaml')
-except (OSError, IOError), ex:
-    print "TAKE NOTE: %s" % str(ex)
+def copyregs():
+    try:
+        copyover(os.path.join(homedir, 'jsbregs', targetin), os.path.join(release, 'data', 'config'))
+        shutil.copy(os.path.join(homedir, "jsbregs", targetin, 'app.yaml'), release + os.sep + 'app.yaml')
+        shutil.copy(os.path.join(homedir, "jsbregs" , targetin,'cron.yaml'), release + os.sep + 'cron.yaml')
+        shutil.copy(os.path.join(homedir, "jsbregs", targetin, 'queue.yaml'), release + os.sep + 'queue.yaml')
+    except (OSError, IOError), ex:
+        print "TAKE NOTE: %s" % str(ex)
+
+def installregs():
     try:
         copyover(os.path.join(release, 'data', 'examples'), os.path.join(homedir , 'jsbregs', targetin))
         print "\n\nplease edit ~/jsbregs/%s/ dir and rerun this program.\n\n" % (targetin,)
-        os._exit(1)
-    except OSError, ex:
+    except:
         try:
             copyover(os.path.join('/usr', 'local', 'jsb', 'data', 'examples'), os.path.join(homedir, 'jsbregs', targetin))
             print "\n\nplease edit ~/jsbregs/%s/ dir and rerun this program.\n\n" % (targetin,)
-            os._exit(1)
-        except OSError, ex:
-            print "ERROR: can't copy files to ~/jsbregs %s" % str(ex)
-            os._exit(1)
+        except: 
+            try:
+                source = getsource("jsb.data.examples")
+                copyover(os.path.join(source), os.path.join(homedir, 'jsbregs', targetin))
+            except Exception, ex: print "ERROR: can't copy files to ~/jsbregs %s" % str(ex) 
+
+install()
+installregs()
+
+if not os.path.exists(os.path.join(homedir, "jsbregs", targetin, 'app.yaml')):
+    print "copying examples to workable files .. "
+    shutil.copy(os.path.join(homedir, "jsbregs", targetin, 'app.yaml.example'), os.path.join(homedir, "jsbregs", targetin, 'app.yaml'))
+    shutil.copy(os.path.join(homedir, "jsbregs", targetin, 'cron.yaml.example'), os.path.join(homedir, "jsbregs", targetin, 'cron.yaml'))
+    shutil.copy(os.path.join(homedir, "jsbregs", targetin, 'queue.yaml.example'), os.path.join(homedir, "jsbregs", targetin, 'queue.yaml'))
+    shutil.copy(os.path.join(homedir, "jsbregs", targetin, 'mainconfig.example'), os.path.join(homedir, "jsbregs", targetin, 'mainconfig'))
+    shutil.copy(os.path.join(homedir, "jsbregs", targetin, 'credentials.py.example'), os.path.join(homedir, "jsbregs", targetin, 'credentials.py'))
+
+copyregs()
 
 if os.path.isdir('docs'):
     copyover('docs', release + os.sep + 'docs')
