@@ -23,18 +23,18 @@ def handle_feedback(bot, event):
     fleet = getfleet()
     feedbackbot = fleet.getfirstjabber()
     if not feedbackbot:
-        if bot.isgae: cfg = LazyDict({"name": "feedbackbot-gae", "user": "feedback@jsonbot.org", "password": "givesomereply"})
-        else: cfg = LazyDict({"name": "feedbackbot", "user": "feedback@jsonbot.org", "password": "givesomereply"})
+        if bot.isgae: cfg = LazyDict({"name": "feedbackbot-gae", "user": "feedback@jsonbot.org", "password": "givesomereply", "disable": False})
+        else: cfg = LazyDict({"name": "feedbackbot", "user": "feedback@jsonbot.org", "password": "givesomereply", "disable": False})
         feedbackbot = fleet.makebot("sxmpp", cfg.name, config=cfg)
         if not feedbackbot: event.reply("can't make xmpp bot.") ; return
         feedbackbot.start()
         if not feedbackbot.cfg.password: feedbackbot.cfg.password = cfg['password'] ; feedbackbot.cfg.save()
     feedbackbot.cfg.disable = False
-    event.reply("sending to bthate@gmail.com ... ")
-    feedbackbot.say("bthate@gmail.com", event.rest)
+    event.reply("sending to replies@jsonbot.org ... ")
+    feedbackbot.say("replies@jsonbot.org", event.rest)
     feedbackbot.cfg.disable = True
     feedbackbot.cfg.save()
     event.done()
 
 cmnds.add("feedback", handle_feedback, ["OPER", "USER", "GUEST"])
-examples.add("feedback", "send a message to bart@jsonbot.org", "feedback the bot is missing some spirit !")
+examples.add("feedback", "send a message to replies@jsonbot.org", "feedback the bot is missing some spirit !")
