@@ -31,6 +31,7 @@ import types
 import os
 import logging
 import google
+import urllib
 
 ## init
 
@@ -51,10 +52,13 @@ class HomePageHandler(RequestHandler):
 
         logging.warn("web_handler - in")
         try:
+            logout = logouturl(self.request, self.response)
             user = finduser()
             if user:
-                logout = logouturl(self.request, self.response)
                 start(self.response, {'appname': 'JSONBOT' , 'who': user, 'loginurl': 'logged in', 'logouturl': logout, 'onload': 'consoleinit();'})
+            else: 
+                login(self.response, {'appname': 'JSONBOT' , 'who': "nobody", 'loginurl': 'not logged in', 'logouturl': logout, 'onload': 'consoleinit();'})
+
         except google.appengine.runtime.DeadlineExceededError:
             self.response.out.write("DeadLineExceededError .. this request took too long to finish.")
         except Exception, ex:

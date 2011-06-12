@@ -55,6 +55,5 @@ for item in target:
         proc = Popen(execstring.split())
         proc.wait()
     except:
-        print """ google_appengine is not installed in your home dir. \
-    see http://code.google.com/appengine/downloads.html """
-    os._exit(1)
+        print """ google_appengine is not installed in your home dir. see http://code.google.com/appengine/downloads.html """
+        os._exit(1)
