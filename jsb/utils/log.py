@@ -94,11 +94,11 @@ def setloglevel(level_name="warn", colors=False, datadir=None):
     if level_name in ["debug",]: 
          if docolors: ch.setFormatter(formatter)
          else: ch.setFormatter(formatter_plain)
-         filehandler.setFormatter(formatter_plain)
+         if filehandler: filehandler.setFormatter(formatter_plain)
     else:
          if docolors: ch.setFormatter(formatter_short)
          else: ch.setFormatter(formatter_short_plain)
-         filehandler.setFormatter(formatter_short_plain)
+         if filehandler: filehandler.setFormatter(formatter_short_plain)
     try: import waveapi
     except ImportError:
         root.addHandler(ch)
