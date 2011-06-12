@@ -24,6 +24,9 @@ from jsb.utils.opts import makefleetopts
 
 opts = makefleetopts()
 
+from jsb.lib.datadir import setdatadir
+if opts.datadir: setdatadir(opts.datadir)
+
 from jsb.version import getversion
 print getversion('FLEET')
 
