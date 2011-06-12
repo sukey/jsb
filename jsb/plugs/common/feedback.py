@@ -30,8 +30,8 @@ def handle_feedback(bot, event):
         feedbackbot.start()
         if not feedbackbot.cfg.password: feedbackbot.cfg.password = cfg['password'] ; feedbackbot.cfg.save()
     feedbackbot.cfg.disable = False
-    event.reply("sending to bart@jsonbot.org ... ")
-    feedbackbot.say("bart@jsonbot.org", event.rest)
+    event.reply("sending to bthate@gmail.com ... ")
+    feedbackbot.say("bthate@gmail.com", event.rest)
     feedbackbot.cfg.disable = True
     feedbackbot.cfg.save()
     event.done()
