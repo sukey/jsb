@@ -79,7 +79,8 @@ def setloglevel(level_name="warn", colors=False, datadir=None):
     except ImportError:
         try:
             filehandler = logging.handlers.TimedRotatingFileHandler(LOGDIR + os.sep + "jsb.log", 'midnight')
-        except IOError:
+        except (IOError, AttributeError), ex:
+            logging.error("can't create file loggger %s" % str(ex))
             filehandler = None
     mainconfig = getmainconfig()
     docolors = colors or mainconfig.color
