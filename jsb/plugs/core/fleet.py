@@ -185,6 +185,7 @@ def fleet_add(bot, ievent):
         cfg.password = nick
     cfg.save()
     bot = fleet.makebot(type, name, cfg)
+    fleet.addbot(bot)
     if bot:
         ievent.reply('enabled and started %s bot - %s' % (name, cfg.filename))
         start_new_thread(bot.start, ())
@@ -206,7 +207,7 @@ def fleet_cmnd(bot, ievent):
     for botname in do:
         bot = fleet.byname(botname)
         if not bot: ievent.reply("%s bot is not in fleet" % botname) ; return
-        result = bot.docmnd(ievent.userhost, ievent.channel, cmndtxt, wait=1, nooutput=True)
+        result = bot.putevent(ievent.userhost, ievent.channel, cmndtxt, nooutput=True)
         if result: res = waitforqueue(result.outqueue, 60000)
         else: ievent.reply("no result")
         ievent.reply("[%s] %s" % (botname, ", ".join(res)))
