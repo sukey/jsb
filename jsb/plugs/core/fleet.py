@@ -166,7 +166,7 @@ def fleet_add(bot, ievent):
     try:
         name, type, server, nick = ievent.rest.split()
     except ValueError: ievent.missing("<name> <type> <server>|<botjid> <nick>|<passwd>") ; return
-    bots = ievent.rest.split()
+    type = type.lower()
     fleet = getfleet()
     bot = fleet.byname(name)
     if bot: event.reply("%s bot already exists" % name) ; return
