@@ -180,6 +180,7 @@ class Plugins(LazyDict):
     def pipelined(self, bot, event, wait=0, *args, **kwargs):
         """ split cmnds, create events for them, chain the queues and dispatch.  """
         origqueues = event.queues
+        origout = event.outqueue
         event.queues = []
         event.allowqueue = True
         event.closequeue = True
@@ -207,6 +208,7 @@ class Plugins(LazyDict):
             prevq = q
         lq = events[-1]
         lq.inqueue = prevq
+        lq.outqueue = origout
         lq.closequeue = True
         lq.dontclose = False
         if origqueues: lq.queues = origqueues

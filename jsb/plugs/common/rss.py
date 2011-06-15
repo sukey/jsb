@@ -205,7 +205,7 @@ sleeptime=15*60, running=0):
             result = self.fetchdata()
             set(url, result, namespace='rss')
             logging.debug("got result from %s" % strippassword(url))
-        else: logging.debug("got result from %s *cached*" % stripppassword(url))
+        else: logging.debug("got result from %s *cached*" % strippassword(url))
         return result
 
     def fetchdata(self, data=None):
@@ -460,7 +460,7 @@ class Rsswatcher(Rssdict):
         if result and result.has_key('bozo_exception'):
             event.reply('%s bozo_exception: %s' % (strippassword(url), result['bozo_exception']))
             return True
-        try: status = result.status ; event.reply("%s - status is %s" % (strippedpassword(url), status))
+        try: status = result.status ; event.reply("%s - status is %s" % (strippassword(url), status))
         except AttributeError: status = 200
         if status != 200 and status != 301 and status != 302: return False
         return True
