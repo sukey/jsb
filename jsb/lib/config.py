@@ -313,6 +313,9 @@ irctemplate = """# =====================================================
 #
 # =====================================================
 
+# - to enable put this to 0
+disable = 1
+
 # - the bot's nick.
 nick = "jsb"
 
@@ -357,6 +360,9 @@ xmpptemplate = """# =====================================================
 # The bot can edit this file!
 #
 # =====================================================
+
+# - to enable put this to 0
+disable = 1
 
 # - the bot's nick.
 nick = "jsb"
