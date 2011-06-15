@@ -141,7 +141,7 @@ class Config(LazyDict):
         #self.cfile = fname
         return
 
-    def tofile(self, filename=None):
+    def tofile(self, filename=None, stdout=False):
         """ save config object to file. """
         if not filename: filename = self.cfile
         if not filename: raise Exception("no cfile found  - %s" % self.createdfrom)
@@ -166,7 +166,8 @@ class Config(LazyDict):
         curitem = None
         later = []
         try:
-            configtmp = open(filename + '.tmp', 'w')
+            if stdout: configtmp = sys.stdout
+            else: configtmp = open(filename + '.tmp', 'w')
             configtmp.write('# ===========================================================\n#\n')
             configtmp.write("# JSONBOT CONFIGURATION FILE - %s\n" % filename)
             configtmp.write("#\n")
@@ -206,8 +207,9 @@ class Config(LazyDict):
                 except TypeError: logging.error("%s - can't serialize %s" % (filename, keyword)) ; continue
                 teller += 1
                 configtmp.write("\n")
-            configtmp.close()
-            os.rename(filename + '.tmp', filename)
+            if not stdout: 
+                configtmp.close()
+                os.rename(filename + '.tmp', filename)
             return teller
 
         except Exception, ex:
