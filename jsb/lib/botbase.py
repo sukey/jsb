@@ -69,7 +69,7 @@ class BotBase(LazyDict):
     def __init__(self, cfg=None, usersin=None, plugs=None, botname=None, nick=None, *args, **kwargs):
         logging.debug("type is %s" % str(type(self)))
         if cfg: cfg = LazyDict(cfg)
-        if cfg and not botname: botname = cfg.botname or cfg.name
+        if cfg and not botname: botname = cfg.name
         if not botname: botname = u"default-%s" % str(type(self)).split('.')[-1][:-2]
         if not botname: raise Exception("can't determine type")
         self.fleetdir = u'fleet' + os.sep + stripname(botname)

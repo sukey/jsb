@@ -180,9 +180,9 @@ class Fleet(Persist):
 
     def enable(self, cfg):
         """ enable a bot baed of provided config. """
-        if cfg.botname and cfg.botname not in self.data['names']:
-            self.data['names'].append(cfg.botname)
-            self.data['types'][cfg.botname] = cfg.type
+        if cfg.name and cfg.name not in self.data['names']:
+            self.data['names'].append(cfg.name)
+            self.data['types'][cfg.name] = cfg.type
             self.save()
         return True
 

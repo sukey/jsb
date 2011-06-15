@@ -57,7 +57,6 @@ import logging
 
 name = opts.name or "default-convore"
 cfg = Config("fleet" + os.sep + name + os.sep + 'config')
-cfg.botname = name
 
 if opts.owner:
     userid = "CONVORE_USER_%s" % opts.owner
