@@ -167,7 +167,7 @@ class Config(LazyDict):
         later = []
         try:
             configtmp = open(filename + '.tmp', 'w')
-            configtmp.write('# =====================================================\n#\n')
+            configtmp.write('# ===========================================================\n#\n')
             configtmp.write("# JSONBOT CONFIGURATION FILE - %s\n" % filename)
             configtmp.write("#\n")
             configtmp.write('# last changed on %s\n#\n' % time.ctime(time.time()))
@@ -175,7 +175,7 @@ class Config(LazyDict):
             configtmp.write('# Variables are defined by "name = json value" pairs.\n')
             configtmp.write('# Make sure to use " in strings.\n#\n')
             configtmp.write('# The bot can edit this file!.\n#\n')
-            configtmp.write('# =====================================================\n\n')
+            configtmp.write('# ===========================================================\n\n')
             teller = 0
             keywords = self.keys()
             keywords.sort()
@@ -194,9 +194,9 @@ class Config(LazyDict):
                 except TypeError: logging.error("%s - can't serialize %s" % (filename, keyword)) ; continue
                 teller += 1
                 configtmp.write("\n")
-            configtmp.write('# =====================================================\n#\n')
+            configtmp.write('# ============================================================\n#\n')
             configtmp.write("# bot generated stuff.\n#\n")
-            configtmp.write('# =====================================================\n\n')
+            configtmp.write('# ============================================================\n\n')
             for keyword in later:
                 if self.comments and self.comments.has_key(keyword):
                     configtmp.write(self.comments[keyword] + u"\n")
@@ -264,7 +264,7 @@ class Config(LazyDict):
         self.comments["uuid"] = "# - bot generated uuid for this config file."
         self.comments["user"] = "# - user used to login on xmpp networks."
         self.comments["host"] = "# - host part of the user, derived from user var."
-        self.comments["server"] = "# - server to connect to (on jabber only when different that host."
+        self.comments["server"] = "# - server to connect to (only when different from users host)."
         self.comments["password"] = "# - password to use in authing the bot."
         self.comments["port"] = "# - port to connect to (IRC)."
         self.comments["ssl"] = "# - whether to enable ssl (set to 1 to enable)."
@@ -313,6 +313,7 @@ irctemplate = """# =====================================================
 #
 # =====================================================
 
+
 # - to enable put this to 0
 disable = 1
 
@@ -360,6 +361,9 @@ xmpptemplate = """# =====================================================
 # The bot can edit this file!
 #
 # =====================================================
+
+# - channels to join
+channels = []
 
 # - to enable put this to 0
 disable = 1
