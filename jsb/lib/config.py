@@ -30,6 +30,7 @@ import uuid
 import thread
 import getpass
 import copy
+import time
 
 ## locks
 
@@ -163,27 +164,43 @@ class Config(LazyDict):
                     return
         written = []
         curitem = None
+        later = []
         try:
             configtmp = open(filename + '.tmp', 'w')
+            configtmp.write('# =====================================================\n#\n')
+            configtmp.write("# JSONBOT CONFIGURATION FILE - %s\n" % filename)
+            configtmp.write("#\n")
+            configtmp.write('# last changed on %s\n#\n' % time.ctime(time.time()))
+            configtmp.write("# This file contains configration data for the JSONBOT.\n")
+            configtmp.write('# Variables are defined by "name = json value" pairs.\n')
+            configtmp.write('# make sure to use " in strings.\n#\n')
+            configtmp.write('# =====================================================\n\n')
             teller = 0
             keywords = self.keys()
             keywords.sort()
             for keyword in keywords:
                 value = self[keyword]
                 if keyword in written: continue
-                #if keyword == 'name': continue
-                #if keyword == 'createdfrom': continue
-                #if keyword == 'cfile': continue
-                #if keyword == 'filename': continue
-                #if keyword == 'dir': continue
+                if keyword in ['uuid', 'whitelist', 'datadir', 'name', 'createdfrom', 'cfile', 'filename', 'dir', 'isdb']: later.append(keyword) ; continue
                 if keyword == 'jsondb': continue
-                #if keyword == 'isdb': continue
                 if keyword == 'optionslist': continue
                 if keyword == 'gatekeeper': continue
                 if keyword == "comments": continue
                 if self.comments and self.comments.has_key(keyword):
                     configtmp.write(self.comments[keyword] + u"\n")
                 curitem = keyword
+                try: configtmp.write('%s = %s\n' % (keyword, json.dumps(value)))
+                except TypeError: logging.error("%s - can't serialize %s" % (filename, keyword)) ; continue
+                teller += 1
+                configtmp.write("\n")
+            configtmp.write('# =====================================================\n#\n')
+            configtmp.write("# bot generated stuff.\n#\n")
+            configtmp.write('# =====================================================\n\n')
+            for keyword in later:
+                if self.comments and self.comments.has_key(keyword):
+                    configtmp.write(self.comments[keyword] + u"\n")
+                curitem = keyword
+                value = self[keyword]
                 try: configtmp.write('%s = %s\n' % (keyword, json.dumps(value)))
                 except TypeError: logging.error("%s - can't serialize %s" % (filename, keyword)) ; continue
                 teller += 1
@@ -257,6 +274,12 @@ class Config(LazyDict):
         self.comments["networkname"] = "# networkname .. not used right now."
         self.comments["type"] = "# the bot's type."
         self.comments["nick"] = "# the bot's nick."
+        self.comments["channels"] = "# channels to join."
+        self.comments["cfile"] = "# filename of this config file. edit this when you move this file."
+        self.comments["createdfrom"] = "# function that created this config file. bot generated"
+        self.comments["dir"] = "# directory in which this config file lives."
+        self.comments["isdb"] = "# whether this config file lives in the database and not on file."
+        self.comments["filename"] = "# filename of this config file."
 
     def reload(self):
         """ reload the config file. """
@@ -280,7 +303,7 @@ irctemplate = """# welcome to JSONBOT .. this file can be written to by the bot
 # the name of the bot
 name = "default-irc"
 
-# channels to join .. not implemented yet .. use /msg bot !join #channel
+# channels to join
 channels = []
 
 # disable .. set this to 0 to enable the bot
@@ -323,7 +346,7 @@ xmpptemplate = """# welcome to JSONBOT .. this file can be written to by the bot
 # name of the bot
 name = "default-sxmpp"
 
-# channels to join .. not implemented yet .. use /msg bot !join <conference>
+# channels to join
 channels = []
 
 # disable .. set this to 0 to enable the bot

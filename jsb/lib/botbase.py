@@ -255,8 +255,14 @@ class BotBase(LazyDict):
 
     def joinchannels(self):
         """ join channels. """
-        time.sleep(getmainconfig().waitforjoin or 5)
-        for i in self.state['joinedchannels']:
+        time.sleep(getmainconfig().waitforjoin or 1)
+        target = self.cfg.channels
+        try:
+            for i in self.state['joinedchannels']:
+                if i not in target: target.append(i)
+        except: pass
+        if not target: target = self.state['joinedchannels']
+        for i in target:
             try:
                 logging.debug("%s - joining %s" % (self.cfg.name, i))
                 channel = ChannelBase(i, self.cfg.name)
