@@ -150,7 +150,7 @@ def makeconsoleconfig(opts=None, botname=None):
     botname = stripname(botname)
     cfg = Config('fleet' + os.sep + botname + os.sep + 'config')
     cfg.type = "console"
-    cfg.botname = botname
+    cfg.name = botname
     if opts and opts.loglevel: cfg.loglevel = opts.loglevel
     else: cfg.loglevel = cfg.loglevel or "error"
     return cfg
@@ -165,7 +165,7 @@ def makeircconfig(opts=None, botname=None):
     botname = stripname(botname)
     cfg = Config('fleet' + os.sep + botname + os.sep + 'config')
     cfg.type = 'irc'
-    cfg.botname = botname
+    cfg.name = botname
     if not opts:
         cfg.password = cfg.password or ""
         cfg.ssl = cfg.ssl or False
@@ -201,7 +201,7 @@ def makesxmppconfig(opts=None, botname=None):
     botname = stripname(botname)
     cfg = Config('fleet' + os.sep + botname + os.sep + 'config')
     cfg.type = "sxmpp"
-    cfg.botname = botname
+    cfg.name = botname
     if not opts:
         cfg.user = cfg.user or ""
         cfg.host = cfg.host or ""

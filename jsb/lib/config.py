@@ -181,7 +181,7 @@ class Config(LazyDict):
             for keyword in keywords:
                 value = self[keyword]
                 if keyword in written: continue
-                if keyword in ['uuid', 'whitelist', 'datadir', 'name', 'createdfrom', 'cfile', 'filename', 'dir', 'isdb']: later.append(keyword) ; continue
+                if keyword in ['blacklist', 'whitelist', 'followlist', 'uuid', 'whitelist', 'datadir', 'name', 'createdfrom', 'cfile', 'filename', 'dir', 'isdb']: later.append(keyword) ; continue
                 if keyword == 'jsondb': continue
                 if keyword == 'optionslist': continue
                 if keyword == 'gatekeeper': continue
@@ -230,56 +230,57 @@ class Config(LazyDict):
     def init(self):
         """ initialize the config object. """
         if self.filename == 'mainconfig':
-            self.comments["whitelist"] = "# whitelist used to allow ips .. bot maintains this"
+            self.comments["whitelist"] = "# - whitelist used to allow ips .. bot maintains this"
             self.setdefault("whitelist", [])
-            self.comments["blacklist"] = "# blacklist used to deny ips .. bot maintains this"
+            self.comments["blacklist"] = "# - blacklist used to deny ips .. bot maintains this"
             self.setdefault("blacklist", [])
             self.setdefault('owner', [])
-            self.comments["loglist"] = "# loglist .. maintained by the bot."
+            self.comments["loglist"] = "# - loglist .. maintained by the bot."
             self.setdefault('loglist',  [])
-            self.comments["loglevel"] = "# loglevel of all bots"
+            self.comments["loglevel"] = "# - loglevel of all bots"
             self.setdefault('loglevel',  "warn")
-            self.comments["loadlist"] = "# loadlist .. not used yet."
+            self.comments["loadlist"] = "# - loadlist .. not used yet."
             self.setdefault('loadlist', [])
-            self.comments["quitmsg"] = "# message to send on quit"
+            self.comments["quitmsg"] = "# - message to send on quit"
             self.setdefault('quitmsg', "http://jsonbot.googlecode.com")
-            self.comments["dotchars"] = "# characters to used as seperator"
+            self.comments["dotchars"] = "# - characters to used as seperator"
             self.setdefault('dotchars',  ", ")
-            self.comments["floodallow"] = "# whether the bot is allowed to flood."
+            self.comments["floodallow"] = "# - whether the bot is allowed to flood."
             self.setdefault('floodallow', 0)
-            self.comments["auto_register"] = "# enable automatic registration of new users"
+            self.comments["auto_register"] = "# - enable automatic registration of new users"
             self.setdefault('auto_register', 0)
-            self.comments["guestasuser"] = "# enable this to give new users the USER permission besides GUEST"
+            self.comments["guestasuser"] = "# - enable this to give new users the USER permission besides GUEST"
             self.setdefault('guestasuser', 0)
-            self.comments["app_id"] = "# application id used by appengine"
+            self.comments["app_id"] = "# - application id used by appengine"
             self.setdefault('app_id', "jsonbot")
-            self.comments["appname"] = "# application name as used by the bot"
+            self.comments["appname"] = "# - application name as used by the bot"
             self.setdefault('appname', "JSONBOT")
-            self.comments["domain"] = "# domain .. used for WAVE"
+            self.comments["domain"] = "# - domain .. used for WAVE"
             self.setdefault('domain', "")
         self['createdfrom'] = whichmodule()
-        self.comments['datadir'] = "# directory to store bot data in."
-        self.comments["owner"] = "# owner of the bot."
-        self.comments["uuid"] = "# bot generated uuid for this config file."
-        self.comments["user"] = "# user used to login on xmpp networks."
-        self.comments["host"] = "# host part of the user, derived from user var."
-        self.comments["server"] = "# server to connect to (on jabber only when different that host."
-        self.comments["password"] = "# password to use in authing the bot."
-        self.comments["port"] = "# port to connect to (IRC)."
-        self.comments["ssl"] = "# whether to enable ssl (set to 1 to enable)."
-        self.comments["ipv6"] = "# whether to enable ssl (set to 1 to enable)."
-        self.comments["name"] = "# the name of the bot."
-        self.comments["disable"] = "# set this to 0 to enable the bot."
-        self.comments["followlist"] = "# who to follow on the bot .. bot maintains this list."
-        self.comments["networkname"] = "# networkname .. not used right now."
-        self.comments["type"] = "# the bot's type."
-        self.comments["nick"] = "# the bot's nick."
-        self.comments["channels"] = "# channels to join."
-        self.comments["cfile"] = "# filename of this config file. edit this when you move this file."
-        self.comments["createdfrom"] = "# function that created this config file. bot generated"
-        self.comments["dir"] = "# directory in which this config file lives."
-        self.comments["isdb"] = "# whether this config file lives in the database and not on file."
-        self.comments["filename"] = "# filename of this config file."
+        self.comments['datadir'] = "# - directory to store bot data in."
+        self.comments["owner"] = "# - owner of the bot."
+        self.comments["uuid"] = "# - bot generated uuid for this config file."
+        self.comments["user"] = "# - user used to login on xmpp networks."
+        self.comments["host"] = "# - host part of the user, derived from user var."
+        self.comments["server"] = "# - server to connect to (on jabber only when different that host."
+        self.comments["password"] = "# - password to use in authing the bot."
+        self.comments["port"] = "# - port to connect to (IRC)."
+        self.comments["ssl"] = "# - whether to enable ssl (set to 1 to enable)."
+        self.comments["ipv6"] = "# - whether to enable ssl (set to 1 to enable)."
+        self.comments["name"] = "# - the name of the bot."
+        self.comments["disable"] = "# - set this to 0 to enable the bot."
+        self.comments["followlist"] = "# - who to follow on the bot .. bot maintains this list."
+        self.comments["networkname"] = "# - networkname .. not used right now."
+        self.comments["type"] = "# - the bot's type."
+        self.comments["nick"] = "# - the bot's nick."
+        self.comments["channels"] = "# - channels to join."
+        self.comments["cfile"] = "# - filename of this config file. edit this when you move this file."
+        self.comments["createdfrom"] = "# - function that created this config file. bot generated"
+        self.comments["dir"] = "# - directory in which this config file lives."
+        self.comments["isdb"] = "# - whether this config file lives in the database and not on file."
+        self.comments["filename"] = "# - filename of this config file."
+        self.comments["username"] = "# - username of the bot."
 
     def reload(self):
         """ reload the config file. """
