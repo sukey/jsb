@@ -25,6 +25,7 @@ import os.path
 import random
 import Queue 
 import logging
+import StringIO
 
 ## istr class
 
@@ -295,6 +296,29 @@ def checkqueues(self, queues, resultlist):
         for item in resultlist: queue.put_nowait(item)
         return True
     return False
+
+## sedstring function
+
+def sedstring(input, sedstring):
+    seds = sedstring.split('/')   
+    fr = seds[1].replace('\\', '')
+    to = seds[2].replace('\\', '')
+    return input.replace(fr,to)
+
+## sedfile function
+
+def sedfile(filename, sedstring):
+    result = StringIO.StringIO()
+    f = open(filename, 'r')
+    seds = sedstring.split('/')   
+    fr = seds[1].replace('\\', '')
+    to = seds[2].replace('\\', '')
+    try:
+        for line in f:
+            l = line.replace(fr,to)
+            result.write(l)
+    finally: f.close()
+    return result
 
 ## dosed function
 
