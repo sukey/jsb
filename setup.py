@@ -102,7 +102,7 @@ setup(
               'jsb.contrib.requests.packages.poster'],
     long_description = """ JSONBOT is a remote event-driven framework for building bots that talk JSON to each other over XMPP. IRC/Console/XMPP (shell) Wave/Web/XMPP (GAE) implementations provided. """,
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Environment :: Console',
         'Environment :: Other Environment',
         'Intended Audience :: Developers',

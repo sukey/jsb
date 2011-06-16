@@ -20,6 +20,7 @@ __author__ = 'Bas van Oostveen'
 
 ## jsb imports
 
+from jsb.utils.lazydict import LazyDict
 from jsb.utils.trace import calledfrom, whichplugin
 from jsb.lib.examples import examples
 from jsb.lib.persist import Persist
@@ -37,6 +38,11 @@ import logging
 ## PersistConfigError exception
 
 class PersistConfigError(Exception): pass
+
+## class Option .. is for gozerbot compat
+
+class Option(object): pass
+
 
 ## PersistConfig class
 
