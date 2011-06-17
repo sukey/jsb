@@ -7,7 +7,7 @@
 # jsb imports
 
 from jsb.utils.locking import lockdec
-from jsb.lib.persist import Persist
+from jsb.compat.persist import Persist
 
 ## basic imports
 

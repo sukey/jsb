@@ -8,6 +8,7 @@
 
 from jsb.lib.datadir import datadir
 from jsb.version import getversion
+
 ## basic imports
 
 import os
@@ -17,6 +18,8 @@ import subprocess
 # version string
 
 ver = getversion()
+
+## diffdict function
 
 def diffdict(dictfrom, dictto):
     """ check for differences between two dicts """
@@ -28,6 +31,8 @@ def diffdict(dictfrom, dictto):
         else:
             temp.setdefault(i[0], i[1])
     return temp
+
+## Config Class
 
 class Config(dict):
 

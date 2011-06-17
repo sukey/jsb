@@ -25,7 +25,7 @@ __author__ = 'Bas van Oostveen'
 ## jsb imports
 
 from jsb.utils.trace import calledfrom
-from jsb.lib.persist import Persist
+from jsb.compat.persist import Persist
 from jsb.lib.commands import cmnds, Command
 from jsb.lib.datadir import datadir
 

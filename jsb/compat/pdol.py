@@ -6,7 +6,7 @@
 
 ## jsb imports
 
-from jsb.lib.persist import Persist
+from jsb.compat.persist import Persist
 
 ## Pdol class
 
