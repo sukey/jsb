@@ -176,6 +176,7 @@ def makeircconfig(opts=None, botname=None):
         cfg.nick = cfg.nick or "jsb"
         cfg.channels = []
         return cfg          
+    if not cfg.channels: cfg.channels = []
     if not cfg.disable: cfg.disable = False
     if opts.password: cfg.password = opts.password
     if opts.ipv6: cfg.ipv6 = True
@@ -221,6 +222,7 @@ def makesxmppconfig(opts=None, botname=None):
         cfg.channels = []
         return cfg        
     if not cfg.disable: cfg.disable = False
+    if not cfg.channels: cfg.channels = []
     if opts.user: cfg.user = opts.user
     else: cfg.user = cfg.user or "%s@jsonbot.org" % cfg.uuid
     if opts.user:
