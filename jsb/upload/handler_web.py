@@ -62,10 +62,11 @@ class HomePageHandler(RequestHandler):
         except google.appengine.runtime.DeadlineExceededError:
             self.response.out.write("DeadLineExceededError .. this request took too long to finish.")
         except Exception, ex:
-            self.response.out.write("An exception occured: %s" % str(ex))
+            #self.response.out.write("An exception occured: %s" % str(ex))
             handle_exception()
-            try: os._exit(1)
-            except: pass
+            self.response.set_status(500)
+            #try: os._exit(1)
+            #except: pass
         logging.warn("web_handler - out")
         
 ## the application 

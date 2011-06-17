@@ -37,30 +37,21 @@ class CallbackHandler(webapp.RequestHandler):
   def get(self):
     logging.warn('hubbub - incoming GET')
     if self.request.GET['hub.mode'] == 'unsubscribe':
-      self.response.headers['Content-Type'] = 'text/plain'
-      self.response.out.write(self.request.GET['hub.challenge'])
-      return
-      
-    if self.request.GET['hub.mode'] != 'subscribe':
-      self.error(400)
-      return
-
+        self.response.headers['Content-Type'] = 'text/plain'
+        self.response.out.write(self.request.GET['hub.challenge'])
+        return
+    if self.request.GET['hub.mode'] != 'subscribe': self.response.set_status(400) ; return
     self.response.headers['Content-Type'] = 'text/plain'
     self.response.out.write(self.request.GET['hub.challenge'])
 
   def post(self):
-
     """Handles new content notifications."""
-
     logging.warn("hubbub - incoming POST")
-
-    try:
-        p.watcher.incoming(self.request.body)
-    except IndexError:
-        logging.error("hubbub plugin did not load properly")
+    try: p.watcher.incoming(self.request.body)
+    except IndexError: logging.error("hubbub plugin did not load properly")
     except Exception, ex:
         handle_exception()
-        self.send_error(500)
+        self.response.set_status(500)
 
 application = webapp.WSGIApplication([('/(?:hubbub)', CallbackHandler)], debug=False)
 
