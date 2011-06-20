@@ -48,7 +48,7 @@ class Runner(RunnerLoop):
         self.working = True
         name = getname(str(func))
         try:
-            rlockmanager.acquire(getname(str(func)))
+            #rlockmanager.acquire(getname(str(func)))
             name = getname(str(func))
             self.name = name
             logging.debug('running %s: %s' % (descr, name))
@@ -59,7 +59,7 @@ class Runner(RunnerLoop):
             if self.elapsed > 3:
                 logging.debug('ALERT %s %s job taking too long: %s seconds' % (descr, str(func), self.elapsed))
         except Exception, ex: handle_exception()
-        finally: rlockmanager.release()
+        #finally: rlockmanager.release()
         self.working = False
 
 ## BotEventRunner class
@@ -164,8 +164,8 @@ def runner_status():
 
 ## global runners
 
-cmndrunner = defaultrunner = longrunner = Runners(10, BotEventRunner)
-callbackrunner = Runners(10, BotEventRunner, doready=False)
+cmndrunner = defaultrunner = longrunner = Runners(20, BotEventRunner)
+callbackrunner = Runners(100, BotEventRunner, doready=False)
 waitrunner = Runners(10, BotEventRunner, doready=False)
 
 ## cleanup 

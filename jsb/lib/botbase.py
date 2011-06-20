@@ -219,7 +219,7 @@ class BotBase(LazyDict):
                 if not self.stopped and not self.stopoutloop:
                     logging.debug("%s - OUT - %s - %s" % (self.cfg.name, self.type, str(res))) 
                     self.out(*res)
-            time.sleep(0.01)
+            time.sleep(0.001)
         logging.debug('%s - stopping output loop' % self.cfg.name)
 
     def putonqueue(self, nr, *args):
@@ -320,7 +320,7 @@ class BotBase(LazyDict):
 
     def doevent(self, event):
         """ dispatch an event. """ 
-        time.sleep(0.001)
+        #time.sleep(0.001)
         if not self.cfg: raise Exception("eventbase - cfg is not set .. can't handle event.") ; return
         if not event: raise NoEventProvided()
         try:

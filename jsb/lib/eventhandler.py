@@ -80,7 +80,7 @@ class EventHandler(object):
         """ thread that polls the queues for items to dispatch. """
         logging.debug('eventhandler - starting handle thread')
         while not self.stopped:
-            time.sleep(0.01)
+            time.sleep(0.001)
             try:
                 res = self.go.get_nowait()
                 if res: self.handle_one()

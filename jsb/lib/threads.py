@@ -40,8 +40,6 @@ class Botcommand(threading.Thread):
         """ run the bot command. """
         try:
             result = threading.Thread.run(self)
-            time.sleep(0.01)
-            #self.ievent.ready()
             if self.ievent.closequeue:
                 logging.debug('threads- closing queue for %s' % self.ievent.userhost)
                 if self.ievent.queues:

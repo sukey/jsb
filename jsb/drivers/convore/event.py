@@ -30,7 +30,6 @@ locked = lockdec(parselock)
 class ConvoreEvent(EventBase):
     """ Convore Event."""
 
-    @locked
     def parse(self, bot, message, root):
         m = LazyDict(message)
         self.root = LazyDict(root)

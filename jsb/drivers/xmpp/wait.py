@@ -47,7 +47,6 @@ class XMPPWait(Wait):
                 logging.debug('xmpp.wait - got response for %s' % i[0])
                 msg.isresponse = 1
 
-    @locked
     def delete(self, ticket):
         """ delete wait item with ticket nr. """
         for itemnr in range(len(self.waitlist)-1, -1, -1):

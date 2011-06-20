@@ -271,7 +271,6 @@ except ImportError:
             except (IOError, OSError):
                 self.sync()
                 if self not in needsaving: needsaving.append(self)
-                time.sleep(0.1)
                 for p in needsaving:
                     try: p.dosave(); r.append(p)
                     except (OSError, IOError): logging.error("failed to save %s" % p)
