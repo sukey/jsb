@@ -30,6 +30,10 @@ handlers:
   script: $PYTHON_LIB/google/appengine/ext/deferred/deferred.py
   login: admin
 
+- url: /_ah/channel/.*
+  script: handler_channel.py
+  login: admin
+
 - url: /stats.*
   script: $PYTHON_LIB/google/appengine/ext/appstats/ui.py
   login: admin
