@@ -251,7 +251,7 @@ class XMLStream(NodeBuilder):
                     except AttributeError: self.sock.send(what)
             else: logging.error('%s - invalid stanza: %s' % (self.cfg.name, what))
             if self.cfg.sleeptime: time.sleep(self.cfg.sleeptime)
-            else: time.sleep(0.1)
+            else: time.sleep(0.01)
         except socket.error, ex:
             if 'Broken pipe' in str(ex):
                 logging.debug('%s - core - broken pipe .. ignoring' % self.cfg.name)

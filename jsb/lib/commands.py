@@ -27,6 +27,7 @@ import sys
 import types
 import os
 import copy
+import time
 
 ## defines
 
@@ -172,6 +173,7 @@ class Commands(LazyDict):
         except Exception, ex:
             logging.error('%s - error executing %s' % (whichmodule(), str(target.func)))
             raise
+        time.sleep(0.01)
         return event
 
     def unload(self, modname):

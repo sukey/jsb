@@ -11,6 +11,7 @@ from jsb.lib.examples import examples
 from jsb.lib.fleet import getfleet
 from jsb.lib.factory import bot_factory
 from jsb.utils.lazydict import LazyDict
+from jsb.utils.generic import waitforqueue
 
 ## basic imports
 
@@ -20,6 +21,8 @@ import time
 ## feedback command
 
 def handle_feedback(bot, event):
+    if event.inqueue: payload = waitforqueue(event.inqueue, 2000)
+    else: payload = event.rest 
     fleet = getfleet()
     feedbackbot = fleet.getfirstjabber()
     if not feedbackbot:
@@ -31,10 +34,11 @@ def handle_feedback(bot, event):
         if not feedbackbot.cfg.password: feedbackbot.cfg.password = cfg['password'] ; feedbackbot.cfg.save()
     feedbackbot.cfg.disable = False
     event.reply("sending to replies@jsonbot.org ... ")
-    feedbackbot.say("replies@jsonbot.org", event.rest)
+    feedbackbot.say("replies@jsonbot.org", "%s send you this: %s" % (event.userhost, payload), event=event)
     feedbackbot.cfg.disable = True
     feedbackbot.cfg.save()
     event.done()
+    time.sleep(5)
 
 cmnds.add("feedback", handle_feedback, ["OPER", "USER", "GUEST"])
 examples.add("feedback", "send a message to replies@jsonbot.org", "feedback the bot is missing some spirit !")
