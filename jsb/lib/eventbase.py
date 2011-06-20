@@ -149,7 +149,7 @@ class EventBase(LazyDict):
         """ reply to this event """
         try: target = self.channel or self.arguments[1]
         except IndexError: target = self.channel
-        if txt not in result: result.insert(0, txt)
+        #if txt not in result: result.insert(0, txt)
         if self.checkqueues(result): return self
         if self.silent:
             self.msg = True
