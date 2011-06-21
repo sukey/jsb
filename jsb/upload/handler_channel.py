@@ -42,12 +42,13 @@ class ChannelHandler(webapp2.RequestHandler):
                 if client_id in chan.data.webchannels: chan.data.webchannels.remove(client_id) ; chan.save() ; logging.warn("removed channel %s" % client_id) ; return
             elif "connected" in url:
                 if client_id not in chan.data.webchannels: chan.data.webchannels.append(client_id) ; chan.save() ; logging.warn("added channel %s" % client_id) ; return
-            else:
+            elif "error" in url:
                 logging.warn(dir(self.request))
                 logging.warn(self.request.body)
                 logging.warn(dir(self.response))
                 logging.warn(self.response)
                 logging.warn(url)
+                if client_id in chan.data.webchannels: chan.data.webchannels.remove(client_id) ; chan.save() ; logging.warn("removed channel %s" % client_id)
         except Exception, ex: handle_exception(); self.response.set_status(500)
 
 application = webapp2.WSGIApplication([webapp2.Route(r'<url:.*>', ChannelHandler)], 
