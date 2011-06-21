@@ -6,6 +6,7 @@
 
 ## jsb imports
 
+from jsb.lib.channelbase import ChannelBase
 from jsb.version import getversion
 
 ## google imports
@@ -28,11 +29,26 @@ logging.warn(getversion('CHANNEL'))
 class ChannelHandler(webapp2.RequestHandler):
 
     def post(self, url=None):
-        logging.warn(dir(self.request))
-        logging.warn(self.request.body)
-        logging.warn(dir(self.response))
-        logging.warn(self.response)
-        logging.warn(url)
+        try:
+            logging.warn("url is %s" % url)
+            if not url: self.response.set_status(404)
+            client_id = self.request.get('from')
+            logging.warn("client_id is %s" % client_id)
+            if client_id: 
+                try: (id, t) = client_id.split("-")
+                except Exception, ex: logging.warn(str(ex)) ; self.response.set_status(500) ; return
+            chan = ChannelBase(id, 'gae-web')
+            if "disconnected" in url: 
+                if client_id in chan.data.webchannels: chan.data.webchannels.remove(client_id) ; chan.save() ; logging.warn("removed channel %s" % client_id) ; return
+            elif "connected" in url:
+                if client_id not in chan.data.webchannels: chan.data.webchannels.append(client_id) ; chan.save() ; logging.warn("added channel %s" % client_id) ; return
+            else:
+                logging.warn(dir(self.request))
+                logging.warn(self.request.body)
+                logging.warn(dir(self.response))
+                logging.warn(self.response)
+                logging.warn(url)
+        except Exception, ex: handle_exception(); self.response.set_status(500)
 
 application = webapp2.WSGIApplication([webapp2.Route(r'<url:.*>', ChannelHandler)], 
                                       debug=True)
