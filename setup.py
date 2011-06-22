@@ -59,7 +59,6 @@ setup(
              'bin/jsb-init',
              'bin/jsb-irc', 
              'bin/jsb-fleet', 
-             #'bin/jsb-gozerimport',
              'bin/jsb-xmpp', 
              'bin/jsb-release',
              'bin/jsb-rollback',
