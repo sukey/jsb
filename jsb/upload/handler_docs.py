@@ -38,7 +38,7 @@ class DocsHandler(webapp2.RequestHandler):
                     url += u"index.html"
             splitted = url.split(os.sep)
             splitted.insert(2, 'html')
-            goto = os.sep.join(splitted[-3:])
+            goto = os.sep.join(splitted)
             if goto in url: self.response.set_status(404) ; return
             logging.warn("docs - redirecting %s" % goto)
             self.redirect(goto)
