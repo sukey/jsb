@@ -227,10 +227,10 @@ def makesxmppconfig(opts=None, botname=None):
     else: cfg.user = cfg.user or "%s@jsonbot.org" % cfg.uuid
     if opts.user:
         try: cfg.host = opts.user.split('@')[1]
-        except ValueError: print "user is not in the nick@server format"
+        except (IndexError, ValueError): print "user is not in the nick@server format"
     if not cfg.host:
         try: cfg.host = cfg.user.split('@')[1]
-        except ValueError: print "user is not in the nick@server format"
+        except (IndexError, ValueError): print "user is not in the nick@server format"
     if opts.password: cfg.password = opts.password
     if opts.server: cfg.server = opts.server
     else: cfg.server = cfg.server or ""
