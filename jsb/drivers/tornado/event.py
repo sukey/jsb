@@ -39,8 +39,8 @@ class TornadoEvent(EventBase):
 
     def parse(self, handler, request):
         """ parse request/response into a WebEvent. """
-        logging.warn(dir(handler))
-        logging.warn(dir(request))
+        #logging.warn(dir(handler))
+        #logging.warn(dir(request))
         #logging.warn(request.arguments)
         #logging.warn(request.body)
         self.handler = handler
