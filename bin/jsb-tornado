@@ -101,13 +101,22 @@ class GoogleHandler(tornado.web.RequestHandler, tornado.auth.GoogleMixin):
     post = get
 
 class BaseHandler(tornado.web.RequestHandler):
+
     def get_current_user(self):
         return self.get_secure_cookie("user")
-
 
 class LoginHandler(GoogleHandler):
 
     def get(self):
+        host = self.request.host
+        t = {'appname': "JSONBOT", 'version': getversion(), 'who': "not logged in yet", 'host': host, 'color': "#C54848", "logouturl": 'logout', "loginurl": "login"}
+        logging.warn(t)
+        self.render(os.getcwd() + os.sep + "templates/login.html", title="JSONBOT", **t)
+
+class LogoutHandler(GoogleHandler):
+
+    def get(self):
+        self.clear_cookie("user")
         host = self.request.host
         t = {'appname': "JSONBOT", 'version': getversion(), 'who': "not logged in yet", 'host': host, 'color': "#C54848", "logouturl": 'logout', "loginurl": "login"}
         logging.warn(t)
@@ -164,11 +173,13 @@ settings = {
 application = tornado.web.Application([(r"/", Dispatch_Handler),
                                        (r'/login_required', GoogleHandler),
                                        (r"/login", LoginHandler),
+                                       (r"/logout", LogoutHandler),
                                        (r"(/static/.*)", tornado.web.StaticFileHandler, dict(path=settings['static_path'])),], **settings)
 
 ssl_options={
         "certfile": os.getcwd() + os.sep + "jsb.crt",
-        "keyfile": os.getcwd() + os.sep + "jsb.key"}
+        "keyfile": os.getcwd() + os.sep + "jsb.key",
+}
 
 logging.warn(ssl_options)
 
