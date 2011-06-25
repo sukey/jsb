@@ -30,7 +30,7 @@ try:
     import pycurl
 except ImportError:
     # See the other check for this variable at end of file
-    if os.environ.get('USE_SIMPLE_HTTPCLIENT'):
+    if True or os.environ.get('USE_SIMPLE_HTTPCLIENT'):
         pycurl = None
     else:
         raise
@@ -695,7 +695,7 @@ def main():
 # This is provided as a convenience for testing SimpleAsyncHTTPClient,
 # and may be removed or replaced with a better way of specifying the preferred
 # HTTPClient implementation before the next release.
-if os.environ.get('USE_SIMPLE_HTTPCLIENT'):
+if True or os.environ.get('USE_SIMPLE_HTTPCLIENT'):
     from tornado.simple_httpclient import SimpleAsyncHTTPClient as AsyncHTTPClient
 
 if __name__ == "__main__":
