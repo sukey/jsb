@@ -86,7 +86,7 @@ class Dispatch_Handler(tornado.web.RequestHandler):
     def get(self):
         """ show basic page. """
         try:
-            user = host = self.request.host
+            user = host = self.request.remote_ip
             if user:
                 t = {'appname': "JSONBOT", 'version': getversion(), 'who': user, 'host': host, 'color': "#C54848", "logouturl": 'none"'}
                 logging.warn(t)

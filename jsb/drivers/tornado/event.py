@@ -41,8 +41,8 @@ class TornadoEvent(EventBase):
 
     def parse(self, handler, request):
         """ parse request/response into a WebEvent. """
-        #logging.warn(dir(handler))
-        #logging.warn(dir(request))
+        logging.warn(dir(handler))
+        logging.warn(dir(request))
         #logging.warn(request.arguments)
         #logging.warn(request.body)
         self.handler = handler
@@ -63,7 +63,7 @@ class TornadoEvent(EventBase):
         self.txt = self.origtxt
         self.usercmnd = self.txt and self.txt.split()[0]
         self.groupchat = False
-        self.userhost = fromenc(request.host.split(":")[0])
+        self.userhost = fromenc(request.remote_ip)
         self.nick = "anon"
         self.auth = fromenc(self.userhost)
         self.stripped = stripped(self.auth)
