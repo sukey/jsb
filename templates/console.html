@@ -1,7 +1,7 @@
 <html>
 <head>
-    <link rel="stylesheet" href="/static/basic.css" type="text/css" />
     <link rel="stylesheet" href="/static/default.css" type="text/css" />
+    <link rel="stylesheet" href="/static/basic.css" type="text/css" />
     <link rel="stylesheet" href="/static/style.css" type="text/css" />
     <script type="text/javascript">
       // vars
@@ -96,12 +96,12 @@
 
 
       function init() {
-        setTimeout("consolestart();", 100);
+        setTimeout("consolestart();", 500);
       }
 
       function consolestart() {
           doconsole();
-          status("<b>BOOTING</b>");
+          status("<b>BOOTING</b> .. ");
           setTimeout("start();", 100);
           statusadd(elapsed() + " msec ");
       }
@@ -312,6 +312,7 @@
       // response functions
 
       function response(obj) {
+          statusadd(" - " + obj.readyState); 
           if (obj.readyState==4){
               if (obj.status==200) {
                    output(obj.responseText);

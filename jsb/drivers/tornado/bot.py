@@ -32,12 +32,13 @@ class TornadoBot(BotBase):
         assert self.cfg
         self.type = u"tornado"
 
-    def _raw(self, txt, request, end=u"<br>"):
+    def _raw(self, txt, handler, end=u"<br>\r\n"):
         """  put txt to the client. """
+        logging.warn(dir(handler))
         if not txt: return 
         txt = txt + end
         logging.debug("%s - out - %s" % (self.cfg.name, txt))
-        request.write(str(txt))
+        handler.write(txt)
 
     def outnocb(self, channel, txt, how="cache", event=None, origin=None, response=None, dotime=False, *args, **kwargs):
         txt = self.normalize(txt)
@@ -49,7 +50,7 @@ class TornadoBot(BotBase):
                  url = u'<a href="%s" onclick="window.open(\'%s\'); return false;">%s</a>' % (item, item, item)
                  try: txt = re.sub(item, url, txt)
                  except ValueError:  logging.error("web - invalid url - %s" % url)
-        if event: self._raw(txt, event.request)
+        if event: self._raw(txt, event.handler)
 
     def normalize(self, txt):
         #txt = cgi.escape(txt)

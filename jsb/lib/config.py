@@ -246,20 +246,24 @@ class Config(LazyDict):
             self.setdefault('loadlist', [])
             self.comments["quitmsg"] = "# - message to send on quit"
             self.setdefault('quitmsg', "http://jsonbot.googlecode.com")
-            self.comments["dotchars"] = "# - characters to used as seperator"
+            self.comments["dotchars"] = "# - characters to used as seperator."
             self.setdefault('dotchars',  ", ")
             self.comments["floodallow"] = "# - whether the bot is allowed to flood."
             self.setdefault('floodallow', 0)
-            self.comments["auto_register"] = "# - enable automatic registration of new users"
+            self.comments["auto_register"] = "# - enable automatic registration of new users."
             self.setdefault('auto_register', 0)
-            self.comments["guestasuser"] = "# - enable this to give new users the USER permission besides GUEST"
+            self.comments["guestasuser"] = "# - enable this to give new users the USER permission besides GUEST."
             self.setdefault('guestasuser', 0)
-            self.comments["app_id"] = "# - application id used by appengine"
+            self.comments["app_id"] = "# - application id used by appengine."
             self.setdefault('app_id', "jsonbot")
-            self.comments["appname"] = "# - application name as used by the bot"
+            self.comments["appname"] = "# - application name as used by the bot."
             self.setdefault('appname', "JSONBOT")
-            self.comments["domain"] = "# - domain .. used for WAVE"
+            self.comments["domain"] = "# - domain .. used for WAVE."
             self.setdefault('domain', "")
+            self.comments["color"] = "# - color used in the webconsole."
+            self.setdefault('color', "")
+            self.comments["colors"] = "# - enable colors in logging."
+            self.setdefault('colors', "")
         self['createdfrom'] = whichmodule()
         self.comments['datadir'] = "# - directory to store bot data in."
         self.comments["owner"] = "# - owner of the bot."

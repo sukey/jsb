@@ -57,28 +57,22 @@ class Dispatch_Handler(tornado.web.RequestHandler):
 
     def get(self):
         """ show basic page. """
-
-        logging.warn("web_handler - in")
         try:
             user = host = self.request.host
             if user:
-                template = LazyDict({'appname': "JSONBOT", 'version': getversion(), 'who': user, 'host': host, 'color': getmainconfig().color or "#C54848", "logouturl": 'none"'})
-                self.render(os.getcwd() + os.sep + "templates/console.html", title="JSONBOT", **template)
+                t = {'appname': "JSONBOT", 'version': getversion(), 'who': user, 'host': host, 'color': getmainconfig().color or "#C54848", "logouturl": 'none"'}
+                logging.warn(t)
+                self.render(os.getcwd() + os.sep + "templates/console.html", title="JSONBOT", **t)
         except Exception, ex:
             handle_exception()
-        logging.warn("web_handler - out")
 
     def post(self):
 
         """ this is where the command get disaptched. """
-        starttime = time.time()
         try:
             logging.warn("DISPATCH incoming: %s - %s" % (self.request.headers.get('content'), self.request.host))
             event = TornadoEvent(bot=bot)
-            event.parse(self.request)
-            event.cbtype = "DISPATCH"
-            event.type = "DISPATCH"
-            event.userhost = self.request.host.split(":")[0]
+            event.parse(self, self.request)
             bot.gatekeeper.allow(event.userhost)
             event.bind(bot)
             bot.doevent(event)
