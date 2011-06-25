@@ -25,7 +25,8 @@ parser.add_option('', '--colors', action="store_true", default=False, dest='colo
 opts, args = parser.parse_args()
 opts.args = args
 
-if not opts.args: print getversion('CONSOLE')
+print getversion('TORNADO')
+
 if opts.datadir:
     if not os.path.isdir(opts.datadir): os.mkdir(opts.datadir)
     from jsb.lib.datadir import setdatadir
@@ -64,6 +65,7 @@ from jsb.drivers.tornado.event import TornadoEvent
 
 import tornado.web
 import tornado.ioloop
+import tornado.auth
 
 ## basic imports
 
@@ -72,39 +74,42 @@ import time
 import types
 import os
 import logging
-
-logging.warn(getversion('TORNADO'))
+import urlparse
+import urllib
+import socket
 
 bot = TornadoBot(botname="tornado-bot")
 
-#class GoogleHandler(tornado.web.RequestHandler, tornado.auth.GoogleMixin):
-#    @tornado.web.asynchronous
-#    def get(self):
-#        if self.get_argument("openid.mode", None):
-#            self.get_authenticated_user(self._on_auth)
-#            return
-#        self.authenticate_redirect()
-#
-#   def _on_auth(self, user):
-#        if not user:
-#            self.authenticate_redirect()
-#            return
+class GoogleHandler(tornado.web.RequestHandler, tornado.auth.GoogleMixin):
+
+    @tornado.web.asynchronous
+    def get(self):
+        if self.get_argument("openid.mode", None):
+            self.get_authenticated_user(self._on_auth)
+            return
+        self.authenticate_redirect()
+
+    def _on_auth(self, user):
+        logging.warn(str(user))
+        if not user: self.authenticate_redirect() ; return
+        self.set_secure_cookie("user", user['email'])
+        self.redirect("/")
         # Save the user with, e.g., set_secure_cookie()
+
+    post = get
 
 class BaseHandler(tornado.web.RequestHandler):
     def get_current_user(self):
         return self.get_secure_cookie("user")
 
-class LoginHandler(BaseHandler):
-    def get(self):
-        self.write('<html><body><form action="/login" method="post">'
-                   'Name: <input type="text" name="name">'
-                   '<input type="submit" value="Sign in">'
-                   '</form></body></html>')
 
-    def post(self):
-        self.set_secure_cookie("user", self.get_argument("name_") + self.request.remote_ip)
-        self.redirect("/")
+class LoginHandler(GoogleHandler):
+
+    def get(self):
+        host = self.request.host
+        t = {'appname': "JSONBOT", 'version': getversion(), 'who': "not logged in yet", 'host': host, 'color': "#C54848", "logouturl": 'logout', "loginurl": "login"}
+        logging.warn(t)
+        self.render(os.getcwd() + os.sep + "templates/login.html", title="JSONBOT", **t)
 
 
 class Dispatch_Handler(BaseHandler):
@@ -119,11 +124,10 @@ class Dispatch_Handler(BaseHandler):
                 self.redirect("/login")
                 return
             user = tornado.escape.xhtml_escape(self.current_user)
-            if user: user = user + "_" + self.request.remote_ip
-            else: self.redirect("/login") ; return
+            if not user: self.redirect("/login") ; return
             host = self.request.host
             if user:
-                t = {'appname': "JSONBOT", 'version': getversion(), 'who': user, 'host': host, 'color': "#C54848", "logouturl": 'none"'}
+                t = {'appname': "JSONBOT", 'version': getversion(), 'who': user, 'host': host, 'color': "#C54848", "logouturl": 'logout', "loginurl": "login"}
                 #logging.warn(t)
                 self.render(os.getcwd() + os.sep + "templates/console.html", title="JSONBOT", **t)
         except Exception, ex:
@@ -156,6 +160,7 @@ settings = {
 
 
 application = tornado.web.Application([(r"/", Dispatch_Handler),
+                                       (r'/login_required', GoogleHandler),
                                        (r"/login", LoginHandler),
                                        (r"(/static/.*)", tornado.web.StaticFileHandler, dict(path=settings['static_path'])),], **settings)
 

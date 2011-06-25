@@ -2,10 +2,10 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <link rel="stylesheet" href="/assets/style.css" type="text/css" />
-    <link rel="stylesheet" href="/assets/openid.css" type="text/css" />
-    <script type="text/javascript" src="assets/jquery.js"></script>
-    <script type="text/javascript" src="assets/openid-jquery.js"></script>
+    <link rel="stylesheet" href="/static/style.css" type="text/css" />
+    <link rel="stylesheet" href="/static/openid.css" type="text/css" />
+    <script type="text/javascript" src="/static/jquery.js"></script>
+    <script type="text/javascript" src="/static/openid-jquery.js"></script>
     <script type="text/javascript">
         $(document).ready(function() {
             openid.init('openid_identifier');
@@ -27,7 +27,7 @@
     <div class="footer" align="center" id="topper_div"></div><br>
     <div class="body" align="center"><h1><b>{{ appname }}</b></h1></div>
     <div class="body" align="center" style="font-size: 200%;">
-        <form action="/_ah/login_required" method="post" id="openid_form">
+        <form action="/login_required" method="get" id="openid_form">
 	    <input type="hidden" name="cont" value="continue" />
 	    <fieldset>
     		<legend>Sign-in or Create New Account</legend>
@@ -35,7 +35,7 @@
 	    		<p>Please click your account provider:</p>
                         <div id="openid_btns"></div>
 			<div id="openid_input_area">
-				<input id="openid_identifier" name="openid" type="text" value="http://" />
+				<input id="openid_identifier" name="openid" type="text" value="" />
 				<input id="openid_submit" type="submit" value="Sign-In"/>
 			</div>
                 </div>

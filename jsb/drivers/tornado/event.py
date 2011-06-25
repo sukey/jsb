@@ -47,7 +47,6 @@ class TornadoEvent(EventBase):
         self.request = request
         self.userhost = tornado.escape.xhtml_escape(handler.current_user)
         if not self.userhost: raise Exception("no current user.")
-        else: self.userhost = self.userhost + "_" + request.remote_ip    
         how = request.arguments['how'][0]
         if not how: how = "normal"
         self.how = how
@@ -64,7 +63,7 @@ class TornadoEvent(EventBase):
         self.txt = self.origtxt
         self.usercmnd = self.txt and self.txt.split()[0]
         self.groupchat = False
-        self.nick = "anon"
+        self.nick = self.userhost.split("@")[0]
         self.auth = fromenc(self.userhost)
         self.stripped = stripped(self.auth)
         self.domain = None

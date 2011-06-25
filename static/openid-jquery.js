@@ -85,7 +85,7 @@ var openid = {
 	cookie_name: 'openid_provider',
 	cookie_path: '/',
 	
-	img_path: 'assets/',
+	img_path: 'static/',
 	
 	input_id: null,
 	provider_url: null,

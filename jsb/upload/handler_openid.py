@@ -39,7 +39,7 @@ class OpenIdLoginHandler(webapp.RequestHandler):
             logging.info('openid - login form %s' % cont)
             urlstring = self.create_openid_url(cont)
             template_values = LazyDict({
-                'continue': cont,
+                'cont': cont,
                 'urlstring': urlstring,
                 'appname': getversion()
             })
