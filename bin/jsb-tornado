@@ -1,0 +1,106 @@
+#!/usr/bin/env python
+#
+#
+
+""" jsb tornado dispatch handler.  dispatches remote commands.  """
+
+import os, sys
+sys.path.insert(0, os.getcwd())
+
+from jsb.utils.log import setloglevel
+setloglevel("info")
+
+## boot
+
+from jsb.lib.boot import boot
+boot()
+
+## jsb imports
+
+from jsb.utils.generic import fromenc, toenc
+from jsb.version import getversion
+from jsb.utils.xmpp import stripped
+from jsb.utils.url import getpostdata, useragent
+from jsb.lib.plugins import plugs
+from jsb.lib.persist import Persist
+from jsb.utils.exception import handle_exception, exceptionmsg
+from jsb.lib.fleet import fleet
+from jsb.lib.errors import NoSuchCommand
+from jsb.utils.lazydict import LazyDict
+from jsb.lib.config import getmainconfig
+## gaelib imports
+
+from jsb.drivers.tornado.bot import TornadoBot
+from jsb.drivers.tornado.event import TornadoEvent
+
+## tornado import
+
+import tornado.web
+import tornado.ioloop
+
+## basic imports
+
+import sys
+import time
+import types
+import os
+import logging
+import google
+
+logging.warn(getversion('TORNADO'))
+
+bot = TornadoBot(botname="tornado-bot")
+
+class Dispatch_Handler(tornado.web.RequestHandler):
+
+    """ the bots remote command dispatcher. """
+
+    def get(self):
+        """ show basic page. """
+
+        logging.warn("web_handler - in")
+        try:
+            user = host = self.request.host
+            if user:
+                template = LazyDict({'appname': "JSONBOT", 'version': getversion(), 'who': user, 'host': host, 'color': getmainconfig().color or "#C54848", "logouturl": 'none"'})
+                self.render(os.getcwd() + os.sep + "templates/console.html", title="JSONBOT", **template)
+        except Exception, ex:
+            handle_exception()
+        logging.warn("web_handler - out")
+
+    def post(self):
+
+        """ this is where the command get disaptched. """
+        starttime = time.time()
+        try:
+            logging.warn("DISPATCH incoming: %s - %s" % (self.request.headers.get('content'), self.request.host))
+            event = TornadoEvent(bot=bot)
+            event.parse(self.request)
+            event.cbtype = "DISPATCH"
+            event.type = "DISPATCH"
+            event.userhost = self.request.host.split(":")[0]
+            bot.gatekeeper.allow(event.userhost)
+            event.bind(bot)
+            bot.doevent(event)
+        except NoSuchCommand:
+            self.request.write("no such command: %s" % event.usercmnd)
+        except Exception, ex:
+            handle_exception()
+
+## the application 
+
+settings = {
+    "static_path": os.getcwd() + os.sep + "static",
+}
+
+
+application = tornado.web.Application([(r"/", Dispatch_Handler),
+                                       (r"(/static/.*)", tornado.web.StaticFileHandler, dict(path=settings['static_path'])),], **settings)
+
+def main():
+    application.listen(10102)
+    instance = tornado.ioloop.IOLoop.instance()
+    instance.start()
+
+if __name__ == "__main__":
+    main()
