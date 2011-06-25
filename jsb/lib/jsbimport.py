@@ -24,7 +24,7 @@ def _import(name):
         mods.append(mm)
         mm += "."
     for mod in mods: imp = __import__(mod)
-    logging.warn("jsbimport - got module %s" % sys.modules[name])
+    logging.debug("jsbimport - got module %s" % sys.modules[name])
     return sys.modules[name]
 
 ## force_import function

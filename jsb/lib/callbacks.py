@@ -151,8 +151,8 @@ class Callbacks(object):
             event.iscallback = True
             logging.debug("%s - %s - trail - %s" % (bot.cfg.name, getname(cb.func), callstack(sys._getframe())[::-1]))
             #if not event.direct and cb.threaded and not bot.isgae: start_new_thread(cb.func, (bot, event))
-            if bot.type == "tornado": cb.func(bot, event) ; return True
-            if cb.threaded and not bot.isgae: start_new_thread(cb.func, (bot, event))
+            if bot.type == "tornado": cb.func(bot, event)
+            elif cb.threaded and not bot.isgae: start_new_thread(cb.func, (bot, event))
             else:
                 if bot.isgae or event.direct: cb.func(bot, event) 
                 else:

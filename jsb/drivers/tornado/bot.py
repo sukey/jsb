@@ -32,9 +32,9 @@ class TornadoBot(BotBase):
         assert self.cfg
         self.type = u"tornado"
 
-    def _raw(self, txt, handler, end=u"<br>\r\n"):
+    def _raw(self, txt, handler, end=u"<br>"):
         """  put txt to the client. """
-        logging.warn(dir(handler))
+        #logging.warn(dir(handler))
         if not txt: return 
         txt = txt + end
         logging.debug("%s - out - %s" % (self.cfg.name, txt))

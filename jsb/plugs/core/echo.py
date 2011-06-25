@@ -18,7 +18,7 @@ import logging
 
 def echopre(bot, event):
     """ test whether we should echo. """
-    if event.how != "background" and bot.type == "web" and not event.forwarded and not event.cbtype == "OUTPUT": return True
+    if event.how != "background" and bot.type in ["tornado", "web"] and not event.forwarded and not event.cbtype == "OUTPUT": return True
     return False
 
 def echocb(bot, event):
@@ -26,6 +26,7 @@ def echocb(bot, event):
     bot.outnocb(event.channel, u"[%s] %s" % (event.nick, event.txt), event=event)
 
 first_callbacks.add("DISPATCH", echocb, echopre)
+callbacks.add("TORNADO", echocb, echopre)
 
 ## echo command
 
