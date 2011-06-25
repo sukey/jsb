@@ -4,16 +4,45 @@
 
 """ jsb tornado dispatch handler.  dispatches remote commands.  """
 
+import warnings
+warnings.simplefilter("ignore")
+
+## bootstrap
+
 import os, sys
 sys.path.insert(0, os.getcwd())
 
+from jsb.version import getversion
+
+## command line parsing
+
+from optparse import OptionParser
+parser = OptionParser(usage='usage: %prog [options] <appid>', version='%prog ' + getversion())
+parser.add_option('-o', '--owner', type='string', default=False, dest='owner',  help="owner of the bot")
+parser.add_option('-d', '--datadir', type='string', default=False, dest='datadir', help="datadir to use")
+parser.add_option('-l', '--loglevel', type='string', default=False, dest='loglevel', help="logging level")
+parser.add_option('', '--colors', action="store_true", default=False, dest='colors', help="enable the use of colors")
+opts, args = parser.parse_args()
+opts.args = args
+
+if not opts.args: print getversion('CONSOLE')
+if opts.datadir:
+    if not os.path.isdir(opts.datadir): os.mkdir(opts.datadir)
+    from jsb.lib.datadir import setdatadir
+    setdatadir(opts.datadir)
+
 from jsb.utils.log import setloglevel
-setloglevel("info")
+setloglevel(opts.loglevel or "warn", opts.colors)
 
 ## boot
 
 from jsb.lib.boot import boot
 boot()
+
+if opts.owner:
+    from jsb.lib.users import users_boot
+    u = users_boot()
+    u.make_owner(opts.owner)
 
 ## jsb imports
 
@@ -60,7 +89,7 @@ class Dispatch_Handler(tornado.web.RequestHandler):
         try:
             user = host = self.request.host
             if user:
-                t = {'appname': "JSONBOT", 'version': getversion(), 'who': user, 'host': host, 'color': getmainconfig().color or "#C54848", "logouturl": 'none"'}
+                t = {'appname': "JSONBOT", 'version': getversion(), 'who': user, 'host': host, 'color': "#C54848", "logouturl": 'none"'}
                 logging.warn(t)
                 self.render(os.getcwd() + os.sep + "templates/console.html", title="JSONBOT", **t)
         except Exception, ex:
