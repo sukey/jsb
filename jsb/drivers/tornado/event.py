@@ -14,9 +14,7 @@ from jsb.utils.url import getpostdata
 from jsb.utils.exception import handle_exception
 from jsb.lib.channelbase import ChannelBase
 
-## gaelib imports
-
-from jsb.utils.gae.auth import checkuser
+import tornado
 
 ## basic imports
 
@@ -47,6 +45,9 @@ class TornadoEvent(EventBase):
         #logging.warn(request.body)
         self.handler = handler
         self.request = request
+        self.userhost = tornado.escape.xhtml_escape(handler.current_user)
+        if not self.userhost: raise Exception("no current user.")
+        else: self.userhost = self.userhost + "_" + request.remote_ip    
         how = request.arguments['how'][0]
         if not how: how = "normal"
         self.how = how
@@ -63,7 +64,6 @@ class TornadoEvent(EventBase):
         self.txt = self.origtxt
         self.usercmnd = self.txt and self.txt.split()[0]
         self.groupchat = False
-        self.userhost = fromenc(request.remote_ip)
         self.nick = "anon"
         self.auth = fromenc(self.userhost)
         self.stripped = stripped(self.auth)

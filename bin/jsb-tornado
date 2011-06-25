@@ -57,8 +57,6 @@ from jsb.lib.fleet import fleet
 from jsb.lib.errors import NoSuchCommand
 from jsb.utils.lazydict import LazyDict
 from jsb.lib.config import getmainconfig
-## gaelib imports
-
 from jsb.drivers.tornado.bot import TornadoBot
 from jsb.drivers.tornado.event import TornadoEvent
 
@@ -79,26 +77,65 @@ logging.warn(getversion('TORNADO'))
 
 bot = TornadoBot(botname="tornado-bot")
 
-class Dispatch_Handler(tornado.web.RequestHandler):
+#class GoogleHandler(tornado.web.RequestHandler, tornado.auth.GoogleMixin):
+#    @tornado.web.asynchronous
+#    def get(self):
+#        if self.get_argument("openid.mode", None):
+#            self.get_authenticated_user(self._on_auth)
+#            return
+#        self.authenticate_redirect()
+#
+#   def _on_auth(self, user):
+#        if not user:
+#            self.authenticate_redirect()
+#            return
+        # Save the user with, e.g., set_secure_cookie()
+
+class BaseHandler(tornado.web.RequestHandler):
+    def get_current_user(self):
+        return self.get_secure_cookie("user")
+
+class LoginHandler(BaseHandler):
+    def get(self):
+        self.write('<html><body><form action="/login" method="post">'
+                   'Name: <input type="text" name="name">'
+                   '<input type="submit" value="Sign in">'
+                   '</form></body></html>')
+
+    def post(self):
+        self.set_secure_cookie("user", self.get_argument("name_") + self.request.remote_ip)
+        self.redirect("/")
+
+
+class Dispatch_Handler(BaseHandler):
 
     """ the bots remote command dispatcher. """
 
+    @tornado.web.authenticated
     def get(self):
         """ show basic page. """
         try:
-            user = host = self.request.remote_ip
+            if not self.current_user:
+                self.redirect("/login")
+                return
+            user = tornado.escape.xhtml_escape(self.current_user)
+            if user: user = user + "_" + self.request.remote_ip
+            else: self.redirect("/login") ; return
+            host = self.request.host
             if user:
                 t = {'appname': "JSONBOT", 'version': getversion(), 'who': user, 'host': host, 'color': "#C54848", "logouturl": 'none"'}
-                logging.warn(t)
+                #logging.warn(t)
                 self.render(os.getcwd() + os.sep + "templates/console.html", title="JSONBOT", **t)
         except Exception, ex:
             handle_exception()
 
+    @tornado.web.authenticated
     def post(self):
 
         """ this is where the command get disaptched. """
         try:
-            logging.warn("DISPATCH incoming: %s - %s" % (self.request.headers.get('content'), self.request.host))
+            logging.warn("DISPATCH incoming: %s - %s" % (self.request.body, self.request.host))
+            if not self.current_user: return
             event = TornadoEvent(bot=bot)
             event.parse(self, self.request)
             bot.gatekeeper.allow(event.userhost)
@@ -113,10 +150,13 @@ class Dispatch_Handler(tornado.web.RequestHandler):
 
 settings = {
     "static_path": os.getcwd() + os.sep + "static",
+    "cookie_secret": "661oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo=",
+    "login_url": "/login",
 }
 
 
 application = tornado.web.Application([(r"/", Dispatch_Handler),
+                                       (r"/login", LoginHandler),
                                        (r"(/static/.*)", tornado.web.StaticFileHandler, dict(path=settings['static_path'])),], **settings)
 
 def main():
