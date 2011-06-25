@@ -66,6 +66,7 @@ from jsb.drivers.tornado.event import TornadoEvent
 import tornado.web
 import tornado.ioloop
 import tornado.auth
+import tornado.httpserver
 
 ## basic imports
 
@@ -77,6 +78,7 @@ import logging
 import urlparse
 import urllib
 import socket
+import ssl
 
 bot = TornadoBot(botname="tornado-bot")
 
@@ -164,10 +166,17 @@ application = tornado.web.Application([(r"/", Dispatch_Handler),
                                        (r"/login", LoginHandler),
                                        (r"(/static/.*)", tornado.web.StaticFileHandler, dict(path=settings['static_path'])),], **settings)
 
+ssl_options={
+        "certfile": os.getcwd() + os.sep + "jsb.crt",
+        "keyfile": os.getcwd() + os.sep + "jsb.key"}
+
+logging.warn(ssl_options)
+
+server = tornado.httpserver.HTTPServer(application, ssl_options=ssl_options)
+
 def main():
-    application.listen(10102)
-    instance = tornado.ioloop.IOLoop.instance()
-    instance.start()
+    server.listen(10102)
+    tornado.ioloop.IOLoop.instance().start()
 
 if __name__ == "__main__":
     main()
