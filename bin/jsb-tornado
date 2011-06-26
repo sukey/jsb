@@ -21,7 +21,9 @@ parser = OptionParser(usage='usage: %prog [options] <appid>', version='%prog ' +
 parser.add_option('-o', '--owner', type='string', default=False, dest='owner',  help="owner of the bot")
 parser.add_option('-d', '--datadir', type='string', default=False, dest='datadir', help="datadir to use")
 parser.add_option('-l', '--loglevel', type='string', default=False, dest='loglevel', help="logging level")
-parser.add_option('', '--colors', action="store_true", default=False, dest='colors', help="enable the use of colors")
+parser.add_option('-p', '--port', type='string', default=False, dest='port', help="servers listening port")
+parser.add_option('', '--colors', action="store_true", default=False, dest='colors', help="enable the use of colors in logging")
+parser.add_option('', '--ssl', action="store_true", default=False, dest='ssl', help="enable ssl on the server")
 opts, args = parser.parse_args()
 opts.args = args
 
@@ -81,6 +83,13 @@ import socket
 import ssl
 
 bot = TornadoBot(botname="tornado-bot")
+
+class TornadoServer(tornado.httpserver.HTTPServer):
+
+    def _handle_events(self, *args, **kwargs):
+        try:
+            tornado.httpserver.HTTPServer._handle_events(self, *args, **kwargs)
+        except Exception, ex: logging.error("error while handling events: %s" % str(ex))
 
 class GoogleHandler(tornado.web.RequestHandler, tornado.auth.GoogleMixin):
 
@@ -181,12 +190,14 @@ ssl_options={
         "keyfile": os.getcwd() + os.sep + "jsb.key",
 }
 
-logging.warn(ssl_options)
-
-server = tornado.httpserver.HTTPServer(application, ssl_options=ssl_options)
+if opts.ssl:
+    logging.warn(ssl_options)
+    server = TornadoServer(application, ssl_options=ssl_options)
+else:
+    server = TornadoServer(application)
 
 def main():
-    server.listen(10102)
+    server.listen(opts.port or 10102)
     tornado.ioloop.IOLoop.instance().start()
 
 if __name__ == "__main__":

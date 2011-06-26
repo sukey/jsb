@@ -264,8 +264,8 @@ class HTTPServer(object):
                     stream = iostream.IOStream(connection, io_loop=self.io_loop)
                 HTTPConnection(stream, address, self.request_callback,
                                self.no_keep_alive, self.xheaders)
-            except:
-                logging.error("Error in connection callback", exc_info=True)
+            except Exception, ex:
+                logging.error("Error in connection callback: %s" % str(ex), exc_info=False)
 
 class _BadRequestException(Exception):
     """Exception class for malformed HTTP requests."""

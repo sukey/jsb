@@ -7,10 +7,11 @@
       // vars
       var host = "{{ host }}";
       var hostname = window.location.hostname;
+      var incomingurl = document.URL;
       var port = window.location.port;
+      var url = "http://" + hostname + ":" + port;
       var url2 = "https://" + hostname + ":" + port;
-      var url = "https://" + hostname + ":" + port;
-      var got = hostname.indexOf("localhost");
+      var got = hostname.indexOf("https");
       var starttime = new Date();
       var interval_id;
       var lastpolled = new Date();
@@ -96,11 +97,12 @@
 
 
       function init() {
-        setTimeout("consolestart();", 500);
+        setTimeout("consolestart();", 50);
       }
 
       function consolestart() {
           doconsole();
+          output("your using " + incomingurl + "<br><br>");
           status("<b>BOOTING</b> .. ");
           setTimeout("start();", 100);
           statusadd(elapsed() + " msec ");
