@@ -105,13 +105,16 @@ class WebSocket(tornado.websocket.WebSocketHandler):
         return self.get_secure_cookie("user")
 
     def open(self):
-        if not self in bot.websockets: bot.websockets.append(self)
+        user = self.current_user
+        if not bot.websockets.has_key(user): bot.websockets[user] = []
+        if not self in bot.websockets[user]: bot.websockets[user].append(self)
         logging.warn("websocket open - %s" % str(self))
 
     def on_message(self, message):
         try:
-            logging.warn("%s - %s" % (message, self.request.remote_ip))
-            if not self.current_user: return
+            user = self.current_user
+            if not user: return
+            logging.warn("%s - %s - %s" % (user, message, self.request.remote_ip))
             event = TornadoEvent(bot=bot)
             event.parsesocket(self, message)
             bot.gatekeeper.allow(event.userhost)
@@ -122,7 +125,8 @@ class WebSocket(tornado.websocket.WebSocketHandler):
         logging.warn(message)
 
     def on_close(self):
-        if self in bot.websockets: bot.websockets.remove(self)
+        user = self.current_user
+        if self in bot.websockets[user]: bot.websockets[user].remove(self)
         logging.warn("websocket closed")
 
 
