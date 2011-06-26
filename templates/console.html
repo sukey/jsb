@@ -11,6 +11,7 @@
       var port = window.location.port;
       var url = "http://" + hostname + ":" + port;
       var url2 = "https://" + hostname + ":" + port;
+      var websocketurl = "ws://" + hostname + ":" + port + "/websocket";
       var got = hostname.indexOf("https");
       var starttime = new Date();
       var interval_id;
@@ -30,7 +31,8 @@
       var cmndlog = new Array();
       var disk = {};
       var topperlist = new Array();
-
+      var usesocket = "yes";
+      
       function scrollToBottom(elm_id) {
 	var elm = document.getElementById(elm_id);
         var f = document.createElement("input");
@@ -42,6 +44,40 @@
         if (elm.removeChild) elm.removeChild(f);
       }
 
+
+      // output functions
+
+      function dooutput(text, div, how) {
+          var element = document.getElementById(div);
+          if (div == "topper_div") {
+              topperpush(text);
+          }
+          else if (how == "background") {
+              element.innerHTML = text;
+          }
+          else {
+              element.innerHTML += text;
+              scrollToBottom(div);
+              document.forms[0].cmnd.focus();
+          }
+      }
+
+      function topper(text) {
+        var html = '<marquee align="center" behavior="slide" scroll-delay="20" direction="left">';
+        html += text;
+        html += "</marquee>";
+        var element = document.getElementById("topper_div");  
+        element.innerHTML = html;
+      }
+
+      function topperpush(text) {
+        topperlist.unshift(text);
+      }
+
+      function doscreen(screentxt) {
+        var element = document.getElementById("screen_div");  
+        element.innerHTML = screentxt;
+      }
 
       // clear div
 
@@ -76,19 +112,26 @@
 
       function timeloop() {
         var now = new Date();
-        uber("<b>" + now.toTimeString() + "</b>");
+        dooutput("<b>" + now.toTimeString() + "</b>", "uber_div", "background");
       }
 
+      // websocket 
+      var ws = new WebSocket(websocketurl);
+      ws.onopen = function () {
+           dooutput("channel openend", "content_div", "normal");
+      }
+      ws.onmessage = function (evt) {
+           handlesocket(evt.data);
+      }
 
       // INIT
 
       function start() {
-          // loaddisk();
           // doCmnd('!chan-token', renewtoken, 'background'); 
-          update();
-          setTimeout("doCmnd('!welcome', dotop, 'background');", 300);
-          setTimeout("doCmnd('!topper', doinfo, 'background');", 10000);
-          setTimeout("doCmnd('!statusline', doinfo, 'background');", 20000);
+          //update();
+          setTimeout("doSocket('!welcome', 'topper_div', 'background');", 300);
+          setTimeout("doSocket('!topper', 'info_div', 'background');", 10000);
+          setTimeout("doSocket('!statusline', 'info_div', 'background');", 20000);
           setInterval("updateloop();", 30000);
           setInterval("timeloop();", 1000);
           setInterval("outputloop();", 30000);
@@ -102,15 +145,10 @@
 
       function consolestart() {
           doconsole();
-          output("your using " + incomingurl + "<br><br>");
-          status("<b>BOOTING</b> .. ");
+          dooutput("you are using " + incomingurl + "<br><br>", "content_div", "background");
+          dooutput("<b>BOOTING</b> .. ", "status_div", "background");
           setTimeout("start();", 100);
-          statusadd(elapsed() + " msec ");
-      }
-
-      function update(what) {
-        //savedisk();
-        updatetime = new Date();
+          dooutput(elapsed() + " msec ", "status_div", "normal");
       }
 
       function doconsole() {
@@ -118,66 +156,7 @@
         document.forms[0].cmnd.focus();
       }
 
-      function dofeeds() {
-        doscreen(feedstxt);
-        document.forms[0].name.focus();
-      }
-
-      function loaddisk() {
-        if (!localStorage) { 
-          output("no local storage available");
-        }
-        else {
-          statusadd(" - disk ");
-          data = localStorage.getItem(host +"-disk");
-          if (!data) {
-            disk["cmndindex"] = 0;
-          }
-          else {
-            disk = JSON.parse(data)
-          }
-        }
-      } 
-
-      function savedisk() {
-        if (!localStorage) {
-          status("no local storage available");
-        }
-        else {
-          var data = JSON.stringify(disk);
-          if (!data) {
-            output("can't dump disk data");
-          }
-          else {
-            localStorage.setItem(host + "-disk", data);
-          }
-        }
-      } 
-
-      // submit feed url to the server
-
-      function submitfeed(form) {
-           cmnd = "!rss-register " + form.name.value + " " + form.url.value;           
-           doCmnd(cmnd, response);
-           return false;
-      } 
-
       // function to launch on enter in the command box
-
-      function doenter(form, e) {
-        var keycode;
-        if (window.event) keycode = window.event.keyCode;
-           else if (e) keycode = e.which;
-        else return true;
-        if (keycode == 13)
-        {
-           cmnd = "!rss-register " + form.name.value + " " + form.url.value;           
-           doCmnd(cmnd, response, "background");
-           return false;
-        }
-        else
-          return true;
-      }
 
       function doexec(form, e) {
         var keycode;
@@ -186,226 +165,36 @@
            else if (e) keycode = e.which;
         else return true;
         if (keycode == 13) {
-           cmnd = form.cmnd.value; 
-           doCmnd(cmnd, response);
-           cmndlog.push(cmnd);
-           disk["cmndindex"] += 1;
-           form.cmnd.value = "";
-           form.focus();
-           return false;
+            var cmnd = form.cmnd.value;
+            doSocket(cmnd, "content_div", "normal");
+            form.cmnd.value = "";
+            form.focus();
+            return false;
         }
-        else if (keycode == 38) {
-           if (disk["cmndindex"] > 1) {
-               disk["cmndindex"] -= 1;
-           }
-           othercmnd = cmndlog[disk["cmndindex"]];
-           form.cmnd.value = othercmnd;
-           form.focus();
-           status(othercmnd);
-           return false;
+        else {
+          return true;
         }
-        else if (keycode == 40) {
-           if (disk["cmndindex"] < cmndlog.length) {
-               disk["cmndindex"] += 1;
-           }
-           othercmnd = cmndlog[disk["cmndindex"]];
-           form.cmnd.value = othercmnd;
-           form.focus();
-           status(othercmnd);
-           return false;
-        }
-        else
+      }
+
+      // handler function
+
+      function handlesocket(message) {
+          var data = JSON.parse(message);
+          var target = data["target"];
+          var how = data["how"];
+          var result = data["result"];
+          dooutput(result, target, how);
+      }
+
+
+      // write command over the socket
+
+      function doSocket(cmnd, target, how) {
+          var data = {"cmnd": cmnd, "how": how, "target": target };
+          ws.send(JSON.stringify(data));
           return true;
       }
 
-      // output functions
-
-      function output(text) {
-        log.push(text);
-        var element = document.getElementById("content_div");  
-        element.innerHTML += text;
-        scrollToBottom("content_div");
-        document.forms[0].cmnd.focus();
-      }
-
-      function uber(text) {
-        var html = text;
-        var element = document.getElementById("uber_div");  
-        element.innerHTML = html;
-      }
-
-      function down(text) {
-        var html = text;
-        var element = document.getElementById("down_div");  
-        element.innerHTML = html;
-      }
-
-      function info(text) {
-        var html = "<i>";
-        html += text;
-        html += "</i>";
-
-        var element = document.getElementById("info_div");  
-        element.innerHTML = html;
-        //setTimeout("clear('info_div');", 10000);
-      }
-
-      function footer(text) {
-        var html = "<i>";
-        html += text;
-        html += "</i>";
-
-        var element = document.getElementById("footer_div");  
-        element.innerHTML = html;
-      }
-
-      function topper(text) {
-        var html = '<marquee align="center" behavior="slide" scroll-delay="20" direction="left">';
-        html += text;
-        html += "</marquee>";
-        var element = document.getElementById("topper_div");  
-        element.innerHTML = html;
-      }
-
-      function topperpush(text) {
-        topperlist.unshift(text);
-      }
-
-      function statusadd(text) {
-        var html = '';
-        html += text;
-        html += "";
-        var element = document.getElementById("status_div");  
-        element.innerHTML += html;
-      }
-
-      function status(text) {
-        var html = '';
-        html += text;
-        html += "";
-
-        var element = document.getElementById("status_div");  
-        element.innerHTML = html;
-      }
-
-      function status2add(text) {
-        var html = "<b>";
-        html += text;
-        html += "</b>";
-
-        var element = document.getElementById("status2_div");  
-        element.innerHTML += html;
-      }
-
-      function status2(text) {
-        var html = "<b>";
-        html += text;
-        html += "</b>";
-
-        var element = document.getElementById("status2_div");  
-        element.innerHTML = html;
-      }
-
-      function doscreen(screentxt) {
-        var element = document.getElementById("screen_div");  
-        element.innerHTML = screentxt;
-      }
-
-      // response functions
-
-      function response(obj) {
-          statusadd(obj.readyState + " - "); 
-          if (obj.readyState==4){
-              if (obj.status==200) {
-                   output(obj.responseText);
-                   statusadd(" " + elapsed() + " msec - OK");
-              }
-              else {
-                   statusadd(" " + elapsed() + " msec - NOT OK");
-                   topper("status is " + obj.status);
-                   output(obj.responseText);
-              }
-              update();
-          }
-      }
-
-      function dodown(obj) {
-          if (obj.readyState==4) {
-              if (obj.status==200) {
-                  down(obj.responseText);
-              }
-          }
-      }
-
-      function dotop(obj) {
-          if (obj.readyState==4) {
-              if (obj.status==200) {
-                  topperpush(obj.responseText);
-              }
-          }
-      }
-
-      function dostatus(obj) {
-           if (obj.readyState==4) {
-               if (obj.status==200) {
-                   status(obj.responseText);
-              }
-          }
-      }
-
-      function doinfo(obj) {
-           if (obj.readyState==4) {
-               if (obj.status==200) {
-                   info(obj.responseText);
-              }
-          }
-      }
-
-      function doCmnd(cmnd, resp, how) {
-          var request = false;
-          if (window.XMLHttpRequest) {
-              request = new XMLHttpRequest();
-          }
-          else if (window.ActiveXObject) { 
-              try {
-                  request = new ActiveXObject("Msxml2.XMLHTTP");
-              } catch (e) {
-                  try {
-                      request = new ActiveXObject("Microsoft.XMLHTTP");
-                  } catch (e) {}
-              }
-          }
-
-          if (!request) {
-              topper("can't make connection to server");
-              return false;
-          }
-
-          request.cmnd = cmnd;
-          request.how = how;
-          request.onreadystatechange = function () {
-              resp(request);
-          }
-          var u = "";
-          if (got == -1) {
-              request.open("POST", url2, true);
-              u = url2;
-          }
-          else {
-              request.open("POST", url, true);
-              u = url;
-          }
-          if (how != "background") {
-              status("[!] sending command .. 1 - ");
-          }
-          request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-          request.setRequestHeader("Content-Length", parameters.length);
-          request.setRequestHeader("Cache-Control", "no-cache");
-          parameters="content="+encodeURIComponent(cmnd) + "&how=" + encodeURIComponent(how);
-          starttime = new Date();
-          request.send(parameters);
-          return true;
-      }
    </script>
 </head>
 <body>

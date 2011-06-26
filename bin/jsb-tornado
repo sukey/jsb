@@ -69,6 +69,7 @@ import tornado.web
 import tornado.ioloop
 import tornado.auth
 import tornado.httpserver
+import tornado.websocket
 
 ## basic imports
 
@@ -84,12 +85,48 @@ import ssl
 
 bot = TornadoBot(botname="tornado-bot")
 
+## server part
+
 class TornadoServer(tornado.httpserver.HTTPServer):
+
+    def __init__(self, *args, **kwargs):
+        tornado.httpserver.HTTPServer.__init__(self, *args, **kwargs)
 
     def _handle_events(self, *args, **kwargs):
         try:
             tornado.httpserver.HTTPServer._handle_events(self, *args, **kwargs)
         except Exception, ex: logging.error("error while handling events: %s" % str(ex))
+
+## web socket
+
+class WebSocket(tornado.websocket.WebSocketHandler):
+
+    def get_current_user(self):
+        return self.get_secure_cookie("user")
+
+    def open(self):
+        if not self in bot.websockets: bot.websockets.append(self)
+        logging.warn("websocket open - %s" % str(self))
+
+    def on_message(self, message):
+        try:
+            logging.warn("%s - %s" % (message, self.request.remote_ip))
+            if not self.current_user: return
+            event = TornadoEvent(bot=bot)
+            event.parsesocket(self, message)
+            bot.gatekeeper.allow(event.userhost)
+            event.bind(bot)
+            bot.doevent(event)
+        except Exception, ex:
+            handle_exception()
+        logging.warn(message)
+
+    def on_close(self):
+        if self in bot.websockets: bot.websockets.remove(self)
+        logging.warn("websocket closed")
+
+
+## handlers
 
 class GoogleHandler(tornado.web.RequestHandler, tornado.auth.GoogleMixin):
 
@@ -105,7 +142,6 @@ class GoogleHandler(tornado.web.RequestHandler, tornado.auth.GoogleMixin):
         if not user: self.authenticate_redirect() ; return
         self.set_secure_cookie("user", user['email'])
         self.redirect("/")
-        # Save the user with, e.g., set_secure_cookie()
 
     post = get
 
@@ -148,25 +184,7 @@ class Dispatch_Handler(BaseHandler):
             host = self.request.host
             if user:
                 t = {'appname': "JSONBOT", 'version': getversion(), 'who': user, 'host': host, 'color': "#C54848", "logouturl": 'logout', "loginurl": "login"}
-                #logging.warn(t)
                 self.render(os.getcwd() + os.sep + "templates/console.html", title="JSONBOT", **t)
-        except Exception, ex:
-            handle_exception()
-
-    @tornado.web.authenticated
-    def post(self):
-
-        """ this is where the command get disaptched. """
-        try:
-            logging.warn("DISPATCH incoming: %s - %s" % (self.request.body, self.request.host))
-            if not self.current_user: return
-            event = TornadoEvent(bot=bot)
-            event.parse(self, self.request)
-            bot.gatekeeper.allow(event.userhost)
-            event.bind(bot)
-            bot.doevent(event)
-        except NoSuchCommand:
-            self.request.write("no such command: %s" % event.usercmnd)
         except Exception, ex:
             handle_exception()
 
@@ -183,12 +201,15 @@ application = tornado.web.Application([(r"/", Dispatch_Handler),
                                        (r'/login_required', GoogleHandler),
                                        (r"/login", LoginHandler),
                                        (r"/logout", LogoutHandler),
+                                       (r"/websocket", WebSocket),
                                        (r"(/static/.*)", tornado.web.StaticFileHandler, dict(path=settings['static_path'])),], **settings)
 
 ssl_options={
         "certfile": os.getcwd() + os.sep + "jsb.crt",
         "keyfile": os.getcwd() + os.sep + "jsb.key",
 }
+
+## runtime
 
 if opts.ssl:
     logging.warn(ssl_options)

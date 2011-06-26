@@ -12,6 +12,10 @@ from jsb.utils.generic import toenc, fromenc, strippedtxt
 from jsb.utils.url import re_url_match
 from jsb.utils.timeutils import hourmin
 from jsb.lib.channelbase import ChannelBase
+from jsb.imports import getjson
+from jsb.utils.exception import handle_exception
+
+json = getjson()
 
 ## basic imports
 
@@ -31,16 +35,23 @@ class TornadoBot(BotBase):
         BotBase.__init__(self, cfg, users, plugs, botname, *args, **kwargs)
         assert self.cfg
         self.type = u"tornado"
+        self.websockets = []
 
-    def _raw(self, txt, handler, end=u"<br>"):
+    def _raw(self, txt, target, how, handler, end=u"<br>"):
         """  put txt to the client. """
-        #logging.warn(dir(handler))
         if not txt: return 
         txt = txt + end
-        logging.debug("%s - out - %s" % (self.cfg.name, txt))
-        handler.write(txt)
+        try:
+            handler.write(txt)
+            logging.debug("%s - out - %s" % (self.cfg.name, txt))
+        except AttributeError:
+            outdict = {"target": target or "output_div", "result": txt, "how": how}
+            try: out = json.dumps(outdict)
+            except Exception, ex: handle_exception() ; return
+            logging.warn("%s - out - %s" % (self.cfg.name, out))
+            for ws in self.websockets: ws.write_message(out)
 
-    def outnocb(self, channel, txt, how="cache", event=None, origin=None, response=None, dotime=False, *args, **kwargs):
+    def outnocb(self, channel, txt, how="normal", event=None, origin=None, response=None, dotime=False, *args, **kwargs):
         txt = self.normalize(txt)
         if event and event.how != "background":
             logging.warn("%s - out - %s" % (self.cfg.name, txt))
@@ -50,7 +61,8 @@ class TornadoBot(BotBase):
                  url = u'<a href="%s" onclick="window.open(\'%s\'); return false;">%s</a>' % (item, item, item)
                  try: txt = re.sub(item, url, txt)
                  except ValueError:  logging.error("web - invalid url - %s" % url)
-        if event: self._raw(txt, event.handler)
+        if event: self._raw(txt, event.target, event.how, event.handler)
+        else: self._raw(txt, None, event.handler)
 
     def normalize(self, txt):
         #txt = cgi.escape(txt)
