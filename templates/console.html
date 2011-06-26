@@ -312,7 +312,7 @@
       // response functions
 
       function response(obj) {
-          statusadd(" - " + obj.readyState); 
+          statusadd(obj.readyState + " - "); 
           if (obj.readyState==4){
               if (obj.status==200) {
                    output(obj.responseText);
@@ -394,7 +394,7 @@
               u = url;
           }
           if (how != "background") {
-              status("sending command - ");
+              status("[!] sending command .. 1 - ");
           }
           request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
           request.setRequestHeader("Content-Length", parameters.length);
