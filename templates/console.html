@@ -49,6 +49,9 @@
 
       function dooutput(text, div, how) {
           var element = document.getElementById(div);
+          if (!element) {
+              return true;
+          }
           if (div == "topper_div") {
               topperpush(text);
           }
@@ -91,7 +94,7 @@
       function elapsed() {
         last = new Date();
         diff = last.getTime() - starttime.getTime();
-        starttime = last;
+        // starttime = last;
         return diff;
       }
 
@@ -118,7 +121,8 @@
       // websocket 
       var ws = new WebSocket(websocketurl);
       ws.onopen = function () {
-           dooutput("channel openend", "content_div", "normal");
+           var t = new Date();
+           dooutput("channel openend on " + t.toTimeString() + "<br>", "info_div", "background");
       }
       ws.onmessage = function (evt) {
            handlesocket(evt.data);
@@ -184,6 +188,7 @@
           var how = data["how"];
           var result = data["result"];
           dooutput(result, target, how);
+          dooutput("roundtrip: " + elapsed() + " msec", "status_div", "background"); 
       }
 
 
@@ -191,6 +196,8 @@
 
       function doSocket(cmnd, target, how) {
           var data = {"cmnd": cmnd, "how": how, "target": target };
+          dooutput("sending ..", "status", "background");
+          starttime = new Date();
           ws.send(JSON.stringify(data));
           return true;
       }

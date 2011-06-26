@@ -222,6 +222,7 @@ else:
     server = TornadoServer(application)
 
 def main():
+    logging.warn("starting tornando server")
     server.listen(opts.port or 10102)
     tornado.ioloop.IOLoop.instance().start()
 
