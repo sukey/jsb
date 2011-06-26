@@ -127,6 +127,10 @@
       ws.onmessage = function (evt) {
            handlesocket(evt.data);
       }
+      ws.onclose = function (evt) {
+          var tt = new Date();
+          dooutput("channel closed on " + tt.toTimeString() + " .. please reload this page", "info_div", "background")
+      }
 
       // INIT
 
