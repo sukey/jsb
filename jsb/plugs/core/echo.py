@@ -8,7 +8,7 @@
 
 from jsb.lib.commands import cmnds
 from jsb.lib.examples import examples
-from jsb.lib.callbacks import callbacks, first_callbacks
+from jsb.lib.callbacks import callbacks, first_callbacks, last_callbacks
 
 ## basic imports
 
@@ -25,8 +25,8 @@ def echocb(bot, event):
     """ do the echo. """
     bot.outnocb(event.channel, u"[%s] %s" % (event.nick, event.txt), event=event)
 
-first_callbacks.add("DISPATCH", echocb, echopre)
-first_callbacks.add("TORNADO", echocb, echopre)
+last_callbacks.add("DISPATCH", echocb, echopre)
+last_callbacks.add("TORNADO", echocb, echopre)
 
 ## echo command
 
