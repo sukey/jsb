@@ -65,7 +65,10 @@ from jsb.lib.fleet import getfleet
 from jsb.lib.threads import start_new_thread
 from jsb.drivers.tornado.bot import TornadoBot
 from jsb.drivers.tornado.event import TornadoEvent
+from jsb.lib.datadir import getdatadir
+from jsb.imports import gettornado
 
+tornado = gettornado()
 fleet = getfleet()
 
 ## tornado import
@@ -174,7 +177,7 @@ class LogoutHandler(GoogleHandler):
         host = self.request.host
         t = {'appname': "JSONBOT", 'version': getversion(), 'who': "not logged in yet", 'host': host, 'color': "#C54848", "logouturl": 'logout', "loginurl": "login"}
         logging.warn(t)
-        self.render(os.getcwd() + os.sep + "templates/login.html", title="JSONBOT", **t)
+        self.render(getdatadir() + os.sep + "templates" + os.sep + "login.html", title="JSONBOT", **t)
 
 
 class Dispatch_Handler(BaseHandler):
@@ -193,14 +196,14 @@ class Dispatch_Handler(BaseHandler):
             host = self.request.host
             if user:
                 t = {'appname': "JSONBOT", 'version': getversion(), 'who': user, 'host': host, 'color': "#C54848", "logouturl": 'logout', "loginurl": "login"}
-                self.render(os.getcwd() + os.sep + "templates/console.html", title="JSONBOT", **t)
+                self.render(getdatadir() + os.sep + "templates" + os.sep + "console.html", title="JSONBOT", **t)
         except Exception, ex:
             handle_exception()
 
 ## the application 
 
 settings = {
-    "static_path": os.getcwd() + os.sep + "static",
+    "static_path": getdatadir() + os.sep + "static",
     "cookie_secret": "661oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo=",
     "login_url": "/login",
 }
@@ -214,8 +217,8 @@ application = tornado.web.Application([(r"/", Dispatch_Handler),
                                        (r"(/static/.*)", tornado.web.StaticFileHandler, dict(path=settings['static_path'])),], **settings)
 
 ssl_options={
-        "certfile": os.getcwd() + os.sep + "jsb.crt",
-        "keyfile": os.getcwd() + os.sep + "jsb.key",
+        "certfile": getdatadir() + os.sep + "jsb.crt",
+        "keyfile": getdatadir() + os.sep + "jsb.key",
 }
 
 ## runtime

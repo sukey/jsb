@@ -34,10 +34,10 @@ def touch(fname):
     fd = os.open(fname, os.O_WRONLY | os.O_CREAT)
     os.close(fd)
 
-def doit(ddir, mod):
+def doit(ddir, mod, target=None):
     source = getsource(mod)
     if not source: raise Exception("can't find %s package" % mod)
-    shutil.copytree(source, ddir + os.sep + mod.replace(".", os.sep))
+    shutil.copytree(source, ddir + os.sep + (target or mod.replace(".", os.sep)))
 
 
 ## makedir function
@@ -61,6 +61,10 @@ def makedirs(ddir=None):
     try: doit(ddir, "jsb.plugs.myplugs")
     except: pass
     try: doit(ddir, "jsb.data.examples")
+    except: pass
+    try: doit(ddir, "jsb.data.static", "static")
+    except: pass
+    try: doit(ddir, "jsb.data.templates", "templates")
     except: pass
     try: touch(ddir + os.sep + "__init__.py")
     except: pass

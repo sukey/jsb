@@ -94,6 +94,6 @@ class TornadoBot(BotBase):
         outdict = {"target": target or "output_div", "result": txt, "how": how}
         try: out = json.dumps(outdict)
         except Exception, ex: handle_exception() ; return
+        logging.warn("%s - out - %s" % (self.cfg.name, out))
         for c in self.websockets[channel]:
-            logging.warn("%s - out - %s" % (self.cfg.name, out))
             c.write_message(out)

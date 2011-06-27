@@ -59,3 +59,10 @@ def getrequests():
         mod = _import("jsb.contrib.requests")
     logging.info("imports - requests module is %s" % str(mod))
     return mod
+
+def gettornado():
+    try: mod = _import("tornado")
+    except:
+        mod = _import("jsb.contrib.tornado")
+    logging.info("imports - tornado module is %s" % str(mod))
+    return mod
