@@ -67,6 +67,7 @@ from jsb.drivers.tornado.bot import TornadoBot
 from jsb.drivers.tornado.event import TornadoEvent
 from jsb.lib.datadir import getdatadir
 from jsb.imports import gettornado
+from jsb.lib.config import getmainconfig
 
 tornado = gettornado()
 fleet = getfleet()
@@ -113,10 +114,13 @@ class TornadoServer(tornado.httpserver.HTTPServer):
 class WebSocket(tornado.websocket.WebSocketHandler):
 
     def get_current_user(self):
-        return self.get_secure_cookie("user") or ("demouser" + "-" + self.request.remote_ip)
+        user = self.get_secure_cookie("user")
+        if not user and getmainconfig().enabledemo: user = ("demouser" + "@" + self.request.remote_ip)
+        return user
 
     def open(self):
-        user = self.current_user or ("demouser" + "-" + self.request.remote_ip)
+        user = self.current_user
+        logging.warn("opening channel for %s" % user)
         if not bot.websockets.has_key(user): bot.websockets[user] = []
         if not self in bot.websockets[user]: bot.websockets[user].append(self)
         logging.warn("websocket open - %s" % user)
@@ -137,9 +141,8 @@ class WebSocket(tornado.websocket.WebSocketHandler):
 
     def on_close(self):
         user = self.current_user
-        if self in bot.websockets[user]: bot.websockets[user].remove(self)
-        logging.warn("websocket closed")
-
+        try: bot.websockets[user].remove(self) ; logging.warn("websocket closed")
+        except (KeyError, ValueError): logging.warn("no user %s found in websockets" % user)
 
 ## handlers
 
@@ -212,7 +215,7 @@ class DemoHandler(BaseHandler):
     def get(self):
         """ show basic page. """
         try:
-            user = "demouser" + "-" + self.request.remote_ip
+            user = "demouser" + "@" + self.request.remote_ip
             host = self.request.host
             t = {'appname': "JSONBOT", 'version': getversion(), 'who': user, 'host': host, 'color': "#C54848", "logouturl": 'logout', "loginurl": "login"}
             self.render(ddir + os.sep + "templates" + os.sep + "console.html", title="JSONBOT", **t)

@@ -95,5 +95,6 @@ class TornadoBot(BotBase):
         try: out = json.dumps(outdict)
         except Exception, ex: handle_exception() ; return
         logging.warn("%s - out - %s" % (self.cfg.name, out))
+        if not self.websockets.has_key(channel): logging.warn("no %s in websockets dict" % channel) ; return
         for c in self.websockets[channel]:
             c.write_message(out)
