@@ -22,6 +22,7 @@ parser.add_option('-o', '--owner', type='string', default=False, dest='owner',  
 parser.add_option('-d', '--datadir', type='string', default=False, dest='datadir', help="datadir to use")
 parser.add_option('-l', '--loglevel', type='string', default=False, dest='loglevel', help="logging level")
 parser.add_option('-p', '--port', type='string', default=False, dest='port', help="servers listening port")
+parser.add_option('-f', '--fleet', action="store_true", default=False, dest='fleet', help="enable the fleet")
 parser.add_option('', '--colors', action="store_true", default=False, dest='colors', help="enable the use of colors in logging")
 parser.add_option('', '--ssl', action="store_true", default=False, dest='ssl', help="enable ssl on the server")
 opts, args = parser.parse_args()
@@ -60,8 +61,12 @@ from jsb.lib.fleet import fleet
 from jsb.lib.errors import NoSuchCommand
 from jsb.utils.lazydict import LazyDict
 from jsb.lib.config import getmainconfig
+from jsb.lib.fleet import getfleet
+from jsb.lib.threads import start_new_thread
 from jsb.drivers.tornado.bot import TornadoBot
 from jsb.drivers.tornado.event import TornadoEvent
+
+fleet = getfleet()
 
 ## tornado import
 
@@ -223,8 +228,12 @@ else:
 
 def main():
     logging.warn("starting tornando server")
+    global bot
     server.listen(opts.port or 10102)
-    tornado.ioloop.IOLoop.instance().start()
+    if opts.fleet:
+        fleetbots = fleet.loadall(opts.args)
+        start_new_thread(fleet.startall, (fleetbots, ))
+    bot.ioloop.start()
 
 if __name__ == "__main__":
     main()

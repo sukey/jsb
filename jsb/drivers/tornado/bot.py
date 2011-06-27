@@ -25,6 +25,11 @@ import cgi
 import urllib
 import time
 
+## tornado import
+
+import tornado.ioloop
+
+
 ## WebBot class
 
 class TornadoBot(BotBase):
@@ -36,6 +41,7 @@ class TornadoBot(BotBase):
         assert self.cfg
         self.type = u"tornado"
         self.websockets = {}
+        self.ioloop = tornado.ioloop.IOLoop().instance()
 
     def _raw(self, txt, target, how, handler, end=u"<br>"):
         """  put txt to the client. """
