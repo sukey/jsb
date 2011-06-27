@@ -236,6 +236,7 @@ def main():
     if opts.fleet:
         fleetbots = fleet.loadall(opts.args)
         start_new_thread(fleet.startall, (fleetbots, ))
+        getfleet().addbot(bot)
     bot.ioloop.start()
 
 if __name__ == "__main__":
