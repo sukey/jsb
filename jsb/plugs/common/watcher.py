@@ -172,6 +172,7 @@ first_callbacks.add('MESSAGE', watchcallback, prewatchcallback)
 first_callbacks.add('CONSOLE', watchcallback, prewatchcallback)
 first_callbacks.add('WEB', watchcallback, prewatchcallback)
 first_callbacks.add('DISPATCH', watchcallback, prewatchcallback)
+first_callbacks.add('TORNADO', watchcallback, prewatchcallback)
 
 ## watcher-start command
 

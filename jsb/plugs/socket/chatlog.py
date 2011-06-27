@@ -52,7 +52,7 @@ logfiles = {}
 backends = {}
 stopped = False
 db = None
-eventstolog = ["OUTPUT", "PRIVMSG", "CONSOLE", "PART", "JOIN", "QUIT", "PRESENCE", "MESSAGE", "NOTICE", "MODE", "TOPIC", "KICK", "CONVORE"]
+eventstolog = ["OUTPUT", "PRIVMSG", "CONSOLE", "PART", "JOIN", "QUIT", "PRESENCE", "MESSAGE", "NOTICE", "MODE", "TOPIC", "KICK", "CONVORE", "TORNADO"]
 
 ## logging part
 

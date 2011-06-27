@@ -104,6 +104,7 @@ first_callbacks.add('CONSOLE', forwardoutcb, forwardoutpre)
 first_callbacks.add('WEB', forwardoutcb, forwardoutpre)
 first_callbacks.add('DISPATCH', forwardoutcb, forwardoutpre)
 first_callbacks.add('OUTPUT', forwardoutcb, forwardoutpre)
+first_callbacks.add('TORNADO', forwardoutcb, forwardoutpre)
 
 ## forward-add command
 

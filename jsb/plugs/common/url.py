@@ -78,6 +78,8 @@ def urlcb(bot, ievent):
     except Exception, ex: handle_exception()
 
 callbacks.add('PRIVMSG', urlcb, urlpre, threaded=True)
+callbacks.add('MESSAGE', urlcb, urlpre, threaded=True)
+callbacks.add('TORNADO', urlcb, urlpre, threaded=True)
 
 ## url-search commands
 

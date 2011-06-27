@@ -89,6 +89,7 @@ callbacks.add('PRIVMSG', karmacb, prekarma)
 callbacks.add('MESSAGE', karmacb, prekarma)
 callbacks.add('CONSOLE', karmacb, prekarma)
 callbacks.add('CONVORE', karmacb, prekarma)
+callbacks.add('TORNADO', karmacb, prekarma)
 
 ## karma command
 

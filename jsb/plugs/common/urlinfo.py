@@ -123,7 +123,7 @@ callbacks.add('PRIVMSG', catchUrls, catchHasUrls, threaded=True)
 callbacks.add('CONSOLE', catchUrls, catchHasUrls, threaded=True)
 callbacks.add('MESSAGE', catchUrls, catchHasUrls, threaded=True)
 callbacks.add('DISPATCH', catchUrls, catchHasUrls, threaded=True)
-callbacks.add('CMND', catchUrls, catchHasUrls, threaded=True)
+callbacks.add('TORNADO', catchUrls, catchHasUrls, threaded=True)
 
 ## urlinfo-enable command
 

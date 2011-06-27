@@ -84,6 +84,7 @@ callbacks.add('PRIVMSG', remindcb, preremind, threaded=True)
 callbacks.add('JOIN', remindcb, preremind, threaded=True)
 callbacks.add('MESSAGE', remindcb, preremind, threaded=True)
 callbacks.add('WEB', remindcb, preremind, threaded=True)
+callbacks.add('TORNADO', remindcb, preremind, threaded=True)
 
 ## remind command
 
