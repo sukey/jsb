@@ -93,6 +93,9 @@ import ssl
 
 bot = TornadoBot(botname="tornado-bot")
 
+if os.path.exists(os.getcwd() + os.sep + "jsb"): ddir = os.getcwd() + os.sep + "jsb" + os.sep + "data"
+else: ddir = getdatadir()
+
 ## server part
 
 class TornadoServer(tornado.httpserver.HTTPServer):
@@ -168,7 +171,7 @@ class LoginHandler(GoogleHandler):
         host = self.request.host
         t = {'appname': "JSONBOT", 'version': getversion(), 'who': "not logged in yet", 'host': host, 'color': "#C54848", "logouturl": 'logout', "loginurl": "login"}
         logging.warn(t)
-        self.render(os.getcwd() + os.sep + "templates/login.html", title="JSONBOT", **t)
+        self.render(ddir + os.sep + "templates" + os.sep + "login.html", title="JSONBOT", **t)
 
 class LogoutHandler(GoogleHandler):
 
@@ -177,7 +180,7 @@ class LogoutHandler(GoogleHandler):
         host = self.request.host
         t = {'appname': "JSONBOT", 'version': getversion(), 'who': "not logged in yet", 'host': host, 'color': "#C54848", "logouturl": 'logout', "loginurl": "login"}
         logging.warn(t)
-        self.render(getdatadir() + os.sep + "templates" + os.sep + "login.html", title="JSONBOT", **t)
+        self.render(ddir + os.sep + "templates" + os.sep + "login.html", title="JSONBOT", **t)
 
 
 class Dispatch_Handler(BaseHandler):
@@ -196,7 +199,7 @@ class Dispatch_Handler(BaseHandler):
             host = self.request.host
             if user:
                 t = {'appname': "JSONBOT", 'version': getversion(), 'who': user, 'host': host, 'color': "#C54848", "logouturl": 'logout', "loginurl": "login"}
-                self.render(getdatadir() + os.sep + "templates" + os.sep + "console.html", title="JSONBOT", **t)
+                self.render(ddir + os.sep + "templates" + os.sep + "console.html", title="JSONBOT", **t)
         except Exception, ex:
             handle_exception()
 

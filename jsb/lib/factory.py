@@ -50,6 +50,9 @@ class BotFactory(Factory):
             elif type == 'convore':
                 from jsb.drivers.convore.bot import ConvoreBot
                 bot = ConvoreBot(cfg)
+            elif type == 'tornado':
+                from jsb.drivers.tornado.bot import TornadoBot
+                bot = TornadoBot(cfg)
             else: raise NoSuchBotType('%s bot .. unproper type %s' % (type, cfg.dump()))
             return bot
         except AssertionError, ex: logging.error("%s - assertion error: %s" % (cfg.name, str(ex)))
