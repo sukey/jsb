@@ -57,7 +57,7 @@ def dotest(bot, event):
             if skip: continue
             teller += 1
             cmnd = "!" + example.strip()
-            event.reply('command: ' + cmnd)
+            if bot.type != "tornado": event.reply('command: ' + cmnd)
             time.sleep(0.01)
             bot.putevent(event.auth, event.channel, cmnd, event=event)
             if not bot.isgae: waiting.append(event)
