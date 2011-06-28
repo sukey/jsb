@@ -43,19 +43,16 @@ class TornadoBot(BotBase):
         self.websockets = {}
         self.ioloop = tornado.ioloop.IOLoop().instance()
 
+    def start(self):
+        BotBase.start(self, connect=False)
+        self.ioloop.start()
+
     def _raw(self, txt, target, how, handler, end=u"<br>"):
         """  put txt to the client. """
         if not txt: return 
         txt = txt + end
-        try:
-            handler.write(txt)
-            logging.debug("%s - out - %s" % (self.cfg.name, txt))
-        except AttributeError:
-            outdict = {"target": target or "output_div", "result": txt, "how": how}
-            try: out = json.dumps(outdict)
-            except Exception, ex: handle_exception() ; return
-            logging.warn("%s - out - %s" % (self.cfg.name, out))
-            for ws in self.websockets: ws.write_message(out)
+        handler.write(txt)
+        logging.debug("%s - out - %s" % (self.cfg.name, txt))
 
     def outnocb(self, channel, txt, how="normal", event=None, origin=None, response=None, dotime=False, *args, **kwargs):
         txt = self.normalize(txt)
@@ -97,4 +94,5 @@ class TornadoBot(BotBase):
         logging.warn("%s - out - %s" % (self.cfg.name, out))
         if not self.websockets.has_key(channel): logging.warn("no %s in websockets dict" % channel) ; return
         for c in self.websockets[channel]:
+            time.sleep(0.05)
             c.write_message(out)

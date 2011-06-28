@@ -57,11 +57,10 @@ from jsb.utils.url import getpostdata, useragent
 from jsb.lib.plugins import plugs
 from jsb.lib.persist import Persist
 from jsb.utils.exception import handle_exception, exceptionmsg
-from jsb.lib.fleet import fleet
+from jsb.lib.fleet import getfleet
 from jsb.lib.errors import NoSuchCommand
 from jsb.utils.lazydict import LazyDict
 from jsb.lib.config import getmainconfig
-from jsb.lib.fleet import getfleet
 from jsb.lib.threads import start_new_thread
 from jsb.drivers.tornado.bot import TornadoBot
 from jsb.drivers.tornado.event import TornadoEvent
@@ -212,13 +211,16 @@ class DemoHandler(BaseHandler):
 
     """ the bots remote command dispatcher. """
 
+    @tornado.web.authenticated
     def get(self):
         """ show basic page. """
         try:
-            user = "demouser" + "@" + self.request.remote_ip
+            print dir(self)
+            print dir(self.request)
+            user = self.current_user
             host = self.request.host
             t = {'appname': "JSONBOT", 'version': getversion(), 'who': user, 'host': host, 'color': "#C54848", "logouturl": 'logout', "loginurl": "login"}
-            self.render(ddir + os.sep + "templates" + os.sep + "console.html", title="JSONBOT", **t)
+            self.render(ddir + os.sep + "templates" + os.sep + "demo.html", title="JSONBOT", **t)
         except Exception, ex:
             handle_exception()
 
@@ -259,8 +261,8 @@ def main():
     if opts.fleet:
         fleetbots = fleet.loadall(opts.args)
         start_new_thread(fleet.startall, (fleetbots, ))
-        getfleet().addbot(bot)
-    bot.ioloop.start()
+        if not bot in fleet.bots: fleet.addbot(bot)
+    bot.start()
 
 if __name__ == "__main__":
     main()

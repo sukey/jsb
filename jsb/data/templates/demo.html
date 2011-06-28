@@ -1,0 +1,243 @@
+<html>
+<head>
+    <link rel="stylesheet" href="/static/default.css" type="text/css" />
+    <link rel="stylesheet" href="/static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="/static/style.css" type="text/css" />
+    <script type="text/javascript">
+      // vars
+      var host = "{{ host }}";
+      var hostname = window.location.hostname;
+      var incomingurl = document.URL;
+      var port = window.location.port;
+      var url = "http://" + hostname + ":" + port;
+      var url2 = "https://" + hostname + ":" + port;
+      var websocketurl = "ws://" + hostname + ":" + port + "/websocket";
+      var got = hostname.indexOf("https");
+      var starttime = new Date();
+      var interval_id;
+      var lastpolled = new Date();
+      var lpdate = lastpolled.getTime();
+      var sleeptime = 180000;
+      var host = "";
+      var viewer = "";
+      var hostid = "";
+      var viewerid = "";
+      var parameters = "";
+      var identtime = new Date();
+      var diskname = host + identtime.toString();
+      var consoletxt = '<div style="font-size: 25px;"><br><form><b>&lt;-</b><input style="font-size: 80%;" size="33" type="text" name="cmnd" onKeyDown="return doexec(this.form, event);" /><b>-&gt;</b></form></div><div class="related"><div align="center" id="status_div" style="background-color: #803E3E;"><b>JSONBOT PRESENT!<b></div></div>';
+      var feedstxt = '<br><form name="feeddata" action="javascript:submitfeed(this.form);" method="GET"><b>feed name - </b> <input type="text" name="name" /><br></b><b>feed url - </b> <input type="text" name="url" onKeyPress="return doenter(this.form, event);" /><br><br><input type="submit" name="Enter" onClick="return submitfeed(this.form);"/><input type="reset" name="reset" /></form><div class="body" align="left" id="content_div"><i>no feeds entered yet.</i></div>';
+      var log = new Array();
+      var cmndlog = new Array();
+      var disk = {};
+      var topperlist = new Array();
+      var usesocket = "yes";
+      
+      function scrollToBottom(elm_id) {
+	var elm = document.getElementById(elm_id);
+        var f = document.createElement("input");
+        if (f.setAttribute) f.setAttribute("type","text")
+        if (elm.appendChild) elm.appendChild(f);
+        f.style.width = "0px";
+        f.style.height = "0px";
+        if (f.focus) f.focus();
+        if (elm.removeChild) elm.removeChild(f);
+      }
+
+
+      // output functions
+
+      function dooutput(text, div, how) {
+          var element = document.getElementById(div);
+          if (!element) {
+              return true;
+          }
+          if (div == "topper_div") {
+              topperpush(text);
+          }
+          else if (how == "background") {
+              element.innerHTML = text;
+          }
+          else {
+              element.innerHTML += text;
+              scrollToBottom(div);
+              document.forms[0].cmnd.focus();
+          }
+      }
+
+      function topper(text) {
+        var html = '<marquee align="center" behavior="slide" scroll-delay="20" direction="left">';
+        html += text;
+        html += "</marquee>";
+        var element = document.getElementById("topper_div");  
+        element.innerHTML = html;
+      }
+
+      function topperpush(text) {
+        topperlist.unshift(text);
+      }
+
+      function doscreen(screentxt) {
+        var element = document.getElementById("screen_div");  
+        element.innerHTML = screentxt;
+      }
+
+      // clear div
+
+      function clear(divname) {
+        var element = document.getElementById(divname);  
+        element.innerHTML = "<b>[!]</b>";
+      }
+
+      // utils functions
+
+      function elapsed() {
+        last = new Date();
+        diff = last.getTime() - starttime.getTime();
+        // starttime = last;
+        return diff;
+      }
+
+      // mainloop
+
+      function updateloop() {
+        update();
+      }
+
+      function outputloop() {
+        var show = topperlist.pop();
+        if (show) {
+          topper(show);
+        }
+      }        
+
+      // time loop
+
+      function timeloop() {
+        var now = new Date();
+        dooutput("<b>" + now.toTimeString() + "</b>", "uber_div", "background");
+      }
+
+      // websocket 
+      var ws = new WebSocket(websocketurl);
+      ws.onopen = function () {
+           var t = new Date();
+           dooutput("channel openend on " + t.toTimeString() + "<br>", "info_div", "background");
+      }
+      ws.onmessage = function (evt) {
+           handlesocket(evt.data);
+      }
+      ws.onclose = function (evt) {
+          var tt = new Date();
+          dooutput("channel closed on " + tt.toTimeString() + " .. please reload this page", "info_div", "background")
+      }
+
+      // INIT
+
+      function start() {
+          // doCmnd('!chan-token', renewtoken, 'background'); 
+          //update();
+          setTimeout("doSocket('!welcome', 'topper_div', 'background');", 300);
+          setTimeout("doSocket('!topper', 'info_div', 'background');", 10000);
+          setTimeout("doSocket('!statusline', 'info_div', 'background');", 20000);
+          setInterval("updateloop();", 30000);
+          setInterval("timeloop();", 1000);
+          setInterval("outputloop();", 30000);
+          setTimeout("outputloop();", 1000);
+      }
+
+
+      function init() {
+        setTimeout("consolestart();", 50);
+      }
+
+      function consolestart() {
+          doconsole();
+          dooutput("you are using " + incomingurl + "<br><br>", "content_div", "background");
+          dooutput("<b>BOOTING</b> .. ", "status_div", "background");
+          setTimeout("start();", 100);
+          dooutput(elapsed() + " msec ", "status_div", "normal");
+      }
+
+      function doconsole() {
+        doscreen(consoletxt);
+        document.forms[0].cmnd.focus();
+      }
+
+      // function to launch on enter in the command box
+
+      function doexec(form, e) {
+        var keycode;
+        var othercmnd;
+        if (window.event) keycode = window.event.keyCode;
+           else if (e) keycode = e.which;
+        else return true;
+        if (keycode == 13) {
+            var cmnd = form.cmnd.value;
+            doSocket(cmnd, "content_div", "normal");
+            form.cmnd.value = "";
+            form.focus();
+            return false;
+        }
+        else {
+          return true;
+        }
+      }
+
+      // handler function
+
+      function handlesocket(message) {
+          var data = JSON.parse(message);
+          var target = data["target"];
+          var how = data["how"];
+          var result = data["result"];
+          dooutput(result, target, how);
+          dooutput("roundtrip: " + elapsed() + " msec", "status_div", "background"); 
+      }
+
+
+      // write command over the socket
+
+      function doSocket(cmnd, target, how) {
+          var data = {"cmnd": cmnd, "how": how, "target": target };
+          dooutput("sending ..", "status", "background");
+          starttime = new Date();
+          ws.send(JSON.stringify(data));
+          return true;
+      }
+
+   </script>
+</head>
+<body>
+  <title>JSONBOT</title>
+  <div align="center" class="document">
+    <div class="related" style="font-size: 100%">
+      <ul>
+        <li class="right" style="margin-right: 10px;">
+          <a href="{{ logouturl }}" title="logout">logout</i></a></li>
+        <li class="right" style="margin-right: 10px;">{{ who }}<b> - </b></li>
+        <li><a href="http://jsonbot.appspot.com/docs/html/index.html" onclick='window.open("http://jsonbot.appspot.com/docs/html/index.html"); return false'><b>DOCS</b></a></li>
+        <li>-</li>
+        <li><a href="" title="console" onclick='doconsole(); return false;'><b>console</b></a></li>
+        <li>-</li>
+        <li><a href="" title="feeds" onclick='dofeeds(); return false;'><i>feeds</i></a></li>
+      </ul>
+    </div>
+    <div align="center" id="uber_div" style="font-size: 100%; background-color: white; color: black;">Morning !!</div>
+    <div class="body" align="center"><h1 style="background-color: {{ color }}; color: white;"><b>{{ appname }} DEMO</b></h1>
+      <div style="width: 100%; font-size: 100%; font-weight: bold; color: white;" align="center" id="topper_div">[] [] []</div>
+    </div>
+        <div class="output" align="center" style="position: float;">
+          <div style="width: 90%; font-size: 100%" scroll="auto" align="center" id="content_div"></div>
+        </div>
+      </div>
+      </div>
+      <div class="bottom" style="width: 100%; font-size: 100%; font-weight: bold;" align="center">
+        <div class="footer" style="font-size: 100%; font-height: 80%; color: white;" align="center" id="info_div">[] [] []</div><br>
+        <div style="font-size: 100%; width: 100%; background-color: {{ color }}; color: white;" position="fixed" bottom="0""  id="screen_div"></div>
+      </div>
+    </div>
+  </div>
+</body>
+<body onLoad="init();" />
+</html>
