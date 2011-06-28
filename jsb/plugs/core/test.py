@@ -49,7 +49,7 @@ def dotest(bot, event):
         examplez = examples.getexamples()
         random.shuffle(examplez)
         for example in examplez:
-            time.sleep(0.001)
+            time.sleep(0.01)
             if match and match not in example: continue
             skip = False
             for dont in donot:
@@ -58,7 +58,7 @@ def dotest(bot, event):
             teller += 1
             cmnd = "!" + example.strip()
             event.reply('command: ' + cmnd)
-            time.sleep(0.001)
+            time.sleep(0.01)
             bot.putevent(event.auth, event.channel, cmnd, event=event)
             if not bot.isgae: waiting.append(event)
             teller += 1

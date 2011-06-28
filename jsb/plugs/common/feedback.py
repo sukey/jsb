@@ -40,5 +40,5 @@ def handle_feedback(bot, event):
     event.done()
     time.sleep(5)
 
-cmnds.add("feedback", handle_feedback, ["OPER", "USER", "GUEST"])
+cmnds.add("feedback", handle_feedback, ["OPER", "USER", "GUEST"], threaded=True)
 examples.add("feedback", "send a message to replies@jsonbot.org", "1) admin-exceptions ! feedback 2) feedback the bot is missing some spirit !")

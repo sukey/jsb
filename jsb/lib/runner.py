@@ -84,6 +84,7 @@ class BotEventRunner(Runner):
             #if ievent.iscommand: ievent.ready()
             if not ievent.type == "OUTPUT": ievent.ready()
             if bot.type == "tornado": bot.ioloop.add_callback(lambda: time.sleep(0.0001))
+            time.sleep(0.001)
         except Exception, ex:
             handle_exception(ievent)
         finally: lockmanager.release(getname(str(func)))
