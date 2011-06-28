@@ -166,8 +166,8 @@ class BaseHandler(tornado.web.RequestHandler):
 
     def get_current_user(self):
         user  = self.get_secure_cookie("user")
-        if not user: user = "demouser" + "-" + self.request.remote_ip
-        return user
+        if not user and getmainconfig().enabledemo: user = "demouser" + "@" + self.request.remote_ip
+        if user: return tornado.escape.xhtml_escape(user)
 
 class LoginHandler(GoogleHandler):
 
@@ -241,14 +241,11 @@ class DemoHandler(BaseHandler):
                 return
             user = tornado.escape.xhtml_escape(self.current_user)
             if not user: self.redirect("/login") ; return
-            host = self.request.host
-            print dir(self)
-            print dir(self.request)
             user = self.current_user
             host = self.request.host
             if user:
                 t = {'appname': "JSONBOT", 'version': getversion(), 'who': user, 'host': host, 'color': "#C54848", "logouturl": 'logout', "loginurl": "login"}
-                self.render(ddir + os.sep + "templates" + os.sep + "demo.html", title="JSONBOT", **t)
+                self.render(ddir + os.sep + "templates" + os.sep + "console.html", title="JSONBOT", **t)
         except Exception, ex:
             handle_exception()
 
