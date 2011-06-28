@@ -6,12 +6,12 @@
     <script type="text/javascript">
       // vars
       var host = "{{ host }}";
-      var hostname = window.location.hostname;
+      var hostname = window.location.host;
       var incomingurl = document.URL;
       var port = window.location.port;
-      var url = "http://" + hostname + ":" + port;
-      var url2 = "https://" + hostname + ":" + port;
-      var websocketurl = "ws://" + hostname + ":" + port + "/websocket";
+      var url = "http://" + host;
+      var url2 = "https://" + host;
+      var websocketurl = "ws://" + host + "/websocket";
       var got = hostname.indexOf("https");
       var starttime = new Date();
       var interval_id;
