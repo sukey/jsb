@@ -43,6 +43,9 @@ class TornadoBot(BotBase):
         self.websockets = {}
         self.ioloop = tornado.ioloop.IOLoop().instance()
 
+    def start(self, *args, **kwargs):
+        BotBase.start(self, connect=False)
+
     def _raw(self, txt, target, how, handler, end=u"<br>"):
         """  put txt to the client. """
         if not txt: return 

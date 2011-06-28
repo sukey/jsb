@@ -269,9 +269,12 @@ class Fleet(Persist):
         """ broadcast txt to all bots. """
         for bot in self.bots: bot.broadcast(txt)
 
-    def startall(self, bots=None):
+    def startall(self, bots=None, usethreads=False):
         target = bots or self.bots
-        for bot in target: start_new_thread(bot.start, ())
+        for bot in target:
+            if usethreads: start_new_thread(bot.start, ()) ; continue
+            try: bot.start()
+            except Excepton, ex: handle_exception()
 
     def resume(self, sessionfile):
         """ resume bot from session file. """
