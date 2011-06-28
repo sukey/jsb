@@ -31,7 +31,6 @@
       var cmndlog = new Array();
       var disk = {};
       var topperlist = new Array();
-      var usesocket = "yes";
       
       function scrollToBottom(elm_id) {
 	var elm = document.getElementById(elm_id);
@@ -119,20 +118,26 @@
       }
 
       // websocket 
-      var ws = new WebSocket(websocketurl);
-      ws.onopen = function () {
-           var t = new Date();
-           dooutput("channel openend on " + t.toTimeString() + "<br>", "info_div", "background");
-      }
-      ws.onmessage = function (evt) {
-           handlesocket(evt.data);
-      }
-      ws.onclose = function (evt) {
-          var tt = new Date();
-          dooutput("channel closed on " + tt.toTimeString() + " .. please reload this page", "info_div", "background")
+
+      function createsocket() {
+          var ws = new WebSocket(websocketurl);
+          ws.onopen = function () {
+              var t = new Date();
+              dooutput("channel openend on " + t.toTimeString() + "<br>", "info_div", "background");
+          }
+          ws.onmessage = function (evt) {
+              handlesocket(evt.data);
+          }
+          ws.onclose = function (evt) {
+              var tt = new Date();
+              dooutput("channel closed on " + tt.toTimeString() + " .. please reload this page", "info_div", "background");
+              setTimeout("ws = createsocket();", 5000);
+          }
+          return ws;
       }
 
       // INIT
+      var ws = createsocket();
 
       function start() {
           // doCmnd('!chan-token', renewtoken, 'background'); 
@@ -140,7 +145,7 @@
           setTimeout("doSocket('!welcome', 'topper_div', 'background');", 300);
           setTimeout("doSocket('!topper', 'info_div', 'background');", 10000);
           setTimeout("doSocket('!statusline', 'info_div', 'background');", 20000);
-          setInterval("updateloop();", 30000);
+          //setInterval("updateloop();", 30000);
           setInterval("timeloop();", 1000);
           setInterval("outputloop();", 30000);
           setTimeout("outputloop();", 1000);
@@ -203,6 +208,66 @@
           dooutput("sending ..", "status", "background");
           starttime = new Date();
           ws.send(JSON.stringify(data));
+          return true;
+      }
+
+      // XHR
+      
+      function response(obj) {
+          if (obj.readyState==4){
+              if (obj.status==200) {
+                   dooutput(obj.responseText, "content_div", "normal");
+                   dooutput(" " + elapsed() + " msec - OK", "status_div", "normal");
+              }
+              else {
+                   statusadd(" " + elapsed() + " msec - NOT OK");
+                   topper("status is " + obj.status);
+                   dooutput(obj.responseText, "content_div", "normal");
+              }
+          }
+      }
+
+      function doCmnd(cmnd, resp, how) {
+          var request = false;
+          if (window.XMLHttpRequest) {
+              request = new XMLHttpRequest();
+          }
+          else if (window.ActiveXObject) { 
+              try {
+                  request = new ActiveXObject("Msxml2.XMLHTTP");
+              } catch (e) {
+                  try {
+                      request = new ActiveXObject("Microsoft.XMLHTTP");
+                  } catch (e) {}
+              }
+          }
+          if (!request) {
+              dooutput("can't make connection to server", "topper_div", "background");
+              return false;
+          }
+          request.cmnd = cmnd;
+          request.how = how;
+          request.onreadystatechange = function () {
+              resp(request);
+          }
+          var u = "";
+          if (got == -1) {
+              request.open("POST", url2, true);
+              u = url2;
+          }
+          else {
+              request.open("POST", url, true);
+              u = url;
+          }
+          if (how != "background") {
+              dooutput("XHR - sending command - ", "status_div", "background");
+          }
+          request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+          request.setRequestHeader("Content-Length", parameters.length);
+          request.setRequestHeader("Cache-Control", "no-cache");
+          parameters="content="+encodeURIComponent(cmnd) + "&how=" + encodeURIComponent(how);
+          starttime = new Date();
+          request.send(parameters);
           return true;
       }
 

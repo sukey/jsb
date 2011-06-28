@@ -136,7 +136,7 @@ class WebSocket(tornado.websocket.WebSocketHandler):
             bot.doevent(event)
         except Exception, ex:
             handle_exception()
-        logging.warn(message)
+        #logging.warn(message)
 
     def on_close(self):
         user = self.current_user
@@ -207,6 +207,27 @@ class DispatchHandler(BaseHandler):
         except Exception, ex:
             handle_exception()
 
+    @tornado.web.authenticated
+    def post(self):
+        """ this is where the command get disaptched. """
+        try:
+            logging.warn("DISPATCH incoming: %s - %s" % (self.request.get('content'), self.request.remote_addr))
+            if not self.current_user:
+                logging.warn("denied access for %s - %s" % (self.request.remote_addr, self.request.get('content')))
+                self.response.out.write("acess denied .. plz login")
+                self.response.set_status(400)
+                return
+            event = TornadoEvent(bot=bot)
+            event.parsesocket(self, message)
+            bot.gatekeeper.allow(event.userhost)
+            event.bind(bot)
+            bot.doevent(event)
+        except NoSuchCommand: 
+            self.response.out.write("no such command: %s" % event.usercmnd)
+        except Exception, ex:
+            self.response.out.write("the command had an eror: %s" % exceptionmsg())
+            handle_exception()
+
 class DemoHandler(BaseHandler):
 
     """ the bots remote command dispatcher. """
@@ -230,6 +251,7 @@ class DemoHandler(BaseHandler):
                 self.render(ddir + os.sep + "templates" + os.sep + "demo.html", title="JSONBOT", **t)
         except Exception, ex:
             handle_exception()
+
 
 ## the application 
 
