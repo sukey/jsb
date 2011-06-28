@@ -269,7 +269,8 @@ def main():
         fleetbots = fleet.loadall(opts.args)
         start_new_thread(fleet.startall, (fleetbots, ))
         if not bot in fleet.bots: fleet.addbot(bot)
-    bot.start()
+    bot.start(connect=False)
+    bot.ioloop.start()
 
 if __name__ == "__main__":
     main()
