@@ -101,10 +101,10 @@ def handle_merge(bot, ievent):
     if bot.ownercheck(userhost):
         ievent.reply("can't merge with owner")
         return
-    username = bot.users.getname(userhost)
-    if username:
-        ievent.reply('we already have a user with userhost %s (%s)' % (userhost, username))
-        return
+    #username = bot.users.getname(userhost)
+    #if username:
+    #    ievent.reply('we already have a user with userhost %s (%s)' % (userhost, username))
+    #    return
     result = bot.users.merge(name, userhost)
     if result: ievent.reply('%s merged' % nick)
     else: ievent.reply('merge failed')
