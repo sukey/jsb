@@ -67,6 +67,7 @@ from jsb.drivers.tornado.event import TornadoEvent
 from jsb.lib.datadir import getdatadir
 from jsb.imports import gettornado
 from jsb.lib.config import getmainconfig
+from jsb.utils.source import getsource
 
 tornado = gettornado()
 fleet = getfleet()
@@ -93,8 +94,10 @@ import ssl
 
 bot = TornadoBot(botname="tornado-bot")
 
-if os.path.exists(os.getcwd() + os.sep + "jsb"): ddir = os.getcwd() + os.sep + "jsb" + os.sep + "data"
-else: ddir = getdatadir()
+
+ddir = getsource("jsb.data")
+if not ddir and os.path.exists(os.getcwd() + os.sep + "jsb"): ddir = os.getcwd() + os.sep + "jsb" + os.sep + "data"
+elif not ddir: ddir = getdatadir()
 
 ## server part
 
