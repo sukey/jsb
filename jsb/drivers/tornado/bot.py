@@ -65,6 +65,7 @@ class TornadoBot(BotBase):
                  except ValueError:  logging.error("web - invalid url - %s" % url)
         if response: self._raw(txt, event.target, event.how, event.handler)
         elif event: self.update_web(channel, txt, event.target, event.how)
+        else: self.update_web(channel, txt)
 
     def normalize(self, txt):
         #txt = cgi.escape(txt)
@@ -84,7 +85,7 @@ class TornadoBot(BotBase):
         txt = strippedtxt(txt)
         return txt
 
-    def update_web(self, channel, txt, target, how, end="<br>"):
+    def update_web(self, channel, txt, target="content_div", how="normal", end="<br>"):
         if not txt: return 
         time.sleep(0.001)
         txt = txt + end

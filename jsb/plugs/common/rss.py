@@ -272,13 +272,14 @@ sleeptime=15*60, running=0):
         name = self.data.name
         try:
             loopover = self.data.watchchannels
-            logging.debug("loopover in %s deliver is: %s" % (self.data.name, loopover))
+            logging.warn("loopover in %s deliver is: %s" % (self.data.name, loopover))
             for item in loopover:
+                logging.warn("item is: %s" % str(item))
                 if not item: continue
                 try:
                     (botname, type, channel) = item
                 except ValueError:
-                    logging.debug('%s is not in the format (botname, type, channel)' % str(item))
+                    logging.warn('%s is not in the format (botname, type, channel)' % str(item))
                     continue
                 if not botname: logging.error("%s - %s is not correct" % (name, str(item))) ; continue
                 if not type: logging.error("%s - %s is not correct" % (name, str(item))) ; continue

@@ -160,6 +160,7 @@ class SXMPPBot(XMLStream, BotBase):
         self.logon(self.cfg.user, self.cfg.password, iq)
         self._raw("<presence/>")
         start_new_thread(self._keepalive, ())
+        if self.cfg.keepchannelsalive: start_new_thread(self._keepchannelsalive, ())
         if self.cfg.doroster: self.requestroster()
         self.connectok.set()
         self.sock.settimeout(None)
