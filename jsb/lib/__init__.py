@@ -4,7 +4,7 @@
 
 """ jsb core package. """
 
-__version__ = "0.7.1.3"
+__version__ = "0.8"
 
 import warnings
 warnings.simplefilter('ignore')

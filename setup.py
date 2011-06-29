@@ -47,7 +47,7 @@ def uploadlist(dir):
 
 setup(
     name='jsb',
-    version='0.7.1.3',
+    version='0.8a1',
     url='http://jsonbot.googlecode.com/',
     download_url="http://code.google.com/p/jsonbot/downloads", 
     author='Bart Thate',
@@ -65,6 +65,7 @@ setup(
              'bin/jsb-run',
              'bin/jsb-sed',
              'bin/jsb-stop',
+             'bin/jsb-tornado',
              'bin/jsb-udp',
              'bin/jsb-upgrade',
              'bin/jsb-upload',
@@ -97,6 +98,8 @@ setup(
               'jsb.contrib',
               'jsb.contrib.dns',
               'jsb.contrib.simplejson',
+              'jsb.contrib.tornado',
+              'jsb.contrib.tornado.tests',
               'jsb.contrib.tweepy',
               'jsb.contrib.requests',
               'jsb.contrib.requests.packages',
