@@ -18,6 +18,7 @@ from jsb.version import getversion
 
 from optparse import OptionParser
 parser = OptionParser(usage='usage: %prog [options] <appid>', version='%prog ' + getversion())
+parser.add_option('', '-r', type='string', default=False, dest='doresume',  metavar='PATH', help="resume the bot from the folder specified")
 parser.add_option('-o', '--owner', type='string', default=False, dest='owner',  help="owner of the bot")
 parser.add_option('-d', '--datadir', type='string', default=False, dest='datadir', help="datadir to use")
 parser.add_option('-l', '--loglevel', type='string', default=False, dest='loglevel', help="logging level")
@@ -68,6 +69,7 @@ from jsb.lib.datadir import getdatadir
 from jsb.imports import gettornado
 from jsb.lib.config import getmainconfig
 from jsb.utils.source import getsource
+from jsb.lib.partyline import partyline
 
 tornado = gettornado()
 fleet = getfleet()
@@ -283,11 +285,11 @@ if opts.ssl:
 else:
     server = TornadoServer(application)
 
-def main():
+def main(nofleet=False):
     logging.warn("starting tornando server")
     global bot
     server.listen(opts.port or 10102)
-    if opts.fleet:
+    if opts.fleet and not nofleet:
         fleetbots = fleet.loadall(opts.args)
         start_new_thread(fleet.startall, (fleetbots, ))
         if not bot in fleet.bots: fleet.addbot(bot)
@@ -295,4 +297,11 @@ def main():
     bot.ioloop.start()
 
 if __name__ == "__main__":
-    main()
+    if opts.doresume and os.path.isfile(opts.doresume):
+        logging.warn("resuming from %s" % opts.doresume)
+        fleet = getfleet()
+        fleet.resume(opts.doresume, exclude=["tornado"])
+        fleet.startok.wait()
+        partyline.resume(opts.doresume)
+        os.unlink(opts.doresume)
+    main(opts.doresume)

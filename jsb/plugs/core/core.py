@@ -48,7 +48,9 @@ def handle_reboot(bot, ievent):
     time.sleep(3)
     if ievent.rest == "cold": stateful = False
     else: stateful = True
-    if stateful: mainhandler.put(0, reboot_stateful, bot, ievent, getfleet(), partyline)
+    if stateful:
+        if bot.type == "tornado": bot.ioloop.add_callback(lambda: reboot_stateful(bot, ievent, getfleet(), partyline))
+        else: mainhandler.put(0, reboot_stateful, bot, ievent, getfleet(), partyline)
     else:
         getfleet().exit()
         mainhandler.put(0, reboot)

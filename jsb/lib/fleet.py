@@ -276,10 +276,14 @@ class Fleet(Persist):
             try: bot.start()
             except Excepton, ex: handle_exception()
 
-    def resume(self, sessionfile):
+    def resume(self, sessionfile, exclude=[]):
         """ resume bot from session file. """
         session = json.load(open(sessionfile))
         for name in session['bots'].keys():
+            dont = False
+            for ex in exclude:
+                if ex in name: dont = True
+            if dont: continue
             cfg = LazyDict(session['bots'][name])
             try: 
                 if not cfg.disable:
