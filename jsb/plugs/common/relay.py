@@ -115,6 +115,7 @@ def handle_relay(bot, event):
         try: botname = bot.cfg.name ; (type, target) = event.args
         except ValueError: event.missing('[<botname>] <bottype> <target>') ; return 
     origin = event.channel
+    if not getfleet().byname(botname): event.reply("no %s bot in fleet." % botname) ; return
     if not relay.data.has_key(origin): relay.data[origin] = []
     try:
         if not [type, target] in relay.data[origin]:
@@ -165,7 +166,7 @@ examples.add('relay-clear', 'clear all relays from a channel', 'relay-clear')
 def handle_askrelaylist(bot, event):
     """ show all relay's of a user. """
     origin = event.origin or event.channel
-    try: event.reply('relays for %s: ' % origin, relay.data[origin])
+    try: event.reply('relays for %s: ' % origin, relay.data[origin], dot=" .. ")
     except KeyError: event.reply('no relays for %s' % origin)
 
 cmnds.add('relay-list', handle_askrelaylist, ['OPER', 'USER'])

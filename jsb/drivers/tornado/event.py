@@ -82,7 +82,7 @@ class TornadoEvent(EventBase):
         try: data = LazyDict(json.loads(message))
         except Exception, ex: logging.error("failed to parse data: %s - %s" % (message, str(ex))) ; return self
         logging.warn("incoming: %s" % message)
-        self.target = data.target
+        self.div = data.target
         self.userhost = tornado.escape.xhtml_escape(handler.current_user)
         if not self.userhost: raise Exception("no current user.")
         self.isweb = True

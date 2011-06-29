@@ -64,7 +64,7 @@ class TornadoBot(BotBase):
                  try: txt = re.sub(item, url, txt)
                  except ValueError:  logging.error("web - invalid url - %s" % url)
         if response: self._raw(txt, event.target, event.how, event.handler)
-        elif event: self.update_web(channel, txt, event.target, event.how)
+        elif event: self.update_web(channel, txt, event.div, event.how or how)
         else: self.update_web(channel, txt)
 
     def normalize(self, txt):
@@ -85,11 +85,11 @@ class TornadoBot(BotBase):
         txt = strippedtxt(txt)
         return txt
 
-    def update_web(self, channel, txt, target="content_div", how="normal", end="<br>"):
+    def update_web(self, channel, txt, div=None, how=None, end="<br>"):
         if not txt: return 
         time.sleep(0.001)
         txt = txt + end
-        outdict = {"target": target or "output_div", "result": txt, "how": how}
+        outdict = {"target": div or "content_div", "result": txt, "how": how or "normal"}
         try: out = json.dumps(outdict)
         except Exception, ex: handle_exception() ; return
         logging.warn("%s - out - %s" % (self.cfg.name, out))
