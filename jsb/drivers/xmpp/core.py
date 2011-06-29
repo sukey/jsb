@@ -362,8 +362,8 @@ class XMLStream(NodeBuilder):
         if self.stopped: return
         if initstream: self.init_stream()
         for method in self.features:
-            #if method not in ["DIGEST-MD5", "PLAIN"]: logging.warn("skipping %s" % method) ; continue
-            if method not in ["PLAIN"]: logging.warn("skipping %s" % method) ; continue
+            if method not in ["DIGEST-MD5", "PLAIN"]: logging.warn("skipping %s" % method) ; continue
+            #if method not in ["PLAIN"]: logging.warn("skipping %s" % method) ; continue
             try:
                 meth = getattr(self, "auth_%s" % method.replace("-", "_").lower())
                 logging.warn("%s - calling auth method %s" % (self.cfg.name, method))

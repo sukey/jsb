@@ -321,6 +321,7 @@ class BotBase(LazyDict):
     def doevent(self, event):
         """ dispatch an event. """ 
         #time.sleep(0.001)
+        if self.ioloop: self.ioloop.add_callback(lambda: time.sleep(0.001))
         if not self.cfg: raise Exception("eventbase - cfg is not set .. can't handle event.") ; return
         if not event: raise NoEventProvided()
         try:
