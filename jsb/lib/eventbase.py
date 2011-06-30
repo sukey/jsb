@@ -57,6 +57,7 @@ class EventBase(LazyDict):
         self.outqueue = self.outqueue or Queue.Queue()
         self.stop = False
         self.bonded = False
+
         self.copyin(input)
         
     def __deepcopy__(self, a):

@@ -37,6 +37,7 @@ relay = PlugPersist('relay')
   
 def relayprecondition(bot, event):
     """ check to see whether the callback needs to be executed. """
+    if event.how == "background": return False
     logging.debug("relay - event path is %s" % event.path)
     if event.isrelayed: logging.info("relay - %s already relayed" % bot.cfg.name) ; return False
     origin = event.printto or event.channel
@@ -80,7 +81,7 @@ def relaycallback(bot, event):
                     else: txt = "[%s] %s" % (e.nick, e.txt)
                     if event: t = "[%s]" % outbot.cfg.nick
                     logging.debug("relay - sending to %s (%s)" % (target, outbot.cfg.name)) 
-                    outbot.outnocb(target, txt, event=e)
+                    outbot.outnocb(target, txt, "normal", event=e)
                 else: logging.error("can't find bot for (%s,%s,%s)" % (botname, type, target))
             except Exception, ex: handle_exception()
     except KeyError: pass

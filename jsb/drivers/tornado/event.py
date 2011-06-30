@@ -52,10 +52,10 @@ class TornadoEvent(EventBase):
         self.userhost = tornado.escape.xhtml_escape(handler.current_user)
         if not self.userhost: raise Exception("no current user.")
         try: how = request.arguments['how'][0]
-        except KeyError: how = "normal"
-        if not how: how = "normal"
+        except KeyError: how = "background"
+        if not how: how = "background"
         self.how = how
-        if self.how == "undefined": self.how = "normal"
+        if self.how == "undefined": self.how = "background"
         logging.warn("web - how is %s" % self.how)
         #self.webchan = request.headers.get('webchan')
         #input = request.headers.get('content') or request.headers.get('cmnd')

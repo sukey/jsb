@@ -53,7 +53,7 @@ class TornadoBot(BotBase):
         handler.write(txt)
         logging.debug("%s - out - %s" % (self.cfg.name, txt))
 
-    def outnocb(self, channel, txt, how="normal", event=None, origin=None, response=None, dotime=False, *args, **kwargs):
+    def outnocb(self, channel, txt, how="background", event=None, origin=None, response=None, dotime=False, *args, **kwargs):
         txt = self.normalize(txt)
         if event and event.how != "background":
             logging.warn("%s - out - %s" % (self.cfg.name, txt))
@@ -65,7 +65,7 @@ class TornadoBot(BotBase):
                  except ValueError:  logging.error("web - invalid url - %s" % url)
         if response: self._raw(txt, event.target, event.how, event.handler)
         elif event: self.update_web(channel, txt, event.div, event.how or how)
-        else: self.update_web(channel, txt)
+        else: self.update_web(channel, txt, "content_div", how)
 
     def normalize(self, txt):
         #txt = cgi.escape(txt)
