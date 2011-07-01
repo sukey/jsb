@@ -93,7 +93,7 @@
       function elapsed() {
         last = new Date();
         diff = last.getTime() - starttime.getTime();
-        // starttime = last;
+        starttime = last;
         return diff;
       }
 
@@ -123,14 +123,14 @@
           var ws = new WebSocket(websocketurl);
           ws.onopen = function () {
               var t = new Date();
-              dooutput("channel openend on " + t.toTimeString() + "<br>", "info_div", "background");
+              dooutput("channel openend on " + t.toTimeString() + "<br>", "status_div", "background");
           }
           ws.onmessage = function (evt) {
               handlesocket(evt.data);
           }
           ws.onclose = function (evt) {
               var tt = new Date();
-              dooutput("channel closed on " + tt.toTimeString() + " .. please reload this page", "info_div", "background");
+              dooutput("channel closed on " + tt.toTimeString() + " .. please reload this page", "status_div", "background");
               setTimeout("ws = createsocket();", 5000);
           }
           return ws;
@@ -197,8 +197,8 @@
           var how = data["how"];
           var result = data["result"];
           dooutput(result, target, how);
-          dooutput("roundtrip: " + elapsed() + " msec", "status_div", "background"); 
-          starttime = new Date();
+          var t = new Date();
+          dooutput("OK", "status_div", "background"); 
       }
 
 
@@ -206,8 +206,7 @@
 
       function doSocket(cmnd, target, how) {
           var data = {"cmnd": cmnd, "how": how, "target": target };
-          dooutput("sending ..", "status", "background");
-          starttime = new Date();
+          dooutput("sending .. ", "status_div", "background");
           ws.send(JSON.stringify(data));
           return true;
       }
