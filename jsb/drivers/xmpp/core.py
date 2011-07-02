@@ -238,7 +238,7 @@ class XMLStream(NodeBuilder):
                 logging.debug("%s - no stanze provided. called from: %s" % (self.cfg.name, whichmodule()))
                 return
             what = jabberstrip(stanza)
-            what = toenc(stanza)
+            what = toenc(what)
             if not what.endswith('>') or not what.startswith('<'):
                 logging.error('%s - invalid stanza: %s' % (self.cfg.name, what))
                 return

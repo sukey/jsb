@@ -31,7 +31,7 @@ class ThreadLoop(object):
 
     def _loop(self):
         """ the threadloops loop. """
-        logging.debug('%s - starting threadloop' % self.name)
+        logging.warn('starting loop %s' % str(self))
         self.running = True
         nrempty = 0
         while not self.stopped:
@@ -43,7 +43,7 @@ class ThreadLoop(object):
             if not data: break
             self.handle(*data)
         self.running = False
-        logging.debug('%s - stopping threadloop' % self.name)
+        logging.warn('stopping loop- %s' % str(self))
 
     def put(self, *data):
         """ put data on task queue. """

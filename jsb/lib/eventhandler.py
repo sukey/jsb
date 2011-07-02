@@ -78,14 +78,14 @@ class EventHandler(object):
 
     def handleloop(self):
         """ thread that polls the queues for items to dispatch. """
-        logging.debug('eventhandler - starting handle thread')
+        logging.warn('starting thread - %s ' % str(self))
         while not self.stopped:
             time.sleep(0.001)
             try:
                 res = self.go.get_nowait()
                 if res: self.handle_one()
             except Queue.Empty: pass
-        logging.debug('eventhandler - stopping %s' % str(self))
+        logging.warn('stopping %s' % str(self))
 
     runforever = handleloop
 

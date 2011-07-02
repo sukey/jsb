@@ -192,12 +192,12 @@ class BotBase(LazyDict):
 
     def _eventloop(self):
         """ fetch events from the inqueue and handle them. """
-        logging.debug("%s - eventloop started" % self.cfg.name)
+        logging.warn("%s - eventloop started" % self.cfg.name)
         while not self.stopped:
             event = self.inqueue.get()
             if not event: break
             self.doevent(event)
-        logging.error("%s - eventloop stopped" % self.cfg.name)
+        logging.warn("%s - eventloop stopped" % self.cfg.name)
 
     def _getqueue(self):
         """ get one of the outqueues. """
@@ -207,7 +207,7 @@ class BotBase(LazyDict):
 
     def _outloop(self):
         """ output loop. """
-        logging.debug('%s - starting output loop' % self.cfg.name)
+        logging.warn('%s - starting output loop' % self.cfg.name)
         self.stopoutloop = 0
         while not self.stopped and not self.stopoutloop:
             queue = self._getqueue()
@@ -220,7 +220,7 @@ class BotBase(LazyDict):
                     logging.debug("%s - OUT - %s - %s" % (self.cfg.name, self.type, str(res))) 
                     self.out(*res)
             time.sleep(0.001)
-        logging.debug('%s - stopping output loop' % self.cfg.name)
+        logging.warn('%s - stopping output loop' % self.cfg.name)
 
     def putonqueue(self, nr, *args):
         """ put output onto one of the output queues. """

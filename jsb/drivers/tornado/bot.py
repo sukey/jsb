@@ -28,7 +28,7 @@ import time
 ## tornado import
 
 import tornado.ioloop
-
+import tornado.web
 
 ## WebBot class
 
@@ -42,6 +42,22 @@ class TornadoBot(BotBase):
         self.type = u"tornado"
         self.websockets = {}
         self.ioloop = tornado.ioloop.IOLoop().instance()
+
+    def exit(self):
+        logging.warn("exit!")
+        #for socklist in self.websockets.values():
+        #    for sock in socklist:
+        #        print dir(sock)
+        #        logging.warn("closing sock %s" % str(sock))
+        #        try:
+        #            sock.write_message("rebooting") 
+        #            time.sleep(0.01)
+        #            sock.close()
+        #            time.sleep(0.01)
+        #        except: handle_exception()
+        #time.sleep(2)
+        BotBase.exit(self)
+        self.ioloop.stop()
 
     def start(self, *args, **kwargs):
         BotBase.start(self, connect=False)

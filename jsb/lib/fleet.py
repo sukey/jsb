@@ -279,6 +279,7 @@ class Fleet(Persist):
     def resume(self, sessionfile, exclude=[]):
         """ resume bot from session file. """
         session = json.load(open(sessionfile))
+        chan = session.get("channel")
         for name in session['bots'].keys():
             dont = False
             for ex in exclude:
@@ -288,12 +289,12 @@ class Fleet(Persist):
             try: 
                 if not cfg.disable:
                     logging.warn("resuming %s" % cfg)
-                    start_new_thread(self.resumebot, (cfg,))
+                    start_new_thread(self.resumebot, (cfg, chan))
             except: handle_exception() ; return
         time.sleep(10)
         self.startok.set()
 
-    def resumebot(self, botcfg):
+    def resumebot(self, botcfg, chan=None):
         """ resume single bot. """
         botname = botcfg.name
         logging.warn("resuming %s bot" % botname)
@@ -306,6 +307,7 @@ class Fleet(Persist):
         if oldbot: self.replace(oldbot, bot)
         bot._resume(botcfg, botname)
         bot.start(False)
+        if chan and chan in bot.state["joinedchannels"]: bot.say(chan, "done!")
 
 ## global fleet object
 
