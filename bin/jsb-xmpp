@@ -22,6 +22,8 @@ from jsb.lib.fleet import getfleet
 from jsb.utils.mainloop import mainloop
 from jsb.utils.opts import makesxmppopts, makesxmppconfig
 from jsb.lib.datadir import setdatadir
+from jsb.lib.exit import globalshutdown
+from jsb.utils.exception import handle_exception
 import jsb.lib.users as users
 import jsb
 
@@ -67,5 +69,9 @@ if opts.channel and not opts.channel in bot.state['joinedchannels']:
 
 fleet = getfleet(opts.datadir, new=True)
 fleet.addbot(bot)
-bot.start()
-mainloop()
+try:
+    bot.start()
+    mainloop()
+except KeyboardInterrupt: globalshutdown()
+except: handle_exception() ; globalshutdown()
+else: globalshutdown()

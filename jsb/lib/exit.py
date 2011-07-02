@@ -41,7 +41,5 @@ def globalshutdown():
         try:os.remove('jsb.pid')
         except: pass
         os._exit(0)
-    except Exception, ex: handle_exception()
+    except Exception, ex: handle_exception() ; os._exit(1)
 
-#try: import google
-#except ImportError: atexit.register(globalshutdown)
