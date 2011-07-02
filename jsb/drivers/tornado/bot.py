@@ -8,7 +8,7 @@
 
 from jsb.lib.botbase import BotBase
 from jsb.lib.outputcache import add
-from jsb.utils.generic import toenc, fromenc, strippedtxt
+from jsb.utils.generic import toenc, fromenc, strippedtxt, stripcolor
 from jsb.utils.url import re_url_match
 from jsb.utils.timeutils import hourmin
 from jsb.lib.channelbase import ChannelBase
@@ -69,6 +69,7 @@ class TornadoBot(BotBase):
 
     def normalize(self, txt):
         #txt = cgi.escape(txt)
+        txt = stripcolor(txt)
         txt = txt.replace("&lt;br&gt;", "<br>")
         txt = txt.replace("&lt;b&gt;", "<b>")
         txt = txt.replace("&lt;/b&gt;", "</b>")
