@@ -289,26 +289,27 @@ if opts.ssl:
 else:
     server = TornadoServer(application)
 
-def main(nofleet=False):
+def main(dofleet=True):
     global bot
     server.listen(opts.port or 10102)
     logging.warn("started tornando server on port %s" % (opts.port or 10102))
-    if opts.fleet and not nofleet:
+    if dofleet:
         fleetbots = fleet.loadall(opts.args)
         start_new_thread(fleet.startall, (fleetbots, ))
-    if not nofleet and not bot in fleet.bots: fleet.addbot(bot)
+    if not bot in fleet.bots: fleet.addbot(bot)
     bot.start(connect=False)
-    try: bot.ioloop.start()
-    except KeyboardInterrupt: globalshutdown()
-    except Exception, ex: handle_exception() ; os._exit(1)
-    else: globalshutdown()
 
 if __name__ == "__main__":
     if opts.doresume and os.path.isfile(opts.doresume):
+        main(True)
         logging.warn("resuming from %s" % opts.doresume)
         fleet = getfleet()
         fleet.resume(opts.doresume, exclude=["tornado"])
         fleet.startok.wait()
         partyline.resume(opts.doresume)
         os.unlink(opts.doresume)
-    main(True)
+    else: main(opts.fleet)
+    try: bot.ioloop.start()
+    except KeyboardInterrupt: globalshutdown()
+    except Exception, ex: handle_exception() ; os._exit(1)
+    else: globalshutdown()

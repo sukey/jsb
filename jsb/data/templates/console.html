@@ -124,6 +124,7 @@
           ws.onopen = function () {
               var t = new Date();
               dooutput("channel openend on " + t.toTimeString() + "<br>", "status_div", "background");
+              dooutput("channel openend on " + t.toTimeString() + "<br>", "info_div", "background");
           }
           ws.onmessage = function (evt) {
               handlesocket(evt.data);
@@ -142,9 +143,11 @@
       function start() {
           // doCmnd('!chan-token', renewtoken, 'background'); 
           //update();
-          setTimeout("doSocket('!welcome', 'topper_div', 'background');", 300);
-          setTimeout("doSocket('!topper', 'info_div', 'background');", 10000);
-          setTimeout("doSocket('!statusline', 'info_div', 'background');", 20000);
+          setTimeout("doSocket('!date', 'content_div', 'background');", 100);
+          setTimeout("doSocket('!shop', 'content_div', 'background');", 200);
+          setTimeout("doSocket('!todo', 'content_div', 'background');", 300);
+          setTimeout("doSocket('!topper', 'info_div', 'background');", 1000);
+          setTimeout("doSocket('!statusline', 'status_div', 'background');", 2000);
           //setInterval("updateloop();", 30000);
           setInterval("timeloop();", 1000);
           setInterval("outputloop();", 30000);

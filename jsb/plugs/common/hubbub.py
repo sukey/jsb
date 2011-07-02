@@ -967,8 +967,8 @@ def handle_hubbubwelcome(bot, ievent):
     """ show hubbub welcome message, used by the gadget. """
     ievent.reply("hb-register <feedname> <url>")
 
-cmnds.add('hb-welcome', handle_hubbubwelcome, ['USER', 'GUEST'])
-examples.add('hb-welcome', 'hb-welcome .. show welcome message', 'hb-welcome')
+#cmnds.add('hb-welcome', handle_hubbubwelcome, ['USER', 'GUEST'])
+#examples.add('hb-welcome', 'hb-welcome .. show welcome message', 'hb-welcome')
 
 ## hb-register command
 

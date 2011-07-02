@@ -279,8 +279,8 @@ schenkt een kopje koffie wiener melange in voor
 schenkt een kopje espresso voor je in voor
 schenkt een kopje arabica voor je in voor
 schenkt je een kopje koffie verkeerd in voor
-schenkt een kopje cappuccino voor je in voor
-schenkt een kopje cafe choco voor je in voor
+schenkt een kopje cappuccino in voor
+schenkt een kopje cafe choco in voor
 schenkt je een kopje koffie van gisteren in voor
 vult een kopje met decafe voor
 schenkt een kopje toebroek in voor
