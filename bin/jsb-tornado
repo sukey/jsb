@@ -296,7 +296,7 @@ def main(nofleet=False):
     if opts.fleet and not nofleet:
         fleetbots = fleet.loadall(opts.args)
         start_new_thread(fleet.startall, (fleetbots, ))
-    if not bot in fleet.bots: fleet.addbot(bot)
+    if not nofleet and not bot in fleet.bots: fleet.addbot(bot)
     bot.start(connect=False)
     try: bot.ioloop.start()
     except KeyboardInterrupt: globalshutdown()
@@ -311,4 +311,4 @@ if __name__ == "__main__":
         fleet.startok.wait()
         partyline.resume(opts.doresume)
         os.unlink(opts.doresume)
-    main(opts.doresume)
+    main(True)
