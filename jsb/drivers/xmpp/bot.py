@@ -486,7 +486,7 @@ class SXMPPBot(XMLStream, BotBase):
 
     def domsg(self, msg):
         """ dispatch an msg on the bot. """
-        self.doevent(msg)
+        self.put(msg)
 
     def normalize(self, what):
         #what = cgi.escape(what)

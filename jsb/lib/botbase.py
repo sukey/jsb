@@ -197,6 +197,7 @@ class BotBase(LazyDict):
             event = self.inqueue.get()
             if not event: break
             self.doevent(event)
+            time.sleep(0.1)
         logging.warn("%s - eventloop stopped" % self.cfg.name)
 
     def _getqueue(self):
@@ -320,8 +321,7 @@ class BotBase(LazyDict):
 
     def doevent(self, event):
         """ dispatch an event. """ 
-        #time.sleep(0.001)
-        if self.ioloop: self.ioloop.add_callback(lambda: time.sleep(0.001))
+        time.sleep(0.01)
         if not self.cfg: raise Exception("eventbase - cfg is not set .. can't handle event.") ; return
         if not event: raise NoEventProvided()
         try:
@@ -360,6 +360,7 @@ class BotBase(LazyDict):
             if not e1.stop: last_callbacks.check(self, e1)
         event.callbackdone = True
         waiter.check(self, event)
+        if self.ioloop: self.ioloop.add_callback(lambda: time.sleep(0.001))
         return event
 
     def ownercheck(self, userhost):

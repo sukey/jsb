@@ -141,7 +141,7 @@ class WebSocket(tornado.websocket.WebSocketHandler):
             event.parsesocket(self, message)
             bot.gatekeeper.allow(event.userhost)
             event.bind(bot)
-            bot.doevent(event)
+            bot.put(event)
         except Exception, ex:
             handle_exception()
         #logging.warn(message)
@@ -230,7 +230,7 @@ class DispatchHandler(BaseHandler):
             event.parsesocket(self, message)
             bot.gatekeeper.allow(event.userhost)
             event.bind(bot)
-            bot.doevent(event)
+            bot.put(event)
         except NoSuchCommand: 
             self.response.out.write("no such command: %s" % event.usercmnd)
         except Exception, ex:

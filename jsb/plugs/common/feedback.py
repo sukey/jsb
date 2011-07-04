@@ -21,7 +21,7 @@ import time
 ## feedback command
 
 def handle_feedback(bot, event):
-    if event.inqueue: payload = waitforqueue(event.inqueue, 2000)
+    if not event.rest and event.inqueue: payload = waitforqueue(event.inqueue, 2000)
     else: payload = event.rest 
     fleet = getfleet()
     feedbackbot = fleet.getfirstjabber()
@@ -35,7 +35,7 @@ def handle_feedback(bot, event):
     feedbackbot.cfg.disable = False
     event.reply("sending to replies@jsonbot.org ... ")
     feedbackbot.say("replies@jsonbot.org", "%s send you this: %s" % (event.userhost, payload), event=event)
-    feedbackbot.cfg.disable = True
+    #feedbackbot.cfg.disable = True
     feedbackbot.cfg.save()
     event.done()
     time.sleep(5)
