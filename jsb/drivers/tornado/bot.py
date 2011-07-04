@@ -40,27 +40,8 @@ class TornadoBot(BotBase):
         BotBase.__init__(self, cfg, users, plugs, botname, *args, **kwargs)
         assert self.cfg
         self.type = u"tornado"
+        self.isgae = False
         self.websockets = {}
-        self.ioloop = tornado.ioloop.IOLoop().instance()
-
-    def exit(self):
-        logging.warn("exit!")
-        #for socklist in self.websockets.values():
-        #    for sock in socklist:
-        #        print dir(sock)
-        #        logging.warn("closing sock %s" % str(sock))
-        #        try:
-        #            sock.write_message("rebooting") 
-        #            time.sleep(0.01)
-        #            sock.close()
-        #            time.sleep(0.01)
-        #        except: handle_exception()
-        #time.sleep(2)
-        BotBase.exit(self)
-        self.ioloop.stop()
-
-    def start(self, *args, **kwargs):
-        BotBase.start(self, connect=False)
 
     def _raw(self, txt, target, how, handler, end=u"<br>"):
         """  put txt to the client. """
@@ -80,8 +61,9 @@ class TornadoBot(BotBase):
                  try: txt = re.sub(item, url, txt)
                  except ValueError:  logging.error("web - invalid url - %s" % url)
         if response: self._raw(txt, event.target, event.how, event.handler)
-        elif event: self.update_web(channel, txt, event.div, event.how or how)
-        else: self.update_web(channel, txt, "content_div", how)
+        elif event: update_web(self, channel, txt, event.div, event.how or how)
+        else: update_web(self, channel, txt, "content_div", how)
+        self.benice(event)
 
     def normalize(self, txt):
         #txt = cgi.escape(txt)
@@ -102,15 +84,16 @@ class TornadoBot(BotBase):
         txt = strippedtxt(txt)
         return txt
 
-    def update_web(self, channel, txt, div=None, how=None, end="<br>"):
+
+def update_web(bot, channel, txt, div=None, how=None, end="<br>"):
         if not txt: return 
         time.sleep(0.001)
         txt = txt + end
         outdict = {"target": div or "content_div", "result": txt, "how": how or "normal"}
         try: out = json.dumps(outdict)
         except Exception, ex: handle_exception() ; return
-        logging.warn("%s - out - %s" % (self.cfg.name, out))
-        if not self.websockets.has_key(channel): logging.warn("no %s in websockets dict" % channel) ; return
-        for c in self.websockets[channel]:
-            time.sleep(0.05)
+        logging.warn("%s - out - %s" % (bot.cfg.name, out))
+        if not bot.websockets.has_key(channel): logging.warn("no %s in websockets dict" % channel) ; return
+        for c in bot.websockets[channel]:
             c.write_message(out)
+      

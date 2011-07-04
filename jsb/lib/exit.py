@@ -6,6 +6,7 @@
 
 ## jsb imports
 
+from jsb.utils.locking import globallocked
 from jsb.utils.exception import handle_exception
 from jsb.utils.trace import whichmodule
 from runner import defaultrunner, cmndrunner, callbackrunner, waitrunner
@@ -20,6 +21,7 @@ import logging
 
 ## functions
 
+@globallocked
 def globalshutdown():
     """ shutdown the bot. """
     try:

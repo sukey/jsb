@@ -180,6 +180,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
 class LoginHandler(GoogleHandler):
 
+    @tornado.web.asynchronous
     def get(self):
         host = self.request.host
         t = {'appname': "JSONBOT", 'version': getversion(), 'who': "not logged in yet", 'host': host, 'color': "#C54848", "logouturl": 'logout', "loginurl": "login"}
@@ -188,6 +189,7 @@ class LoginHandler(GoogleHandler):
 
 class LogoutHandler(GoogleHandler):
 
+    @tornado.web.asynchronous
     def get(self):
         self.clear_cookie("user")
         host = self.request.host
@@ -200,6 +202,7 @@ class DispatchHandler(BaseHandler):
 
     """ the bots remote command dispatcher. """
 
+    @tornado.web.asynchronous
     @tornado.web.authenticated
     def get(self):
         """ show basic page. """
@@ -216,6 +219,7 @@ class DispatchHandler(BaseHandler):
         except Exception, ex:
             handle_exception()
 
+    @tornado.web.asynchronous
     @tornado.web.authenticated
     def post(self):
         """ this is where the command get disaptched. """
@@ -291,7 +295,7 @@ else:
 
 def main(dofleet=True):
     global bot
-    server.listen(opts.port or 10102)
+    bot.server = server
     logging.warn("started tornando server on port %s" % (opts.port or 10102))
     if opts.fleet and dofleet:
         fleetbots = fleet.loadall(opts.args)
@@ -310,7 +314,10 @@ if __name__ == "__main__":
             partyline.resume(opts.doresume)
             os.unlink(opts.doresume)
     else: main(opts.fleet)
-    try: bot.ioloop.start()
+    try:
+         bot.server.bind(opts.port or 10102)
+         bot.server.start(1)
+         bot.server.io_loop.start()
     except KeyboardInterrupt: globalshutdown()
     except Exception, ex: handle_exception() ; os._exit(1)
     else: globalshutdown()

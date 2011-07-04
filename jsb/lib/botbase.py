@@ -33,6 +33,11 @@ from morphs import inputmorphs, outputmorphs
 from gatekeeper import GateKeeper
 from wait import waiter
 from factory import bot_factory
+from jsb.imports import gettornado
+
+tornado = gettornado()
+
+import tornado.ioloop
 
 ## basic imports
 
@@ -81,6 +86,7 @@ class BotBase(LazyDict):
         LazyDict.__init__(self)
         self.ignore = []
         self.ids = []
+        self.started = False
         self.aliases = getaliases()
         self.curevent = None
         self.inqueue = Queue.Queue()
@@ -141,6 +147,7 @@ class BotBase(LazyDict):
             callbackrunner.start()
             waitrunner.start()
             tickloop.start(self)
+        #if not self.started: self.start(connect=False)
 
     def __setattr__(self, a ,b):
         if self.cfg and a == "cfg": raise Exception("attempt to overwrite config")
@@ -164,6 +171,13 @@ class BotBase(LazyDict):
         try: data.fd = self.sock.fileno()
         except: pass
         return {self.cfg.name: data}
+
+    def benice(self, event=None):
+        if self.server and self.server.io_loop:
+            logging.warn("i'm being nice")
+            if event and self.server and event.handler: self.server.io_loop.add_callback(event.handler.async_callback(lambda: time.sleep(0.001)))
+            elif self.server: self.server.io_loop.add_callback(lambda: time.sleep(0.001))
+        time.sleep(0.001)
 
     def enable(self, modname):
         """ enable plugin given its modulename. """
@@ -193,11 +207,12 @@ class BotBase(LazyDict):
     def _eventloop(self):
         """ fetch events from the inqueue and handle them. """
         logging.warn("%s - eventloop started" % self.cfg.name)
+        self.started = True
         while not self.stopped:
             event = self.inqueue.get()
             if not event: break
             self.doevent(event)
-            time.sleep(0.1)
+            self.benice(event)
         logging.warn("%s - eventloop stopped" % self.cfg.name)
 
     def _getqueue(self):
@@ -360,7 +375,7 @@ class BotBase(LazyDict):
             if not e1.stop: last_callbacks.check(self, e1)
         event.callbackdone = True
         waiter.check(self, event)
-        if self.ioloop: self.ioloop.add_callback(lambda: time.sleep(0.001))
+        #self.benice(event)
         return event
 
     def ownercheck(self, userhost):

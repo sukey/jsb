@@ -39,12 +39,14 @@ class TornadoEvent(EventBase):
     def __deepcopy__(self, a):
         e = TornadoEvent()
         e.copyin(self)
+        e.handler = self.handler
+        e.request = self.request
         return e
 
     def parse(self, handler, request):
         """ parse request/response into a WebEvent. """
-        #logging.warn(dir(handler))
-        #logging.warn(dir(request))
+        logging.warn(dir(handler))
+        logging.warn(dir(request))
         #logging.warn(request.arguments)
         #logging.warn(request.body)
         self.handler = handler
@@ -79,6 +81,7 @@ class TornadoEvent(EventBase):
 
     def parsesocket(self, handler, message):
         """ parse request/response into a WebEvent. """
+        self.handler = handler
         try: data = LazyDict(json.loads(message))
         except Exception, ex: logging.error("failed to parse data: %s - %s" % (message, str(ex))) ; return self
         logging.warn("incoming: %s" % message)
@@ -103,12 +106,12 @@ class TornadoEvent(EventBase):
         return self
 
 
-    def reply(self, txt, result=[], event=None, origin="", dot=u", ", nr=600, extend=0, *args, **kwargs):
-        """ reply to this event """#
-        if self.checkqueues(result): return
-        if not txt: return
-        if self.how == "background":
-            txt = self.bot.makeoutput(self.channel, txt, result, origin=origin, nr=nr, extend=extend, *args, **kwargs)
-            self.bot.outnocb(self.channel, txt, self.how, response=self.response, event=self)
-        else: self.bot.say(self.channel, txt, result, self.how or "normal", event=self)
-        return self
+    #def reply(self, txt, result=[], event=None, origin="", dot=u", ", nr=600, extend=0, *args, **kwargs):
+    #    """ reply to this event """#
+    #    if self.checkqueues(result): return
+    #    if not txt: return
+    #    if self.how == "background":
+    #        txt = self.bot.makeoutput(self.channel, txt, result, origin=origin, nr=nr, extend=extend, *args, **kwargs)
+    #        self.bot.outnocb(self.channel, txt, self.how, response=self.response, event=self)
+    #    else: self.bot.say(self.channel, txt, result, self.how or "normal", event=self)
+    #     return self

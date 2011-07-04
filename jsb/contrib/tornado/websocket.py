@@ -160,6 +160,7 @@ class WebSocketHandler(tornado.web.RequestHandler):
         """
         if args or kwargs:
             callback = functools.partial(callback, *args, **kwargs)
+
         def wrapper(*args, **kwargs):
             try:
                 return callback(*args, **kwargs)

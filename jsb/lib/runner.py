@@ -75,7 +75,6 @@ class BotEventRunner(Runner):
             self.name = name
             self.working = True
             logging.debug("now running %s" % name)
-            if bot.type == "tornado": bot.ioloop.add_callback(lambda: time.sleep(0.0001))
             func(bot, ievent, *args, **kwargs)
             self.finished = time.time()
             self.elapsed = self.finished - self.starttime
@@ -83,7 +82,6 @@ class BotEventRunner(Runner):
                 logging.info('ALERT %s %s job taking too long: %s seconds' % (descr, str(func), self.elapsed))
             #if ievent.iscommand: ievent.ready()
             if not ievent.type == "OUTPUT": ievent.ready()
-            if bot.type == "tornado": bot.ioloop.add_callback(lambda: time.sleep(0.0001))
             time.sleep(0.001)
         except Exception, ex:
             handle_exception(ievent)

@@ -25,13 +25,13 @@ def handle_feedback(bot, event):
     else: payload = event.rest 
     fleet = getfleet()
     feedbackbot = fleet.getfirstjabber()
-    if not feedbackbot:
-        if bot.isgae: cfg = LazyDict({"name": "feedbackbot-gae", "user": "feedback@jsonbot.org", "password": "givesomereply", "disable": False})
-        else: cfg = LazyDict({"name": "feedbackbot", "user": "feedback@jsonbot.org", "password": "givesomereply", "disable": False})
-        feedbackbot = fleet.makebot("sxmpp", cfg.name, config=cfg)
-        if not feedbackbot: event.reply("can't make xmpp bot.") ; return
-        feedbackbot.start()
-        if not feedbackbot.cfg.password: feedbackbot.cfg.password = cfg['password'] ; feedbackbot.cfg.save()
+    if not feedbackbot: event.reply("can't find an xmpp bot to send the feedback with") ; return
+    #    if bot.isgae: cfg = LazyDict({"name": "feedbackbot-gae", "user": "feedback@jsonbot.org", "password": "givesomereply", "disable": False})
+    #    else: cfg = LazyDict({"name": "feedbackbot", "user": "feedback@jsonbot.org", "password": "givesomereply", "disable": False})
+    #    feedbackbot = fleet.makebot("sxmpp", cfg.name, config=cfg)
+    #     if not feedbackbot: event.reply("can't make xmpp bot.") ; return
+    #    #if not feedbackbot.started: feedbackbot.start()
+    #    #if not feedbackbot.cfg.password: feedbackbot.cfg.password = cfg['password'] ; feedbackbot.cfg.save()
     feedbackbot.cfg.disable = False
     event.reply("sending to replies@jsonbot.org ... ")
     feedbackbot.say("replies@jsonbot.org", "%s send you this: %s" % (event.userhost, payload), event=event)

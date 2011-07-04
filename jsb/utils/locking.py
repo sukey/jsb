@@ -15,6 +15,7 @@ from jsb.lib.threads import getname
 
 import logging
 import sys
+import thread
 
 ## Locked-class
 
@@ -66,3 +67,6 @@ def locked(func):
         finally: rlockmanager.release(where)
         return res
     return lockedfunc
+
+globallock = thread.allocate_lock()
+globallocked = lockdec(globallock)
