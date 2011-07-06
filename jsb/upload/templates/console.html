@@ -133,7 +133,7 @@
                    var token = obj.responseText;
                    var channel = openChannel(token);
                    dooutput("token renewed <br>", "info_div", "background");
-                   setTimeout("start();", 3000);
+                   setTimeout("start();", 50);
                    return channel;
               }
           }
@@ -182,10 +182,10 @@
       // INIT
 
       function start() {
+          setTimeout("doSocket('!topper', 'info_div', 'background');", 300);
+          setTimeout("doSocket('!statusline', 'info_div', 'background');", 10000);
           setTimeout("doSocket('!today', 'content_div', 'channel');", 1000);
           setTimeout("doSocket('!shop', 'content_div', 'channel');", 2000);
-          setTimeout("doSocket('!topper', 'info_div', 'background');", 3000);
-          setTimeout("doSocket('!statusline', 'status_div', 'background');", 4000);
           setInterval("timeloop();", 1000);
           setInterval("outputloop();", 30000);
           setTimeout("outputloop();", 1000);
@@ -238,7 +238,7 @@
           var how = data["how"];
           var result = data["result"];
           dooutput(result, target, how);
-          dooutput("OK", "info_div", "normal"); 
+          dooutput("OK", "status_div", "background"); 
       }
 
       // XHR

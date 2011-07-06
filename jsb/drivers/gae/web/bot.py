@@ -86,7 +86,7 @@ class WebBot(BotBase):
         for c in chan.data.webchannels:
             try:
                 if c:
-                    logging.debug("%s - sending to channel %s" % (self.cfg.name, chan))
+                    logging.warn("%s - sending to channel %s" % (self.cfg.name, chan))
                     gchan.send_message(c, txt + end)
             except gchan.InvalidChannelClientIdError:
                 remove.append(c)
