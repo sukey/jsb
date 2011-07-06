@@ -214,6 +214,7 @@ class BotBase(LazyDict):
             self.doevent(event)
             self.benice(event)
         logging.warn("%s - eventloop stopped" % self.cfg.name)
+        self.started = False
 
     def _getqueue(self):
         """ get one of the outqueues. """
@@ -229,7 +230,7 @@ class BotBase(LazyDict):
             queue = self._getqueue()
             if queue:
                 try:
-                    res = queue.get() 
+                    res = queue.get_nowait() 
                 except Queue.Empty: continue
                 if not res: continue
                 if not self.stopped and not self.stopoutloop:
@@ -293,6 +294,7 @@ class BotBase(LazyDict):
 
     def start(self, connect=True, join=True):
         """ start the mainloop of the bot. """
+        if self.started: logging.warn("%s - already started" % self.cfg.name) ; return
         if not self.isgae:
             try: 
                if connect: self.connect()
