@@ -68,7 +68,7 @@ class HomePageHandler(RequestHandler):
             #try: os._exit(1)
             #except: pass
         logging.warn("web_handler - out")
-        
+
 ## the application 
 
 application = WSGIApplication([('/', HomePageHandler)],

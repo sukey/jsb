@@ -30,6 +30,7 @@ import StringIO
 import htmlentitydefs
 import tempfile
 import cgi
+import urllib
 
 ## defines
 
@@ -162,6 +163,19 @@ def getpostdata(event):
     result = {}
     for name in dict(body): result[name] = body.getfirst(name)
     return result
+
+## getpostdata function
+
+def getpostdata_gae(request):
+    """ retrive post data from url data. """
+    #try:
+    #    ctype, pdict = cgi.parse_header(request.headers.getheader('content-type'))
+    #except AttributeError: ctype, pdict = cgi.parse_header(request.headers.get('content-type'))
+    #body = cgi.FieldStorage(headers=request.headers, environ = {'REQUEST_METHOD':'POST'}, keep_blank_values = 1)
+    return urllib.unquote_plus(request.body[:-1])
+    #result = {}
+    #for name in dict(body): result[name] = body.getfirst(name)
+    #return result
 
 ## decode_html_entities function
 

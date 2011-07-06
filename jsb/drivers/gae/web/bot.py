@@ -6,12 +6,14 @@
 
 ## jsb imports
 
+from jsb.utils.exception import handle_exception
 from jsb.lib.botbase import BotBase
 from jsb.lib.outputcache import add
 from jsb.utils.generic import toenc, fromenc, strippedtxt
 from jsb.utils.url import re_url_match
 from jsb.utils.timeutils import hourmin
 from jsb.lib.channelbase import ChannelBase
+from jsb.imports import getjson
 
 ## basic imports
 
@@ -37,7 +39,7 @@ class WebBot(BotBase):
         """  put txt to the client. """
         if not txt: return 
         txt = txt + end
-        logging.debug("%s - out - %s" % (self.cfg.name, txt))
+        logging.warn("%s - out - %s" % (self.cfg.name, txt))
         response.out.write(txt)
 
     def outnocb(self, channel, txt, how="cache", event=None, origin=None, response=None, dotime=False, *args, **kwargs):
@@ -50,8 +52,13 @@ class WebBot(BotBase):
                  url = u'<a href="%s" onclick="window.open(\'%s\'); return false;">%s</a>' % (item, item, item)
                  try: txt = re.sub(item, url, txt)
                  except ValueError:  logging.error("web - invalid url - %s" % url)
-        if response: self._raw(txt, response)
-        else: self.update_web(channel, txt)
+        if how == "channel": self.update_web(channel, txt) ; return
+        else:
+            outdict = {"target": event.target or "content_div", "result": txt, "how": event.how or "normal"}
+            try: txt = getjson().dumps(outdict)
+            except Exception, ex: handle_exception()
+            if response:self._raw(txt, response, end="")
+            else: self.update_web(channel, txt)
 
     def normalize(self, txt):
         #txt = cgi.escape(txt)
@@ -74,7 +81,7 @@ class WebBot(BotBase):
     def update_web(self, channel, txt, end="<br>"):
         from google.appengine.api.channel import channel as gchan
         chan = ChannelBase(channel, botname="gae-web")
-        #logging.warn("%s - webchannels are %s" % (self.cfg.name, chan.data.webchannels))
+        logging.warn("%s - webchannels are %s" % (self.cfg.name, chan.data.webchannels))
         remove = []
         for c in chan.data.webchannels:
             try:

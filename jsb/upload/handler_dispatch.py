@@ -20,6 +20,7 @@ from jsb.lib.persist import Persist
 from jsb.utils.exception import handle_exception, exceptionmsg
 from jsb.lib.fleet import fleet
 from jsb.lib.errors import NoSuchCommand
+from jsb.utils.lazydict import LazyDict
 
 ## gaelib imports
 

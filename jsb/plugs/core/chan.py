@@ -28,7 +28,7 @@ def handle_chantoken(bot, event):
     try:
         (chan, token) = event.chan.gae_create()
         logging.warn("chantoken - %s - %s" % (chan, token))
-        event.response.out.write(token)
+        bot._raw(token, event.response)
     except google.appengine.runtime.DeadlineExceededError:
         event.response.out.write("DeadLineExceededError .. this request took too long to finish.")
     except Exception, ex:

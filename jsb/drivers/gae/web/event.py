@@ -10,9 +10,11 @@ from jsb.lib.eventbase import EventBase
 from jsb.utils.generic import splittxt, fromenc, toenc
 from jsb.utils.xmpp import stripped
 from jsb.lib.outputcache import add
-from jsb.utils.url import getpostdata
+from jsb.utils.url import getpostdata_gae
 from jsb.utils.exception import handle_exception
 from jsb.lib.channelbase import ChannelBase
+from jsb.utils.lazydict import LazyDict
+from jsb.imports import getjson
 
 ## gaelib imports
 
@@ -41,30 +43,14 @@ class WebEvent(EventBase):
 
     def parse(self, response, request):
         """ parse request/response into a WebEvent. """
-        how = request.get('how')
-        if not how:
-            try: how = request.params.getone('how')
-            except KeyError: how = "normal"
-            except Exception, ex:
-                how = "normal"
-                handle_exception()
-        if not how:
-            try: how = request.GET['how']
-            except KeyError: pass
-        self.how = how
-        if self.how == "undefined": self.how = "normal"
-        logging.warn("web - how is %s" % self.how)
-        self.webchan = request.get('webchan')
-        input = request.get('content') or request.get('cmnd')
-        if not input:
-            try: input = request.params.getone('content') or request.params.getone('cmnd')
-            except KeyError: input = ""
-            except Exception, ex:
-                input = ""
-                handle_exception()
-            if not input:
-                try: input = request.GET['content'] or request.GET['cmnd']
-                except KeyError: pass
+        logging.warn("parsing %s" % request.body)
+        body = getpostdata_gae(request)
+        logging.warn("body is %s" % body)
+        data = LazyDict(getjson().loads(body))
+        self.target = data.target
+        self.how = data.how
+        if not self.how: self.how = "channel"
+        input = data.cmnd
         self.isweb = True
         self.origtxt = fromenc(input.strip(), self.bot.encoding)
         self.txt = self.origtxt
@@ -88,8 +74,9 @@ class WebEvent(EventBase):
         """ reply to this event """#
         if self.checkqueues(result): return
         if not txt: return
-        if self.how == "background":
+        if self.how == "channel": bot.update_web(self.channel, txt)
+        elif self.how == "background":
             txt = self.bot.makeoutput(self.channel, txt, result, origin=origin, nr=nr, extend=extend, *args, **kwargs)
-            self.bot.outnocb(self.channel, txt, self.how, response=self.response, event=self)
-        else: self.bot.say(self.channel, txt, result, self.how, event=self)
+            self.bot.outnocb(self.channel, txt, self.how, event=self, response=self.response)
+        else: self.bot.say(self.channel, txt, result, self.how, event=event or self)
         return self

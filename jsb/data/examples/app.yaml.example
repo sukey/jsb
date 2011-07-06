@@ -90,4 +90,5 @@ handlers:
 inbound_services:
 - warmup
 - xmpp_message   
+- channel_presence
 
