@@ -394,12 +394,12 @@ class BotBase(LazyDict):
             self.stopped = True   
             self.stopreadloop = True  
             self.connected = False
+            self.started = False
         self.put(None)
         self.tickqueue.put_nowait('go')
         self.outqueue.put_nowait(None)
         self.shutdown()
         self.save()
-        self.started = False
 
     def _raw(self, txt, *args, **kwargs):
         """ override this. """ 
