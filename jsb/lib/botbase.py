@@ -399,6 +399,7 @@ class BotBase(LazyDict):
         self.outqueue.put_nowait(None)
         self.shutdown()
         self.save()
+        self.started = False
 
     def _raw(self, txt, *args, **kwargs):
         """ override this. """ 
