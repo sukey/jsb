@@ -33,11 +33,12 @@ from morphs import inputmorphs, outputmorphs
 from gatekeeper import GateKeeper
 from wait import waiter
 from factory import bot_factory
-from jsb.imports import gettornado
 
-tornado = gettornado()
-
-import tornado.ioloop
+try: import wave
+except ImportError:
+    from jsb.imports import gettornado
+    tornado = gettornado()
+    import tornado.ioloop
 
 ## basic imports
 
