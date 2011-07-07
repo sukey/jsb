@@ -7,6 +7,7 @@
 ## jsb imports
 
 from jsb.utils.trace import whichmodule
+from jsb.lib.config import getmainconfig
 
 ## finduser
 
@@ -30,7 +31,8 @@ def checkuser(response, request, event=None):
     u = "notauth"
     nick = "notauth"
     user = gusers.get_current_user()
-    if event: hostid = "%s-%s" % (request.remote_addr, event.bot.cfg.uuid)
+    if getmainconfig().enabledemo: hostid = request.remote_addr
+    elif event: hostid = "%s-%s" % (request.remote_addr, event.bot.cfg.uuid)
     else: hostid = request.remote_addr
     if not user:
         try:
