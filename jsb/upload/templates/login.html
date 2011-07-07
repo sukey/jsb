@@ -20,8 +20,6 @@
           <li><a href="http://jsonbot.appspot.com/docs/html/index.html" onclick='window.open("http://jsonbot.appspot.com/docs/html/index.html"); return false'><b>DOCS</b></a></li>
           <li>-</li>
           <li><a href="" title="console" onclick='doconsole(); return false;'><b>console</b></a></li>
-          <li>-</li>
-          <li><a href="" title="feeds" onclick='dofeeds(); return false;'><i>feeds</i></a></li>
         </ul>
       </div> 
     <div class="footer" align="center" id="topper_div"></div><br>
@@ -29,7 +27,7 @@
     <div class="body" align="center" style="font-size: 200%;">
         <a href="/demo"><h3>click here for a demo</h3></a>
         <br><br>
-        <form action="/login_required" method="get" id="openid_form">
+        <form action="/_ah/login_required" method="post" id="openid_form">
 	    <input type="hidden" name="cont" value="continue" />
 	    <fieldset>
     		<legend>Sign-in or Create New Account</legend>

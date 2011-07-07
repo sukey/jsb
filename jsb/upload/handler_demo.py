@@ -69,7 +69,7 @@ class Demo_Handler(RequestHandler):
         logging.warn("web_handler - in")
         try:
             logout = logouturl(self.request, self.response)
-            user =  "demouser" + "@" + self.request.remote_addr[0]
+            user =  "demouser" + "@" + self.request.remote_addr
             demo(self.response, {'appname': 'JSONBOT' , 'who': user, 'loginurl': 'logged in', 'logouturl': logout, 'onload': 'consoleinit();'})
         except google.appengine.runtime.DeadlineExceededError:
             self.response.out.write("DeadLineExceededError .. this request took too long to finish.")

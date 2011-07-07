@@ -57,6 +57,11 @@ def demo(response, input={}):
 
 def start(response, input={}):
     """ display start html so that bot output can follow. """
+    try: host = socket.gethostname()
+    except AttributeError:
+         if os.environ.get('HTTP_HOST'): host = os.environ['HTTP_HOST']
+         else: host = os.environ['SERVER_NAME']
+    template = LazyDict({'version': getversion(), 'host': host, 'color': getmainconfig().color or "#C54848"})
     if input: template.update(input)
     temp = os.path.join(os.getcwd(), 'templates/console.html')
     outstr = template.render(temp)

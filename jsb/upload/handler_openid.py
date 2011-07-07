@@ -47,7 +47,7 @@ class OpenIdLoginHandler(webapp.RequestHandler):
             except AttributeError:
                 if os.environ.get('HTTP_HOST'): host = os.environ['HTTP_HOST']
                 else: host = os.environ['SERVER_NAME']
-            inputdict = {'version': getversion(), 'host': host}
+            inputdict = {'version': getversion(), 'host': host, 'loginurl': urlstring}
             template_values.update(inputdict)
             temp = os.path.join(os.getcwd(), 'templates/login.html')
             outstr = template_values.render(temp)  
