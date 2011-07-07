@@ -74,8 +74,7 @@ class WebEvent(EventBase):
         """ reply to this event """#
         if self.checkqueues(result): return
         if not txt: return
-        if self.how == "channel": bot.update_web(self.channel, txt)
-        elif self.how == "background":
+        if self.how == "background":
             txt = self.bot.makeoutput(self.channel, txt, result, origin=origin, nr=nr, extend=extend, *args, **kwargs)
             self.bot.outnocb(self.channel, txt, self.how, event=self, response=self.response)
         else: self.bot.say(self.channel, txt, result, self.how, event=event or self)

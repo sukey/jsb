@@ -35,7 +35,7 @@ class ChannelHandler(webapp2.RequestHandler):
             client_id = self.request.get('from')
             logging.warn("client_id is %s" % client_id)
             if client_id: 
-                try: (id, t) = client_id.split("-")
+                try: (id, t) = client_id.split("-", 1)
                 except Exception, ex: logging.warn(str(ex)) ; self.response.set_status(500) ; return
             chan = ChannelBase(id, 'gae-web')
             if "disconnected" in url: 

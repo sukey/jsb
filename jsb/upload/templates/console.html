@@ -26,13 +26,11 @@
       var identtime = new Date();
       var diskname = host + identtime.toString();
       var consoletxt = '<div style="font-size: 25px;"><br><form><b>&lt;-</b><input style="font-size: 80%;" size="33" type="text" name="cmnd" onKeyDown="return doexec(this.form, event);" /><b>-&gt;</b></form></div><div class="related"><div align="center" id="status_div" style="background-color: #803E3E;"><b>JSONBOT PRESENT!<b></div></div>';
-      var feedstxt = '<br><form name="feeddata" action="javascript:submitfeed(this.form);" method="GET"><b>feed name - </b> <input type="text" name="name" /><br></b><b>feed url - </b> <input type="text" name="url" onKeyPress="return doenter(this.form, event);" /><br><br><input type="submit" name="Enter" onClick="return submitfeed(this.form);"/><input type="reset" name="reset" /></form><div class="body" align="left" id="content_div"><i>no feeds entered yet.</i></div>';
       var log = new Array();
       var cmndlog = new Array();
       var disk = {};
       var topperlist = new Array();
-      var channel = null;
-            
+      
       function scrollToBottom(elm_id) {
 	var elm = document.getElementById(elm_id);
         var f = document.createElement("input");
@@ -45,6 +43,14 @@
       }
 
       // output functions
+
+      function output(text) {
+          var element = document.getElementById("content_div");
+          element.innerHTML += text;
+          scrollToBottom("content_div");
+          document.forms[0].cmnd.focus();
+      }
+
 
       function dooutput(text, div, how) {
           var element = document.getElementById(div);
@@ -99,6 +105,10 @@
 
       // mainloop
 
+      function update() {
+          dooutput("updating", "topper_div", "background");
+      }
+
       function updateloop() {
         update();
       }
@@ -124,6 +134,38 @@
         element.innerHTML = "<b>[!]</b>";
       }
 
+
+      // INIT
+
+      function start() {
+          update();
+          setTimeout("doSocket('!statusline', 'info_div', 'background');", 10000);
+          setTimeout("doSocket('!topper', 'info_div', 'background');", 20000);
+          setTimeout("doSocket('!today', 'content_div', 'channel');", 5000);
+          setTimeout("doSocket('!shop', 'content_div', 'channel');", 7000);
+          setInterval("timeloop();", 1000);
+          setInterval("outputloop();", 30000);
+          setTimeout("outputloop();", 1000);
+      }
+
+
+      function init() {
+        setTimeout("consolestart();", 50);
+      }
+
+      function consolestart() {
+          doconsole();
+          doCmnd('!chan-token',renewtoken,'info_div','background');
+          dooutput("you are using " + incomingurl + "<br><br>","content_div", "background");
+          dooutput("<b>BOOTING</b>", "status_div", "background");
+          setTimeout("start();", 10000);
+      }
+
+      function doconsole() {
+        doscreen(consoletxt);
+        document.forms[0].cmnd.focus();
+      }
+
       // channel stuff
 
       function renewtoken(obj) {
@@ -131,10 +173,8 @@
                if (obj.status==200) {
                    // dooutput(obj.responseText, "content_div", "normal");
                    var token = obj.responseText;
-                   var channel = openChannel(token);
-                   dooutput("token renewed <br>", "info_div", "background");
-                   setTimeout("start();", 50);
-                   return channel;
+                   openChannel(token);
+                   dooutput("token renewed", "info_div", "background");
               }
           }
       }
@@ -151,7 +191,15 @@
       }
 
       onMessage = function(m) {
-          dooutput(m, "content_div", "normal");
+          handlesocket(m.data);
+          var index1 = m.data.indexOf("http://"); 
+          var index2 = m.data.indexOf("https://");
+          if (index1 > -1) {
+              topperpush(m.data);
+          }
+          else if (index2 > -1) {
+              topperpush(m.data);
+          }
       }
 
       onError = function(m) {
@@ -176,36 +224,7 @@
         socket.onerror = onError;
         socket.onclose = onClose;
         dooutput("OK", "status_div", "normal");
-        return channel;
-      }
-
-      // INIT
-
-      function start() {
-          setTimeout("doSocket('!topper', 'info_div', 'background');", 300);
-          setTimeout("doSocket('!statusline', 'info_div', 'background');", 10000);
-          setTimeout("doSocket('!today', 'content_div', 'channel');", 1000);
-          setTimeout("doSocket('!shop', 'content_div', 'channel');", 2000);
-          setInterval("timeloop();", 1000);
-          setInterval("outputloop();", 30000);
-          setTimeout("outputloop();", 1000);
-      }
-
-
-      function init() {
-        setTimeout("consolestart();", 50);
-      }
-
-      function consolestart() {
-          doconsole();
-          dooutput("you are using " + incomingurl + "<br><br>", "content_div", "background");
-          dooutput("<b>BOOTING</b> .. ", "status_div", "background");
-          setTimeout("doCmnd('!chan-token', renewtoken, 'info_div','normal');", 150); 
-      }
-
-      function doconsole() {
-        doscreen(consoletxt);
-        document.forms[0].cmnd.focus();
+        return socket;
       }
 
       // function to launch on enter in the command box
@@ -231,9 +250,7 @@
       // handler function
 
       function handlesocket(message) {
-          // dooutput(message, "content_div", "normal");
           var data = JSON.parse(message);
-          //dooutput(data, "content_div", "normal");
           var target = data["target"];
           var how = data["how"];
           var result = data["result"];
@@ -244,7 +261,7 @@
       // XHR
       
       function response(obj) {
-          dooutput(" - " + obj.readyState, "status_div", "normal");
+          //dooutput(" - " + obj.readyState, "status_div", "normal");
           if (obj.readyState==4){
               if (obj.status==200) {
                    handlesocket(obj.responseText);
@@ -263,7 +280,6 @@
       }
 
       function doCmnd(cmnd, resp, target, how) {
-          dooutput("XHR - sending .. ", "status_div", "background");
           var data = {"cmnd": cmnd, "how": how, "target": target };
           var jsondata = JSON.stringify(data);
           var request = false;
@@ -301,8 +317,10 @@
           request.setRequestHeader("Content-Length", parameters.length);
           request.setRequestHeader("Cache-Control", "no-cache");
           request.send(jsondata);
-          return true;
+          dooutput("XHR", "status_div", "background");
+          return false;
       }
+
 
    </script>
 </head>

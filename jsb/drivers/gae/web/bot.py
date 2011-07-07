@@ -35,7 +35,7 @@ class WebBot(BotBase):
         self.isgae = True
         self.type = u"web"
 
-    def _raw(self, txt, response, end=u"<br>"):
+    def _raw(self, txt, response, end=u""):
         """  put txt to the client. """
         if not txt: return 
         txt = txt + end
@@ -52,13 +52,14 @@ class WebBot(BotBase):
                  url = u'<a href="%s" onclick="window.open(\'%s\'); return false;">%s</a>' % (item, item, item)
                  try: txt = re.sub(item, url, txt)
                  except ValueError:  logging.error("web - invalid url - %s" % url)
-        if how == "channel": self.update_web(channel, txt) ; return
-        else:
-            outdict = {"target": event.target or "content_div", "result": txt, "how": event.how or "normal"}
+        if event:
+            outdict = {"target": event.target or "content_div", "result": txt + "<br>", "how": event.how or "normal"}
             try: txt = getjson().dumps(outdict)
-            except Exception, ex: handle_exception()
-            if response:self._raw(txt, response, end="")
+            except Exception, ex: handle_exception() ; return
+            if how == "channel": self.update_web(channel, txt)
+            elif response:self._raw(txt, response)
             else: self.update_web(channel, txt)
+        else: self.update_web(channel, txt)
 
     def normalize(self, txt):
         #txt = cgi.escape(txt)
@@ -78,7 +79,7 @@ class WebBot(BotBase):
         txt = strippedtxt(txt)
         return txt
 
-    def update_web(self, channel, txt, end="<br>"):
+    def update_web(self, channel, txt):
         from google.appengine.api.channel import channel as gchan
         chan = ChannelBase(channel, botname="gae-web")
         logging.warn("%s - webchannels are %s" % (self.cfg.name, chan.data.webchannels))
@@ -86,10 +87,10 @@ class WebBot(BotBase):
         for c in chan.data.webchannels:
             try:
                 if c:
-                    logging.warn("%s - sending to channel %s" % (self.cfg.name, chan))
-                    gchan.send_message(c, txt + end)
+                    logging.warn("%s - sending %s to channel %s" % (self.cfg.name, txt, c))
+                    gchan.send_message(c, txt)
             except gchan.InvalidChannelClientIdError:
                 remove.append(c)
         if remove:
-            for c in remove: chan.data.webchannels.remove(c) ; logging.debug("%s - closing channel %s" % (self.cfg.name, chan))
+            for c in remove: chan.data.webchannels.remove(c) ; logging.warn("%s - closing channel %s" % (self.cfg.name, c))
             chan.save()
