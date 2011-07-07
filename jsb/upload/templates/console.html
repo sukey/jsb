@@ -106,7 +106,7 @@
       // mainloop
 
       function update() {
-          dooutput("updating", "topper_div", "background");
+          dooutput("updating", "status2_div", "background");
       }
 
       function updateloop() {
@@ -141,8 +141,9 @@
           update();
           setTimeout("doSocket('!statusline', 'info_div', 'background');", 10000);
           setTimeout("doSocket('!topper', 'info_div', 'background');", 20000);
-          setTimeout("doSocket('!today', 'content_div', 'channel');", 5000);
-          setTimeout("doSocket('!shop', 'content_div', 'channel');", 7000);
+          setTimeout("doSocket('!welcome', 'topper_div', 'normal');", 500);
+          setTimeout("doSocket('!today', 'content_div', 'channel');", 500);
+          setTimeout("doSocket('!shop', 'content_div', 'channel');", 700);
           setInterval("timeloop();", 1000);
           setInterval("outputloop();", 30000);
           setTimeout("outputloop();", 1000);
@@ -158,7 +159,7 @@
           doCmnd('!chan-token',renewtoken,'info_div','background');
           dooutput("you are using " + incomingurl + "<br><br>","content_div", "background");
           dooutput("<b>BOOTING</b>", "status_div", "background");
-          setTimeout("start();", 10000);
+          setTimeout("start();", 100);
       }
 
       function doconsole() {
