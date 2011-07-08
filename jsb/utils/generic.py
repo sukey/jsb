@@ -262,8 +262,8 @@ def waitevents(eventlist, millisec=5000):
     result = []
     for e in eventlist:
         if not e or e.bot.isgae: continue
-        logging.warn("waitevents - waiting for %s" % e.txt)
-        e.finished.wait(millisec)
+        #logging.warn("waitevents - waiting for %s" % e.txt)
+        #e.finished.wait(millisec)
         res = waitforqueue(e.resqueue, 5000)
         result.append(res)
         e.finished.clear()
@@ -271,7 +271,7 @@ def waitevents(eventlist, millisec=5000):
 
 ## waitforqueue function
 
-def waitforqueue(queue, timeout=5000, maxitems=None):
+def waitforqueue(queue, timeout=5000, maxitems=None, bot=None):
     """ wait for results to arrive in a queue. return list of results. """
     result = []
     counter = 0
@@ -281,6 +281,7 @@ def waitforqueue(queue, timeout=5000, maxitems=None):
             time.sleep(0.001)
             counter += 1
             if counter > timeout: break
+            if bot and (counter % 1000 == 1): bot.benice()
             continue
         if res == None: break 
         result.append(res)

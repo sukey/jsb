@@ -45,7 +45,7 @@ def dispatch(bot, event):
     try:
         if execstr:
             event.iscommand = True
-            event.dontclose = True
+            #event.dontclose = True
             e = cpy(event)
             e.bind(bot)
             e.usercmnd = execstr.split()[0]

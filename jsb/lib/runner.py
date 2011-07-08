@@ -81,7 +81,7 @@ class BotEventRunner(Runner):
             if self.elapsed > 3:
                 logging.info('ALERT %s %s job taking too long: %s seconds' % (descr, str(func), self.elapsed))
             #if ievent.iscommand: ievent.ready()
-            if not ievent.type == "OUTPUT": ievent.ready()
+            if not ievent.type == "OUTPUT" and not ievent.dontclose: ievent.ready()
             time.sleep(0.001)
         except Exception, ex:
             handle_exception(ievent)

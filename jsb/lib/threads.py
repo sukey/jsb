@@ -33,20 +33,23 @@ class Botcommand(threading.Thread):
     def __init__(self, group, target, name, args, kwargs):
         threading.Thread.__init__(self, None, target, name, args, kwargs)
         self.name = name
+        self.bot = args[0]
         self.ievent = args[1]
         self.setDaemon(True)
 
     def run(self):
         """ run the bot command. """
         try:
+            self.bot.benice()
             result = threading.Thread.run(self)
-            if self.ievent.closequeue:
-                logging.debug('threads- closing queue for %s' % self.ievent.userhost)
-                if self.ievent.queues:
-                    for i in self.ievent.queues: i.put_nowait(None)
-                if self.ievent.outqueue: self.ievent.outqueue.put_nowait(None)
-                if self.ievent.inqueue: self.ievent.inqueue.put_nowait(None)
-                if self.ievent.resqueue: self.ievent.resqueue.put_nowait(None)
+            #if self.ievent.closequeue:
+                #logging.debug('threads- closing queue for %s' % self.ievent.userhost)
+                #if self.ievent.queues:
+                #    for i in self.ievent.queues: i.put_nowait(None)
+                #if self.ievent.outqueue: self.ievent.outqueue.put_nowait(None)
+                #if self.ievent.inqueue: self.ievent.inqueue.put_nowait(None)
+                #if self.ievent.resqueue: self.ievent.resqueue.put_nowait(None)
+            self.ievent.ready()
         except Exception, ex:
             handle_exception(self.ievent)
             time.sleep(1)

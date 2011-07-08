@@ -237,7 +237,7 @@ class BotBase(LazyDict):
                 if not self.stopped and not self.stopoutloop:
                     logging.debug("%s - OUT - %s - %s" % (self.cfg.name, self.type, str(res))) 
                     self.out(*res)
-            time.sleep(0.001)
+            time.sleep(0.1)
         logging.warn('%s - stopping output loop' % self.cfg.name)
 
     def putonqueue(self, nr, *args):
@@ -396,9 +396,10 @@ class BotBase(LazyDict):
             self.stopreadloop = True  
             self.connected = False
             self.started = False
+        self.outqueue.put_nowait(None)
         self.put(None)
         self.tickqueue.put_nowait('go')
-        self.outqueue.put_nowait(None)
+        self.tickqueue.put_nowait('go')
         self.shutdown()
         self.save()
 
@@ -683,7 +684,7 @@ class BotBase(LazyDict):
     def putevent(self, origin, channel, txt, event=None, wait=0, showall=False, nooutput=False):
         """ insert an event into the callbacks chain. """
         assert origin
-        if event: e = cpy(event)
+        if event: e = cpy(event) ; e.addwaiting(event)
         else: e = EventBase()
         e.cbtype = "CMND"
         e.bot = self

@@ -49,6 +49,7 @@ class EventBase(LazyDict):
         self.path = []
         self.cbs = []
         self.result = []
+        self.waiting = []
         self.threads = self.threads or []
         self.queues = self.queues or []
         self.finished = self.finished or threading.Event()
@@ -57,7 +58,6 @@ class EventBase(LazyDict):
         self.outqueue = self.outqueue or Queue.Queue()
         self.stop = False
         self.bonded = False
-
         self.copyin(input)
         
     def __deepcopy__(self, a):
@@ -68,7 +68,7 @@ class EventBase(LazyDict):
 
     def ready(self, finish=True):
         """ signal the event as ready - push None to all queues. """
-        logging.debug("%s - %s - ready called from %s" % (self.cbtype, self.txt, whichmodule()))
+        logging.warn("%s - %s - ready called from %s" % (self.cbtype, self.txt, whichmodule()))
         for i in range(10):
              if not self.outqueue.empty(): break
              time.sleep(0.01)
@@ -83,7 +83,8 @@ class EventBase(LazyDict):
             try: cb(self.result)
             except Exception, ex: handle_exception()
         if finish: self.finished.set()
-        #self.stop = True
+        for event in self.waiting:
+            if event != self: event.ready()
 
     def prepare(self, bot=None):
         """ prepare the event for dispatch. """
@@ -115,6 +116,9 @@ class EventBase(LazyDict):
         self.bonded = True
         return self
 
+    def addwaiting(self, event):
+        if not event in self.waiting: self.waiting.append(event)
+
     def parse(self, event, *args, **kwargs):
         """ overload this. """
         self.bot = event.bot
@@ -138,6 +142,7 @@ class EventBase(LazyDict):
         except: pass
         self.threads = self.threads or []
         self.queues = self.queues or []
+        self.waiting = self.waiting or []
         self.finished = self.finished or threading.Event()
         self.resqueue = self.resqueue or Queue.Queue()
         self.inqueue = self.inqueue or Queue.Queue()

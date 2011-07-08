@@ -21,6 +21,11 @@ from jsb.utils.generic import waitforqueue
 ## basic imports
 
 import os
+import copy
+
+## defines
+
+cpy = copy.deepcopy
 
 ## fleet-avail command
 
@@ -205,10 +210,11 @@ def fleet_cmnd(bot, ievent):
     if name == "all": do = fleet.list()
     else: do = [name, ]
     for botname in do:
+        e = cpy(ievent)
         bot = fleet.byname(botname)
         if not bot: ievent.reply("%s bot is not in fleet" % botname) ; return
-        result = bot.putevent(ievent.userhost, ievent.channel, cmndtxt, nooutput=True)
-        if result: res = waitforqueue(result.outqueue, 60000)
+        result = bot.putevent(e.userhost, e.channel, cmndtxt, nooutput=True, event=e)
+        if result: res = waitforqueue(result.resqueue, 6000, bot=bot)
         else: ievent.reply("no result")
         ievent.reply("[%s] %s" % (botname, ", ".join(res)))
     ievent.reply("done")

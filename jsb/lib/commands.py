@@ -156,7 +156,7 @@ class Commands(LazyDict):
         event.thecommand = target
         logging.warning('dispatching %s for %s' % (event.usercmnd, id))
         try:
-            if bot.type == "tornado": target.func(bot, event) ; event.ready() ; return event
+            #if bot.type == "tornado": target.func(bot, event) ; event.ready() ; return event
             if bot.isgae:
                 if not event.notask and (target.threaded or event.threaded) and not event.nothreads:
                     logging.warn("LAUNCHING AS TASK")
