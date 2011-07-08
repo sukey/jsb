@@ -109,7 +109,7 @@ class IRCBot(Irc):
         partyline.add_party(self, sock, nick, userhost, channel)
 
         while 1:
-            time.sleep(0.001)
+            time.sleep(0.01)
             try:
                 res = sockfile.readline()
                 logging.debug("%s - dcc - %s got %s" % (self.cfg.name, userhost, res))

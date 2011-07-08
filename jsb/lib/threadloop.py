@@ -37,7 +37,7 @@ class ThreadLoop(object):
         while not self.stopped:
             try: data = self.queue.get()
             except Queue.Empty:
-                time.sleep(0.001)
+                time.sleep(0.01)
                 continue
             if self.stopped: break
             if not data: break

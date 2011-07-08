@@ -237,7 +237,6 @@ class BotBase(LazyDict):
                 if not self.stopped and not self.stopoutloop:
                     logging.debug("%s - OUT - %s - %s" % (self.cfg.name, self.type, str(res))) 
                     self.out(*res)
-            time.sleep(0.1)
         logging.warn('%s - stopping output loop' % self.cfg.name)
 
     def putonqueue(self, nr, *args):

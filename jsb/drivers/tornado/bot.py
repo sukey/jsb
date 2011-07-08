@@ -87,7 +87,7 @@ class TornadoBot(BotBase):
 
 def update_web(bot, channel, txt, div=None, how=None, end="<br>"):
         if not txt: return 
-        time.sleep(0.001)
+        #time.sleep(0.001)
         txt = txt + end
         outdict = {"target": div or "content_div", "result": txt, "how": how or "normal"}
         try: out = json.dumps(outdict)
