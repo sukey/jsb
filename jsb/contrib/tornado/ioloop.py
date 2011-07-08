@@ -267,7 +267,7 @@ class IOLoop(object):
                 fd, events = self._events.popitem()
                 try:
                     self._handlers[fd](fd, events)
-                except (KeyboardInterrupt, SystemExit):
+                except (KeyboardInterrupt, SystemExit, KeyError):
                     raise
                 except (OSError, IOError), e:
                     if e.args[0] == errno.EPIPE:
@@ -464,8 +464,10 @@ class _KQueue(object):
         self.register(fd, events)
 
     def unregister(self, fd):
-        events = self._active.pop(fd)
-        self._control(fd, events, select.KQ_EV_DELETE)
+        try:
+            events = self._active.pop(fd)
+            self._control(fd, events, select.KQ_EV_DELETE)
+        except: logging.error("failed to delete %s from active queue" % str(fd))
 
     def _control(self, fd, events, flags):
         kevents = []
