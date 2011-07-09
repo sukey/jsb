@@ -217,10 +217,11 @@ class IOLoop(object):
             callbacks = self._callbacks
             self._callbacks = []
             for callback in callbacks:
+                logging.warn("running callback %s" % str(callback))
                 self._run_callback(callback)
 
-            if self._callbacks:
-                poll_timeout = 0.0
+            #if self._callbacks:
+            #    poll_timeout = 0.0
 
             if self._timeouts:
                 now = time.time()
@@ -470,6 +471,7 @@ class _KQueue(object):
         except: logging.error("failed to delete %s from active queue" % str(fd))
 
     def _control(self, fd, events, flags):
+        logging.warn("in control")
         kevents = []
         if events & IOLoop.WRITE:
             kevents.append(select.kevent(
@@ -485,6 +487,7 @@ class _KQueue(object):
 
     def poll(self, timeout):
         kevents = self._kqueue.control(None, 1000, timeout)
+        if kevents: logging.warn("in poll")
         events = {}
         for kevent in kevents:
             fd = kevent.ident

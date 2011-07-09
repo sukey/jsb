@@ -208,7 +208,6 @@ class BotBase(LazyDict):
     def _eventloop(self):
         """ fetch events from the inqueue and handle them. """
         logging.warn("%s - eventloop started" % self.cfg.name)
-        self.started = True
         while not self.stopped:
             event = self.inqueue.get()
             if not event: break
@@ -295,6 +294,8 @@ class BotBase(LazyDict):
     def start(self, connect=True, join=True):
         """ start the mainloop of the bot. """
         if self.started: logging.warn("%s - already started" % self.cfg.name) ; return
+        self.started = True
+        self.status == "running"
         if not self.isgae:
             try: 
                if connect: self.connect()

@@ -193,6 +193,7 @@ class Fleet(Persist):
         """
         assert bot
         for i in range(len(self.bots)-1, -1, -1):
+            if self.bots[i] == bot: logging.warn("bot %s already in fleet" % str(bot)) ; continue
             if self.bots[i].cfg.name == bot.cfg.name:
                 logging.debug('removing %s from fleet' % bot.botname)
                 del self.bots[i]

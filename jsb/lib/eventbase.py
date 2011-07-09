@@ -68,7 +68,7 @@ class EventBase(LazyDict):
 
     def ready(self, finish=True):
         """ signal the event as ready - push None to all queues. """
-        logging.warn("%s - %s - ready called from %s" % (self.cbtype, self.txt, whichmodule()))
+        if self.type != "TICK": logging.warn("%s - %s - ready called from %s" % (self.cbtype, self.txt, whichmodule()))
         for i in range(10):
              if not self.outqueue.empty(): break
              time.sleep(0.01)

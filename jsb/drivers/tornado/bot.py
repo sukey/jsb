@@ -36,7 +36,7 @@ class TornadoBot(BotBase):
 
     """ TornadoBot  just inherits from botbase for now. """
 
-    def __init__(self, cfg=None, users=None, plugs=None, botname="gae-web", *args, **kwargs):
+    def __init__(self, cfg=None, users=None, plugs=None, botname="tornado-bot", *args, **kwargs):
         BotBase.__init__(self, cfg, users, plugs, botname, *args, **kwargs)
         assert self.cfg
         self.type = u"tornado"
