@@ -77,6 +77,9 @@ class Config(LazyDict):
             handle_exception()
             self.isdb = False
         self.init()
+        self.datadir = ddir or getdatadir()
+        self.dir = self.datadir + os.sep + 'config'
+        self.cfile = self.dir + os.sep + self.filename
         if not self.owner: self.owner = []
         dosave = False
         if not self.uuid: self.uuid = str(uuid.uuid4()) ; dosave = True
