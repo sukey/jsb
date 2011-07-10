@@ -123,7 +123,6 @@ class JSBLoop(tornado.ioloop.IOLoop):
         while True:
             time.sleep(0.01)
             poll_timeout = 0.2
-            bot.benice()
             try: event_pairs = self._impl.poll(poll_timeout)
             except Exception, e:
                 if (getattr(e, 'errno', None) == errno.EINTR or
@@ -134,6 +133,7 @@ class JSBLoop(tornado.ioloop.IOLoop):
 
             self._events.update(event_pairs)
             for fd, events in self._events.items()[::-1]:
+                time.sleep(0.01)
                 try:
                     self._handlers[fd](fd, events)
                 except (KeyboardInterrupt, SystemExit, KeyError):
