@@ -291,6 +291,7 @@ class BotBase(LazyDict):
                 logging.warn('%s - failed to join %s: %s' % (self.cfg.name, i, str(ex)))
                 handle_exception()
 
+    @locked
     def start(self, connect=True, join=True):
         """ start the mainloop of the bot. """
         if self.started: logging.warn("%s - already started" % self.cfg.name) ; return

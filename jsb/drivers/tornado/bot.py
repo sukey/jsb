@@ -95,5 +95,5 @@ def update_web(bot, channel, txt, div=None, how=None, end="<br>"):
         logging.warn("%s - out - %s" % (bot.cfg.name, out))
         if not bot.websockets.has_key(channel): logging.warn("no %s in websockets dict" % channel) ; return
         for c in bot.websockets[channel]:
+            time.sleep(0.1)
             c.write_message(out)
-      

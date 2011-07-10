@@ -154,6 +154,7 @@ class Commands(LazyDict):
         event.iscommand = True
         event.how = target.how
         event.thecommand = target
+        time.sleep(0.01)
         logging.warning('dispatching %s for %s' % (event.usercmnd, id))
         try:
             #if bot.type == "tornado": target.func(bot, event) ; event.ready() ; return event
@@ -174,7 +175,6 @@ class Commands(LazyDict):
         except Exception, ex:
             logging.error('%s - error executing %s' % (whichmodule(), str(target.func)))
             raise
-        time.sleep(0.01)
         return event
 
     def unload(self, modname):

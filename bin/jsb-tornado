@@ -94,6 +94,7 @@ import urlparse
 import urllib
 import socket
 import ssl
+import select
 
 bot = TornadoBot(botname="tornado-bot")
 
@@ -103,6 +104,48 @@ if not ddir and os.path.exists(os.getcwd() + os.sep + "jsb"): ddir = os.getcwd()
 elif not ddir: ddir = getdatadir()
 
 bot.start(connect=False)
+
+## jsb specific ioloop
+
+class JSBLoop(tornado.ioloop.IOLoop):
+
+    def __init__(self, *args):
+        sel = tornado.ioloop._Select()
+        tornado.ioloop.IOLoop.__init__(self, sel)
+
+    def start(self):
+        """Starts the I/O loop. """
+        if self._stopped:
+            self._stopped = False
+            return
+        logging.warn("starting ioloop")
+        self._running = True
+        while True:
+            time.sleep(0.01)
+            poll_timeout = 0.2
+            bot.benice()
+            try: event_pairs = self._impl.poll(poll_timeout)
+            except Exception, e:
+                if (getattr(e, 'errno', None) == errno.EINTR or
+                    (isinstance(getattr(e, 'args', None), tuple) and
+                     len(e.args) == 2 and e.args[0] == errno.EINTR)):
+                    continue
+                else: raise
+
+            self._events.update(event_pairs)
+            for fd, events in self._events.items()[::-1]:
+                try:
+                    self._handlers[fd](fd, events)
+                except (KeyboardInterrupt, SystemExit, KeyError):
+                    raise
+                except (OSError, IOError), e:
+                    if e.args[0] == errno.EPIPE: pass
+                    else: logging.error("Exception in I/O handler for fd %d", fd, exc_info=True)
+                except: logging.error("Exception in I/O handler for fd %d", fd, exc_info=True)
+            self._events = {}
+
+        self._running = False
+        self._stopped = True
 
 ## server part
 
@@ -133,7 +176,6 @@ class WebSocket(tornado.websocket.WebSocketHandler):
         if not self in bot.websockets[user]: bot.websockets[user].append(self)
         logging.warn("websocket open - %s" % user)
 
-    @tornado.web.asynchronous
     def on_message(self, message):
         try:
             user = self.current_user
@@ -143,10 +185,10 @@ class WebSocket(tornado.websocket.WebSocketHandler):
             event.parsesocket(self, message)
             bot.gatekeeper.allow(event.userhost)
             event.bind(bot)
+            time.sleep(0.01)
             bot.put(event)
         except Exception, ex:
             handle_exception()
-        #logging.warn(message)
 
     @tornado.web.asynchronous
     def on_close(self):
@@ -289,11 +331,13 @@ ssl_options={
 
 ## runtime
 
+loop = JSBLoop().instance()
+
 if opts.ssl:
     logging.warn(ssl_options)
-    server = TornadoServer(application, ssl_options=ssl_options)
+    server = TornadoServer(application, ssl_options=ssl_options, io_loop=loop)
 else:
-    server = TornadoServer(application)
+    server = TornadoServer(application, io_loop=loop)
 
 def main(dofleet=True):
     global bot
@@ -316,7 +360,7 @@ if __name__ == "__main__":
             os.unlink(opts.doresume)
     else: main(opts.fleet)
     try:
-         bot.server.bind(opts.port or 10102)
+         bot.server.bind(int(opts.port) or 10102)
          bot.server.start(1)
          bot.server.io_loop.start()
     except KeyboardInterrupt: globalshutdown()
