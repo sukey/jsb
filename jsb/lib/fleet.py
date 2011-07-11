@@ -81,7 +81,7 @@ class Fleet(Persist):
             try:
                 if self.data.types[name] == "console": logging.warn("fleet- skipping console bot %s" % name) ; continue
                 bot = self.makebot(self.data.types[name], name)
-                if bot: bots.append(bot) ; self.addbot(bot)
+                if bot: bots.append(bot)
             except KeyError: continue
             except BotNotEnabled: pass
             except KeyError: logging.error("no type know for %s bot" % name)
@@ -197,8 +197,8 @@ class Fleet(Persist):
             if self.bots[i].cfg.name == bot.cfg.name:
                 logging.debug('removing %s from fleet' % bot.botname)
                 del self.bots[i]
-        logging.info('adding %s' % bot.cfg.name)
         self.bots.append(bot)
+        logging.info('adding %s' % bot.cfg.name)
         if bot.cfg.name not in self.data['names']:
             self.data['names'].append(bot.cfg.name)
             self.data['types'][bot.cfg.name] = bot.type
