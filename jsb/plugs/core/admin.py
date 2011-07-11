@@ -26,8 +26,8 @@ import logging
 
 def handle_adminboot(bot, ievent):
     """ boot the bot .. do some initialisation. """
-    if 'saveperms' in ievent.rest: boot(force=True, saveperms=True)
-    else: boot(force=True, saveperms=False)
+    if 'saveperms' in ievent.rest: boot(force=True, saveperms=True, clear=True)
+    else: boot(force=True, saveperms=False, clear=True)
     ievent.done()
 
 cmnds.add('admin-boot', handle_adminboot, 'OPER')

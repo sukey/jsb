@@ -54,7 +54,7 @@ cpy = copy.deepcopy
 
 ## boot function
 
-def boot(ddir=None, force=False, encoding="utf-8", umask=None, saveperms=True, fast=False):
+def boot(ddir=None, force=False, encoding="utf-8", umask=None, saveperms=True, fast=False, clear=False):
     """ initialize the bot. """
     logging.info("booting ..")
     from jsb.lib.datadir import getdatadir, setdatadir
@@ -95,13 +95,17 @@ def boot(ddir=None, force=False, encoding="utf-8", umask=None, saveperms=True, f
     global plugwhitelist
     global plugblacklist
     if not cmndtable: cmndtable = Persist(rundir + os.sep + 'cmndtable')
+    if clear: cmndtable.data = {}
     if not pluginlist: pluginlist = Persist(rundir + os.sep + 'pluginlist')
+    if clear: pluginlist.data = []
     if not callbacktable: callbacktable = Persist(rundir + os.sep + 'callbacktable')
+    if clear: callbacktable.data = {}
     if not timestamps: timestamps = Persist(rundir + os.sep + 'timestamps')
+    if clear: timestamps.data = {}
     if not plugwhitelist: plugwhitelist = Persist(rundir + os.sep + 'plugwhitelist')
-    if not plugwhitelist.data: plugwhitelist.data = []
+    if not plugwhitelist.data or clear: plugwhitelist.data = []
     if not plugblacklist: plugblacklist = Persist(rundir + os.sep + 'plugblacklist')
-    if not plugblacklist.data: plugblacklist.data = []
+    if not plugblacklist.data or clear: plugblacklist.data = []
     if not cmndperms: cmndperms = Config('cmndperms', ddir=ddir)
     from jsb.lib.plugins import plugs
     if not cmndtable.data or force:
@@ -166,6 +170,7 @@ def savecmndtable(modname=None, saveperms=True):
     if cmnds.subs:
         for name, clist in cmnds.subs.iteritems():
             if name:
+                if name in cmnds: continue
                 if clist and len(clist) == 1: target[name] = clist[0].modname
     for cmndname, c in cmnds.iteritems():
         if modname and c.modname != modname or cmndname == "subs": continue
