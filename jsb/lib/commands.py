@@ -65,6 +65,8 @@ class Commands(LazyDict):
     def add(self, cmnd, func, perms, threaded=False, wait=False, orig=None, how=None, *args, **kwargs):
         """ add a command. """
         modname = calledfrom(sys._getframe())
+        try: prev = self[cmnd]
+        except KeyError: prev = None
         target = Command(modname, cmnd, func, perms, threaded, wait, orig, how)
         self[cmnd] = target
         try:
@@ -72,6 +74,7 @@ class Commands(LazyDict):
             if not self.subs: self.subs = LazyDict()
             if self.subs.has_key(c):
                 if not self.subs[c]: self.subs[c] = []
+                if prev in self.subs[c]: self.subs[c].remove(prev) 
                 if target not in self.subs[c]: self.subs[c].append(target)
             else: self.subs[c] = [target, ]
         except IndexError: pass
@@ -80,6 +83,7 @@ class Commands(LazyDict):
             if not self.pre: self.pre = LazyDict()
             if self.pre.has_key(p):
                 if not self.pre[p]: self.pre[p] = []
+                if prev in self.pre[p]: self.pre[p].remove(prev) 
                 if target not in self.pre[p]: self.pre[p].append(target)
             else: self.pre[p] = [target, ]
         except IndexError: pass
