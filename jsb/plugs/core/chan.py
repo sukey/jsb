@@ -30,8 +30,13 @@ def handle_chantoken(bot, event):
         logging.warn("chantoken - %s - %s" % (chan, token))
         bot._raw(token, event.response)
     except google.appengine.runtime.DeadlineExceededError:
-        event.response.out.write("DeadLineExceededError .. this request took too long to finish.")
+        handle_exception
+        event.response.set_status(500)
+    except google.appengine.api.channel.channel.InvalidChannelClientIdError, ex:
+        handle_exception()
+        event.response.set_status(500)
     except Exception, ex:
+        event.response.set_status(500)
         event.response.out.write("An exception occured: %s" % str(ex))
         handle_exception()
 

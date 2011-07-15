@@ -31,9 +31,7 @@ def checkuser(response, request, event=None):
     u = "notauth"
     nick = "notauth"
     user = gusers.get_current_user()
-    if not user and getmainconfig().enabledemo: hostid = request.remote_addr
-    elif event: hostid = "%s-%s" % (request.remote_addr, event.bot.cfg.uuid)
-    else: hostid = request.remote_addr
+    hostid = request.remote_addr
     if not user:
         try:
             email = request.get('USER_EMAIL')

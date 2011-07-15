@@ -79,9 +79,12 @@ class ChannelBase(Persist):
         pass
 
     def gae_create(self):
-        try: from google.appengine.api import channel
+        try:
+            from google.appengine.api import channel
+            id = self.id.split("-", 1)[0]
         except ImportError: return (None, None)
-        webchan = self.id + "-" + str(time.time())
+        webchan = id + "-" + str(time.time())
+        logging.warn("trying to create channel for %s" % webchan)
         token = channel.create_channel(webchan)
         if token and token not in self.data.tokens:
             self.data.tokens.insert(0, token)

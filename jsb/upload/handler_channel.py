@@ -8,6 +8,7 @@
 
 from jsb.lib.channelbase import ChannelBase
 from jsb.version import getversion
+from jsb.utils.name import stripname
 
 ## google imports
 
@@ -37,6 +38,7 @@ class ChannelHandler(webapp2.RequestHandler):
             if client_id: 
                 try: (id, t) = client_id.split("-", 1)
                 except Exception, ex: logging.warn(str(ex)) ; self.response.set_status(500) ; return
+            logging.warn("channel id is %s" % id)
             chan = ChannelBase(id, 'gae-web')
             if "disconnected" in url: 
                 if client_id in chan.data.webchannels: chan.data.webchannels.remove(client_id) ; chan.save() ; logging.warn("removed channel %s" % client_id) ; return
