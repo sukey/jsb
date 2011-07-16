@@ -33,6 +33,8 @@ from morphs import inputmorphs, outputmorphs
 from gatekeeper import GateKeeper
 from wait import waiter
 from factory import bot_factory
+from jsb.lib.threads import threaded
+from jsb.utils.locking import lock_object, release_object
 
 try: import wave
 except ImportError:
@@ -232,10 +234,11 @@ class BotBase(LazyDict):
                 try:
                     res = queue.get_nowait() 
                 except Queue.Empty: continue
-                if not res: continue
+                if not res: break
                 if not self.stopped and not self.stopoutloop:
                     logging.debug("%s - OUT - %s - %s" % (self.cfg.name, self.type, str(res))) 
                     self.out(*res)
+                else: break
         logging.warn('%s - stopping output loop' % self.cfg.name)
 
     def putonqueue(self, nr, *args):
@@ -291,7 +294,6 @@ class BotBase(LazyDict):
                 logging.warn('%s - failed to join %s: %s' % (self.cfg.name, i, str(ex)))
                 handle_exception()
 
-    @locked
     def start(self, connect=True, join=True):
         """ start the mainloop of the bot. """
         if self.started: logging.warn("%s - already started" % self.cfg.name) ; return
@@ -397,7 +399,7 @@ class BotBase(LazyDict):
             self.stopreadloop = True  
             self.connected = False
             self.started = False
-        self.outqueue.put_nowait(None)
+        self.putonqueue(1, None)
         self.put(None)
         self.tickqueue.put_nowait('go')
         self.tickqueue.put_nowait('go')
@@ -488,17 +490,18 @@ class BotBase(LazyDict):
     def reconnect(self):
         """ reconnect to the server. """
         if self.stopped: logging.warn("%s - bot is stopped .. not reconnecting" % self.cfg.name) ; return
+        #lock_object(self)
         while 1:
             try:
                 self.exit()
                 self.reconnectcount += 1
                 logging.warn('%s - reconnecting .. sleeping %s seconds' % (self.cfg.name, self.reconnectcount*15))
-                time.sleep(self.reconnectcount * 15)   
-                time.sleep(0.1)
+                time.sleep(self.reconnectcount * 5)   
                 self.doreconnect()
                 break
             except Exception, ex: 
                 handle_exception()
+        #release_object(self)
 
     def doreconnect(self):
         self.start(connect=True)
