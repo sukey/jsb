@@ -83,6 +83,14 @@ class LazyDict(dict):
 
     """ lazy dict allows dotted access to a dict """
 
+
+    def __repr__(self):
+        return '<%s.%s object at %s>' % (
+            self.__class__.__module__,
+            self.__class__.__name__,
+            hex(id(self))
+        )
+
     def __deepcopy__(self, a):
         return LazyDict(a) 
 

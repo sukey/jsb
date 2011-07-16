@@ -57,11 +57,11 @@ def lockdec(lock):
 ## locked decorator
 
 def lock_object(object):
-    locktarget = id(object)
+    locktarget = repr(object)
     lockmanager.acquire(locktarget)
 
 def release_object(object):
-    locktarget = id(object)
+    locktarget = repr(object)
     lockmanager.release(locktarget)
 
 def locked(func):
