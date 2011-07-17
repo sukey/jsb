@@ -39,7 +39,7 @@ import random
 import logging
 import types
 import re
-
+import select
 
 ## locks
 
@@ -165,16 +165,21 @@ class Irc(BotBase):
         self.stopped = False
         doreconnect = True
         timeout = 1
-        logging.info('%s - starting readloop' % self.cfg.name)
+        logging.warn('%s - starting readloop' % self.cfg.name)
         prevtxt = ""
         while not self.stopped and not self.stopreadloop and self.sock and self.fsock:
             try:
                 time.sleep(0.01)
                 if self.cfg.has_key('ssl') and self.cfg['ssl']: intxt = inputmorphs.do(self.sock.read()).split('\n')
-                else: intxt = inputmorphs.do(self.fsock.readline()).split('\n')
-                if self.stopreadloop or self.stopped:
-                    doreconnect = 0
-                    break
+                #else: intxt = inputmorphs.do(self.fsock.readline()).split('\n')
+		else:
+                    try: [i, o, e] = select.select([self.sock], [], [], 1.0)
+                    except socket.error: doreconnect = False ; break
+                    if i: intxt = inputmorphs.do(self.sock.recv(512)).split('\n')
+                    if self.stopreadloop or self.stopped:
+                        doreconnect = 0
+                        break
+                    if not i: time.sleep(0.1) ; continue
                 if not intxt or not intxt[0]:
                     doreconnect = 1
                     break
@@ -258,7 +263,7 @@ class Irc(BotBase):
                 logging.error("%s - error in readloop: %s" % (self.cfg.name, str(ex)))
                 doreconnect = 1
                 break
-        logging.info('%s - readloop stopped' % self.cfg.name)
+        logging.warn('%s - readloop stopped' % self.cfg.name)
         self.connectok.clear()
         self.connected = False
         if doreconnect and not self.stopped:
@@ -394,13 +399,15 @@ class Irc(BotBase):
         except Exception, ex:
             handle_exception()
             logging.error('%s - connecting error: %s' % (self.cfg.name, str(ex)))
-        if reconnect: self.reconnect()
+        #self.connectok.set()
+        #if reconnect: self.reconnect()
+        return False
 
     def shutdown(self):
         """ shutdown the bot. """
         logging.warn('%s - shutdown' % self.cfg.name)
         self.stopoutputloop = 1
-        self.close()
+        #self.close()
         self.connecting = False
         self.connected = False
         self.connectok.clear()

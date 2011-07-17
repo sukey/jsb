@@ -212,7 +212,9 @@ class BotBase(LazyDict):
         logging.warn("%s - eventloop started" % self.cfg.name)
         while not self.stopped:
             event = self.inqueue.get()
-            if not event: break
+            if not event:
+                if self.stopped: break
+                else: continue
             self.doevent(event)
             self.benice(event)
         logging.warn("%s - eventloop stopped" % self.cfg.name)
@@ -237,7 +239,8 @@ class BotBase(LazyDict):
                 if not res: break
                 if not self.stopped and not self.stopoutloop:
                     logging.debug("%s - OUT - %s - %s" % (self.cfg.name, self.type, str(res))) 
-                    self.out(*res)
+                    try: self.out(*res)
+                    except Exception, ex: logging.warn("error in outloop: %s" % str(ex))
                 else: break
         logging.warn('%s - stopping output loop' % self.cfg.name)
 
@@ -300,20 +303,23 @@ class BotBase(LazyDict):
         self.started = True
         self.status == "running"
         if not self.isgae:
-            try: 
-               if connect: self.connect()
-            except Exception, ex: logging.error("%s - can't connect: %s" % (self.cfg.name, str(ex))) ; return
+            if connect:
+                try:
+                    if not self.connect(): return False
+                except Exception, ex: logging.error("%s - can't connect: %s" % (self.cfg.name, str(ex))) ; return False
             start_new_thread(self._outloop, ())
             start_new_thread(self._eventloop, ())
             start_new_thread(self._readloop, ())
             if connect:
                 self.connectok.wait(120)
+                if self.stopped: logging.warn("bot is stopped") ; return
                 if self.connectok.isSet():
                     logging.warn('%s - logged on !' % self.cfg.name)
                     if join: start_new_thread(self.joinchannels, ())
                 elif self.type not in ["console", "base"]: logging.warn("%s - failed to logon - connectok is not set" % self.cfg.name)
         self.status == "running"
         self.dostart(self.cfg.name, self.type)
+        return True
 
     def doremote(self, event):
         """ dispatch an event. """
@@ -399,8 +405,8 @@ class BotBase(LazyDict):
             self.stopreadloop = True  
             self.connected = False
             self.started = False
-        self.putonqueue(1, None)
-        self.put(None)
+            self.putonqueue(1, None, "")
+            self.put(None)
         self.tickqueue.put_nowait('go')
         self.tickqueue.put_nowait('go')
         self.shutdown()
@@ -490,21 +496,19 @@ class BotBase(LazyDict):
     def reconnect(self):
         """ reconnect to the server. """
         if self.stopped: logging.warn("%s - bot is stopped .. not reconnecting" % self.cfg.name) ; return
-        #lock_object(self)
+        time.sleep(2)
         while 1:
             try:
                 self.exit()
+                if self.doreconnect(): break
                 self.reconnectcount += 1
                 logging.warn('%s - reconnecting .. sleeping %s seconds' % (self.cfg.name, self.reconnectcount*5))
                 time.sleep(self.reconnectcount * 5)   
-                self.doreconnect()
-                break
             except Exception, ex: 
                 handle_exception()
-        #release_object(self)
 
     def doreconnect(self):
-        self.start(connect=True)
+        return self.start(connect=True)
 
     def invite(self, *args, **kwargs):
         """ invite another user/bot. """

@@ -88,7 +88,7 @@ else:
         bot.state.save()
     fleet = getfleet(opts.datadir)
     fleet.addbot(bot)
-    start_new_thread(bot.start, ())
+    start_new_thread(bot.reconnect, ())
 
 
 mainloop()
