@@ -111,10 +111,9 @@ class JSBLoop(tornado.ioloop.IOLoop):
 
     def __init__(self, *args):
         sel = tornado.ioloop._Select()
-        tornado.ioloop.IOLoop.__init__(self, sel)
-
+        tornado.ioloop.IOLoop.__init__(self, sel, *args)
+"""
     def start(self):
-        """Starts the I/O loop. """
         if self._stopped:
             self._stopped = False
             return
@@ -146,7 +145,7 @@ class JSBLoop(tornado.ioloop.IOLoop):
 
         self._running = False
         self._stopped = True
-
+"""
 ## server part
 
 class TornadoServer(tornado.httpserver.HTTPServer):
@@ -331,11 +330,9 @@ ssl_options={
 
 ## runtime
 
-loop = JSBLoop().instance()
-
 if opts.ssl:
     logging.warn(ssl_options)
-    server = TornadoServer(application, ssl_options=ssl_options, io_loop=loop)
+    server = TornadoServer(application, ssl_options=ssl_options)
 else:
     server = TornadoServer(application)
 
