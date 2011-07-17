@@ -337,7 +337,7 @@ if opts.ssl:
     logging.warn(ssl_options)
     server = TornadoServer(application, ssl_options=ssl_options, io_loop=loop)
 else:
-    server = TornadoServer(application, io_loop=loop)
+    server = TornadoServer(application)
 
 def main(dofleet=True):
     global bot
