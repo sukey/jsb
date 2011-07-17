@@ -70,7 +70,7 @@ if opts.channel and not opts.channel in bot.state['joinedchannels']:
 fleet = getfleet(opts.datadir, new=True)
 fleet.addbot(bot)
 try:
-    bot.start()
+    bot.reconnect()
     mainloop()
 except KeyboardInterrupt: globalshutdown()
 except: handle_exception() ; globalshutdown()

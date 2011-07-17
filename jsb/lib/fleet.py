@@ -273,8 +273,8 @@ class Fleet(Persist):
     def startall(self, bots=None, usethreads=False):
         target = bots or self.bots
         for bot in target:
-            if usethreads: start_new_thread(bot.start, ()) ; continue
-            try: bot.start()
+            if usethreads: start_new_thread(bot.reconnect, ()) ; continue
+            try: bot.reconnect()
             except Excepton, ex: handle_exception()
 
     def resume(self, sessionfile, exclude=[]):

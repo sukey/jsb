@@ -152,7 +152,7 @@ class SXMPPBot(XMLStream, BotBase):
 
     def connect(self, reconnect=False):
         """ connect the xmpp server. """
-        XMLStream.doconnect(self)
+        if not XMLStream.doconnect(self): return False
         iq = self.makeready()
         if not iq:
             logging.error('%s - connect to %s:%s (%s) failed' % (self.cfg.name, self.cfg.host, self.cfg.port, self.cfg.server))
@@ -511,6 +511,6 @@ class SXMPPBot(XMLStream, BotBase):
         newbot.reconnectcount = self.reconnectcount
         newbot.start()
         newbot.joinchannels()
-        if getfleet().replace(botjid, newbot): return True
-        return False
+        getfleet().replace(botjid, newbot)
+        return True
 
