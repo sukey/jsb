@@ -84,6 +84,8 @@ class TornadoBot(BotBase):
         txt = strippedtxt(txt)
         return txt
 
+    def reconnect(self): return True
+
 
 def update_web(bot, channel, txt, div=None, how=None, end="<br>"):
         if not txt: return 

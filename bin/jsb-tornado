@@ -125,14 +125,14 @@ class JSBLoop(tornado.ioloop.IOLoop):
             poll_timeout = 0.2
             try: event_pairs = self._impl.poll(poll_timeout)
             except Exception, e:
+                handle_exception()
                 if (getattr(e, 'errno', None) == errno.EINTR or
                     (isinstance(getattr(e, 'args', None), tuple) and
                      len(e.args) == 2 and e.args[0] == errno.EINTR)):
                     continue
                 else: raise
-
             self._events.update(event_pairs)
-            for fd, events in self._events.items()[::-1]:
+            for fd, events in self._events.items():
                 time.sleep(0.01)
                 try:
                     self._handlers[fd](fd, events)
@@ -165,7 +165,7 @@ class WebSocket(tornado.websocket.WebSocketHandler):
 
     def get_current_user(self):
         user = self.get_secure_cookie("user")
-        if not user and getmainconfig().enabledemo: user = "demouser" + "@" + self.request.remote_ip
+        if not user: user = "demouser" + "@" + self.request.remote_ip
         return user
 
     @tornado.web.asynchronous
@@ -219,7 +219,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
     def get_current_user(self):
         user  = self.get_secure_cookie("user")
-        if not user and getmainconfig().enabledemo: user = "demouser" + "@" + self.request.remote_ip
+        if not user: user = "demouser" + "@" + self.request.remote_ip
         if user: return tornado.escape.xhtml_escape(user)
 
 class LoginHandler(GoogleHandler):
@@ -293,9 +293,9 @@ class DemoHandler(BaseHandler):
     def get(self):
         """ show basic page. """
         try:
-            if not self.current_user:
-                self.redirect("/login")
-                return
+            #if not self.current_user:
+            #    self.redirect("/login")
+            #    return
             user = tornado.escape.xhtml_escape(self.current_user)
             if not user: self.redirect("/login") ; return
             user = self.current_user
