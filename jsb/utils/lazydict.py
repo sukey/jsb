@@ -58,7 +58,7 @@ def stripignore(d):
 def dumpelement(element, prev={}, withtypes=False):
     """ check each attribute of element whether it is dumpable. """
     elem = cpy(element)
-    if not elem: elem = element
+    #elem = element
     try: new = LazyDict(prev)
     except (TypeError, ValueError): new = LazyDict()
     for name in elem:
@@ -137,7 +137,7 @@ class LazyDict(dict):
     def dump(self, withtypes=False):
         """ just dunp the lazydict object. DON'T convert to json. """
         #logging.warn("lazydict - dumping - %s" %  type(self))
-        try: return dumpelement(cpy(self), withtypes)
+        try: return dumpelement(self, withtypes)
         except RuntimeError, ex: handle_exception()
 
     def load(self, input):

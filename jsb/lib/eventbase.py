@@ -59,16 +59,17 @@ class EventBase(LazyDict):
         self.stop = False
         self.bonded = False
         self.copyin(input)
+        self.ctime = time.time()
         
     def __deepcopy__(self, a):
         """ deepcopy an event. """
-        logging.debug("cpy - %s" % type(self))
+        logging.warn("cpy - %s - %s" % (str(type(self)).split(".")[-1][:-2], whichmodule(2)))
         e = EventBase(self)
         return e
 
     def ready(self, finish=True):
         """ signal the event as ready - push None to all queues. """
-        if self.type != "TICK": logging.warn("%s - %s - ready called from %s" % (self.cbtype, self.txt, whichmodule()))
+        if self.type != "TICK": logging.warn("%s.%s - %s - from %s - %s" % (self.bottype, self.cbtype, str(self.ctime), whichmodule(), self.txt))
         for i in range(10):
              if not self.outqueue.empty(): break
              time.sleep(0.01)

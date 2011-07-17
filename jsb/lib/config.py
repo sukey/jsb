@@ -147,7 +147,7 @@ class Config(LazyDict):
     def tofile(self, filename=None, stdout=False):
         """ save config object to file. """
         if not filename: filename = self.cfile
-        if not filename: raise Exception("no cfile found  - %s" % self.createdfrom)
+        if not filename: raise Exception("no cfile found  - %s" % whichmodule(3))
         try: from os import mkdir
         except ImportError:
             logging.debug("can't save %s to file .. os.mkdir() not suported" % filename)

@@ -380,7 +380,7 @@ class BotBase(LazyDict):
             return
         self.reloadcheck(event)
         if event.msg or event.isdcc: event.speed = 2
-        e1 = cpy(event)
+        e1 = event
         first_callbacks.check(self, e1)
         if not e1.stop: 
             callbacks.check(self, e1)
@@ -629,7 +629,7 @@ class BotBase(LazyDict):
         e.ruserhost = self.cfg.name +'@' + self.uuid
         e.userhost = e.ruserhost
         e.channel = botname
-        e.origtxt = str(time.time())
+        e.origtxt = "%s.%s - %s" % (e.botname, e.bottype, str(time.time()))
         e.txt = e.origtxt
         e.cbtype = 'START'
         e.botoutput = False
