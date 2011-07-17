@@ -64,6 +64,9 @@ handlers:
   login: required
   secure: always
 
+- url: /demo.*
+  script: handler_demo.py
+
 - url: /feeds.*
   script: handler_web.py
 
@@ -91,4 +94,3 @@ inbound_services:
 - warmup
 - xmpp_message   
 - channel_presence
-

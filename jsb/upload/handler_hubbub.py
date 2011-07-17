@@ -7,6 +7,7 @@
 from jsb.contrib import feedparser
 from jsb.version import getversion
 from jsb.lib.plugins import plugs
+from jsb.utils.exception import handle_exception
 
 ## google imports
 

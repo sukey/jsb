@@ -299,6 +299,7 @@ class XMLStream(NodeBuilder):
                 addresses = {}
                 intmax = 0
                 for answer in answers:
+                    print dir(answer)
                     try:
                         intmax += answer.priority
                         addresses[intmax] = (answer.target.to_text()[:-1], answer.port)
