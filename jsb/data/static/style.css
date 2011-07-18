@@ -133,7 +133,7 @@ dl.glossary dt {
 
 body {
     font-family: sans-serif;
-    background-color: #1c4e63;
+    background-color: #ffffff;
     color: #000;
     margin: 0px;
     padding: 0;
@@ -141,7 +141,7 @@ body {
 }
 
 div.document {
-    background-color: #1c4e63;
+    background-color: #ffffff;
     text-align: center;
     font-size: 100%;
 }
@@ -151,21 +151,21 @@ div.documentwrapper {
 }
 
 div.bodywrapper {
+    background: url("/static/jsonlogo128.png") 50% 50% no-repeat;
     margin: 0 0 0 230px;
     float: center;
 }
 
 div.body {
-    background-color: #1c4e63;
-    color: #ffffff;
+    color: #000000;
     padding: 0 20px 30px 20px;
     overflow: hidden;
     align: center;
 }
 
 div.bottom {
-    background-color: #1c4e63;
-    color: #ffffff;
+    background-color: #ffffff;
+    color: #000000;
     position: fixed;
     bottom: 0;
     width: 90%;
@@ -173,8 +173,8 @@ div.bottom {
 }
 
 div.output {
-    background-color: #1c4e63;
-    color: #ffffff;
+    background-color: #ffffff;
+    color: #000000;
     overflow: auto;
     position: fixed;
     height:30%;
@@ -298,6 +298,7 @@ tt {
     div.document,
     div.documentwrapper,
     div.bodywrapper {
+        background: url("http:localhost:10102/jsonlogo128.png") 50% 50% no-repeat;
         margin: 0;
         width: 100%;
         overflow: hiden;

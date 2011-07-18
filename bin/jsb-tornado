@@ -226,7 +226,7 @@ class LoginHandler(GoogleHandler):
     @tornado.web.asynchronous
     def get(self):
         host = self.request.host
-        t = {'appname': "JSONBOT", 'version': getversion(), 'who': "not logged in yet", 'host': host, 'color': "#C54848", "logouturl": 'logout', "loginurl": "login"}
+        t = {'appname': "JSONBOT", 'version': getversion(), 'who': "not logged in yet", 'host': host, 'color': "#4b7cc6", "logouturl": 'logout', "loginurl": "login"}
         logging.warn(t)
         self.render(ddir + os.sep + "templates" + os.sep + "login.html", title="JSONBOT", **t)
 
@@ -236,7 +236,7 @@ class LogoutHandler(GoogleHandler):
     def get(self):
         self.clear_cookie("user")
         host = self.request.host
-        t = {'appname': "JSONBOT", 'version': getversion(), 'who': "not logged in yet", 'host': host, 'color': "#C54848", "logouturl": 'logout', "loginurl": "login"}
+        t = {'appname': "JSONBOT", 'version': getversion(), 'who': "not logged in yet", 'host': host, 'color': "#4b7cc6", "logouturl": 'logout', "loginurl": "login"}
         logging.warn(t)
         self.render(ddir + os.sep + "templates" + os.sep + "login.html", title="JSONBOT", **t)
 
@@ -257,7 +257,7 @@ class DispatchHandler(BaseHandler):
             if not user: self.redirect("/login") ; return
             host = self.request.host
             if user:
-                t = {'appname': "JSONBOT", 'version': getversion(), 'who': user, 'host': host, 'color': "#C54848", "logouturl": 'logout', "loginurl": "login"}
+                t = {'appname': "JSONBOT", 'version': getversion(), 'who': user, 'host': host, 'color': "#4b7cc6", "logouturl": 'logout', "loginurl": "login"}
                 self.render(ddir + os.sep + "templates" + os.sep + "console.html", title="JSONBOT", **t)
         except Exception, ex:
             handle_exception()
@@ -300,7 +300,7 @@ class DemoHandler(BaseHandler):
             user = self.current_user
             host = self.request.host
             if user:
-                t = {'appname': "JSONBOT", 'version': getversion(), 'who': user, 'host': host, 'color': "#C54848", "logouturl": 'logout', "loginurl": "login"}
+                t = {'appname': "JSONBOT", 'version': getversion(), 'who': user, 'host': host, 'color': "#4b7cc6", "logouturl": 'logout', "loginurl": "login"}
                 self.render(ddir + os.sep + "templates" + os.sep + "console.html", title="JSONBOT", **t)
         except Exception, ex:
             handle_exception()

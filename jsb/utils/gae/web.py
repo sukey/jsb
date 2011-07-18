@@ -47,7 +47,7 @@ def demo(response, input={}):
     except AttributeError:
          if os.environ.get('HTTP_HOST'): host = os.environ['HTTP_HOST']
          else: host = os.environ['SERVER_NAME']
-    template = LazyDict({'version': getversion(), 'host': host, 'color': getmainconfig().color or "#C54848"})
+    template = LazyDict({'version': getversion(), 'host': host, 'color': getmainconfig().color or "#4b7cc6"})
     if input: template.update(input)
     temp = os.path.join(os.getcwd(), 'templates/demo.html')
     outstr = template.render(temp)
@@ -61,7 +61,7 @@ def start(response, input={}):
     except AttributeError:
          if os.environ.get('HTTP_HOST'): host = os.environ['HTTP_HOST']
          else: host = os.environ['SERVER_NAME']
-    template = LazyDict({'version': getversion(), 'host': host, 'color': getmainconfig().color or "#C54848"})
+    template = LazyDict({'version': getversion(), 'host': host, 'color': getmainconfig().color or "#4b7cc6"})
     if input: template.update(input)
     temp = os.path.join(os.getcwd(), 'templates/console.html')
     outstr = template.render(temp)
@@ -75,7 +75,7 @@ def login(response, input={}):
     except AttributeError:
          if os.environ.get('HTTP_HOST'): host = os.environ['HTTP_HOST']
          else: host = os.environ['SERVER_NAME']
-    template = LazyDict({'version': getversion(), 'host': host, 'color': getmainconfig().color or "#C54848"})
+    template = LazyDict({'version': getversion(), 'host': host, 'color': getmainconfig().color or "#4b7cc6"})
     if input: template.update(input)
     temp = os.path.join(os.getcwd(), 'templates/login.html')
     outstr = template.render(temp)
