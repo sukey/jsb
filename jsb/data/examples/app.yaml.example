@@ -87,7 +87,7 @@ handlers:
 
 - url: /favicon.ico
   static_files: assets/favicon.ico
-  upload: assets/favivon.ico
+  upload: assets/favicon.ico
 
 
 inbound_services:
