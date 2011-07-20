@@ -131,4 +131,4 @@ def loginurl(request, response):
 def logouturl(request, response):
     """ return google login url. """
     from google.appengine.api import users as gusers
-    return gusers.create_logout_url(request.uri)
+    return gusers.create_logout_url("/_ah/login_required")
