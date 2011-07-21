@@ -1,7 +1,5 @@
 <html>
 <head>
-    <link rel="stylesheet" href="/assets/default.css" type="text/css" />
-    <link rel="stylesheet" href="/assets/basic.css" type="text/css" />
     <link rel="stylesheet" href="/assets/style.css" type="text/css" />
     <script src='/_ah/channel/jsapi'></script>
     <script type="text/javascript">
@@ -10,7 +8,6 @@
       var hostname = window.location.hostname;
       var incomingurl = document.URL;
       var port = window.location.port;
-      var url = "http://" + hostname + ":" + port + "/demo/";
       var url2 = "https://" + hostname + ":" + port + "/demo/";
       var got = hostname.indexOf("localhost");
       var starttime = new Date();
@@ -25,7 +22,7 @@
       var parameters = "";
       var identtime = new Date();
       var diskname = host + identtime.toString();
-      var consoletxt = '<div style="font-size: 25px;"><br><form><b>&lt;-</b><input style="font-size: 80%;" size="33" type="text" name="cmnd" onKeyDown="return doexec(this.form, event);" /><b>-&gt;</b></form></div><div class="related"><div align="center" id="status_div" style="background-color: #803E3E;"><b>JSONBOT PRESENT!<b></div></div>';
+      var consoletxt = '<div style="font-size: 25px;"><br><form><b>&lt;-</b><input style="font-size: 80%;" size="33" type="text" name="cmnd" onKeyDown="return doexec(this.form, event);" /><b>-&gt;</b></form></div><div class="related"><div align="center" id="status_div" style="background-color: #C54848;"><b>JSONBOT PRESENT!<b></div></div>';
       var log = new Array();
       var cmndlog = new Array();
       var disk = {};
@@ -305,15 +302,7 @@
               resp(request);
           }
           var u = "";
-          if (got == -1) {
-              request.open("POST", url2, true);
-              u = url2;
-          }
-          else {
-              request.open("POST", url, true);
-              u = url;
-          }
-
+          request.open("POST", url2, true);
           request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
           request.setRequestHeader("Content-Length", parameters.length);
           request.setRequestHeader("Cache-Control", "no-cache");
@@ -339,7 +328,7 @@
       </ul>
     </div>
     <div align="center" id="uber_div" style="font-size: 100%; background-color: white; color: black;">Morning !!</div>
-    <div class="body" align="center"><h1 style="background-color: {{ color }}; color: white;"><b>{{ appname }} DEMO</b></h1>
+    <div class="body" align="center"><h1 style="background-color: #C54848; color: white;"><b>{{ appname }} DEMO</b></h1>
       <div style="width: 100%; font-size: 100%; font-weight: bold; color: white;" align="center" id="topper_div">[] [] []</div>
     </div>
         <div class="output" align="center" style="position: float;">

@@ -743,6 +743,7 @@ def create_rsscallback(rpc):
 
 def doperiodicalGAE(*args, **kwargs):
     """ rss periodical function. """
+    import google
     from google.appengine.api import urlfetch, urlfetch_errors
     curtime = time.time()
     feedstofetch = []
@@ -769,6 +770,7 @@ def doperiodicalGAE(*args, **kwargs):
         except Exception, ex: handle_exception()
     for rpc in rpcs: 
         try: rpc.wait()
+        except google.appengine.api.urlfetch_errors.InvalidURLError, ex: logging.warn("url is invalid: %s" % str(ex))
         except Exception, ex: handle_exception()
     if feedstofetch: lastpoll.save()
     if got: urls.save()

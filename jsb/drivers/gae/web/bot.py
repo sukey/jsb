@@ -57,7 +57,7 @@ class WebBot(BotBase):
             try: txt = getjson().dumps(outdict)
             except Exception, ex: handle_exception() ; return
             if how == "channel": self.update_web(channel, txt)
-            elif response:self._raw(txt, response)
+            elif how == "direct": self._raw(txt, response)
             else: self.update_web(channel, txt)
         else: self.update_web(channel, txt)
 

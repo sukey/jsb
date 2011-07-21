@@ -54,7 +54,6 @@ class Demo_Handler(RequestHandler):
 
     def options(self):
          self.response.headers.add_header('Content-Type', 'application/x-www-form-urlencoded')
-         #self.response.headers.add_header("Cache-Control", "private")
          self.response.headers.add_header("Server", getversion())
          self.response.headers.add_header("Public", "*")
          self.response.headers.add_header('Accept', '*')
@@ -74,14 +73,9 @@ class Demo_Handler(RequestHandler):
         except google.appengine.runtime.DeadlineExceededError:
             self.response.out.write("DeadLineExceededError .. this request took too long to finish.")
         except Exception, ex:
-            #self.response.out.write("An exception occured: %s" % str(ex))
             handle_exception()
             self.response.set_status(500)
-            #try: os._exit(1)
-            #except: pass
         logging.warn("web_handler - out")
-
-
 
     def post(self):
 

@@ -132,39 +132,6 @@
         element.innerHTML = "<b>[!]</b>";
       }
 
-
-      // INIT
-
-      function start() {
-          update();
-          setTimeout("doSocket('!statusline', 'info_div', 'background');", 10000);
-          setTimeout("doSocket('!topper', 'info_div', 'background');", 20000);
-          setTimeout("doSocket('!welcome', 'topper_div', 'normal');", 500);
-          setTimeout("doSocket('!today', 'content_div', 'channel');", 1000);
-          setTimeout("doSocket('!shop', 'content_div', 'channel');", 2000);
-          setInterval("timeloop();", 1000);
-          setInterval("outputloop();", 30000);
-          setTimeout("outputloop();", 1000);
-      }
-
-
-      function init() {
-        setTimeout("consolestart();", 50);
-      }
-
-      function consolestart() {
-          doconsole();
-          doCmnd('!chan-token',renewtoken,'info_div','background');
-          dooutput("you are using " + incomingurl + "<br><br>","content_div", "background");
-          dooutput("<b>BOOTING</b>", "status_div", "background");
-          setTimeout("start();", 100);
-      }
-
-      function doconsole() {
-        doscreen(consoletxt);
-        document.forms[0].cmnd.focus();
-      }
-
       // channel stuff
 
       function renewtoken(obj) {
@@ -186,25 +153,21 @@
       onClose = function() {
         var tt = new Date();
         dooutput("channel closed on " + tt.toTimeString() + " .. please reload this page", "status_div", "background");
-        doCmnd('!chan-token', renewtoken, "info_div", 'background'); 
+        setTimeout("consolestart();", 50);
+        //doCmnd('!chan-token', renewtoken, 'info_div', 'background');
+        return false;
       }
 
       onMessage = function(m) {
           handlesocket(m.data);
-          var index1 = m.data.indexOf("http://"); 
-          var index2 = m.data.indexOf("https://");
-          if (index1 > -1) {
-              topperpush(m.data);
-          }
-          else if (index2 > -1) {
-              topperpush(m.data);
-          }
+          return false;
       }
 
       onError = function(m) {
         var tt = new Date();
-        dooutput("channel closed on " + tt.toTimeString() + " .. please reload this page", "status_div", "background");
-        doCmnd('!chan-token', renewtoken, "info_div", 'background'); 
+        dooutput(m.data, "status_div", "background");
+        // setTimeout("doCmnd('!chan-token', renewtoken, 'info_div', 'background');", 100);
+        return false;
       }
 
       openChannel = function(token) {
@@ -222,9 +185,42 @@
         socket.onmessage = onMessage;
         socket.onerror = onError;
         socket.onclose = onClose;
-        dooutput("OK", "status_div", "normal");
+        dooutput("SEND", "status_div", "normal");
         return socket;
       }
+
+      // INIT
+
+      function start() {
+          // update();
+          setTimeout("doSocket('!statusline', 'info_div', 'background');", 10000);
+          setTimeout("doSocket('!topper', 'info_div', 'background');", 20000);
+          setTimeout("doSocket('!welcome', 'topper_div', 'normal');", 5000);
+          setTimeout("doSocket('!today', 'content_div', 'channel');", 5500);
+          setTimeout("doSocket('!shop', 'content_div', 'channel');", 6000);
+          setInterval("timeloop();", 1000);
+          setInterval("outputloop();", 30000);
+          setTimeout("outputloop();", 1000);
+      }
+
+
+      function init() {
+        setTimeout("consolestart();", 50);
+      }
+
+      function consolestart() {
+          doconsole();
+          dooutput("you are using " + incomingurl + "<br><br>","content_div", "background");
+          dooutput("<b>BOOTING</b>", "status_div", "background");
+          doCmnd('!chan-token',renewtoken,'info_div','background');
+          setTimeout("start();", 2000);
+      }
+
+      function doconsole() {
+        doscreen(consoletxt);
+        document.forms[0].cmnd.focus();
+      }
+
 
       // function to launch on enter in the command box
 
@@ -316,7 +312,7 @@
           request.setRequestHeader("Content-Length", parameters.length);
           request.setRequestHeader("Cache-Control", "no-cache");
           request.send(jsondata);
-          dooutput("XHR", "status_div", "background");
+          dooutput(cmnd, "status_div", "background");
           return false;
       }
 
@@ -346,7 +342,7 @@
       </div>
       </div>
       <div class="bottom" style="width: 100%; font-size: 100%; font-weight: bold;" align="center">
-        <div class="footer" style="font-size: 100%; font-height: 80%; color: white;" align="center" id="info_div">[] [] []</div><br>
+        <div class="footer" style="font-size: 100%; font-height: 80%; color: #C54848;" align="center" id="info_div">[] [] []</div><br>
         <div style="font-size: 100%; width: 100%; background-color: {{ color }}; color: white;" position="fixed" bottom="0""  id="screen_div"></div>
       </div>
     </div>
