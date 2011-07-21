@@ -55,9 +55,6 @@
           if (!element) {
               return true;
           }
-          if (div == "topper_div") {
-              topperpush(text);
-          }
           else if (how == "background") {
               element.innerHTML = text;
           }
@@ -135,9 +132,10 @@
       // channel stuff
 
       function renewtoken(obj) {
+           dooutput(obj.readyState, "topper_div", "background");
            if (obj.readyState==4) {
+               dooutput(obj.status, "topper_div", "background");
                if (obj.status==200) {
-                   // dooutput(obj.responseText, "content_div", "normal");
                    var token = obj.responseText;
                    openChannel(token);
                    dooutput("token renewed", "info_div", "background");
@@ -152,9 +150,9 @@
 
       onClose = function() {
         var tt = new Date();
-        dooutput("channel closed on " + tt.toTimeString() + " .. please reload this page", "status_div", "background");
-        setTimeout("consolestart();", 50);
-        //doCmnd('!chan-token', renewtoken, 'info_div', 'background');
+        dooutput("channel closed on " + tt.toTimeString(), "info_div", "background");
+        //setTimeout("consolestart();", 50);
+        doCmnd('!chan-token', renewtoken, 'info_div', 'background');
         return false;
       }
 
@@ -195,7 +193,7 @@
           // update();
           setTimeout("doSocket('!statusline', 'info_div', 'background');", 10000);
           setTimeout("doSocket('!topper', 'info_div', 'background');", 20000);
-          setTimeout("doSocket('!welcome', 'topper_div', 'normal');", 5000);
+          setTimeout("doSocket('!welcome', 'content_div', 'channel');", 3000);
           setTimeout("doSocket('!today', 'content_div', 'channel');", 5500);
           setTimeout("doSocket('!shop', 'content_div', 'channel');", 6000);
           setInterval("timeloop();", 1000);
@@ -210,7 +208,6 @@
 
       function consolestart() {
           doconsole();
-          dooutput("you are using " + incomingurl + "<br><br>","content_div", "background");
           dooutput("<b>BOOTING</b>", "status_div", "background");
           doCmnd('!chan-token',renewtoken,'info_div','background');
           setTimeout("start();", 2000);
@@ -256,13 +253,14 @@
       // XHR
       
       function response(obj) {
-          //dooutput(" - " + obj.readyState, "status_div", "normal");
+          dooutput(obj.readyState, "topper_div", "background");
           if (obj.readyState==4){
+              dooutput(obj.status, "topper_div", "background");
               if (obj.status==200) {
                    handlesocket(obj.responseText);
               }
               else {
-                   dooutput(obj.status, "content_div", "normal");
+                   dooutput(obj.status, "content_div", "channel");
               }
           }
       }
@@ -334,7 +332,7 @@
     </div>
     <div align="center" id="uber_div" style="font-size: 100%; background-color: white; color: black;">Morning !!</div>
     <div class="body" align="center"><h1 style="background-color: #C54848; color: white;"><b>{{ appname }}</b></h1>
-      <div style="width: 100%; font-size: 100%; font-weight: bold; color: white;" align="center" id="topper_div">[] [] []</div>
+      <div style="width: 100%; font-size: 100%; font-weight: bold; color: {{ color }};" align="center" id="topper_div">[] [] []</div>
     </div>
         <div class="output" align="center" style="position: float;">
           <div style="width: 90%; font-size: 100%" scroll="auto" align="center" id="content_div"></div>
