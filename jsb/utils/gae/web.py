@@ -38,7 +38,7 @@ def demo(response, input={}):
          else: host = os.environ['SERVER_NAME']
     print host
     if 'localhost' in host:  url = 'http://%s/demo' % host
-    else: 'https://%s/demo' % host
+    else: url = 'https://%s/demo' % host
     template = LazyDict({'url': url, 'version': getversion(), 'host': host, 'color': getmainconfig().color or "#4b7cc6"})
     if input: template.update(input)
     temp = os.path.join(os.getcwd(), 'templates/console.html')
