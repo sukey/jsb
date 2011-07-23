@@ -62,7 +62,6 @@ handlers:
 - url: /dispatch.*
   script: handler_dispatch.py
   login: required
-  secure: always
 
 - url: /demo.*
   script: handler_demo.py

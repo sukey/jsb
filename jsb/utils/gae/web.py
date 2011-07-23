@@ -22,17 +22,6 @@ import time
 import socket
 import urlparse
 
-## defines
-
-openIdProviders = [
-    'Gmail.com',
-    'Google.com',
-    'Yahoo.com',
-    'MySpace.com',
-    'AOL.com',
-    'MyOpenID.com',
-]
-
 ## create_openid_url
 
 def create_openid_url(continue_url):
@@ -47,9 +36,12 @@ def demo(response, input={}):
     except AttributeError:
          if os.environ.get('HTTP_HOST'): host = os.environ['HTTP_HOST']
          else: host = os.environ['SERVER_NAME']
-    template = LazyDict({'version': getversion(), 'host': host, 'color': getmainconfig().color or "#4b7cc6"})
+    print host
+    if 'localhost' in host:  url = 'http://%s/demo' % host
+    else: 'https://%s/demo' % host
+    template = LazyDict({'url': url, 'version': getversion(), 'host': host, 'color': getmainconfig().color or "#4b7cc6"})
     if input: template.update(input)
-    temp = os.path.join(os.getcwd(), 'templates/demo.html')
+    temp = os.path.join(os.getcwd(), 'templates/console.html')
     outstr = template.render(temp)
     response.out.write(outstr)
 
@@ -61,7 +53,9 @@ def start(response, input={}):
     except AttributeError:
          if os.environ.get('HTTP_HOST'): host = os.environ['HTTP_HOST']
          else: host = os.environ['SERVER_NAME']
-    template = LazyDict({'version': getversion(), 'host': host, 'color': getmainconfig().color or "#4b7cc6"})
+    if 'localhost' in host:  url = 'http://%s/dispatch' % host
+    else: url = 'https://%s/dispatch' % host
+    template = LazyDict({'url': url, 'version': getversion(), 'host': host, 'color': getmainconfig().color or "#4b7cc6"})
     if input: template.update(input)
     temp = os.path.join(os.getcwd(), 'templates/console.html')
     outstr = template.render(temp)
@@ -75,7 +69,9 @@ def login(response, input={}):
     except AttributeError:
          if os.environ.get('HTTP_HOST'): host = os.environ['HTTP_HOST']
          else: host = os.environ['SERVER_NAME']
-    template = LazyDict({'version': getversion(), 'host': host, 'color': getmainconfig().color or "#4b7cc6"})
+    if 'localhost' in host:  url = 'http://%s/dispatch' % host
+    else: url = 'https://%s/dispatch' % host
+    template = LazyDict({'url': url, 'version': getversion(), 'host': host, 'color': getmainconfig().color or "#4b7cc6"})
     if input: template.update(input)
     temp = os.path.join(os.getcwd(), 'templates/login.html')
     outstr = template.render(temp)

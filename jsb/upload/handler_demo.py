@@ -65,17 +65,17 @@ class Demo_Handler(RequestHandler):
     def get(self):
         """ show basic page. """
 
-        logging.warn("web_handler - in")
+        logging.warn("demo_handler - in")
         try:
             logout = logouturl(self.request, self.response)
             user =  "demouser" + "@" + self.request.remote_addr
-            demo(self.response, {'appname': 'JSONBOT' , 'who': user, 'loginurl': 'logged in', 'logouturl': logout, 'onload': 'consoleinit();'})
+            demo(self.response, {'appname': 'JSONBOT DEMO' , 'who': user, 'loginurl': 'logged in', 'logouturl': logout, 'onload': 'consoleinit();'})
         except google.appengine.runtime.DeadlineExceededError:
             self.response.out.write("DeadLineExceededError .. this request took too long to finish.")
         except Exception, ex:
             handle_exception()
             self.response.set_status(500)
-        logging.warn("web_handler - out")
+        logging.warn("demo_handler - out")
 
     def post(self):
 

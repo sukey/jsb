@@ -92,7 +92,8 @@ class Dispatch_Handler(RequestHandler):
 
 # the application 
 
-application = WSGIApplication([Route('/dispatch/', Dispatch_Handler) ], debug=True)
+application = WSGIApplication([Route('/dispatch/', Dispatch_Handler),
+                               Route('/dispatch', Dispatch_Handler) ], debug=True)
 
 def main():
     global bot
