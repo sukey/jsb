@@ -112,40 +112,7 @@ class JSBLoop(tornado.ioloop.IOLoop):
     def __init__(self, *args):
         sel = tornado.ioloop._Select()
         tornado.ioloop.IOLoop.__init__(self, sel, *args)
-"""
-    def start(self):
-        if self._stopped:
-            self._stopped = False
-            return
-        logging.warn("starting ioloop")
-        self._running = True
-        while True:
-            time.sleep(0.01)
-            poll_timeout = 0.2
-            try: event_pairs = self._impl.poll(poll_timeout)
-            except Exception, e:
-                handle_exception()
-                if (getattr(e, 'errno', None) == errno.EINTR or
-                    (isinstance(getattr(e, 'args', None), tuple) and
-                     len(e.args) == 2 and e.args[0] == errno.EINTR)):
-                    continue
-                else: raise
-            self._events.update(event_pairs)
-            for fd, events in self._events.items():
-                time.sleep(0.01)
-                try:
-                    self._handlers[fd](fd, events)
-                except (KeyboardInterrupt, SystemExit, KeyError):
-                    raise
-                except (OSError, IOError), e:
-                    if e.args[0] == errno.EPIPE: pass
-                    else: logging.error("Exception in I/O handler for fd %d", fd, exc_info=True)
-                except: logging.error("Exception in I/O handler for fd %d", fd, exc_info=True)
-            self._events = {}
 
-        self._running = False
-        self._stopped = True
-"""
 ## server part
 
 class TornadoServer(tornado.httpserver.HTTPServer):
@@ -226,7 +193,9 @@ class LoginHandler(GoogleHandler):
     @tornado.web.asynchronous
     def get(self):
         host = self.request.host
-        t = {'appname': "JSONBOT", 'version': getversion(), 'who': "not logged in yet", 'host': host, 'color': "#4b7cc6", "logouturl": 'logout', "loginurl": "login"}
+        if 'localhost' in host: url = "http://%s" % host
+        else: "https://%s" % host
+        t = {'url': url, 'appname': "JSONBOT", 'version': getversion(), 'who': "not logged in yet", 'host': host, 'color': "#4b7cc6", "logouturl": 'logout', "loginurl": "login"}
         logging.warn(t)
         self.render(ddir + os.sep + "templates" + os.sep + "login.html", title="JSONBOT", **t)
 
@@ -236,7 +205,9 @@ class LogoutHandler(GoogleHandler):
     def get(self):
         self.clear_cookie("user")
         host = self.request.host
-        t = {'appname': "JSONBOT", 'version': getversion(), 'who': "not logged in yet", 'host': host, 'color': "#4b7cc6", "logouturl": 'logout', "loginurl": "login"}
+        if 'localhost' in host: url = "http://%s" % host
+        else: "https://%s" % host
+        t = {'url': url, 'appname': "JSONBOT", 'version': getversion(), 'who': "not logged in yet", 'host': host, 'color': "#4b7cc6", "logouturl": 'logout', "loginurl": "login"}
         logging.warn(t)
         self.render(ddir + os.sep + "templates" + os.sep + "login.html", title="JSONBOT", **t)
 
@@ -257,7 +228,9 @@ class DispatchHandler(BaseHandler):
             if not user: self.redirect("/login") ; return
             host = self.request.host
             if user:
-                t = {'appname': "JSONBOT", 'version': getversion(), 'who': user, 'host': host, 'color': "#4b7cc6", "logouturl": 'logout', "loginurl": "login"}
+                if 'localhost' in host: url = "http://%s" % host
+                else: "https://%s" % host
+                t = {'url': url, 'appname': "JSONBOT", 'version': getversion(), 'who': user, 'host': host, 'color': "#4b7cc6", "logouturl": 'logout', "loginurl": "login"}
                 self.render(ddir + os.sep + "templates" + os.sep + "console.html", title="JSONBOT", **t)
         except Exception, ex:
             handle_exception()
@@ -300,7 +273,9 @@ class DemoHandler(BaseHandler):
             user = self.current_user
             host = self.request.host
             if user:
-                t = {'appname': "JSONBOT", 'version': getversion(), 'who': user, 'host': host, 'color': "#4b7cc6", "logouturl": 'logout', "loginurl": "login"}
+                if 'localhost' in host: url = "http://%s" % host
+                else: "https://%s" % host
+                t = {'url': url, 'appname': "JSONBOT DEMO", 'version': getversion(), 'who': user, 'host': host, 'color': "#4b7cc6", "logouturl": 'logout', "loginurl": "login"}
                 self.render(ddir + os.sep + "templates" + os.sep + "console.html", title="JSONBOT", **t)
         except Exception, ex:
             handle_exception()
