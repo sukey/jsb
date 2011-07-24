@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Module>
-<ModulePrefs title="jsb iframe" 
-       height="300"
+<ModulePrefs title="jsonbot iframe" 
+       height="450"
        author="Bart Thate"
        author_email = "bthate@gmail.com"
        description = "an IRC like command bot"
@@ -11,7 +11,7 @@
 <Content type="html">
 <![CDATA[
   <div style="border: 0px; padding: 0px;">
-    <iframe id="jsb_frame" height="300px" width="100%" frameborder="0" border="0" src="https://jsonbot.appspot.com/"></iframe>
+    <iframe id="jsb_frame" height="450px" width="100%" frameborder="0" border="0" src="https://jsonbot.appspot.com/"></iframe>
   </div>
   ]]>
   </Content>

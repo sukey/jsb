@@ -21,7 +21,7 @@
       var parameters = "";
       var identtime = new Date();
       var diskname = host + identtime.toString();
-      var consoletxt = '<div style="font-size: 25px;"><br><form><b>&lt;-</b><input style="font-size: 80%;" size="33" type="text" name="cmnd" onKeyDown="return doexec(this.form, event);" /><b>-&gt;</b></form></div><div class="related"><div align="center" id="status_div" style="background-color: #C54848;"><b>JSONBOT PRESENT!<b></div></div>';
+      var consoletxt = '<div style="font-size: 120%"><br><form><b>&lt;-</b><input style="font-size: 100%;" size="33" type="text" name="cmnd" onKeyDown="return doexec(this.form, event);" /><b>-&gt;</b></form></div><div class="related"><div align="center" id="status_div" style="background-color: #C54848;"><b>JSONBOT PRESENT!<b></div></div>';
       var log = new Array();
       var cmndlog = new Array();
       var disk = {};
@@ -149,7 +149,6 @@
       onClose = function() {
         var tt = new Date();
         dooutput("channel closed on " + tt.toTimeString(), "info_div", "background");
-        //setTimeout("consolestart();", 50);
         doCmnd('!chan-token', renewtoken, 'info_div', 'background');
         return false;
       }
@@ -162,7 +161,6 @@
       onError = function(m) {
         var tt = new Date();
         dooutput(m.data, "status_div", "background");
-        // setTimeout("doCmnd('!chan-token', renewtoken, 'info_div', 'background');", 100);
         return false;
       }
 
@@ -191,9 +189,9 @@
           // update();
           setTimeout("doSocket('!statusline', 'info_div', 'background');", 10000);
           setTimeout("doSocket('!topper', 'info_div', 'background');", 20000);
-          setTimeout("doSocket('!welcome', 'content_div', 'channel');", 3000);
-          setTimeout("doSocket('!today', 'content_div', 'channel');", 5500);
-          setTimeout("doSocket('!shop', 'content_div', 'channel');", 6000);
+          setTimeout("doSocket('!welcome', 'content_div', 'channel');", 1000);
+          setTimeout("doSocket('!today', 'content_div', 'channel');", 2500);
+          setTimeout("doSocket('!shop', 'content_div', 'channel');", 3000);
           setInterval("timeloop();", 1000);
           setInterval("outputloop();", 30000);
           setTimeout("outputloop();", 1000);
@@ -201,14 +199,14 @@
 
 
       function init() {
-        setTimeout("consolestart();", 50);
+        setTimeout("consolestart();", 150);
       }
 
       function consolestart() {
           doconsole();
           dooutput("<b>BOOTING</b>", "status_div", "background");
           doCmnd('!chan-token',renewtoken,'info_div','background');
-          setTimeout("start();", 2000);
+          setTimeout("start();", 500);
       }
 
       function doconsole() {
@@ -303,14 +301,12 @@
           dooutput(" - " + cmnd, "status_div", "channel");
           return false;
       }
-
-
    </script>
 </head>
 <body>
   <title>JSONBOT</title>
-  <div align="center" class="document">
-    <div class="related" style="font-size: 100%">
+  <div align="center" class="document" style="font-size: 80%">
+    <div class="related" style="font-size: 80%">
       <ul>
         <li class="right" style="margin-right: 10px;">
           <a href="{{ logouturl }}" title="logout">logout</i></a></li>
@@ -322,14 +318,13 @@
     </div>
     <div align="center" id="uber_div" style="font-size: 100%; background-color: white; color: black;">Morning !!</div>
     <div class="body" align="center"><h1 style="background-color: #C54848; color: white;"><b>{{ appname }}</b></h1>
-      <div style="width: 100%; font-size: 100%; font-weight: bold; color: {{ color }};" align="center" id="topper_div">[] [] []</div>
-    </div>
-        <div class="output" align="center" style="position: float;">
+      <div style="width: 100%; font-size: 100%; font-weight: bold; color: {{ color }};" align="center" id="topper_div">[] [] []</div><br><br>
+        <div class="output" align="center" style="height: 60%; position: float;">
           <div style="width: 90%; font-size: 100%" scroll="auto" align="center" id="content_div"></div>
         </div>
       </div>
       </div>
-      <div class="bottom" style="width: 100%; font-size: 100%; font-weight: bold;" align="center">
+      <div class="bottom" style="width: 100%; font-size: 80%; font-weight: bold;" align="center">
         <div class="footer" style="font-size: 100%; font-height: 80%; color: #C54848;" align="center" id="info_div">[] [] []</div><br>
         <div style="font-size: 100%; width: 100%; background-color: {{ color }}; color: white;" position="fixed" bottom="0""  id="screen_div"></div>
       </div>

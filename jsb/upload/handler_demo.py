@@ -22,6 +22,7 @@ from jsb.lib.fleet import fleet
 from jsb.lib.errors import NoSuchCommand
 from jsb.utils.lazydict import LazyDict
 from jsb.utils.gae.web import start, closer, loginurl, logouturl, login, demo
+from jsb.lib.config import getmainconfig
 
 ## gaelib imports
 
@@ -53,6 +54,7 @@ class Demo_Handler(RequestHandler):
     """ the bots remote command dispatcher. """
 
     def options(self):
+         if not getmainconfig().demo: self.response.set_status(404) ; return
          self.response.headers.add_header('Content-Type', 'application/x-www-form-urlencoded')
          self.response.headers.add_header("Server", getversion())
          self.response.headers.add_header("Public", "*")
@@ -64,9 +66,9 @@ class Demo_Handler(RequestHandler):
 
     def get(self):
         """ show basic page. """
-
         logging.warn("demo_handler - in")
         try:
+            if not getmainconfig().demo: self.response.set_status(404) ; return
             logout = logouturl(self.request, self.response)
             user =  "demouser" + "@" + self.request.remote_addr
             demo(self.response, {'appname': 'JSONBOT DEMO' , 'who': user, 'loginurl': 'logged in', 'logouturl': logout, 'onload': 'consoleinit();'})
@@ -82,6 +84,7 @@ class Demo_Handler(RequestHandler):
         """ this is where the command get disaptched. """
         starttime = time.time()
         try:
+            if not getmainconfig().demo: self.response.set_status(404) ; return
             logging.warn("DEMO incoming: %s - %s" % (self.request.get('content'), self.request.remote_addr))
             event = WebEvent(bot=bot).parse(self.response, self.request)
             event.cbtype = "DISPATCH"
