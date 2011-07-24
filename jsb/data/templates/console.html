@@ -21,8 +21,7 @@
       var parameters = "";
       var identtime = new Date();
       var diskname = host + identtime.toString();
-      var consoletxt = '<div style="font-size: 25px;"><br><form><b>&lt;-</b><input style="font-size: 80%;" size="33" type="text" name="cmnd" onKeyDown="return doexec(this.form, event);" /><b>-&gt;</b></form></div><div class="related"><div align="center" id="status_div" style="background-color: #C54848;"><b>JSONBOT PRESENT!<b></div></div>';
-      var feedstxt = '<br><form name="feeddata" action="javascript:submitfeed(this.form);" method="GET"><b>feed name - </b> <input type="text" name="name" /><br></b><b>feed url - </b> <input type="text" name="url" onKeyPress="return doenter(this.form, event);" /><br><br><input type="submit" name="Enter" onClick="return submitfeed(this.form);"/><input type="reset" name="reset" /></form><div class="body" align="left" id="content_div"><i>no feeds entered yet.</i></div>';
+      var consoletxt = '<div style="font-size: 120%;"><br><form><b>&lt;-</b><input style="font-size: 100%;" size="33" type="text" name="cmnd" onKeyDown="return doexec(this.form, event);" /><b>-&gt;</b></form></div><div class="related"><div align="center" id="status_div" style="background-color: #C54848;"><b>JSONBOT PRESENT!<b></div></div>';
       var log = new Array();
       var cmndlog = new Array();
       var disk = {};
@@ -96,8 +95,8 @@
           var ws = new WebSocket(websocketurl);
           ws.onopen = function () {
               var t = new Date();
-              dooutput("channel openend on " + t.toTimeString() + "<br>", "status_div", "background");
-              dooutput("channel openend on " + t.toTimeString() + "<br>", "info_div", "background");
+              dooutput("channel openend on " + t.toTimeString(), "status_div", "background");
+              dooutput("channel openend on " + t.toTimeString(), "info_div", "background");
           }
           ws.onmessage = function (evt) {
               handlesocket(evt.data);
@@ -129,7 +128,7 @@
 
       function consolestart() {
           doconsole();
-          dooutput("you are using " + url + "<br><br>", "content_div", "background");
+          dooutput("you are using " + url, "content_div", "background");
           dooutput("<b>BOOT</b> - ", "status_div", "background");
           setTimeout("start();", 100);
           dooutput(elapsed() + " msec ", "status_div", "normal");
@@ -238,8 +237,8 @@
 </head>
 <body>
   <title>JSONBOT</title>
-  <div align="center" class="document">
-    <div class="related" style="font-size: 100%">
+  <div align="center" class="document" style="font-size: 80%; ">
+    <div class="related" style="font-size: 80%">
       <ul>
         <li class="right" style="margin-right: 10px;">
           <a href="{{ logouturl }}" title="logout">logout</i></a></li>
@@ -253,14 +252,14 @@
     <div class="body" align="center"><h1 style="background-color: #C54848; color: white;"><b>{{ appname }}</b></h1>
       <div style="width: 100%; font-size: 100%; font-weight: bold; color: {{ color }};" align="center" id="topper_div">[] [] []</div>
     </div>
-        <div class="output" align="center" style="position: float;">
-          <div style="width: 90%; font-size: 100%" scroll="auto" align="center" id="content_div"></div>
+        <div class="output" align="center">
+          <div style="width: 90%; font-size: 90%;" align="center" id="content_div"></div>
         </div>
       </div>
       </div>
-      <div class="bottom" style="width: 100%; font-size: 100%; font-weight: bold;" align="center">
-        <div class="footer" style="font-size: 100%; font-height: 80%; color: #C54848;" align="center" id="info_div">[] [] []</div><br>
-        <div style="font-size: 100%; width: 100%; background-color: {{ color }}; color: white;" position="fixed" bottom="0""  id="screen_div"></div>
+      <div class="bottom" style="width: 100%; font-size: 80%; font-weight: bold;" align="center">
+        <div class="footer" style="font-size: 80%; color: #C54848;" align="center" id="info_div">[] [] []</div><br>
+        <div style=" font-size: 80%; width: 100%; background-color: {{ color }}; color: white;" position="fixed" bottom="0""  id="screen_div"></div>
       </div>
     </div>
   </div>

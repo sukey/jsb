@@ -99,9 +99,8 @@ import select
 bot = TornadoBot(botname="tornado-bot")
 
 
-ddir = getsource("jsb.data")
-if not ddir and os.path.exists(os.getcwd() + os.sep + "jsb"): ddir = os.getcwd() + os.sep + "jsb" + os.sep + "data"
-elif not ddir: ddir = getdatadir()
+if os.path.exists(os.getcwd() + os.sep + "jsb"): ddir = os.getcwd() + os.sep + "jsb" + os.sep + "data"
+else: ddir = getdatadir()
 
 bot.start(connect=False)
 
@@ -284,7 +283,7 @@ class DemoHandler(BaseHandler):
 ## the application 
 
 settings = {
-    "static_path": getdatadir() + os.sep + "static",
+    "static_path": ddir + os.sep + "static",
     "cookie_secret": "661oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo=",
     "login_url": "/login",
 }
