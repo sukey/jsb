@@ -225,3 +225,21 @@ def handle_chatlogoff(bot, ievent):
 
 cmnds.add('chatlog-off', handle_chatlogoff, 'OPER')
 examples.add('chatlog-off', 'disable chatlog on <channel> or the channel the commands is given in', '1) chatlog-off 2) chatlog-off #dunkbots')
+
+def handle_chatlogsearch(bot, event):
+    if not event.rest: event.missing("<searchitem>") ; return
+    result = []
+    chatlogdir = getdatadir() + os.sep + "chatlogs"
+    chan = event.options.channel or event.channel
+    logs = os.listdir(chatlogdir)
+    logs.sort()
+    for f in logs:
+        filename = stripname(f)
+        if not chan[1:] in filename: continue
+        for line in open(chatlogdir + os.sep + filename, 'r'):
+            if event.rest in line: result.append(line)
+    if result: event.reply("search results for %s" % event.rest, result, dot= " || ")
+    else: event.reply("no result found for %s" % chan)
+
+cmnds.add("chatlog-search", handle_chatlogsearch, ["OPER", "USER", "GUEST"])
+examples.add("chatlog-search", "search the chatlogs of a channel.", "chatlog-search jsonbot")
