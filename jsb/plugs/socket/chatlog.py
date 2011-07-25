@@ -247,12 +247,10 @@ examples.add("chatlog-search", "search the chatlogs of a channel.", "chatlog-sea
 
 
 def handle_chatlogstats(bot, event):
-    if not event.rest: event.missing("<searchitem>") ; return
-    stats = {}
     userstats = StatDict()
-    result = []
     chatlogdir = getdatadir() + os.sep + "chatlogs"
     chan = event.options.channel or event.channel
+    event.reply("creating stats for channel %s" % chan)
     logs = os.listdir(chatlogdir)
     logs.sort()
     for f in logs[::-1]:
@@ -260,7 +258,12 @@ def handle_chatlogstats(bot, event):
         if not chan[1:] in filename: continue
         for line in open(chatlogdir + os.sep + filename, 'r'):
             splitted = line.split()
-            print splitted
-            userstats.up(splitted[1][1:-1])
-    if result: event.reply("stat results for %s" % chan, result)
+            userstats.upitem(splitted[2][1:-1])
+    result = userstats.top()
+    if result:
+        res = ["%s: %s" % item for item in result]
+        event.reply("stat results for %s: " % chan, res)
     else: event.reply("no result found for %s" % chan)
+
+cmnds.add("chatlog-stats", handle_chatlogstats, ["OPER", "USER", "GUEST"])
+examples.add("chatlog-stats", "stats of a channel.", "chatlog-stats")
