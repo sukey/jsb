@@ -23,6 +23,7 @@ from jsb.utils.name import stripname
 from jsb.utils.url import striphtml
 from jsb.utils.format import formatevent, format_opt
 from jsb.utils.log import init
+from jsb.utils.statdict import StatDict
 
 ## basic imports
 
@@ -243,3 +244,23 @@ def handle_chatlogsearch(bot, event):
 
 cmnds.add("chatlog-search", handle_chatlogsearch, ["OPER", "USER", "GUEST"])
 examples.add("chatlog-search", "search the chatlogs of a channel.", "chatlog-search jsonbot")
+
+
+def handle_chatlogstats(bot, event):
+    if not event.rest: event.missing("<searchitem>") ; return
+    stats = {}
+    userstats = StatDict()
+    result = []
+    chatlogdir = getdatadir() + os.sep + "chatlogs"
+    chan = event.options.channel or event.channel
+    logs = os.listdir(chatlogdir)
+    logs.sort()
+    for f in logs[::-1]:
+        filename = stripname(f)
+        if not chan[1:] in filename: continue
+        for line in open(chatlogdir + os.sep + filename, 'r'):
+            splitted = line.split()
+            print splitted
+            userstats.up(splitted[1][1:-1])
+    if result: event.reply("stat results for %s" % chan, result)
+    else: event.reply("no result found for %s" % chan)
