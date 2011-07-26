@@ -212,6 +212,7 @@ class Irc(BotBase):
                 continue
             #except socket.SSLError, ex: logging.error("%s - ssl error: %s" % (self.cfg.name, str(ex))) ; break
             except socket.timeout:
+                self.error = str(ex)
                 if self.stopped or self.stopreadloop: break
                 timeout += 1
                 if timeout > 2:
@@ -225,6 +226,7 @@ class Irc(BotBase):
                     break
                 continue
             except socket.sslerror, ex:
+                self.error = str(ex)
                 if self.stopped or self.stopreadloop: break
                 if not 'timed out' in str(ex):
                     handle_exception()
@@ -242,6 +244,7 @@ class Irc(BotBase):
                     break
                 continue
             except IOError, ex:
+                self.error = str(ex)
                 if self.blocking and 'temporarily' in str(ex):
                     time.sleep(0.5)
                     continue
@@ -251,6 +254,7 @@ class Irc(BotBase):
                     doreconnect = 1
                 break
             except socket.error, ex:
+                self.error = str(ex)
                 if self.blocking and 'temporarily' in str(ex):
                     time.sleep(0.5)
                     continue
@@ -258,12 +262,13 @@ class Irc(BotBase):
                     logging.error('%s - connecting error: %s' % (self.cfg.name, str(ex)))
                     doreconnect = 1
             except Exception, ex:
+                self.error = str(ex)
                 if self.stopped or self.stopreadloop:
                     break
                 logging.error("%s - error in readloop: %s" % (self.cfg.name, str(ex)))
                 doreconnect = 1
                 break
-        logging.warn('%s - readloop stopped' % self.cfg.name)
+        logging.warn('%s - readloop stopped - %s' % (self.cfg.name, self.error))
         self.connectok.clear()
         self.connected = False
         if doreconnect and not self.stopped:

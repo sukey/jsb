@@ -292,7 +292,7 @@ class BotBase(LazyDict):
                 else: key = None
                 if channel.data.nick: self.ids.append("%s/%s" % (i, channel.data.nick))
                 start_new_thread(self.join, (i, key))
-                time.sleep(1)
+                time.sleep(5)
             except Exception, ex:
                 logging.warn('%s - failed to join %s: %s' % (self.cfg.name, i, str(ex)))
                 handle_exception()

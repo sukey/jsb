@@ -77,6 +77,7 @@ class Fleet(Persist):
         threads = []
         bots = []
         for name in target:
+            time.sleep(1)
             if not name: logging.debug(" name is not set") ; continue
             try:
                 if self.data.types[name] == "console": logging.warn("fleet- skipping console bot %s" % name) ; continue
@@ -273,6 +274,7 @@ class Fleet(Persist):
     def startall(self, bots=None, usethreads=True):
         target = bots or self.bots
         for bot in target:
+            time.sleep(3)
             if usethreads: start_new_thread(bot.reconnect, ()) ; continue
             try: bot.reconnect()
             except Excepton, ex: handle_exception()
