@@ -155,7 +155,7 @@ class Plugins(LazyDict):
                 try:
                     self.load(dep, force, showerror, loaded)
                     loaded.append(dep)
-                except Exception, ex: handle_exception()
+                except Exception, ex: raise
         return loaded
 
     def reload(self, modname, force=False, showerror=False):

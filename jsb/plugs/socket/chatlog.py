@@ -132,6 +132,7 @@ def log_write(m):
     line = '%(timestamp)s%(separator)s%(txt)s\n'%({
         'timestamp': timestamp, 
         'separator': format_opt('separator'),
+         'nick': m.nick,
         'txt': m.txt,
         'type': m.type
     })
@@ -240,41 +241,42 @@ def handle_chatlogsearch(bot, event):
         if not chan[1:] in filename: continue
         for line in open(chatlogdir + os.sep + filename, 'r'):
             if event.rest in line: result.append(line)
-    if result: event.reply("search results for %s" % event.rest, result, dot= " || ")
+    if result: event.reply("search results for %s: " % event.rest, result, dot= " || ")
     else: event.reply("no result found for %s" % chan)
 
 cmnds.add("chatlog-search", handle_chatlogsearch, ["OPER", "USER", "GUEST"])
 examples.add("chatlog-search", "search the chatlogs of a channel.", "chatlog-search jsonbot")
 
-
 def handle_chatlogstats(bot, event):
     what = event.rest.strip()
     chatlogdir = getdatadir() + os.sep + "chatlogs"
     chan = event.options.channel or event.channel
-    event.reply("creating stats for channel %s" % chan)
-    userstats = StatDict()
-    wordstats = StatDict()
     logs = os.listdir(chatlogdir)
-    logs.sort()
     now = time.time()
     if what: timetarget = strtotime2(what) ; what = striptime(what)
-    else: timetarget = now ; what = None
-    for f in logs:
+    else: timetarget = 0 ; what = None
+    event.reply("creating stats for channel %s (%s)" % (chan, time.ctime(timetarget)))
+    userstats = StatDict()
+    wordstats = StatDict()
+    stop = False
+    for f in logs[::-1]:
         filename = stripname(f)
         channel = stripname(chan[1:])
         if not channel in filename: continue
         for line in open(chatlogdir + os.sep + filename, 'r'):
-            splitted = line.split()
-            who = splitted[2]
-            if not who.startswith("<"): who = "jsonbot"
-            else: who = who[1:-1]
-            print splitted
+            splitted = line.strip().split()
+            who = "unknown"
+            for i in splitted:
+               if i.startswith("<"): who = i[1:-1]
             if what and who != what: continue
-            logtime = strtotime2(' '.join(splitted[:1]))
-            print timetarget, logtime
-            if logtime < timetarget: break
-            userstats.upitem(who)
-            for word in splitted[3:]: wordstats.upitem(word)
+            timestr = "%s %s" % (splitted[0], splitted[1])
+            logtime = strtotime2(timestr)
+            print logtime, timetarget
+            if logtime:
+                if logtime > timetarget: print "YOOO" ; userstats.upitem(who)
+                else: continue
+            else: userstats.upitem(who)
+            for word in splitted[4:]: wordstats.upitem(word)
     if what: result = wordstats.top()
     else: result = userstats.top()
     if result:

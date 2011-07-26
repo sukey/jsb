@@ -80,4 +80,4 @@ def handle_plugreload(bot, ievent):
     if reloaded: ievent.reply('reloaded: ', reloaded)
 
 cmnds.add('plug-reload', handle_plugreload, 'OPER')
-examples.add('plug-reload', 'reload <plugin>', 'reload core')
+examples.add('plug-reload', 'plug-reload <plugin>', 'plug-reload core')
