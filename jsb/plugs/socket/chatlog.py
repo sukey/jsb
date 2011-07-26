@@ -129,11 +129,12 @@ def log_write(m):
     logname = "%s_%s" % (m.botname, stripname(m.target))
     timestamp = timestr(m.datetime)
     m.type = m.type.upper()
-    line = '%(timestamp)s%(separator)s%(txt)s\n'%({
+    line = '%(timestamp)s%(separator)s <%(nick)s %(txt)s\n'%({
         'timestamp': timestamp, 
         'separator': format_opt('separator'),
          'nick': m.nick,
         'txt': m.txt,
+        'nick': m.nick,
         'type': m.type
     })
     global loggers

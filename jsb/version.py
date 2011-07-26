@@ -15,7 +15,7 @@ import binascii
 
 ## defines
 
-version = "0.8 DEVELOPMENT ALPHA1"
+version = "0.8 BETA1"
 
 ## getversion function
 
