@@ -26,7 +26,7 @@ def uploadfiles(dir):
             if file.endswith(".pyc"):
                 continue
             upl.append(d)
-
+    print upl
     return upl
 
 def uploadlist(dir):
@@ -118,9 +118,9 @@ setup(
         'Topic :: Communications :: Chat',
         'Topic :: Software Development :: Libraries :: Python Modules'],
     data_files=[(target + os.sep + 'data', uploadfiles('jsb' + os.sep + 'data')),
-                (target + os.sep + 'data' + os.sep + 'examples', uploadfiles('jsb' + os.sep + 'data' + os.sep + 'examples')),
-                (target + os.sep + 'data' + os.sep + 'static', uploadfiles('jsb' + os.sep + 'data' + os.sep + 'static')),
-                (target + os.sep + 'data' + os.sep + 'templates', uploadfiles('jsb' + os.sep + 'data' + os.sep + 'templates')),
+                (target + os.sep + 'data' + os.sep + 'examples', uploadlist('jsb' + os.sep + 'data' + os.sep + 'examples')),
+                (target + os.sep + 'data' + os.sep + 'static', uploadlist('jsb' + os.sep + 'data' + os.sep + 'static')),
+                (target + os.sep + 'data' + os.sep + 'templates', uploadlist('jsb' + os.sep + 'data' + os.sep + 'templates')),
                 (target + os.sep + 'upload', uploadfiles('jsb' + os.sep + 'upload')),
                 (target + os.sep + 'upload' + os.sep + 'webapp2', uploadlist('jsb' + os.sep + 'upload' + os.sep + 'webapp2')),
                 (target + os.sep + 'upload' + os.sep + 'assets', uploadlist('jsb' + os.sep + 'upload' + os.sep + 'assets')),
