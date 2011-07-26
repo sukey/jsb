@@ -168,6 +168,60 @@ def strtotime(what):
     except ValueError:return None
     except Exception, ex: pass
 
+def strtotime2(what):
+    """ convert string to time. """
+    daymonthyear = 0
+    hoursmin = 0
+    try:
+        dmyre = re.search('(\d+)-(\d+)-(\d+)', str(what))
+        if dmyre:
+            (year, month, day) = dmyre.groups()
+            day = int(day)
+            month = int(month)
+            year = int(year)
+            if day <= calendar.monthrange(year, month)[1]:
+                date = "%s %s %s" % (day, bdmonths[month], year)
+                daymonthyear = time.mktime(time.strptime(date, "%d %b %Y"))
+            else: return None
+        else:
+            dmre = re.search('(\d+)-(\d+)', str(what))
+            if dmre:
+                year = time.localtime()[0]
+                (day, month) = dmre.groups()
+                day = int(day)
+                month = int(month)
+                if day <= calendar.monthrange(year, month)[1]: 
+                    date = "%s %s %s" % (day, bdmonths[month], year)
+                    daymonthyear = time.mktime(time.strptime(date, "%d %b %Y"))
+                else: return None
+        hmsre = re.search('(\d+):(\d+):(\d+)', str(what))
+        if hmsre:
+            (h, m, s) = hmsre.groups()
+            h = int(h)
+            m = int(m)
+            s = int(s)
+            if h > 24 or h < 0 or m > 60 or m < 0 or s > 60 or s < 0: return None
+            hours = 60 * 60 * (int(hmsre.group(1)))
+            hoursmin = hours  + int(hmsre.group(2)) * 60
+            hms = hoursmin + int(hmsre.group(3))
+        else:
+            hmre = re.search('(\d+):(\d+)', str(what))
+            if hmre:
+                (h, m) = hmre.groups()
+                h = int(h)
+                m = int(m)
+                if h > 24 or h < 0 or m > 60 or m < 0: return None
+                hours = 60 * 60 * (int(hmre.group(1)))
+                hms = hours  + int(hmre.group(2)) * 60
+            else: hms = 0
+        if not daymonthyear and not hms: return None
+        if daymonthyear == 0: heute = today()
+        else: heute = daymonthyear
+        return heute + hms
+    except OverflowError: return None
+    except ValueError:return None
+    except Exception, ex: pass
+
 ## uurminsec function
 
 def uurminsec(ttime):

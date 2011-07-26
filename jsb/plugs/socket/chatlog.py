@@ -24,6 +24,7 @@ from jsb.utils.url import striphtml
 from jsb.utils.format import formatevent, format_opt
 from jsb.utils.log import init
 from jsb.utils.statdict import StatDict
+from jsb.utils.timeutils import striptime, strtotime2
 
 ## basic imports
 
@@ -247,23 +248,39 @@ examples.add("chatlog-search", "search the chatlogs of a channel.", "chatlog-sea
 
 
 def handle_chatlogstats(bot, event):
-    userstats = StatDict()
+    what = event.rest.strip()
     chatlogdir = getdatadir() + os.sep + "chatlogs"
     chan = event.options.channel or event.channel
     event.reply("creating stats for channel %s" % chan)
+    userstats = StatDict()
+    wordstats = StatDict()
     logs = os.listdir(chatlogdir)
     logs.sort()
-    for f in logs[::-1]:
+    now = time.time()
+    if what: timetarget = strtotime2(what) ; what = striptime(what)
+    else: timetarget = now ; what = None
+    for f in logs:
         filename = stripname(f)
-        if not chan[1:] in filename: continue
+        channel = stripname(chan[1:])
+        if not channel in filename: continue
         for line in open(chatlogdir + os.sep + filename, 'r'):
             splitted = line.split()
-            userstats.upitem(splitted[2][1:-1])
-    result = userstats.top()
+            who = splitted[2]
+            if not who.startswith("<"): who = "jsonbot"
+            else: who = who[1:-1]
+            print splitted
+            if what and who != what: continue
+            logtime = strtotime2(' '.join(splitted[:1]))
+            print timetarget, logtime
+            if logtime < timetarget: break
+            userstats.upitem(who)
+            for word in splitted[3:]: wordstats.upitem(word)
+    if what: result = wordstats.top()
+    else: result = userstats.top()
     if result:
         res = ["%s: %s" % item for item in result]
-        event.reply("stat results for %s: " % chan, res)
-    else: event.reply("no result found for %s" % chan)
+        event.reply("stat results for %s: " % (what or chan), res)
+    else: event.reply("no result found for %s" % (what or chan))
 
 cmnds.add("chatlog-stats", handle_chatlogstats, ["OPER", "USER", "GUEST"])
 examples.add("chatlog-stats", "stats of a channel.", "chatlog-stats")
