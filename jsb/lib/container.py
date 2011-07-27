@@ -8,7 +8,10 @@ __version__ = "1"
 
 ## jsb imports
 
+from jsb.lib.persist import Persist
+from jsb.utils.name import stripname
 from jsb.lib.gozerevent import GozerEvent
+from jsb.imports import getjson
 
 ## xmpp import
 
@@ -58,3 +61,13 @@ class Container(GozerEvent):
         self.hash = "sha512"
         self.hashkey = key
         self.digest = hmac.new(key, self.payload, hashlib.sha512).hexdigest()
+
+    def save(self, attributes=[]):
+        target = {}
+        if attributes:
+            for key in attributes: target[key] = self[key]
+        else: target = cpy(self)
+        targetfile = getdatadir() + os.sep + "containers" + os.sep + str(self.createtime) + "_" + stripname(self.origin)
+        p = Persist(targetfile)
+        p.data = getjson().dumps(target)
+        p.save()
