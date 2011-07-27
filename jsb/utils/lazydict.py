@@ -162,3 +162,12 @@ class LazyDict(dict):
     def fromfile(self, filename):
         f = open(filename, "r")
         self.update(json.loads(f.read()))
+
+    def snapshot(self):
+        pass
+
+    def merge(self, input):
+        pass
+
+    def save(self):
+        pass
