@@ -151,7 +151,7 @@ class EventBase(LazyDict):
         return self
 
     #@locked
-    def reply(self, txt, result=[], event=None, origin="", dot=u", ", nr=375, extend=0, *args, **kwargs):
+    def reply(self, txt, result=[], event=None, origin="", dot=u", ", nr=375, extend=0, showall=False, *args, **kwargs):
         """ reply to this event """
         try: target = self.channel or self.arguments[1]
         except IndexError: target = self.channel
@@ -159,9 +159,9 @@ class EventBase(LazyDict):
         if self.checkqueues(result): return self
         if self.silent:
             self.msg = True
-            self.bot.say(self.nick, txt, result, self.userhost, extend=extend, event=self, dot=dot, nr=nr, *args, **kwargs)
-        elif self.isdcc: self.bot.say(self.sock, txt, result, self.userhost, extend=extend, event=self, dot=dot, nr=nr, *args, **kwargs)
-        else: self.bot.say(target, txt, result, self.userhost, extend=extend, event=self, dot=dot, nr=nr, *args, **kwargs)
+            self.bot.say(self.nick, txt, result, self.userhost, extend=extend, event=self, dot=dot, nr=nr, showall=showall, *args, **kwargs)
+        elif self.isdcc: self.bot.say(self.sock, txt, result, self.userhost, extend=extend, event=self, dot=dot, nr=nr, showall=showall, *args, **kwargs)
+        else: self.bot.say(target, txt, result, self.userhost, extend=extend, event=self, dot=dot, nr=nr, showall=showall, *args, **kwargs)
         return self
 
     def missing(self, txt):
