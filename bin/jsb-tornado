@@ -99,8 +99,11 @@ import select
 bot = TornadoBot(botname="tornado-bot")
 
 
-if os.path.exists(os.getcwd() + os.sep + "jsb"): ddir = os.getcwd() + os.sep + "jsb" + os.sep + "data"
-else: ddir = getdatadir()
+if os.path.isdir(os.getcwd() + os.sep + "jsb"): ddir = os.getcwd() + os.sep + "jsb" + os.sep + "data"
+elif os.path.isdir(getdatadir() + os.sep + "data" + os.sep + "templates"): ddir = getdatadir() + os.sep + "data"
+else: ddir = getsource("jsb.data")
+if not ddir: logging.warn("can't find jsb.data dir") ; os._exit(1)
+else: logging.warn("jsb.data is at %s" % ddir)
 
 bot.start(connect=False)
 
