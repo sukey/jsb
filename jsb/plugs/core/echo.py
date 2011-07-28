@@ -23,9 +23,9 @@ def echopre(bot, event):
 
 def echocb(bot, event):
     """ do the echo. """
-    bot.outnocb(event.channel, u"[%s] %s" % (event.nick, event.txt), event=event)
+    bot.outnocb(event.channel, event.txt, event=event)
 
-last_callbacks.add("TORNADO", echocb, echopre)
+first_callbacks.add("TORNADO", echocb, echopre)
 first_callbacks.add("DISPATCH", echocb, echopre)
 
 ## echo command

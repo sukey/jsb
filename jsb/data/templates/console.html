@@ -163,7 +163,12 @@
       function handlesocket(message) {
           var data = JSON.parse(message);
           var event = JSON.parse(data['payload']);
-          dooutput('<TR align="left"><TD align="left>' + event['nick'] + '</TD><TD align=center">' + event['txt'] + '</TD><TD align="right">' + event['channel'] + "</TD><TR>", event['div'], event['how']);
+          if (event['div'] == "content_div") {
+              dooutput('<TR align="left"><TD><b><i>&lt;' + event['nick'] + '&gt;</i></b></TD><TD align="center">' + event['txt'] + "</TD><TD><i>" + event['channel'] + '</i></TD></TR>', event['div'], event['how']);
+          }
+          else {
+              dooutput('<TR align="center"><TD align="center"><i>' + event['txt'] + "</i></TD><TD>", event['div'], event['how']);
+          }
           dooutput("OK", "status_div", "background"); 
           return false;
       }
@@ -245,16 +250,16 @@
     </div>
     <div align="center" id="uber_div" style="font-size: 100%; background-color: white; color: black;">Morning !!</div>
     <div class="body" align="center"><h1 style="background-color: #C54848; color: white;"><b>{{ appname }}</b></h1>
-      <div style="width: 100%; font-size: 100%; font-weight: bold; color: {{ color }};" align="center" id="topper_div">[] [] []</div>
+      <table style="width: 100%; font-size: 100%; font-weight: bold; color: {{ color }};" align="center" id="topper_div"></table>
     </div>
         <div class="output" align="center">
-          <table style="width: 90%; font-size: 90%;" align="center" id="content_div"></table>
+          <table style="width: 100%; font-size: 100%;" align="center" id="content_div"></table>
         </div>
       </div>
       </div>
       <div class="bottom" style="width: 100%; font-size: 80%; font-weight: bold;" align="center">
-        <div class="footer" style="font-size: 80%; color: #C54848;" align="center" id="info_div">[] [] []</div><br>
-        <div style=" font-size: 80%; width: 100%; background-color: {{ color }}; color: white;" position="fixed" bottom="0""  id="screen_div"></div>
+        <table class="footer" style="font-size: 100%; color: #C54848;" align="center" id="info_div"></table><br>
+        <div style=" font-size: 80%; width: 100%; background-color: {{ color }}; color: white;" position="fixed" bottom="0" id="screen_div"></div>
       </div>
     </div>
   </div>
