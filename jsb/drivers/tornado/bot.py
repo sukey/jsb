@@ -13,7 +13,9 @@ from jsb.utils.url import re_url_match
 from jsb.utils.timeutils import hourmin
 from jsb.lib.channelbase import ChannelBase
 from jsb.imports import getjson
+from jsb.lib.container import Container
 from jsb.utils.exception import handle_exception
+from jsb.lib.eventbase import EventBase
 
 json = getjson()
 
@@ -61,8 +63,13 @@ class TornadoBot(BotBase):
                  try: txt = re.sub(item, url, txt)
                  except ValueError:  logging.error("web - invalid url - %s" % url)
         if response: self._raw(txt, event.target, event.how, event.handler)
-        elif event: update_web(self, channel, txt, event.div, event.how or how)
-        else: update_web(self, channel, txt, "content_div", how)
+        else:
+            e = EventBase()
+            e.channel = channel
+            e.txt = txt
+            e.how = how
+            e.origin = origin
+            update_web(self, e)
         self.benice(event)
 
     def normalize(self, txt):
@@ -87,15 +94,10 @@ class TornadoBot(BotBase):
     def reconnect(self): return True
 
 
-def update_web(bot, channel, txt, div=None, how=None, end="<br>"):
-        if not txt: return 
-        #time.sleep(0.001)
-        txt = txt + end
-        outdict = {"target": div or "content_div", "result": txt, "how": how or "normal"}
-        try: out = json.dumps(outdict)
-        except Exception, ex: handle_exception() ; return
+def update_web(bot, event, end="<br>"):
+        out = Container(event.userhost, event.txt).tojson()
         logging.warn("%s - out - %s" % (bot.cfg.name, out))
-        if not bot.websockets.has_key(channel): logging.warn("no %s in websockets dict" % channel) ; return
-        for c in bot.websockets[channel]:
+        if not bot.websockets.has_key(event.channel): logging.warn("no %s in websockets dict" % event.channel) ; return
+        for c in bot.websockets[event.channel]:
             time.sleep(0.1)
             c.write_message(out)

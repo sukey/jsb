@@ -163,16 +163,12 @@
 
       function handlesocket(message) {
           var data = JSON.parse(message);
-          var target = data["target"];
-          var how = data["how"];
-          var result = data["result"];
-          dooutput(result, target, how);
-          var t = new Date();
-          dooutput("200", "topper_div", "background"); 
+          var event = JSON.parse(data['payload']);
+          dooutput('<TR align="center"><TD>' + event['nick'] + "</TD><TD>" + event['txt'] + "</TD><TD>" + event['channel'] + "</TD><TR>", event['div'], event['how']);
           dooutput("OK", "status_div", "background"); 
+          return false;
       }
-
-
+      
       // write command over the socket
 
       function doSocket(cmnd, target, how) {
@@ -253,7 +249,7 @@
       <div style="width: 100%; font-size: 100%; font-weight: bold; color: {{ color }};" align="center" id="topper_div">[] [] []</div>
     </div>
         <div class="output" align="center">
-          <div style="width: 90%; font-size: 90%;" align="center" id="content_div"></div>
+          <table style="width: 90%; font-size: 90%;" align="center" id="content_div"></table>
         </div>
       </div>
       </div>
