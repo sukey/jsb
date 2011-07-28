@@ -16,7 +16,6 @@ from jsb.imports import getjson
 from jsb.lib.container import Container
 from jsb.utils.exception import handle_exception
 from jsb.lib.eventbase import EventBase
-
 json = getjson()
 
 ## basic imports
@@ -26,11 +25,16 @@ import re
 import cgi
 import urllib
 import time
+import copy
 
 ## tornado import
 
 import tornado.ioloop
 import tornado.web
+
+## defines
+
+cpy = copy.deepcopy
 
 ## WebBot class
 
@@ -64,16 +68,23 @@ class TornadoBot(BotBase):
                  except ValueError:  logging.error("web - invalid url - %s" % url)
         if response: self._raw(txt, event.target, event.how, event.handler)
         else:
-            e = EventBase()
-            e.channel = channel
-            e.txt = txt
-            e.how = how
-            e.origin = origin
+            if event:
+                e = cpy(event)
+                e.txt = txt
+                e.channel = channel
+            else:
+                e = EventBase()
+                e.nick = self.cfg.nick
+                e.userhost = self.cfg.nick + "@" + "bot"
+                e.channel = channel
+                e.txt = txt
+                e.how = how
+                e.origin = origin
+                e.div = "content_div"
             update_web(self, e)
         self.benice(event)
 
     def normalize(self, txt):
-        #txt = cgi.escape(txt)
         txt = stripcolor(txt)
         txt = txt.replace("&lt;br&gt;", "<br>")
         txt = txt.replace("&lt;b&gt;", "<b>")
@@ -86,8 +97,6 @@ class TornadoBot(BotBase):
         txt = txt.replace("&lt;/h3&gt;", "</h3>")
         txt = txt.replace("&lt;li&gt;", "<li>") 
         txt = txt.replace("&lt;/li&gt;", "</li>")
-        #txt = txt.replace("&lt;", "<") 
-        #txt = txt.replace("&gt;", ">")
         txt = strippedtxt(txt)
         return txt
 
@@ -95,9 +104,9 @@ class TornadoBot(BotBase):
 
 
 def update_web(bot, event, end="<br>"):
-        out = Container(event.userhost, event.txt).tojson()
+        out = Container(event.userhost, event.tojson(), how="direct").tojson()
         logging.warn("%s - out - %s" % (bot.cfg.name, out))
         if not bot.websockets.has_key(event.channel): logging.warn("no %s in websockets dict" % event.channel) ; return
         for c in bot.websockets[event.channel]:
-            time.sleep(0.1)
+            time.sleep(0.01)
             c.write_message(out)

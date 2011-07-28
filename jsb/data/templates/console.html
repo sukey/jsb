@@ -128,7 +128,6 @@
 
       function consolestart() {
           doconsole();
-          dooutput("you are using " + url, "content_div", "background");
           dooutput("<b>BOOT</b> - ", "status_div", "background");
           setTimeout("start();", 100);
           dooutput(elapsed() + " msec ", "status_div", "normal");
@@ -164,7 +163,7 @@
       function handlesocket(message) {
           var data = JSON.parse(message);
           var event = JSON.parse(data['payload']);
-          dooutput('<TR align="center"><TD>' + event['nick'] + "</TD><TD>" + event['txt'] + "</TD><TD>" + event['channel'] + "</TD><TR>", event['div'], event['how']);
+          dooutput('<TR align="left"><TD align="left>' + event['nick'] + '</TD><TD align=center">' + event['txt'] + '</TD><TD align="right">' + event['channel'] + "</TD><TR>", event['div'], event['how']);
           dooutput("OK", "status_div", "background"); 
           return false;
       }

@@ -43,7 +43,7 @@ class Container(GozerEvent):
 
     """ Container for bot to bot communication. Provides a hmac id that can be checked. """
 
-    def __init__(self, origin=None, payload=None, type="event", key=None):
+    def __init__(self, origin=None, payload=None, type="event", key=None, how="direct"):
         GozerEvent.__init__(self)
         self.createtime = time.time()
         self.origin = origin
