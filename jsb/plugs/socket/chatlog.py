@@ -272,9 +272,8 @@ def handle_chatlogstats(bot, event):
             if what and who != what: continue
             timestr = "%s %s" % (splitted[0], splitted[1])
             logtime = strtotime2(timestr)
-            print logtime, timetarget
             if logtime:
-                if logtime > timetarget: print "YOOO" ; userstats.upitem(who)
+                if logtime > timetarget: userstats.upitem(who)
                 else: continue
             else: userstats.upitem(who)
             for word in splitted[4:]: wordstats.upitem(word)
