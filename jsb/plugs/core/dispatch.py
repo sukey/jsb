@@ -31,7 +31,7 @@ def predispatch(bot, event):
 
 def dispatch(bot, event):
     """ dispatch an event. """
-    logging.info("dispatch - doing event %s" % event.dump())
+    logging.info("dispatch - doing event %s" % event.tojson())
     if event.userhost in bot.ignore: logging.warn("%s - ignore on %s" % (bot.name, event.userhost)) ; return
     if event.nodispatch:
         logging.debug("dispatch - nodispatch option is set - ignoring %s" % event.userhost)
