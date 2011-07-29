@@ -150,7 +150,6 @@ class BotBase(LazyDict):
             callbackrunner.start()
             waitrunner.start()
             tickloop.start(self)
-        #if not self.started: self.start(connect=False)
 
     def __setattr__(self, a ,b):
         if self.cfg and a == "cfg": raise Exception("attempt to overwrite config")
@@ -499,7 +498,7 @@ class BotBase(LazyDict):
         time.sleep(2)
         while 1:
             try:
-                self.exit()
+                if self.connected: self.exit()
                 if self.doreconnect(): break
                 self.reconnectcount += 1
                 logging.warn('%s - reconnecting .. sleeping %s seconds' % (self.cfg.name, self.reconnectcount*5))

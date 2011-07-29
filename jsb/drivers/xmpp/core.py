@@ -258,7 +258,7 @@ class XMLStream(NodeBuilder):
                 return
             self.error = str(ex)
             handle_exception()
-        except AttributeError: logging.warn("%s - socket went away" % self.cfg.name)
+        except AttributeError: logging.warn("%s - socket went away: %s" % (self.cfg.name, stanza))
         except Exception, ex:
             self.error = str(ex)
             handle_exception()

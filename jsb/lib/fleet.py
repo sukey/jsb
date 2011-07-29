@@ -119,7 +119,7 @@ class Fleet(Persist):
         assert type
         assert name
         if not name: logging.warn(" name is not correct: %s" % name) ; return
-        if config: logging.warn('making %s (%s) bot - %s' % (type, name, config.dump()))
+        if config: logging.warn('making %s (%s) bot - %s' % (type, name, config.tojson()))
         bot = None
         cfg = Config('fleet' + os.sep + stripname(name) + os.sep + 'config')
         if config: cfg.merge(config) 
