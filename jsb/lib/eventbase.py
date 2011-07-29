@@ -104,15 +104,14 @@ class EventBase(LazyDict):
             if chan: self.chan = chan
             elif self.channel: self.chan = ChannelBase(self.channel, bot.cfg.name)
             elif self.userhost: self.chan = ChannelBase(self.userhost, bot.cfg.name)
-            if not self.chan: logging.warn("can't bind channel %s" % self.channel) 
-            logging.debug("binding channel - %s" % self.chan.data.tojson())
+            if self.chan: logging.debug("channel bonded - %s" % self.chan.data.tojson())
         if not target: self.prepare(bot) ; self.bonded = True ; return
         if not self.user and target:
             cfg = getmainconfig()
             if cfg.auto_register: 
                 bot.users.addguest(target)
             self.user = user or bot.users.getuser(target)
-            logging.debug("binding user - %s - from %s" % (self.user.data.tojson(), whichmodule()))
+            if self.user: logging.debug("user bonded - %s - from %s" % (self.user.data.tojson(), whichmodule()))
         if not self.user and target: logging.debug("no %s user found .. setting nodispatch" % target) ; self.nodispatch = True
         self.prepare(bot)
         self.bonded = True
