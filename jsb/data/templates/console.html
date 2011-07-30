@@ -138,7 +138,7 @@
       var log = new Array();
       var cmndlog = new Array();
       var history = new Array();
-      var historyindex = 0;
+      var historyindex = history.length;
 
       function scrollToBottom(elm_id) {
 	var elm = document.getElementById(elm_id);
@@ -177,11 +177,6 @@
               scrollToBottom(div);
           }
           document.forms[0].cmnd.focus();
-      }
-
-      function doscreen(screentxt) {
-        var element = document.getElementById("screen_div");  
-        element.innerHTML = screentxt;
       }
 
       // clear div
@@ -223,8 +218,9 @@
               dooutput("channel openend on " + t.toTimeString(), "info_div", "overwrite");
           }
           ws.onmessage = function (evt) {
-              history[history.length+1] = evt.data;
               handlesocket(evt.data);
+              history[history.length +1] = evt.data;
+              dooutput("history length is " + history.length, "topper_div", "overwrite");
           }
           ws.onclose = function (evt) {
               var tt = new Date();
@@ -250,6 +246,9 @@
 
       function init() {
         setTimeout("consolestart();", 50);
+        if (!history) {
+            var history = new Array();
+        }
       }
 
       function consolestart() {
@@ -261,18 +260,20 @@
       function dohistory(index) {
           dooutput(index, "topper_div", "overwrite");
           handlesocket(history[index]);
+          return true;
       }
 
       // handler function
 
       function handlesocket(message) {
+          dooutput(message, "status_div", "overwrite");
           var data = JSON.parse(message);
           var event = JSON.parse(data['payload']);
           dooutput(message, "json_div", "overwrite");
           dooutput("(" + event['nick'] + ") " + event['userhost'] + " on channel " + event['channel'], "channel_div", "overwrite");
           dooutput(event['txt'], event['div'], "overwrite");
           dooutput("OK", "status_div", "background"); 
-          return false;
+          return true;
       }
       
       // write command over the socket
@@ -289,8 +290,6 @@
       function doexec(e) {
         var form = document.forms[0];
         var keycode;
-        var othercmnd;
-        var history;
         if (window.event) keycode = window.event.keyCode;
            else if (e) keycode = e.which;
         else return true;
@@ -305,15 +304,15 @@
         else if (keycode == 37) {
             historyindex = historyindex - 1;
             if (historyindex < 0) {
-               historyindex = 0;
+                historyindex = 0;
             }
             dohistory(historyindex);
             return false;
         }
         else if (keycode == 39) {
             historyindex = historyindex + 1;
-            if (historyindex > history,length) {
-                historyindex = history.length;
+            if (historyindex > history.length) {
+                historyindex = history.length
             }
             dohistory(historyindex);
             return false;
@@ -399,6 +398,6 @@
           <div  id="info_div"></div><br>
           <div class="footer" style="background-color: {{ color }}; font-size:
           120%;"><i></i><br><form><b>&lt;-</b><input style="font-size: 100%;" size="33" type="text" name="cmnd" onKeyDown="return doexec(event);"/><b>-&gt;</b></form>
-          <div class="footer" id="status_div" style="font-size: 100%; background-color: #C54848;"><b>JSONBOT PRESENT!<b></div>
+          <div class="footer" id="status_div" style="font-size: 90%; background-color: #C54848;"><b>JSONBOT PRESENT!<b></div>
 </body>
 </html>
