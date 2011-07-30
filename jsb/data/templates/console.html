@@ -1,6 +1,100 @@
 <html>
-<head>
-    <link rel="stylesheet" href="/static/style.css" type="text/css" />
+  <head>
+    <style type="text/css"> 
+
+      /*  page layout */
+
+      body {
+        font-family: sans-serif;
+        width: 100%;
+        position: fixed;
+        top: 0;
+        padding: 0 0 0 0px;
+        border: 0 0 0 0px;
+        margin: 0px;
+        align: center;
+      }
+
+      /* divs */
+
+      div.bodywrapper {   
+        font-family: sans-serif;
+        height: 80%;
+        width: 100%;
+        position: fixed;
+        margin-left: 0px;
+        align: center;
+      }
+
+      div.bottom {
+        font-family: sans-serif;
+        bottom: 0;   
+        align: center;
+        font-weight: bold;
+        position: fixed;
+        width: 100%;
+        margin-left: 0px;
+      }
+
+      div.output {
+        font-family: sans-serif;
+        overflow: auto;
+        align: center; 
+        height: 50%;   
+        top: 30%;
+      }
+ 
+      div.screen {
+        font-family: sans-serif;
+        position: fixed;
+        bottom: 0;
+        align: center;
+        width: 90%;
+      }
+
+      div.footer {
+        font-family: sans-serif;
+        color: #ffffff;
+        align: center; 
+        font-height: 80%;
+      }
+ 
+      div.footer a {
+        color: red;
+        text-decoration: underline;
+      }
+ 
+ 
+      div.related {
+        font-family: sans-serif;
+        background-color: #111111;
+        color: #000000;
+        text-align: left;
+        border
+        line-height: 30px;
+      }
+
+      div.related a:hover {
+        text-decoration: underline;
+        color: #C54848;
+      }
+ 
+      div.related ul {
+        padding 0 0 0 10px
+        list-style: none; 
+      }
+ 
+      div.related li {
+        display: inline;
+        align: left;
+      }
+ 
+      div.related li.right {
+        float: right;
+        margin-right: 5px;
+      }
+
+    </style>
     <script type="text/javascript">
       // vars
       var host = "{{ host }}";
@@ -156,13 +250,9 @@
       function handlesocket(message) {
           var data = JSON.parse(message);
           var event = JSON.parse(data['payload']);
-          if (event['div'] == "content_div") {
-              dooutput('<TR align="center"><TD><b>' + event['nick'] + "</b> on channel <i>" + event['channel'] + '</i></b></TD></TR>', event['div'], event['how']);
-              dooutput('<TR align="center"><TD>' + event['txt'] + "</TD></TR>", event['div'], event['how']);
-          }
-          else {
-              dooutput(event['txt'], event['div'], event['how']);
-          }
+          dooutput(message, "json_div", "background");
+          dooutput(event['channel'], "channel_div", "background");
+          dooutput(event['txt'], "content_div", "background");
           dooutput("200", "topper_div", "background");
           dooutput("OK", "status_div", "background"); 
           return false;
@@ -239,19 +329,18 @@
           <li><a href="http://jsonbot.org/index.html" onclick='window.open("http://jsonbot.org/index.html"); return false'><b>DOCS</b></a></li>
         </ul>
       </div>
-    <div class="bodywrapper">
-      <div class="body">
         <div align="center" id="uber_div">Morning !!</div>
         <div align="center"><h1><b>{{ appname }}</b></h1></div>
-        <div style="font-size: 90%; color: {{ color }};" id="topper_div"></div></div>
-        <div class="output" style="align: center;"><table id="content_div"></table></div>
+        <div class="body" style="font-size: 90%; color: {{ color }};" id="topper_div"></div></div>
+        <table id="grant_table">
+          <div class="output" style="align: center;" id="channel_div"></div>
+          <div class="output" style="align: center;" id="content_div"></div>
+          <div class="output" style="align: center;" id="json_div"></div>
+        </table>
         <div class="bottom">
           <div style="font-size: 90%; color: #c54848;" id="info_div"></div>
           <div class="footer" style="background-color: {{ color }}; font-size:
           120%;"><i></i><br><form><b>&lt;-</b><input style="font-size: 100%;" size="33" type="text" name="cmnd" onKeyDown="return doexec(this.form,event);"/><b>-&gt;</b></form>
           <div class="footer" id="status_div" style="font-size: 90%; background-color: #C54848;"><b>JSONBOT PRESENT!<b></div>
-        </div>
-      </div>  
-    </div>
 </body>
 </html>
