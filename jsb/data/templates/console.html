@@ -64,19 +64,22 @@
         text-decoration: underline;
       }
  
- 
       div.related {
         font-family: sans-serif;
-        background-color: #111111;
-        color: #000000;
         text-align: left;
-        border
         line-height: 30px;
+        background-color: black;
+        color: white;
+      }
+
+      div.related a {
+        color: #ffffff;  
+        text-align: left;
       }
 
       div.related a:hover {
         text-decoration: underline;
-        color: #C54848;
+        color: red;
       }
  
       div.related ul {
@@ -342,13 +345,13 @@
         <ul>
           <li class="right">
             <a href="{{ logouturl }}" title="logout">logout</i></a></li>
-          <li class="right" style="color: {{ color }}; margin-right: 10px;">{{ who }}<b> - </b></li>
+          <li class="right" style="color: white; margin-right: 5px;">{{ who }}<b> - </b></li>
           <li><a href="http://jsonbot.org/index.html" onclick='window.open("http://jsonbot.org/index.html"); return false'><b>DOCS</b></a></li>
         </ul>
       </div>
         <div align="center" id="uber_div">Morning !!</div>
         <div align="center"><h1><b>{{ appname }}</b></h1></div>
-        <div class="body" style="font-size: 90%; color: {{ color }};" id="topper_div"></div></div>
+        <div class="body" style="font-size: 90%; color: {{ color }};" id="topper_div"></div></div><br>
         <table id="grant_table">
           <div class="output" style="align: center;" id="channel_div"></div>
           <div class="output" style="align: center;" id="content_div"></div>
