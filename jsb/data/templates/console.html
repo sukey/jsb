@@ -21,7 +21,6 @@
       var parameters = "";
       var identtime = new Date();
       var diskname = host + identtime.toString();
-      var consoletxt = '<div style="font-size: 120%;"><br><form><b>&lt;-</b><input style="font-size: 100%;" size="33" type="text" name="cmnd" onKeyDown="return doexec(this.form, event);" /><b>-&gt;</b></form></div><div class="related"><div align="center" id="status_div" style="background-color: #C54848;"><b>JSONBOT PRESENT!<b></div></div>';
       var log = new Array();
       var cmndlog = new Array();
       var disk = {};
@@ -127,15 +126,9 @@
       }
 
       function consolestart() {
-          doconsole();
           dooutput("<b>BOOT</b> - ", "status_div", "background");
           setTimeout("start();", 100);
           dooutput(elapsed() + " msec ", "status_div", "normal");
-      }
-
-      function doconsole() {
-        doscreen(consoletxt);
-        document.forms[0].cmnd.focus();
       }
 
       // function to launch on enter in the command box
@@ -234,37 +227,31 @@
           dooutput(" - " + cmnd, "status_div", "channel");
           return true;
       }
-
    </script>
 </head>
-<body>
-  <title>JSONBOT</title>
-  <div align="center" class="document" style="font-size: 80%; ">
-    <div class="related" style="font-size: 80%">
-      <ul>
-        <li class="right" style="margin-right: 10px;">
-          <a href="{{ logouturl }}" title="logout">logout</i></a></li>
-        <li class="right" style="margin-right: 10px;">{{ who }}<b> - </b></li>
-        <li><a href="http://jsonbot.org/index.html" onclick='window.open("http://jsonbot.org/index.html"); return false'><b>DOCS</b></a></li>
-        <li>-</li>
-        <li><a href="" title="console" onclick='doconsole(); return false;'><b>console</b></a></li>
-      </ul>
-    </div>
-    <div align="center" id="uber_div" style="font-size: 100%; background-color: white; color: black;">Morning !!</div>
-    <div class="body" align="center"><h1 style="background-color: #C54848; color: white;"><b>{{ appname }}</b></h1>
-      <tdiv style="align: center; width: 100%; font-size: 100%; font-weight: bold; color: {{ color }};" align="center" id="topper_div"></div>
-    </div>
-        <div class="output" align="center">
-          <table style="width: 100%; font-size: 80%;" align="center" id="content_div"></table>
+<body style="margin: 0px;" align="center" onLoad="init();" >
+   <title>{{ host }}</title>
+      <div class="related">
+        <ul>
+          <li class="right">
+            <a href="{{ logouturl }}" title="logout">logout</i></a></li>
+          <li class="right" style="color: {{ color }}; margin-right: 10px;">{{ who }}<b> - </b></li>
+          <li><a href="http://jsonbot.org/index.html" onclick='window.open("http://jsonbot.org/index.html"); return false'><b>DOCS</b></a></li>
+        </ul>
+      </div>
+    <div class="bodywrapper">
+      <div class="body">
+        <div align="center" id="uber_div">Morning !!</div>
+        <div align="center"><h1><b>{{ appname }}</b></h1></div>
+        <div style="font-size: 90%; color: {{ color }};" id="topper_div"></div></div>
+        <div class="output" style="align: center;"><table id="content_div"></table></div>
+        <div class="bottom">
+          <div style="font-size: 90%; color: #c54848;" id="info_div"></div>
+          <div class="footer" style="background-color: {{ color }}; font-size:
+          120%;"><i></i><br><form><b>&lt;-</b><input style="font-size: 100%;" size="33" type="text" name="cmnd" onKeyDown="return doexec(this.form,event);"/><b>-&gt;</b></form>
+          <div class="footer" id="status_div" style="font-size: 90%; background-color: #C54848;"><b>JSONBOT PRESENT!<b></div>
         </div>
-      </div>
-      </div>
-      <div class="bottom" style="width: 100%; font-size: 80%; font-weight: bold;" align="center">
-        <div class="footer" style="font-size: 100%; color: #C54848;" align="center" id="info_div"></div><br>
-        <div style=" font-size: 80%; width: 100%; background-color: {{ color }}; color: white;" position="fixed" bottom="0" id="screen_div"></div>
-      </div>
+      </div>  
     </div>
-  </div>
 </body>
-<body onLoad="init();" />
 </html>
