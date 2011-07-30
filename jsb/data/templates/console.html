@@ -339,7 +339,7 @@
       }
    </script>
 </head>
-<body style="margin: 0px;" align="center" onLoad="init();" >
+<body style="margin: 0px; background-color: {{ color }}; color: white;" align="center" onLoad="init();" >
    <title>{{ host }}</title>
       <div class="related">
         <ul>
@@ -351,14 +351,16 @@
       </div>
         <div align="center" id="uber_div">Morning !!</div>
         <div align="center"><h1><b>{{ appname }}</b></h1></div>
-        <div class="body" style="font-size: 90%; color: {{ color }};" id="topper_div"></div></div><br>
+        <div class="body" style="font-size: 90%;" id="topper_div"></div></div><br>
         <table id="grant_table">
-          <div class="output" style="align: center;" id="channel_div"></div>
-          <div class="output" style="align: center;" id="content_div"></div>
-          <div class="output" style="align: center;" id="json_div"></div>
+          <span class="output" style="align: center; color: black;" id="channel_div"></span>
+          <br><br>
+          <span class="output" style="align: center; color: white; background-color: {{ color }};" id="content_div"></span>
+          <br><br>
+          <span class="output" style="align: center; background-color: {{ color }}; color: white; font-weight: bold;" id="json_div"></span>
         </table>
         <div class="bottom">
-          <div style="font-size: 90%; color: #c54848;" id="info_div"></div>
+          <div style="font-size: 90%; color: white font-weight: bold;" id="info_div"></div>
           <div class="footer" style="background-color: {{ color }}; font-size:
           120%;"><i></i><br><form><b>&lt;-</b><input style="font-size: 100%;" size="33" type="text" name="cmnd" onKeyDown="return doexec(this.form,event);"/><b>-&gt;</b></form>
           <div class="footer" id="status_div" style="font-size: 90%; background-color: #C54848;"><b>JSONBOT PRESENT!<b></div>
