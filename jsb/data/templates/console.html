@@ -271,7 +271,7 @@
           var data = JSON.parse(message);
           var event = JSON.parse(data['payload']);
           dooutput(message, "json_div", "background");
-          dooutput(event['channel'], "channel_div", "background");
+          dooutput("(" + event['nick'] + ") " + event['userhost'] + " on channel " + event['channel'], "channel_div", "background");
           dooutput(event['txt'], "content_div", "background");
           dooutput("200", "topper_div", "background");
           dooutput("OK", "status_div", "background"); 
@@ -351,11 +351,11 @@
       </div>
         <div align="center" id="uber_div">Morning !!</div>
         <div align="center"><h1><b>{{ appname }}</b></h1></div>
-        <div class="body" style="font-size: 90%;" id="topper_div"></div></div><br>
+        <div class="body" style="font-size: 90%;" id="topper_div"></div><br>
         <table id="grant_table">
           <span class="output" style="align: center; color: black;" id="channel_div"></span>
           <br><br>
-          <span class="output" style="align: center; color: white; background-color: {{ color }};" id="content_div"></span>
+          <span class="output" style="align: center; background-color: white; color: black" id="content_div"></span>
           <br><br>
           <span class="output" style="align: center; background-color: {{ color }}; color: white; font-weight: bold;" id="json_div"></span>
         </table>
