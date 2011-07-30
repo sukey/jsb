@@ -137,9 +137,9 @@
       var diskname = host + identtime.toString();
       var log = new Array();
       var cmndlog = new Array();
-      var disk = {};
-      var topperlist = new Array();
-      
+      var history = new Array();
+      var historyindex = 0;
+
       function scrollToBottom(elm_id) {
 	var elm = document.getElementById(elm_id);
         var f = document.createElement("input");
@@ -158,14 +158,25 @@
           if (!element) {
               return true;
           }
-          else if (how == "background") {
+          else if (how == "overwrite"){
               element.innerHTML = text;
           }
-          else {
+          else if( how == "background") {
+              element.innerHTML = text;
+          }
+          else if (how == "normal") {
+              element.innerHTML = text + "<br>";
+          }
+          else if (how == "add") {
               element.innerHTML += text;
               scrollToBottom(div);
-              document.forms[0].cmnd.focus();
           }
+          else {
+              text = text + "<br>"
+              element.innerHTML += text;
+              scrollToBottom(div);
+          }
+          document.forms[0].cmnd.focus();
       }
 
       function doscreen(screentxt) {
@@ -199,7 +210,7 @@
 
       function timeloop() {
         var now = new Date();
-        dooutput("<b>" + now.toTimeString() + "</b>", "uber_div", "background");
+        dooutput("<b>" + now.toTimeString() + "</b>", "uber_div", "overwrite");
       }
 
       // websocket 
@@ -208,61 +219,48 @@
           var ws = new WebSocket(websocketurl);
           ws.onopen = function () {
               var t = new Date();
-              dooutput("channel openend on " + t.toTimeString(), "status_div", "background");
-              dooutput("channel openend on " + t.toTimeString(), "info_div", "background");
+              dooutput("channel openend on " + t.toTimeString(), "status_div", "overwrite");
+              dooutput("channel openend on " + t.toTimeString(), "info_div", "overwrite");
           }
           ws.onmessage = function (evt) {
+              history[history.length+1] = evt.data;
               handlesocket(evt.data);
           }
           ws.onclose = function (evt) {
               var tt = new Date();
-              dooutput("channel closed on " + tt.toTimeString() + " .. please reload this page", "status_div", "background");
+              dooutput("channel closed on " + tt.toTimeString() + " .. please reload this page", "status_div", "overwrite");
               setTimeout("ws = createsocket();", 5000);
           }
           return ws;
       }
 
       // INIT
+
       var ws = createsocket();
 
       function start() {
-          setTimeout("doSocket('!welcome', 'content_div', 'background');", 100);
-          setTimeout("doSocket('!today', 'info_div', 'background');", 5000);
-          setTimeout("doSocket('!shop', 'info_div', 'background');", 10000);
-          setTimeout("doSocket('!topper', 'info_div', 'background');", 2000);
-          setTimeout("doSocket('!statusline', 'status_div', 'background');", 1000);
+          setTimeout("doSocket('!welcome', 'content_div', 'background');", 50);
+          //setTimeout("doSocket('!today', 'info_div', 'background');", 50);
+          //setTimeout("doSocket('!shop', 'info_div', 'background');", 100);
+          setTimeout("doSocket('!topper', 'info_div', 'background');", 200);
+          setTimeout("doSocket('!statusline', 'topper_div', 'background');", 100);
           setInterval("timeloop();", 1000);
+          historyindex = history.length;
       }
-
 
       function init() {
         setTimeout("consolestart();", 50);
       }
 
       function consolestart() {
-          dooutput("<b>BOOT</b> - ", "status_div", "background");
+          dooutput("<b>BOOT</b> - ", "status_div", "overwrite");
           setTimeout("start();", 100);
           dooutput(elapsed() + " msec ", "status_div", "normal");
       }
 
-      // function to launch on enter in the command box
-
-      function doexec(form, e) {
-        var keycode;
-        var othercmnd;
-        if (window.event) keycode = window.event.keyCode;
-           else if (e) keycode = e.which;
-        else return true;
-        if (keycode == 13) {
-            var cmnd = form.cmnd.value;
-            doSocket(cmnd, "content_div", "normal");
-            form.cmnd.value = "";
-            form.focus();
-            return false;
-        }
-        else {
-          return true;
-        }
+      function dohistory(index) {
+          dooutput(index, "topper_div", "overwrite");
+          handlesocket(history[index]);
       }
 
       // handler function
@@ -270,10 +268,9 @@
       function handlesocket(message) {
           var data = JSON.parse(message);
           var event = JSON.parse(data['payload']);
-          dooutput(message, "json_div", "background");
-          dooutput("(" + event['nick'] + ") " + event['userhost'] + " on channel " + event['channel'], "channel_div", "background");
-          dooutput(event['txt'], "content_div", "background");
-          dooutput("200", "topper_div", "background");
+          dooutput(message, "json_div", "overwrite");
+          dooutput("(" + event['nick'] + ") " + event['userhost'] + " on channel " + event['channel'], "channel_div", "overwrite");
+          dooutput(event['txt'], event['div'], "overwrite");
           dooutput("OK", "status_div", "background"); 
           return false;
       }
@@ -281,19 +278,57 @@
       // write command over the socket
 
       function doSocket(cmnd, target, how) {
-          dooutput("sending", "topper_div", "background");
           dooutput("sending", "status_div", "background"); 
           var data = {"cmnd": cmnd, "how": how, "target": target };
           ws.send(JSON.stringify(data));
           return true;
       }
 
+      // function to launch on enter in the command box
+
+      function doexec(e) {
+        var form = document.forms[0];
+        var keycode;
+        var othercmnd;
+        var history;
+        if (window.event) keycode = window.event.keyCode;
+           else if (e) keycode = e.which;
+        else return true;
+        dooutput(keycode, "status_div", "overwrite");
+        if (keycode == 13) {
+            var cmnd = form.cmnd.value;
+            doSocket(cmnd, "content_div", "normal");
+            form.cmnd.value = "";
+            form.focus();
+            return false;
+        }
+        else if (keycode == 37) {
+            historyindex = historyindex - 1;
+            if (historyindex < 0) {
+               historyindex = 0;
+            }
+            dohistory(historyindex);
+            return false;
+        }
+        else if (keycode == 39) {
+            historyindex = historyindex + 1;
+            if (historyindex > history,length) {
+                historyindex = history.length;
+            }
+            dohistory(historyindex);
+            return false;
+        }
+        else {
+          return true;
+        }
+      }
+
       // XHR
       
       function response(obj) {
-          dooutput(obj.readyState, "topper_div", "background");
+          dooutput(obj.readyState, "status_div", "background");
           if (obj.readyState==4){
-              dooutput(obj.status, "topper_div", "background");
+              dooutput(obj.status, "status_div", "background");
               if (obj.status==200) {
                    dooutput(obj.responseText, "content_div", "normal");
               }
@@ -351,18 +386,19 @@
       </div>
         <div align="center" id="uber_div">Morning !!</div>
         <div align="center"><h1><b>{{ appname }}</b></h1></div>
-        <div class="body" style="font-size: 90%; style=background-color: #C54848; color: white;" id="topper_div"></div><br>
+        <span class="body" style="font-size: 120%; color: {{ color }};" id="topper_div"></span><br>
         <table id="grant_table">
+          <br><br>
           <span class="output" style="align: center;" id="channel_div"></span>
           <br><br><h5>
           <span class="output" style="align: center;" id="content_div"></span>
           <br><br></h5>
           <span class="output" style="align: center;" id="json_div"></span>
         </table>
-        <div class="bottom">
-          <div style="font-size: 90%; color: white font-weight: bold;" id="info_div"></div>
+        <div class="bottom" style="font-size: 120%; color: #C54848;  font-weight: italic;">
+          <div  id="info_div"></div><br>
           <div class="footer" style="background-color: {{ color }}; font-size:
-          120%;"><i></i><br><form><b>&lt;-</b><input style="font-size: 100%;" size="33" type="text" name="cmnd" onKeyDown="return doexec(this.form,event);"/><b>-&gt;</b></form>
-          <div class="footer" id="status_div" style="font-size: 90%; background-color: #C54848;"><b>JSONBOT PRESENT!<b></div>
+          120%;"><i></i><br><form><b>&lt;-</b><input style="font-size: 100%;" size="33" type="text" name="cmnd" onKeyDown="return doexec(event);"/><b>-&gt;</b></form>
+          <div class="footer" id="status_div" style="font-size: 100%; background-color: #C54848;"><b>JSONBOT PRESENT!<b></div>
 </body>
 </html>
