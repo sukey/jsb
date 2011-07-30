@@ -227,10 +227,10 @@
 
       function start() {
           setTimeout("doSocket('!welcome', 'content_div', 'background');", 100);
-          setTimeout("doSocket('!today', 'content_div', 'background');", 1200);
-          setTimeout("doSocket('!shop', 'content_div', 'background');", 1300);
+          setTimeout("doSocket('!today', 'info_div', 'background');", 5000);
+          setTimeout("doSocket('!shop', 'info_div', 'background');", 10000);
           setTimeout("doSocket('!topper', 'info_div', 'background');", 2000);
-          setTimeout("doSocket('!statusline', 'status_div', 'background');", 5000);
+          setTimeout("doSocket('!statusline', 'status_div', 'background');", 1000);
           setInterval("timeloop();", 1000);
       }
 
