@@ -275,8 +275,7 @@ class DemoHandler(BaseHandler):
             user = self.current_user
             host = self.request.host
             if user:
-                if 'localhost' in host: url = "http://%s" % host
-                else: "https://%s" % host
+                url = "http://%s" % host
                 t = {'url': url, 'appname': "JSONBOT DEMO", 'version': getversion(), 'who': user, 'host': host, 'color': "#4b7cc6", "logouturl": 'logout', "loginurl": "login"}
                 self.render(ddir + os.sep + "templates" + os.sep + "console.html", title="JSONBOT", **t)
         except Exception, ex:
