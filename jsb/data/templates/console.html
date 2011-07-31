@@ -135,10 +135,10 @@
       var parameters = "";
       var identtime = new Date();
       var diskname = host + identtime.toString();
-      var log = new Array();
-      var cmndlog = new Array();
-      var history = new Array();
-      var historyindex = history.length;
+      var log = [];
+      var cmndlog = [];
+      var History = [];
+      var historyindex = History.length;
 
       function scrollToBottom(elm_id) {
 	var elm = document.getElementById(elm_id);
@@ -218,9 +218,9 @@
               dooutput("channel openend on " + t.toTimeString(), "info_div", "overwrite");
           }
           ws.onmessage = function (evt) {
+              History[History.length] = evt.data;
               handlesocket(evt.data);
-              history[history.length +1] = evt.data;
-              dooutput("history length is " + history.length, "topper_div", "overwrite");
+              dooutput("history length is " + History.length, "topper_div", "overwrite");
           }
           ws.onclose = function (evt) {
               var tt = new Date();
@@ -241,14 +241,10 @@
           setTimeout("doSocket('!topper', 'info_div', 'background');", 200);
           setTimeout("doSocket('!statusline', 'topper_div', 'background');", 100);
           setInterval("timeloop();", 1000);
-          historyindex = history.length;
       }
 
       function init() {
         setTimeout("consolestart();", 50);
-        if (!history) {
-            var history = new Array();
-        }
       }
 
       function consolestart() {
@@ -258,22 +254,27 @@
       }
 
       function dohistory(index) {
+          var i = index * 1;
           dooutput(index, "topper_div", "overwrite");
-          handlesocket(history[index]);
-          return true;
+          handlesocket(History[i]);
+          return false;
       }
 
       // handler function
 
       function handlesocket(message) {
-          dooutput(message, "status_div", "overwrite");
           var data = JSON.parse(message);
           var event = JSON.parse(data['payload']);
-          dooutput(message, "json_div", "overwrite");
-          dooutput("(" + event['nick'] + ") " + event['userhost'] + " on channel " + event['channel'], "channel_div", "overwrite");
-          dooutput(event['txt'], event['div'], "overwrite");
+          if (event['how'] == "background") {
+              dooutput(event['txt'], event['div'], "background");
+          }
+          else {
+              dooutput(message, "json_div", "overwrite");
+              dooutput("(" + event['nick'] + ") " + event['userhost'] + " on channel " + event['channel'], "channel_div", "overwrite");
+              dooutput(event['txt'], event['div'], "overwrite");
+          }
           dooutput("OK", "status_div", "background"); 
-          return true;
+          return false;
       }
       
       // write command over the socket
@@ -282,7 +283,7 @@
           dooutput("sending", "status_div", "background"); 
           var data = {"cmnd": cmnd, "how": how, "target": target };
           ws.send(JSON.stringify(data));
-          return true;
+          return false;
       }
 
       // function to launch on enter in the command box
