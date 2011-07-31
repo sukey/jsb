@@ -136,7 +136,8 @@
       var identtime = new Date();
       var diskname = host + identtime.toString();
       var log = [];
-      var cmndlog = [];
+      var Cmndlog = [];
+      var cmndindex = Cmndlog.length;
       var History = [];
       var historyindex = History.length;
 
@@ -256,8 +257,21 @@
 
       function dohistory(index) {
           var i = index * 1;
-          dooutput(index, "topper_div", "overwrite");
-          handlesocket(History[i]);
+          var res = History[i];
+          if (res) {
+              handlesocket(res);
+              dooutput(index, "topper_div", "overwrite");
+          }
+          return false;
+      }
+
+      function showcmnd(index) {
+          var i = index * 1;
+          var cmnd = Cmndlog[i];
+          if (cmnd) {
+              document.forms[0].cmnd.value = cmnd;
+               dooutput(cmnd, "status_div", "overwrite");
+          }
           return false;
       }
 
@@ -271,7 +285,7 @@
           }
           else {
               dooutput(message, "json_div", "overwrite");
-              dooutput("(" + event['nick'] + ") " + event['userhost'] + " on channel " + event['channel'], "channel_div", "overwrite");
+              dooutput("(" + event['nick'] + ") " + event['userhost'] + " on channel " + event['origin'], "channel_div", "overwrite");
               dooutput(event['txt'], event['div'], "overwrite");
           }
           dooutput("OK", "status_div", "background"); 
@@ -283,6 +297,7 @@
       function doSocket(cmnd, target, how) {
           dooutput("sending", "status_div", "background"); 
           var data = {"cmnd": cmnd, "how": how, "target": target };
+          Cmndlog.push(cmnd);
           ws.send(JSON.stringify(data));
           return false;
       }
@@ -303,12 +318,34 @@
             form.focus();
             return false;
         }
+        else if (keycode == 40) {
+            if (cmndindex > Cmndlog.length) {
+                cmndindex = Cmndlog.length-1;
+            }
+            cmndindex += 1;
+            showcmnd(cmndindex);
+            return false;
+        }
+        else if (keycode == 38) {
+            if (cmndindex < 0) {
+                cmndindex = 1;
+            }
+            cmndindex -= 1;
+            showcmnd(cmndindex);
+            return false;
+        }
         else if (keycode == 37) {
+            if (historyindex < 0) {
+                historyindex = 1;
+            }
             historyindex -= 1;
             dohistory(historyindex);
             return false;
         }
         else if (keycode == 39) {
+            if (historyindex > History.length) {
+                 historyindex = History.length - 1;
+            }
             historyindex += 1;
             dohistory(historyindex);
             return false;
