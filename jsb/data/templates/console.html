@@ -218,9 +218,10 @@
               dooutput("channel openend on " + t.toTimeString(), "info_div", "overwrite");
           }
           ws.onmessage = function (evt) {
-              History[History.length] = evt.data;
+              History.push(evt.data);
               handlesocket(evt.data);
               dooutput("history length is " + History.length, "topper_div", "overwrite");
+              historyindex = History.length;
           }
           ws.onclose = function (evt) {
               var tt = new Date();
@@ -303,18 +304,12 @@
             return false;
         }
         else if (keycode == 37) {
-            historyindex = historyindex - 1;
-            if (historyindex < 0) {
-                historyindex = 0;
-            }
+            historyindex -= 1;
             dohistory(historyindex);
             return false;
         }
         else if (keycode == 39) {
-            historyindex = historyindex + 1;
-            if (historyindex > history.length) {
-                historyindex = history.length
-            }
+            historyindex += 1;
             dohistory(historyindex);
             return false;
         }
