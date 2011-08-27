@@ -9,6 +9,8 @@
 from jsb.utils.locking import globallocked
 from jsb.utils.exception import handle_exception
 from jsb.utils.trace import whichmodule
+from jsb.memcached import killmcdaemon
+from jsb.lib.persist import cleanup
 from runner import defaultrunner, cmndrunner, callbackrunner, waitrunner
 
 ## basic imports
@@ -39,9 +41,13 @@ def globalshutdown():
         cmndrunner.stop()
         callbackrunner.stop()
         waitrunner.stop()
-        logging.warn('done')
-        try:os.remove('jsb.pid')
+        logging.warn("cleaning up any open files")
+        while cleanup(): time.sleep(1)
+        try: os.remove('jsb.pid')
         except: pass
+        killmcdaemon()
+        time.sleep(0.5)
+        logging.warn('done')
         os._exit(0)
     except Exception, ex: handle_exception() ; os._exit(1)
 

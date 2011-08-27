@@ -27,6 +27,7 @@ import socket
 import threading
 import time
 import thread
+import urllib
 
 ## defines
 
@@ -44,6 +45,7 @@ class EventBase(LazyDict):
         LazyDict.__init__(self)
         if bot: self.bot = bot
         self.txt = ""
+        self.usercmnd = ""
         self.bottype = "botbase"
         self.relayed = []
         self.path = []
@@ -63,13 +65,14 @@ class EventBase(LazyDict):
         
     def __deepcopy__(self, a):
         """ deepcopy an event. """
-        logging.warn("cpy - %s (%s) - %s" % (str(type(self)).split(".")[-1][:-2], len(self), whichmodule(2)))
+        logging.debug("cpy - %s (%s) - %s" % (str(type(self)).split(".")[-1][:-2], len(self), whichmodule(2)))
         e = EventBase(self)
         return e
 
     def ready(self, finish=True):
         """ signal the event as ready - push None to all queues. """
-        if self.type != "TICK": logging.warn("%s.%s - %s - from %s - %s" % (self.bottype, self.cbtype, str(self.ctime), whichmodule(), self.txt))
+        if self.finished.isSet(): logging.debug("event is already finished.") ; return
+        if self.type != "TICK": logging.info("%s.%s - %s - from %s - %s" % (self.bottype, self.cbtype, str(self.ctime), whichmodule(), self.txt))
         for i in range(10):
              if not self.outqueue.empty(): break
              time.sleep(0.01)
@@ -98,13 +101,16 @@ class EventBase(LazyDict):
 
     def bind(self, bot=None, user=None, chan=None):
         """ bind event.bot event.user and event.chan to execute a command on it. """
+        if self.bonded: logging.debug("already bonded") ; return
         target = self.auth
         bot = bot or self.bot
         if not self.chan:
             if chan: self.chan = chan
             elif self.channel: self.chan = ChannelBase(self.channel, bot.cfg.name)
             elif self.userhost: self.chan = ChannelBase(self.userhost, bot.cfg.name)
-            if self.chan: logging.debug("channel bonded - %s" % self.chan.data.tojson())
+            if self.chan:
+                self.debug = self.chan.data.debug or False
+                logging.debug("channel bonded - %s" % self.chan.data.tojson())
         if not target: self.prepare(bot) ; self.bonded = True ; return
         if not self.user and target:
             cfg = getmainconfig()
@@ -245,3 +251,9 @@ class EventBase(LazyDict):
         matchnick = unicode(self.bot.cfg.nick + u":")
         if self.txt.startswith(matchnick): return self.txt[len(matchnick):]
         return False
+
+    def stripcc(self):
+        bla = self.iscmnd()
+        if bla: return bla
+        return self.txt
+   

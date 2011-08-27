@@ -1,3 +1,6 @@
+.. _handbook-introduction:
+
+
 INTRODUCTION
 ============
 
@@ -21,7 +24,7 @@ You can also grab the latest from github:
 
     ::
 
-        git clone git://github.com/jsonbot/jsonbot.git
+        git clone git://github.com/jsonbot/jsb.git
         
 Configuration
 ~~~~~~~~~~~~~

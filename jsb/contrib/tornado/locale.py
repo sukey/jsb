@@ -16,14 +16,14 @@
 
 """Translation methods for generating localized strings.
 
-To load a locale and generate a translated string:
+To load a locale and generate a translated string::
 
     user_locale = locale.get("es_LA")
     print user_locale.translate("Sign out")
 
 locale.get() returns the closest matching locale, not necessarily the
 specific locale you requested. You can support pluralization with
-additional arguments to translate(), e.g.:
+additional arguments to translate(), e.g.::
 
     people = [...]
     message = user_locale.translate(
@@ -78,7 +78,7 @@ def set_default_locale(code):
 
 
 def load_translations(directory):
-    """Loads translations from CSV files in a directory.
+    u"""Loads translations from CSV files in a directory.
 
     Translations are strings with optional Python-style named placeholders
     (e.g., "My name is %(name)s") and their associated translations.
@@ -94,11 +94,14 @@ def load_translations(directory):
     For strings with no verbs that would change on translation, simply
     use "unknown" or the empty string (or don't include the column at all).
 
+    The file is read using the csv module in the default "excel" dialect.
+    In this format there should not be spaces after the commas.
+
     Example translation es_LA.csv:
 
         "I love you","Te amo"
-        "%(name)s liked this","A %(name)s les gust\xf3 esto","plural"
-        "%(name)s liked this","A %(name)s le gust\xf3 esto","singular"
+        "%(name)s liked this","A %(name)s les gust\u00f3 esto","plural"
+        "%(name)s liked this","A %(name)s le gust\u00f3 esto","singular"
 
     """
     global _translations
@@ -154,6 +157,7 @@ def load_gettext_translations(directory, domain):
     global _use_gettext
     _translations = {}
     for lang in os.listdir(directory):
+        if lang.startswith('.'): continue  # skip .svn, etc
         if os.path.isfile(os.path.join(directory, lang)): continue
         try:
             os.stat(os.path.join(directory, lang, "LC_MESSAGES", domain+".mo"))
@@ -173,6 +177,11 @@ def get_supported_locales(cls):
 
 
 class Locale(object):
+    """Object representing a locale.
+
+    After calling one of `load_translations` or `load_gettext_translations`,
+    call `get` or `get_closest` to get a Locale object.
+    """
     @classmethod
     def get_closest(cls, *locale_codes):
         """Returns the closest match for the given locale code."""
@@ -231,6 +240,12 @@ class Locale(object):
             _("Friday"), _("Saturday"), _("Sunday")]
 
     def translate(self, message, plural_message=None, count=None):
+        """Returns the translation for the given message for this locale.
+
+        If plural_message is given, you must also provide count. We return
+        plural_message when count != 1, and we return the singular form
+        for the given message when count == 1.
+        """
         raise NotImplementedError()
 
     def format_date(self, date, gmt_offset=0, relative=True, shorter=False,
@@ -370,12 +385,6 @@ class Locale(object):
 class CSVLocale(Locale):
     """Locale implementation using tornado's CSV translation format."""
     def translate(self, message, plural_message=None, count=None):
-        """Returns the translation for the given message for this locale.
-
-        If plural_message is given, you must also provide count. We return
-        plural_message when count != 1, and we return the singular form
-        for the given message when count == 1.
-        """
         if plural_message is not None:
             assert count is not None
             if count != 1:

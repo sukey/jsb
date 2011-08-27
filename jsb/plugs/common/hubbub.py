@@ -24,7 +24,6 @@ from jsb.lib.fleet import getfleet
 from jsb.lib.channelbase import ChannelBase
 from jsb.utils.url import posturl
 from jsb.lib.errors import NoSuchBotType
-from jsb.drivers.gae.wave.waves import Wave
 from jsb.lib.threads import start_new_thread
 from jsb.lib.datadir import getdatadir
 from jsb.lib.jsbimport import _import_byfile
@@ -143,7 +142,8 @@ class HubbubItem(Persist):
 
 class HubbubWatcher(PlugPersist):
 
-    """ this watcher helps with the handling of incoming POST. also maitains 
+    """ 
+        this watcher helps with the handling of incoming POST. also maitains 
         index of feed names.
     """
 
@@ -157,7 +157,6 @@ class HubbubWatcher(PlugPersist):
 
     def add(self, name, url, owner):
         """ add a feed to the database. """
-
         if not name in self.data['names']:
             self.data['names'].append(name)
             self.data['urls'][url] = name
@@ -267,12 +266,6 @@ class HubbubWatcher(PlugPersist):
                 else:
                     logging.debug('hubbub - %s is not in the format (botname, bottype, channel)' % item.data.url)
                     continue
-                if type == 'wave':
-                    wave = Wave(channel)
-                    if wave and wave.data.json_data:
-                        start_new_thread(work, (botname, type, channel, result.entries, url), {"_countdown": counter})
-                    else: logging.warn("hubbub - skipping %s - not joined" % channel)
-                else: start_new_thread(work, (botname, type, channel, result.entries, url), {"_countdown": counter})
                 counter += 1
         except Exception, ex: handle_exception(txt=url)
         return True
@@ -439,8 +432,7 @@ class HubbubWatcher(PlugPersist):
         if not item: return False
         try:
             logging.warn("trying to remove %s from %s feed list" % (name, channel))
-            if type == "wave": chan = Wave(channel)
-            else: chan = ChannelBase(channel, botname)
+            chan = ChannelBase(channel, botname)
             chan.data.feeds.remove(name)
             chan.save()
         except ValueError:
@@ -480,7 +472,7 @@ def size():
 ## hb-subscribe command
 
 def handle_hubbubsubscribe(bot, event):
-    """ subscribe to a hubbub feed """
+    """ arguments: <feedname> [<url>] - subscribe to a hubbub feed, provide a url if the feed is not yet registered. """
     for name in event.args:
         item = watcher.byname(name)
         if not item: event.reply("%s feed is not yet added .. see hb-add" % name) ; continue
@@ -493,24 +485,24 @@ def handle_hubbubsubscribe(bot, event):
         event.reply("subscription send: %s - %s" % (url, response.status))
 
 cmnds.add('hb-subscribe', handle_hubbubsubscribe, ['USER',])
-examples.add('hb-subscribe', 'subscribe to a feed', 'hb-subscribe jsb-hg http://code.google.com/feeds/p/jsb/hgchanges/basic')
+examples.add('hb-subscribe', 'subscribe to a feed', 'hb-subscribe jsb-hg http://code.google.com/feeds/p/jsb/hgchanges/basi')
 
 ## hb-clone command
 
 def handle_hubbubclone(bot, event):
-    """ clone the feeds running in a channel. """
+    """ arguments: <channel> - clone the feeds running in a channel. """
     if not event.rest: event.missing('<channel>') ; return
     feeds = watcher.clone(bot.cfg.name, bot.type, event.channel, event.rest)
     event.reply('cloned the following feeds: ', feeds)
     bot.say(event.rest, "this wave is continued in %s" % event.url)
  
 cmnds.add('hb-clone', handle_hubbubclone, 'USER')
-examples.add('hb-clone', 'clone feeds into new channel', 'hb-clone waveid')
+examples.add('hb-clone', 'clone feeds into new channel', 'hb-clone #dunkbots')
 
 ## hb-cloneurl command
 
 def handle_hubbubcloneurl(bot, event):
-    """ clone urls from http://host/feeds. """
+    """ arguments: <url> - clone urls from http://host/feeds. """
     if not event.rest: event.missing('<url>') ; return
     import urllib2
     try:
@@ -519,12 +511,12 @@ def handle_hubbubcloneurl(bot, event):
     except urllib2.HTTPError, ex: event.reply("hubbub - clone - %s" % str(ex))
 
 cmnds.add('hb-cloneurl', handle_hubbubcloneurl, 'OPER')
-examples.add('hb-cloneurl', 'clone feeds from remote url', 'hb-cloneurl http://jsonbot.appspot.com/feeds')
+examples.add('hb-cloneurl', 'clone feeds from remote url', 'hb-cloneurl http://jsonbot.org/feeds')
 
 ## hb-add command
 
 def handle_hubbubadd(bot, ievent):
-    """ add a hubbub item. """
+    """ arguments: <feedname> <url> - add a hubbub item (name/url combo). """
     try: (name, url) = ievent.args
     except ValueError: ievent.missing('<name> <url>') ; return
     result = subscribe(url)
@@ -539,8 +531,7 @@ examples.add('hb-add', 'hubbub-add <name> <url> to the watcher', 'hb-add jsb-hg 
 ## hb-watch command
 
 def handle_hubbubwatch(bot, ievent):
-    """ enable a feed for watching. """
-    if not ievent.channel: ievent.reply('no channel provided')
+    """ arguments: <feedname> - enable a feed for watching (per channel). """
     try: name = ievent.args[0]
     except IndexError: ievent.missing('<feedname>') ; return
     item = watcher.byname(name)
@@ -562,7 +553,7 @@ examples.add('hb-watch', 'hubbub-watch <name> [seconds to sleep] .. go watching 
 ## hubbub-start command
 
 def handle_hubbubstart(bot, ievent):
-    """ start sending a feed to an user or channel/wave. """
+    """ arguments: <list of feeds> - start sending feeds to an user or channel. """
     feeds = ievent.args
     if not feeds: ievent.missing('<list of feeds>') ; return
     started = []
@@ -591,7 +582,7 @@ examples.add('hb-start', 'hubbub-start <list of feeds> .. start a hubbub feed (p
 ## hb-stop command
 
 def handle_hubbubstop(bot, ievent):
-    """ stop a hubbub feed to a user. """
+    """ arguments: <list of feeds> - stop a hubbub feed to a user or channel. """
     if not ievent.args: ievent.missing('<list of feeds>') ; return
     feeds = ievent.args
     stopped = []
@@ -614,7 +605,7 @@ examples.add('hb-stop', 'hubbub-stop <list of names> .. stop a hubbub feed (per 
 ## hb-stopall command
 
 def handle_hubbubstopall(bot, ievent):
-    """ stop all hubbub feeds to a channel. """
+    """ no arguments - stop all hubbub feeds to a channel. """
     if not ievent.rest: target = ievent.channel
     else: target = ievent.rest
     stopped = []
@@ -635,7 +626,7 @@ examples.add('hb-stopall', 'hubbub-stopall .. stop all hubbub feeds (per user/ch
 ## hb-channels command
 
 def handle_hubbubchannels(bot, ievent):
-    """ show channels of hubbub feed. """
+    """ arguments: <feedname> - show channels of hubbub feed. """
     try: name = ievent.args[0]
     except IndexError: ievent.missing("<feedname>") ; return
     item = watcher.byname(name)
@@ -651,8 +642,7 @@ examples.add('hb-channels', 'hb-channels <name> .. show channels', 'hb-channels 
 ## hb-addchannel
 
 def handle_hubbubaddchannel(bot, ievent):
-    """ add a channel to  hubbub feed. """
-
+    """ arguments: <feedname> [<botname>] [<bottype>] <channel> - add a channel to  hubbub feed. """
     try: (name, botname, type, channel) = ievent.args
     except ValueError:
         try:
@@ -670,10 +660,7 @@ def handle_hubbubaddchannel(bot, ievent):
                     name = ievent.args[0]
                     type = bot.type
                     channel = ievent.channel
-                except IndexError:
-                    ievent.missing('<name> [<botname>][<bottype>] <channel>')
-                return
-
+                except IndexError: ievent.missing('<name> [<botname>][<bottype>] <channel>') ; return
     item = watcher.byname(name)
     if item == None: ievent.reply("we don't have a %s hubbub object" % name) ; return
     if not item.data.running: ievent.reply('%s watcher is not running' % name) ; return
@@ -690,7 +677,7 @@ examples.add('hb-addchannel', 'add a channel to a feeds watchlist', '1) hb-addch
 ## hb-setitems command
 
 def handle_hubbubsetitems(bot, ievent):
-    """ set items (tokens) of a feed. """
+    """ arguments: <feedname> <list of tokens> - set items (tokens) of a feed, see hb-scan for a list of possible tokens. """
     try: (name, items) = ievent.args[0], ievent.args[1:]
     except ValueError: ievent.missing('<feedname> <tokens>') ; return
     target = ievent.channel
@@ -706,7 +693,7 @@ examples.add('hb-setitems', 'set tokens of the itemslist (per user/channel)', 'h
 ## hb-additem command
 
 def handle_hubbubadditem(bot, ievent):
-    """ add an item (token) to a feeds itemslist. """
+    """ arguments: <feedname> <token> - add an item (token) to a feeds itemslist, this list is used to determine what to display. """
     try: (name, item) = ievent.args
     except ValueError: ievent.missing('<feedname> <token>') ; return
     target = ievent.channel
@@ -723,7 +710,7 @@ examples.add('hb-additem', 'add a token to the itemslist (per user/channel)', 'h
 ## hb-delitem command
 
 def handle_hubbubdelitem(bot, ievent):
-    """ delete item (token) from a feeds itemlist. """
+    """ arguments: <feedname> <token> - delete item (token) from a feeds itemlist. """
     try: (name, item) = ievent.args
     except ValueError: ievent.missing('<name> <item>') ; return
     target = ievent.channel
@@ -741,7 +728,7 @@ examples.add('hb-delitem', 'remove a token from the itemslist (per user/channel)
 ## hb-markuplist command
 
 def handle_hubbubmarkuplist(bot, ievent):
-    """ show possible markups that can be used. """
+    """ no arguments - show possible markups that can be used. """
     ievent.reply('possible markups ==> ' , possiblemarkup)
 
 cmnds.add('hb-markuplist', handle_hubbubmarkuplist, ['USER', 'GUEST'])
@@ -750,7 +737,7 @@ examples.add('hb-markuplist', 'show possible markup entries', 'hb-markuplist')
 ## hb-markup command
 
 def handle_hubbubmarkup(bot, ievent):
-    """ show the markup of a feed (channel specific). """
+    """ arguments: <feedname> - show the markup of a feed (channel specific). """
     try: name = ievent.args[0]
     except IndexError: ievent.missing('<feedname>') ; return
     target = ievent.channel
@@ -765,7 +752,7 @@ examples.add('hb-markup', 'show markup list for a feed (per user/channel)', 'hb-
 ## hb-addmarkup command
 
 def handle_hubbubaddmarkup(bot, ievent):
-    """ add a markup to a feeds markuplist. """
+    """ arguments: <feedname> <item> <value> - add a markup to a feeds markuplist, this list determines how we display things. """
     try: (name, item, value) = ievent.args
     except ValueError: ievent.missing('<feedname> <item> <value>') ; return
     target = ievent.channel
@@ -785,7 +772,7 @@ examples.add('hb-addmarkup', 'add a markup option to the markuplist (per user/ch
 ## hb-delmarkup command
 
 def handle_hubbubdelmarkup(bot, ievent):
-    """ delete markup item from a feed's markuplist. """
+    """ arguments: <feedname> <item> - delete markup item from a feed's markuplist. """
     try: (name, item) = ievent.args
     except ValueError: ievent.missing('<feedname> <item>') ; return
     target = ievent.channel
@@ -802,7 +789,7 @@ examples.add('hb-delmarkup', 'remove a markup option from the markuplist (per us
 ## hb-delchannel command
 
 def handle_hubbubdelchannel(bot, ievent):
-    """ delete channel from hubbub feed. """
+    """ arguments: <feedname> [<botname>] [<bottype>] [<channel>] - delete channel from hubbub feed. """
     bottype = None
     try: (name, botname, bottype, channel) = ievent.args
     except ValueError:
@@ -837,7 +824,7 @@ examples.add('hubbub-delchannel', 'remove a channel from a feeds watchlist', '1)
 ## hb-stopwatch command
 
 def handle_hubbubstopwatch(bot, ievent):
-    """ stop watching a feed. """
+    """ arguments: <feedname> - stop watching a feed. """
     try: name = ievent.args[0]
     except IndexError: ievent.missing('<feedname>') ; return
     item = watcher.byname(name)
@@ -851,7 +838,7 @@ examples.add('hb-stopwatch', 'hubbub-stopwatch <name> .. stop polling <name>', '
 ## hb-get command
 
 def handle_hubbubget(bot, ievent):
-    """ fetch feed data. """
+    """ arguments: <feedname> - fetch feed data. """
     try: name = ievent.args[0]
     except IndexError: ievent.missing('<feedname>') ; return
     channel = ievent.channel
@@ -870,7 +857,7 @@ examples.add('hb-get', 'hubbub-get <name> .. get data from <name>', 'hb-get goze
 ## hb-running command
 
 def handle_hubbubrunning(bot, ievent):
-    """ show which feeds are running. """
+    """ no arguments - show which feeds are running. """
     result = watcher.runners()
     resultlist = []
     teller = 1
@@ -884,7 +871,7 @@ examples.add('hb-running', 'hubbub-running .. get running feeds', 'hb-running')
 ## hb-list command
 
 def handle_hubbublist(bot, ievent):
-    """ return list of available feeds. """
+    """ no arguments - return list of available feeds. """
     result = watcher.list()
     result.sort()
     if result: ievent.reply("hubbub items: ", result)
@@ -896,7 +883,7 @@ examples.add('hb-list', 'get list of hubbub items', 'hb-list')
 ## hb-url command
 
 def handle_hubbuburl(bot, ievent):
-    """ return url of feed. """
+    """ arguments: <feedname> - return url of feed. """
     try:
         name = ievent.args[0]
     except IndexError: ievent.missing('<feedname>') ; return
@@ -917,7 +904,7 @@ examples.add('hb-url', 'hb-url <name> .. get url from hubbub item', 'hb-url goze
 ## hb-itemslist command
 
 def handle_hubbubitemslist(bot, ievent):
-    """ show itemslist (tokens) of hubbub item. """
+    """ arguments: <feedname> - show itemslist (tokens) of hubbub item. """
     try:name = ievent.args[0]
     except IndexError: ievent.missing('<feedname>') ; return
     feed = watcher.byname(name)
@@ -932,9 +919,9 @@ examples.add('hb-itemslist', 'hb-itemslist <name> .. get itemslist of <name> ', 
 ## hb-scan command
 
 def handle_hubbubscan(bot, ievent):
-    """ scan feed for available tokens. """
+    """ arguments: <feedname>  - scan feed for available tokens. """
     try: name = ievent.args[0]
-    except IndexError: ievent.missing('<name>') ; return
+    except IndexError: ievent.missing('<feedname>') ; return
     if not watcher.byname(name): ievent.reply('no %s feeds available' % name) ; return
     try: result = watcher.scan(name)
     except Exception, ex: ievent.reply(str(ex)) ; return
@@ -949,7 +936,7 @@ examples.add('hb-scan', 'hb-scan <name> .. get possible items of <name> ', 'hb-s
 ## hb-feeds command
 
 def handle_hubbubfeeds(bot, ievent):
-    """ show what feeds are running in a channel. """
+    """ arguments: [<channel>] - show what feeds are running in a channel. """
     try: channel = ievent.args[0]
     except IndexError: channel = ievent.channel
     try:
@@ -961,21 +948,9 @@ def handle_hubbubfeeds(bot, ievent):
 cmnds.add('hb-feeds', handle_hubbubfeeds, ['USER', 'GUEST'])
 examples.add('hb-feeds', 'hb-feeds <name> .. show what feeds are running in a channel', '1) hb-feeds 2) hb-feeds #dunkbots')
 
-## hb-welcome command
-
-def handle_hubbubwelcome(bot, ievent):
-    """ show hubbub welcome message, used by the gadget. """
-    ievent.reply("hb-register <feedname> <url>")
-
-#cmnds.add('hb-welcome', handle_hubbubwelcome, ['USER', 'GUEST'])
-#examples.add('hb-welcome', 'hb-welcome .. show welcome message', 'hb-welcome')
-
-## hb-register command
-
 def handle_hubbubregister(bot, ievent):
-    """ register a url and start the feed in one pass. """
-    if not ievent.waveid: target = ievent.channel
-    else: target = ievent.waveid
+    """ arguments: <feedname> <url> - register a url and start the feed in one pass. """
+    target = ievent.waveid or ievent.channel
     if len(ievent.args) > 2: ievent.reply("feed name needs to be 1 word.") ; return
     try: (name, url) = ievent.args
     except ValueError:
@@ -989,11 +964,6 @@ def handle_hubbubregister(bot, ievent):
                     ievent.chan.data.feeds.append(name)
                     ievent.chan.save()
                 ievent.reply('started %s feed. entries will show up when the feed is updated.' % name)
-                if bot.type == "wave":
-                    wave = Wave(ievent.waveid)
-                    logging.debug("feed running in %s: %s" % (ievent.title, wave.data.feeds))
-                    if name not in ievent.title:
-                        ievent.set_title("JSONBOT - %s - #%s" % (' - '.join(wave.data.feeds), str(wave.data.nrcloned)))
             else: ievent.reply("feed %s is already running." % name)
         else: ievent.reply("i don't know a %s feed. please enter name and url." % name)
         return
@@ -1003,11 +973,6 @@ def handle_hubbubregister(bot, ievent):
         if watcher.add(name, url, ievent.userhost):
             watcher.start(bot.cfg.name, bot.type, name, target)
             ievent.reply('started %s feed. entries will show up when the feed is updated.' % name)
-            if bot.type == "wave":
-                wave = Wave(ievent.waveid)
-                logging.debug("feed running in %s: %s" % (ievent.title, wave.data.feeds))
-                if name not in ievent.title:
-                    ievent.set_title("JSONBOT - %s - #%s" % (' - '.join(wave.data.feeds), str(wave.data.nrcloned)))
             return
         else:
             ievent.reply("there already exists a %s feed. please choose a different name" % name)

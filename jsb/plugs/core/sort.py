@@ -67,7 +67,7 @@ def numeric_compare(x, y):
 ## sort command
 
 def handle_sort(bot, ievent):
-    """ sort the result list. """
+    """ no arguments - sort the result list, use this command in a pipeline.  """
     parser = SortOptionParser()
     if ievent.args:
         try: options, result = parser.parse_args(ievent.args)

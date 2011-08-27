@@ -2,6 +2,8 @@
 #
 #
 
+""" implements a REST server, soon to be adapted for use with the jsb-tornado program. """
+
 ## jsb imports
 
 from jsb.lib.callbacks import callbacks
@@ -75,7 +77,7 @@ def shutdown():
 ## rest-start command
 
 def handle_rest_start(bot, event):
-    """ start the rest server. """
+    """ no arguments - start the rest server. """
     cfg['enable'] = 1
     cfg.save()
     startserver()
@@ -87,7 +89,7 @@ examples.add('rest-start', 'start the REST server', 'rest-start')
 ## rest-stop command
 
 def handle_rest_stop(bot, event):
-    """ stop the rest server. """
+    """ no arguments - stop the rest server. """
     cfg['enable'] = 0
     cfg.save()
     stopserver()

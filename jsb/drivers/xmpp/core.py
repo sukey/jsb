@@ -183,7 +183,7 @@ class XMLStream(NodeBuilder):
             try:
                 data = jabberstrip(fromenc(self.connection.read()))
                 if self.stopped or self.stopreadloop: break
-                logging.info(u"%s - incoming: %s" % (self.cfg.name, data))
+                logging.info(u"%s - %s" % (self.cfg.name, data))
                 if data.endswith("</stream:stream>"):
                     logging.error("%s - end of stream detected" % self.cfg.name)
                     self.error = "streamend"

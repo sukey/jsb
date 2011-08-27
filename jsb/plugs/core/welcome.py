@@ -12,7 +12,7 @@ from jsb.lib.examples import examples
 ## welcome command
 
 def handle_welcome(bot, event):
-    event.how = "background"
+    """ no arguments - display welcome message. """
     event.reply("Welcome to JSONBOT - you can give this bot commands. try !help .. or !todo or !shop or !feedback .. ;]")
 
 cmnds.add('welcome', handle_welcome, ['OPER', 'USER', 'GUEST'])

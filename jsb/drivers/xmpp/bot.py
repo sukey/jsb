@@ -13,7 +13,7 @@ from jsb.utils.trace import whichmodule
 from jsb.utils.locking import lockdec
 from jsb.utils.pdod import Pdod
 from jsb.utils.dol import Dol
-from jsb.utils.generic import stripcolor, toenc, fromenc
+from jsb.utils.generic import stripcolor, toenc, fromenc, stripped
 from jsb.lib.less import Less
 from jsb.lib.callbacks import callbacks, remote_callbacks
 from jsb.lib.threads import start_new_thread
@@ -39,6 +39,7 @@ from errors import xmpperrors
 
 ## basic imports
 
+import copy
 import time
 import Queue
 import os
@@ -53,6 +54,11 @@ import cgi
 import base64
 import random
 from hashlib import md5
+
+## defines
+
+cpy = copy.deepcopy
+
 
 ## locks
 
@@ -261,6 +267,11 @@ class SXMPPBot(XMLStream, BotBase):
         if self.cfg.user in m.fromm or (m.groupchat and self.cfg.nick == m.nick):
             logging.debug("%s - message to self .. ignoring" % self.cfg.name)
             return 0
+        if self.cfg.fulljids:
+            utarget = self.userhosts.get(m.nick) 
+            if utarget: m.userhost = m.jid = m.auth = stripped(utarget)
+            else: m.userhost = m.jid
+        logging.warn("using %s as userhost" % m.userhost)
         try:
             if m.type == 'error':
                 if m.code:
@@ -286,7 +297,7 @@ class SXMPPBot(XMLStream, BotBase):
         nick = p.nick
         if self.cfg.user in p.userhost: return 0
         if nick: 
-            self.userhosts[nick] = str(frm)
+            self.userhosts[nick] = stripped(frm)
             nickk = nick
         jid = None
         for node in p.subelements:
@@ -294,13 +305,13 @@ class SXMPPBot(XMLStream, BotBase):
                 jid = node.x.item.jid 
             except (AttributeError, TypeError):
                 continue
-        if nickk and jid:
+        if nickk and jid and self.cfg.fulljids:
             channel = p.channel
             if not self.jids.has_key(channel):
                 self.jids[channel] = {}
             self.jids[channel][nickk] = jid
-            self.userhosts[nickk] = str(jid)
-            logging.debug('%s - setting jid of %s (%s) to %s' % (self.cfg.name, nickk, channel, jid))
+            self.userhosts[nickk] = stripped(jid)
+            logging.warn('%s - setting jid of %s (%s) to %s' % (self.cfg.name, nickk, channel, self.userhosts[nickk]))
         if p.type == 'subscribe':
             pres = Presence({'to': p.fromm, 'type': 'subscribed'})
             self.send(pres)
@@ -493,6 +504,9 @@ class SXMPPBot(XMLStream, BotBase):
         what = stripcolor(what)
         what = what.replace("\002", "")
         what = what.replace("\003", "")
+        what = what.replace("<br>", "\n")
+        what = what.replace("<li>", "*")
+        what = what.replace("</li>", "")
         what = what.replace("<b>", "")
         what = what.replace("</b>", "")
         what = what.replace("&lt;b&gt;", "")
@@ -505,9 +519,10 @@ class SXMPPBot(XMLStream, BotBase):
 
     def doreconnect(self):
         """ reconnect to the server. """
-        botjid = self.cfg.user
-        newbot = getfleet().makebot('sxmpp', self.cfg.name, config=self.cfg)
-        if not newbot: raise Exception(self.cfg.dump())
+        cfg = cpy(self.cfg)
+        botjid = cfg.user
+        newbot = getfleet().makebot('sxmpp', cfg.name, config=cfg, showerror=True)
+        if not newbot: raise Exception("can't make bot %s with config %s" % (self.cfg.name, self.cfg.tojson()))
         newbot.reconnectcount = self.reconnectcount
         newbot.start()
         newbot.joinchannels()

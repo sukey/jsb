@@ -12,18 +12,18 @@ from jsb.lib.examples import examples
 ## gatekeeper-allow command
 
 def handle_gatekeeperallow(bot, event):
-    """ allow user on bot. """
+    """ arguments: <userhost> - allow user on bot. """
     if not event.rest: event.missing("<userhost>") ; return
     bot.gatekeeper.allow(event.rest)
     event.done()
 
 cmnds.add('gatekeeper-allow', handle_gatekeeperallow, 'OPER')
-examples.add('gatekeeper-allow', 'add JID of remote bot that we allow to receice events from', 'gatekeeper-allow jsb@appspot.com')
+examples.add('gatekeeper-allow', 'add JID of remote bot that we allow to receice events from', 'gatekeeper-allow jsb@jsonbot.org')
 
 ## gatekeeper-deny command
 
 def handle_gatekeeperdeny(bot, event):
-    """ deny user on bot. """
+    """ arguments: userhost - deny user on bot. """
     if not event.rest: event.missing("<userhost>") ; return
     bot.gatekeeper.deny(event.rest)
     event.done()

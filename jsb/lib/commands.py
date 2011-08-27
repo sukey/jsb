@@ -28,6 +28,7 @@ import types
 import os
 import copy
 import time
+import re
 
 ## defines
 
@@ -39,7 +40,7 @@ class Command(LazyDict):
 
     """ a command object. """
 
-    def __init__(self, modname, cmnd, func, perms=[], threaded=False, wait=False, orig=None, how="message"):
+    def __init__(self, modname, cmnd, func, perms=[], threaded=False, wait=False, orig=None, how=None):
         LazyDict.__init__(self)
         if not modname: raise Exception("modname is not set - %s" % cmnd)
         self.modname = cpy(modname)
@@ -53,7 +54,8 @@ class Command(LazyDict):
         self.threaded = cpy(threaded)
         self.wait = cpy(wait)
         self.enable = True
-        self.how = cpy(how)
+        self.how = how or "overwrite"
+        self.regex = None
 
 class Commands(LazyDict):
 
@@ -62,12 +64,19 @@ class Commands(LazyDict):
  
     """
 
+    regex = []
+
     def add(self, cmnd, func, perms, threaded=False, wait=False, orig=None, how=None, *args, **kwargs):
         """ add a command. """
         modname = calledfrom(sys._getframe())
         try: prev = self[cmnd]
         except KeyError: prev = None
         target = Command(modname, cmnd, func, perms, threaded, wait, orig, how)
+        if how == "regex":
+            logging.info("regex command detected - %s" % cmnd)
+            self.regex.append(target)
+            target.regex = cmnd 
+            return self
         self[cmnd] = target
         try:
             c = cmnd.split('-')[1]
@@ -88,6 +97,14 @@ class Commands(LazyDict):
             else: self.pre[p] = [target, ]
         except IndexError: pass
         return self
+
+    def checkre(self, bot, event):
+        for r in self.regex:
+            s = re.search(r.cmnd, event.stripcc())
+            if s:
+                logging.warn("regex matches %s" % r.cmnd)
+                event.groups = list(s.groups())
+                return r
 
     def woulddispatch(self, bot, event, cmnd=""):
         """ 
@@ -124,7 +141,7 @@ class Commands(LazyDict):
                     cmndlist = self.pre[cmnd]
                     if len(cmndlist) == 1: result = cmndlist[0]
                     else: event.reply("try one of: %s" % ", ".join([x.cmnd for x in cmndlist])) ; return
-        logging.debug(" woulddispatch result: %s" % result)
+        logging.debug("woulddispatch result: %s" % result)
         return result
 
     def dispatch(self, bot, event, wait=0):
@@ -133,10 +150,12 @@ class Commands(LazyDict):
             command.
 
         """
-        if event.groupchat: id = event.auth = event.userhost
+        if event.groupchat and bot.cfg.fulljids: id = event.auth
+        elif event.groupchat: id = event.auth = event.userhost
         else: id = event.auth
         if not event.user: raise NoSuchUser(event.auth)
-        c = self.woulddispatch(bot, event)
+        c = self.checkre(bot, event)
+        if not c: c = self.woulddispatch(bot, event)
         if not c: raise NoSuchCommand()
         if bot.cmndperms and bot.cmndperms[c.cmnd]: perms = bot.cmndperms[c.cmnd]
         else: perms = c.perms
@@ -156,7 +175,7 @@ class Commands(LazyDict):
              return
         id = event.auth or event.userhost
         event.iscommand = True
-        event.how = target.how
+        event.how = event.how or target.how or "overwrite"
         event.thecommand = target
         time.sleep(0.01)
         logging.warning('dispatching %s for %s' % (event.usercmnd, id))

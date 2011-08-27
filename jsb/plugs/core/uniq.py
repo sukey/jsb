@@ -16,7 +16,7 @@ from jsb.utils.generic import waitforqueue
 ## uniq command
 
 def handle_uniq(bot, ievent):
-    """ uniq the result list """
+    """ no arguments - uniq the result list, use this command in a pipeline. """
     if not ievent.inqueue:
         ievent.reply('use uniq in a pipeline')
         return

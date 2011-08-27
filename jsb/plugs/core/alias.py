@@ -21,7 +21,7 @@ import os
 ## alias-search command
 
 def handle_aliassearch(bot, ievent):
-    """ alias-search <what> .. search aliases. """
+    """ arguments: <what> - search aliases. """
     try: what = ievent.rest
     except IndexError:
         ievent.missing('<what>')
@@ -43,7 +43,7 @@ examples.add('alias-search', 'search aliases',' alias-search web')
 ## alias-set command
 
 def handle_aliasset(bot, ievent):
-    """ alias-set <from> <to> .. set alias. """
+    """ arguments: <from> <to> - set alias. """
     try: (aliasfrom, aliasto) = (ievent.args[0], ' '.join(ievent.args[1:]))
     except IndexError:
         ievent.missing('<from> <to>')
@@ -69,7 +69,7 @@ examples.add('alias', 'alias <alias> <command> .. define alias', 'alias ll list'
 ## alias-makeglobal command
 
 def handle_aliasmakeglobal(bot, ievent):
-    """ make channel aliases global. """
+    """ no arguments -  make channel aliases global. """
     aliases = ievent.chan.data.aliases
     if not aliases: ievent.chan.data.aliases = aliases = {}
     from jsb.lib.aliases import getaliases
@@ -85,7 +85,7 @@ examples.add('alias-makeglobal', 'push channel specific aliases into the global 
 ## alias-del command
 
 def handle_delalias(bot, ievent):
-    """ delete alias. """
+    """ arguments: <aliasfrom> - delete alias. """
     try: what = ievent.args[0]
     except IndexError:
         ievent.missing('<what>')
@@ -106,7 +106,7 @@ examples.add('alias-del', 'alias-del <what> .. delete alias', 'alias-del ll')
 ## alias-get command
 
 def handle_aliasget(bot, ievent):
-    """ aliases .. show aliases. (per user) """
+    """ not arguments - show aliases. (per user) """
     aliases = ievent.chan.data.aliases
     if aliases: ievent.reply("aliases: %s" % str(aliases))
     else: ievent.reply("no aliases yet")

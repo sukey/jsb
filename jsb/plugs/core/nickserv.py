@@ -98,7 +98,7 @@ callbacks.add('001', nsauth.handle_001, threaded=True)
 ## ns-add command
 
 def handle_nsadd(bot, ievent):
-    """ add a bot to the nickserv. """
+    """ arguments: <password> [<nickserv nick>] [<identify command>] - add a bot to the nickserv. """
     if bot.jabber: return
     if len(ievent.args) < 1:
         ievent.missing('<password> [<nickserv nick>] [<identify command>]')
@@ -117,10 +117,10 @@ examples.add('ns-add', 'ns-add <password> [<nickserv nick>] [<identify command>]
 ## ns-del command
 
 def handle_nsdel(bot, ievent):
-    """ remove a bot from nickserv. """
+    """ arguments: <botname> - remove a bot from nickserv. """
     if bot.jabber: return
     if len(ievent.args) != 1:
-        ievent.missing('<fleetbot name>')
+        ievent.missing('<botname>')
         return
     botname = ievent.args[0]
     fbot = getfleet().byname(botname)
@@ -139,7 +139,7 @@ examples.add('ns-del', 'ns-del <fleetbot name>', 'ns-del test')
 ## ns-send command
 
 def handle_nssend(bot, ievent):
-    """ send string to the nickserv. """
+    """ arguments: <txt> - send string to the nickserv. """
     if bot.jabber: return
     if not ievent.rest:
         ievent.missing('<txt>')
@@ -153,7 +153,7 @@ examples.add('ns-send', 'ns-send <txt> .. send txt to nickserv', 'ns-send identi
 ## ns-auth command
 
 def handle_nsauth(bot, ievent):
-    """ perform an auth request. """
+    """ arguments: [<botname>] - perform an auth request. """
     if bot.jabber: return
     if len(ievent.args) != 1: name = bot.cfg.name
     else: name = ievent.args[0]
@@ -173,7 +173,7 @@ examples.add('ns-auth','ns-auth [<botname>]', '1) ns-auth 2) ns-auth test')
 ## ns-list command
 
 def handle_nslist(bot, ievent):
-    """ show a list of all bots know with nickserv. """
+    """ no arguments - show a list of all bots know with nickserv. """
     if bot.jabber: return
     all = dict(nsauth.listbots())
     rpl = []

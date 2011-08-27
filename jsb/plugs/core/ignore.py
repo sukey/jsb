@@ -12,7 +12,8 @@ from jsb.utils.generic import getwho
 ## ignore command
 
 def handle_ignore(bot, event):
-    if not event.rest: event.missing("<nick>|<userhost>") ; return
+    """ arguments: <nick>|<userhost>|<JID> - ignore a user. """
+    if not event.rest: event.missing("<nick>|<userhost>|<JID>") ; return
     nick = event.rest
     userhost = getwho(bot, nick)
     if not userhost: userhost = event.rest
@@ -27,6 +28,7 @@ examples.add("ignore", "ignore a user or userhost (JID)", "ignore dunker")
 ## unignore command
 
 def handle_unignore(bot, event):
+    """ arguments: <nick>|<userhost>|<JID> - unignore a user. """
     if not event.rest: event.missing("<nick>|<userhost>|<JID>") ; return
     nick = event.rest
     userhost = getwho(bot, nick)

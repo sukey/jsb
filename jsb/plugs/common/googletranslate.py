@@ -15,7 +15,7 @@ from jsb.imports import getjson
 ## basic imports
 
 import re
-from urllib import quote
+from urllib import quote, unquote
 
 ## defines
 
@@ -31,7 +31,7 @@ def parse_pair(text):
 ## translate command
 
 def handle_translate(bot, event):
-    """ translate <from> <to> <text>. """
+    """ arguments: <countrycode to translate from> <countrycode to translate to> <txt> - translate the given txt with google translate. """
     if not event.rest:  event.missing("<from> <to> <text>") ; return
     query = parse_pair(event.rest.strip())
     if not query:  event.missing("<from> <to> <text>") ; return
@@ -43,7 +43,7 @@ def handle_translate(bot, event):
     if 'responseData' in rawresult:
         if 'translatedText' in rawresult['responseData']:
             translation = rawresult['responseData']['translatedText']
-            event.reply(translation)
+            event.reply(unquote(translation))
         else: event.reply("no text available")
     else: event.reply("something is wrong, probably the API changed")
 

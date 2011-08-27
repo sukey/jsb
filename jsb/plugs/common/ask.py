@@ -69,7 +69,7 @@ callbacks.add('PRIVMSG', askcallback, askprecondition)
 
 def handle_ask(bot, event):
     """ 
-        this command lets you ask a question that gets dispatched to jabber 
+        arguments: <subject> <question> - this command lets you ask a question that gets dispatched to jabber 
         users that have registered themselves for that particular subject. 
 
     """
@@ -101,7 +101,7 @@ examples.add('ask', 'ask [group|JID] question .. ask a groups of users a questio
 ## ask-stop command
 
 def handle_askstop(bot, event):
-    """ remove any waiting data for the user giving the command. """
+    """ no arguments - remove any waiting data for the user giving the command. """
     try: del questions.data[event.userhost]
     except KeyError: event.reply('no question running')
 
@@ -111,7 +111,7 @@ examples.add('ask-stop', 'stop listening to answers', 'ask-stop')
 ## ask-join command
 
 def handle_askjoin(bot, event):
-    """ join the expert list of a subject. """
+    """ arguments: <subject> - join the expert list of a subject. """
     if bot.type != 'xmpp':
         event.reply('this command only works in jabber')
         return    
@@ -136,7 +136,7 @@ examples.add('ask-join', 'ask-join <subject> .. join a subject as an expert', 'a
 ## ask-part command
 
 def handle_askpart(bot, event):
-    """ leave the expert list of a subject. """
+    """ arguments: <subject> - leave the expert list of a subject. """
     if bot.type != 'xmpp':
         event.reply('this command only works in jabber')
         return    
@@ -163,7 +163,7 @@ examples.add('ask-list', 'list available subjects', 'ask-list')
 ## ask-experts command
 
 def handle_askexperts(bot, event):
-    """ show all the experts on a subject. """
+    """ arguments: <subject> - show all the experts on a subject. """
     try: subject = event.args[0]
     except IndexError:
         event.missing('<subject>')
@@ -177,7 +177,7 @@ examples.add('ask-experts', 'list all experts on a subject', 'ask-experts ask-bo
 ## ask-subjects command
 
 def handle_asksubjects(bot, event):
-    """ show all the subjects an expert handles. """
+    """ arguments: <JID> - show all the subjects an expert handles. """
     try: expert = event.args[0]
     except IndexError:
         event.missing('<JID>')

@@ -8,10 +8,7 @@ jsb.drivers
     :glob:
 
     console/index
-    gae/index
-    gae/wave/index
-    gae/web/index
-    gae/xmpp/index
     irc/index
     xmpp/index
     convore/index
+    tornado/index

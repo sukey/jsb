@@ -103,7 +103,7 @@ def get_tinyurl(url):
 ## tinyurl command
 
 def handle_tinyurl(bot, ievent):
-    """ get tinyurl from provided url. """
+    """ arguments: <url> - get tinyurl from provided url. """
     if not ievent.rest and (not urlcache.has_key(bot.cfg.name) or not urlcache[bot.cfg.name].has_key(ievent.target)):
         ievent.missing('<url>')
         return

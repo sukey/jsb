@@ -3,6 +3,9 @@
 import tornado.escape
 import unittest
 
+from tornado.escape import utf8, xhtml_escape, xhtml_unescape, url_escape, url_unescape, to_unicode, json_decode
+from tornado.util import b
+
 linkify_tests = [
     # (input, linkify_kwargs, expected_output)
 
@@ -125,3 +128,55 @@ class EscapeTestCase(unittest.TestCase):
             linked = tornado.escape.linkify(text, **kwargs)
             self.assertEqual(linked, html)
 
+    def test_xhtml_escape(self):
+        tests = [
+            ("<foo>", "&lt;foo&gt;"),
+            (u"<foo>", u"&lt;foo&gt;"),
+            (b("<foo>"), b("&lt;foo&gt;")),
+
+            ("<>&\"", "&lt;&gt;&amp;&quot;"),
+            ("&amp;", "&amp;amp;"),
+            ]
+        for unescaped, escaped in tests:
+            self.assertEqual(utf8(xhtml_escape(unescaped)), utf8(escaped))
+            self.assertEqual(utf8(unescaped), utf8(xhtml_unescape(escaped)))
+
+    def test_url_escape(self):
+        tests = [
+            # byte strings are passed through as-is
+            (u'\u00e9'.encode('utf8'), '%C3%A9'),
+            (u'\u00e9'.encode('latin1'), '%E9'),
+
+            # unicode strings become utf8
+            (u'\u00e9', '%C3%A9'),
+            ]
+        for unescaped, escaped in tests:
+            self.assertEqual(url_escape(unescaped), escaped)
+
+    def test_url_unescape(self):
+        tests = [
+            ('%C3%A9', u'\u00e9', 'utf8'),
+            ('%C3%A9', u'\u00c3\u00a9', 'latin1'),
+            ('%C3%A9', utf8(u'\u00e9'), None),
+            ]
+        for escaped, unescaped, encoding in tests:
+            # input strings to url_unescape should only contain ascii
+            # characters, but make sure the function accepts both byte
+            # and unicode strings.
+            self.assertEqual(url_unescape(to_unicode(escaped), encoding), unescaped)
+            self.assertEqual(url_unescape(utf8(escaped), encoding), unescaped)
+
+    def test_escape_return_types(self):
+        # On python2 the escape methods should generally return the same
+        # type as their argument
+        self.assertEqual(type(xhtml_escape("foo")), str)
+        self.assertEqual(type(xhtml_escape(u"foo")), unicode)
+
+    def test_json_decode(self):
+        # json_decode accepts both bytes and unicode, but strings it returns
+        # are always unicode.
+        self.assertEqual(json_decode(b('"foo"')), u"foo")
+        self.assertEqual(json_decode(u'"foo"'), u"foo")
+
+        # Non-ascii bytes are interpreted as utf8
+        self.assertEqual(json_decode(utf8(u'"\u00e9"')), u"\u00e9")

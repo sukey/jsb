@@ -5,24 +5,26 @@ JSONBOT is a remote event-driven framework for building bots that talk JSON to e
 
 This distribution provides bots built on this framework for console, IRC, XMPP for the shell and WWW and XMPP for the Google Application engine (appengine).
 
-JSONBOT is all of the following:
+the jsb pakage contains the following programs:
 
-    * a shell console bot
-    * a shell IRC bot
-    * a shell XMPP bot
-    * a shell Convore bot
-    * a Web bot running on Google Application Engine
-    * a XMPP bot running on Google Application Engine
-    * a Google Wave bot running op Google Application Engine
-    * the XMPP bots are used to communicate between bots
-    * plugin infrastructure to write your own functionality
-    * event driven framework by the use of callbacks
+    * jsb - console version of jsb
+    * jsb-convore - Convore version of jsb 
+    * jsb-makecert - create keys and certifictes for web console SSL
+    * jsb-init - create data directory and config examples, default ~/.jsb
+    * jsb-irc - IRC version of jsb
+    * jsb-fleet - mix IRC and XMPP bots
+    * jsb-sed - sed a whole directory
+    * jsb-stop - stop a running bot
+    * jsb-tornado - a shell web server based on tornado
+    * jsb-udp - send udp packets to the bot that will relay the data
+    * jsb-udpdirect - a stand alone udp program, copy & edit
+    * jsb-xmpp - XMPP version of jsb
 
 note: JSONBOT is in BETA stage right now and still subject to change of protocols and API.
 
 see http://jsonbot.googlecode.com.
 
-if you want to upload this bot to the GAE you need "google_appengine" installed in your home dir.
+see :ref:`handbook-introduction` for a quick introduction on the bot. 
 
 license
 ~~~~~~~
@@ -36,7 +38,6 @@ contact the developer
     * jabber/xmpp: bthate@gmail.com
     * IRC: dunker on #dunkbots irc.freenode.net
     * twitter: http://twitter.com/jsonbot
-    * facebook: http://tinyurl.com/bthate
 
 plugins
 ~~~~~~~
@@ -60,28 +61,13 @@ programs
 
 jsb provides the following programs:
 
-    * jsb - console version of jsb
-    * jsb-irc - IRC version of jsb (shell)
-    * jsb-xmpp - XMPP version of jsb (shell)
-    * jsb-convore - Convore version of jsb (shell)
-    * jsb-fleet - mix IRC and XMPP bots
-    * jsb-release - create a new release directory
-    * jsb-rollback - rollback a release
-    * jsb-run - run a release in the GAE dev_appserver
-    * jsb-stop - stop a running bot
-    * jsb-upload - upload a release to the GAE
-    * jsb-uploadall - upload all bot in ~/jsbregs to the GAE
-
-see docs/UPLOAD on how to upload your own bot.
-
 
 urls
 ~~~~
 
     * Source code: http://jsonbot.googlecode.com
-    * web: http://jsonbot.appspot.com (web)
-    * jabber: jsonbot@appspot.com
-    * facebook: http://tinyurl.com/jsonbot
+    * web: http://jsonbot.org:10102 (web)
+    * jabber: jsonbot@jsonbot.org
 
 running a development version of the bot
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -102,10 +88,8 @@ jsb code
         jsb/index
         jsb/drivers/index
         jsb/lib/index
-        jsb/lib/gae/index
         jsb/lib/rest/index
         jsb/utils/index
-        jsb/utils/gae/index
 
 jsb.plugs.core code
 ~~~~~~~~~~~~~~~~~~~
@@ -123,14 +107,6 @@ jsb.plugs.common code
 
         /jsb/plugs/common/index
 
-jsb.plugs.wave code
-~~~~~~~~~~~~~~~~~~~
-
-    .. toctree::
-        :maxdepth: 2
-
-        /jsb/plugs/wave/index
-
 jsb.plugs.socket code
 ~~~~~~~~~~~~~~~~~~~~~
 
@@ -139,15 +115,6 @@ jsb.plugs.socket code
         :maxdepth: 2
 
         /jsb/plugs/socket/index
-        
-jsb.plugs.gae code
-~~~~~~~~~~~~~~~~~~
-
-
-    .. toctree::
-        :maxdepth: 2
-
-        /jsb/plugs/gae/index
         
 
 jsb.plugs.myplugs code

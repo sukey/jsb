@@ -22,7 +22,7 @@ import logging
 ## chan-token command
 
 def handle_chantoken(bot, event):
-    """ request a token for the channel. used in channel API on GAE. """
+    """ no arguments - request a token for the channel. used in channel API on GAE. """
     if not bot.isgae: event.reply("this command only works on the App Engine") ; return
     import google
     try:
@@ -47,7 +47,7 @@ examples.add("chan-token", "create a new token for the appengine channel API", "
 ## chan-join command
 
 def handle_chanjoin(bot, ievent):
-    """ join a channel/wave"""
+    """ arguments: <channel> - join a channel/conference/wave"""
     try: channel = ievent.args[0]
     except IndexError:
         ievent.missing("<channel> [password]")   
@@ -64,7 +64,7 @@ examples.add('chan-join', 'chan-join <channel> [password]', '1) chan-join #test 
 ## chan-del command
 
 def handle_chandel(bot, ievent):
-    """ remove channel from bot.state['joinedchannels']. """
+    """ arguments: <channel> - remove channel from bot.state['joinedchannels']. """
     try: chan = ievent.args[0].lower()
     except IndexError:  
         ievent.missing("<channel>")
@@ -82,7 +82,7 @@ examples.add('chan-del', 'remove channel from bot.channels', 'chan-del #mekker')
 ## chan-part command
 
 def handle_chanpart(bot, ievent):
-    """ leave a channel. """
+    """ arguments: [<channel>] - leave a channel (provided or current channel). """
     if not ievent.rest: chan = ievent.channel
     else: chan = ievent.rest
     ievent.reply('leaving %s chan' % chan)
@@ -101,7 +101,7 @@ examples.add('chan-part', 'chan-part [<channel>]', '1) chan-part 2) chan-part #t
 ## chan-list command
 
 def handle_chanlist(bot, ievent):
-    """ channels .. show joined channels. """
+    """ no arguments - channels .. show joined channels. """
     if bot.state: chans = bot.state['joinedchannels']
     else: chans = []
     if chans: ievent.reply("joined channels: ", chans)
@@ -113,7 +113,7 @@ examples.add('chan-list', 'show what channels the bot is on', 'chan-list')
 ## chan-cycle command
 
 def handle_chancycle(bot, ievent):
-    """ cycle .. recycle channel. """
+    """ no arguments - recycle channel. """
     ievent.reply('cycling %s' % ievent.channel)
     bot.part(ievent.channel)
     try: key = ievent.chan.data.password
@@ -127,7 +127,7 @@ examples.add('chan-cycle', 'part/join channel', 'chan-cycle')
 ## chan-silent command
 
 def handle_chansilent(bot, ievent):
-    """ set silent mode of channel. """
+    """ arguments [<channel>] - set silent mode of channel. """
     if ievent.rest: channel = ievent.rest.split()[0].lower()
     else:
         if ievent.cmnd == 'DCC': return
@@ -143,7 +143,7 @@ examples.add('chan-silent', 'set silent mode on channel the command was given in
 ## chan-loud command
 
 def handle_chanloud(bot, ievent):
-    """ loud .. enable output to the channel. """
+    """ arguments: [<channel>] - enable output to the channel. """
     if ievent.rest: channel = ievent.rest.split()[0].lower()
     else:
         if ievent.cmnd == 'DCC': return
@@ -159,7 +159,7 @@ examples.add('chan-loud', 'disable silent mode of channel command was given in',
 ## chan-withnotice comamnd
 
 def handle_chanwithnotice(bot, ievent):
-    """ withnotice .. make bot use notice in channel. """
+    """ arguments: [<channel>] - make bot use notice in channel. """
     if ievent.rest: channel = ievent.rest.split()[0].lower()
     else:
         if ievent.cmnd == 'DCC': return
@@ -175,7 +175,7 @@ examples.add('chan-withnotice', 'make bot use notice on channel the command was 
 ## chan-withprivmsg
 
 def handle_chanwithprivmsg(bot, ievent):
-    """ withprivmsg .. make bot use privmsg in channel. """
+    """ arguments: [<channel>] - make bot use privmsg in channel. """
     if ievent.rest: channel = ievent.rest.split()[0].lower()
     else:
         if ievent.cmnd == 'DCC': return
@@ -191,7 +191,7 @@ examples.add('chan-withprivmsg', 'make bot use privmsg on channel command was gi
 ## chan-mode command
 
 def handle_channelmode(bot, ievent):
-    """ show channel mode. """
+    """ arguments: [<channel>] - show channel mode. """
     if bot.type != 'irc':
         ievent.reply('channelmode only works on irc bots')
         return
@@ -200,7 +200,7 @@ def handle_channelmode(bot, ievent):
     if not chan in bot.state['joinedchannels']:
         ievent.reply("i'm not on channel %s" % chan)
         return
-    ievent.reply('channel mode of %s is %s' % (chan, event.chan.data.mode))
+    ievent.reply('channel mode of %s is %s' % (chan, ievent.chan.data.mode))
 
 cmnds.add('chan-mode', handle_channelmode, 'OPER')
 examples.add('chan-mode', 'show mode of channel', '1) chan-mode 2) chan-mode #test')
@@ -219,8 +219,8 @@ callbacks.add('MODE', modecb)
 ## chan-denyplug command
 
 def handle_chandenyplug(bot, event):
-    """ deny a plugin to be active in a channel. """
-    if not event.rest: event.missing("<module name>") ; return
+    """ arguments: <plugname> - deny a plugin to be active in a channel. """
+    if not event.rest: event.missing("<plugin name>") ; return
     if not event.rest in event.chan.data.denyplug:
         event.chan.data.denyplug.append(event.rest)
         event.chan.save()
@@ -233,8 +233,8 @@ examples.add("chan-denyplug", "deny a plugin command or callbacks to be executed
 ## chan-allowplug command
 
 def handle_chanallowplug(bot, event):
-    """ allow a plugin to be active in a channel. """
-    if not event.rest: event.missing("<module name>") ; return
+    """ arguments: <plugname> - allow a plugin to be active in a channel. """
+    if not event.rest: event.missing("<plugin name>") ; return
     if event.rest in event.chan.data.denyplug:
         event.chan.data.denyplug.remove(event.rest)
         event.chan.save()
@@ -258,7 +258,7 @@ examples.add("chan-allowcommand", "add a command to the allow list. allows for a
 ## chan-silentcommand command
 
 def handle_chansilentcommand(bot, event):
-    """ silence a command in the channel. /msg the result of a command."""
+    """ arguments: <cmnd> - silence a command in the channel. /msg the result of a command."""
     try: cmnd = event.args[0] 
     except (IndexError, KeyError): event.missing("<cmnd>") ; return
     if not cmnd in event.chan.data.silentcommands: event.chan.data.silentcommands.append(cmnd) ; event.chan.save() ; event.done()
@@ -269,7 +269,7 @@ examples.add("chan-silentcommand", "add a command to the allow list.", "chan-sil
 ## chab-loudcommand command
 
 def handle_chanloudcommand(bot, event):
-    """ allow output of a command in the channel. """
+    """ arguments: <cmnd> - allow output of a command in the channel. """
     try: cmnd = event.args[0] ; event.chan.data.silentcommands.remove(cmnd) ; event.chan.save() ; event.done()
     except (IndexError, ValueError): event.reply("%s is not in the silencelist" % event.rest)
 
@@ -289,7 +289,7 @@ examples.add("chan-removecommand", "remove a command from the allow list.", "cha
 ## chan-upgrade command
 
 def handle_chanupgrade(bot, event):
-    """ upgrade the channel. """
+    """ no arguments - upgrade the channel. """
     prevchan = event.channel
     # 0.4.1
     if prevchan.startswith("-"): prevchan[0] = "+"
@@ -310,8 +310,8 @@ examples.add("chan-upgrade", "upgrade the channel.", "chan-upgrade")
 ## chan-allowwatch command
 
 def handle_chanallowwatch(bot, event):
-    """ add a target channel to the allowwatch list. """
-    if not event.rest: event.missing("<JID or channel>") ; return
+    """ arguments: <JID/channel> - add a target channel to the allowwatch list. """
+    if not event.rest: event.missing("<JID/channel>") ; return
     if event.rest not in event.chan.data.allowwatch: event.chan.data.allowwatch.append(event.rest) ; event.chan.save()
     event.done()
 
@@ -333,7 +333,7 @@ examples.add("chan-delwatch", "deny channel events to be watched when forwarded"
 ## chan-enable command
 
 def handle_chanenable(bot, event):
-    """ enable a channel. """
+    """ no arguments - enable current channel. """
     event.chan.data.enable = True
     event.chan.save()
     event.reply("%s channel enabled" % event.channel)
@@ -344,7 +344,7 @@ examples.add("chan-enable", "enable a channel (allow for handling of events conc
 ## chan-disable command
 
 def handle_chandisable(bot, event):
-    """ enable a channel. """
+    """ no arguments - enable current channel. """
     event.chan.data.enable = False
     event.chan.save()
     event.reply("%s channel disabled" % event.channel)

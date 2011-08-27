@@ -18,8 +18,8 @@ import re
 ## dns command
 
 def handle_dns(bot, event):
-    """ do a dns lookup. """
-    if not event.rest: event.missing("<ip> or <hostname>") ; return
+    """ arguments: <ip>|<hostname> - do a dns lookup. """
+    if not event.rest: event.missing("<ip>|<hostname>") ; return
     query = event.rest.strip()
     ippattern =   re.match(r"^([0-9]{1,3}\.){3}[0-9]{1,3}$", query)
     hostpattern = re.match(r"(\w+://)?(?P<hostname>\S+\.\w+)", query)

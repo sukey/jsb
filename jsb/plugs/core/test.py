@@ -29,8 +29,8 @@ donot = ['whatis', 'urlinfo', 'privmsg', 'notice', 'disable', 'deadline', 'twitt
 'install', 'reconnect', 'wiki', 'weather', 'sc', 'jump', 'disable', 'dict', \
 'snarf', 'validate', 'popcon', 'twitter', 'tinyurl', 'whois', 'rblcheck', \
 'wowwiki', 'wikipedia', 'tr', 'translate', 'serie', 'sc', 'shoutcast', 'mash', \
-'gcalc', 'identi', 'mail', 'part', 'cycle', 'exception', 'fleet', 'ln', 'markov-learn', 'pit', 'bugtracker', 'tu', 'banner', 'test', 'cloud', 'dispatch', 'lns', 'loglevel', \
-'cloneurl', 'clone', 'hb', 'rss-all', 'rss-get', 'rss-sync', 'rss-add', 'rss-register', 'rss-cloneurl', 'rss-scan']
+'gcalc', 'identi', 'mail', 'part', 'cycle', 'exception', 'fleet', 'ln', 'markov-learn', 'pit', 'bugtracker', 'tu', 'banner', 'cloud', 'dispatch', 'lns', 'loglevel', \
+'test-plugs', 'cloneurl', 'clone', 'hb', 'rss-all', 'rss-get', 'rss-sync', 'rss-add', 'rss-register', 'rss-cloneurl', 'rss-scan']
 
 errors = {}
 teller = 0
@@ -41,6 +41,7 @@ def dummy(a, b=None):
 ## dotest function
 
 def dotest(bot, event):
+    """ do 1 test loop on the bot, e.g. execute all the examples found. """
     global teller
     global errors
     match = ""
@@ -72,7 +73,7 @@ def dotest(bot, event):
 ## test-plugs command
 
 def handle_testplugs(bot, event):
-    """ test the plugins by executing all the available examples. """
+    """ no arguments - test the plugins by executing all the available examples. """
     bot.plugs.loadall(force=True)
     global teller
     try: loop = int(event.args[0])
@@ -100,7 +101,7 @@ examples.add('test-plugs', 'test all plugins by running there examples', 'test-p
 ## test-forcedconnection command
 
 def handle_forcedreconnect(bot, ievent):
-    """ do a forced reconnect. """
+    """ no arguments - do a forced reconnect. """
     if not bot.cfg.ssl: bot.sock.shutdown(2)
     else: bot.sock.shutdown()
 
@@ -109,7 +110,7 @@ cmnds.add('test-forcedreconnect', handle_forcedreconnect, 'TEST')
 ## test-forcedexception command
 
 def handle_forcedexception(bot, ievent):
-    """ raise a exception. """
+    """ no arguments - raise a exception. """
     raise Exception('test exception')
 
 cmnds.add('test-forcedexception', handle_forcedexception, 'TEST')
@@ -118,7 +119,7 @@ examples.add('test-forcedexception', 'throw an exception as test', 'test-forcede
 ## test-wrongxml command
 
 def handle_testwrongxml(bot, ievent):
-    """ try sending borked xml. """
+    """ no arguments - try sending borked xml. """
     if not bot.type == "sxmpp":
         ievent.reply('only sxmpp')
         return
@@ -130,7 +131,7 @@ cmnds.add('test-wrongxml', handle_testwrongxml, 'TEST')
 ## test-unicode command
 
 def handle_testunicode(bot, ievent):
-    """ send unicode test down the output paths. """
+    """ no arguments - send unicode test down the output paths. """
     outtxt = u"Đíť ìš éèñ ëņċøďıńğŧęŝţ· .. にほんごがはなせません .. ₀0⁰₁1¹₂2²₃3³₄4⁴₅5⁵₆6⁶₇7⁷₈8⁸₉9⁹ .. ▁▂▃▄▅▆▇▉▇▆▅▄▃▂▁ .. .. uǝʌoqǝʇsɹǝpuo pɐdı ǝɾ ʇpnoɥ ǝɾ"
     ievent.reply(outtxt)
     bot.say(ievent.channel, outtxt, event=ievent)
@@ -141,7 +142,7 @@ examples.add('test-unicode', 'test if unicode output path is clear', 'test-unico
 ## test-docmnd command
 
 def handle_testdocmnd(bot, ievent):
-    """ call bot.docmnd(). """
+    """ no arguments - call bot.docmnd(). """
     if ievent.rest: bot.docmnd(ievent.origin or ievent.userhost, ievent.channel, ievent.rest, event=ievent)
     else: ievent.missing("<cmnd>")
 
@@ -151,10 +152,11 @@ examples.add('test-docmnd', 'test the bot.docmnd() method', 'test-docmnd version
 ## test-say command
 
 def handle_testsay(bot, ievent):
+    """ arguments: <txt> - call the say command on the current bot. """
     if not ievent.rest:
         ievent.missing("<txt>")
         return
-    bot.say(ievent.printto, ievent.rest)
+    bot.say(ievent.channel, ievent.rest)
 
 cmnds.add('test-say', handle_testsay, 'TEST')
 examples.add('test-say', 'use bot.say()', 'test-say')
@@ -162,6 +164,7 @@ examples.add('test-say', 'use bot.say()', 'test-say')
 ## test-options command
 
 def handle_testoptions(bot, ievent):
+    """ no arguments - show options in current event. """
     ievent.reply('"%s" - %s' % (ievent.txt, unicode(ievent.options)))
 
 cmnds.add('test-options', handle_testoptions, 'TEST')
@@ -170,6 +173,7 @@ examples.add('test-options', "test event options", "test-options")
 ## test-deadline command
 
 def handle_testdeadline(bot, ievent):
+    """ no arguments - slee for 40 seconds in the mainloop. """
     ievent.reply('starting 40 sec sleep')
     time.sleep(40)
 
@@ -179,6 +183,7 @@ examples.add('test-deadline', "sleep 40 sec to trigger deadlineexceeded exceptio
 ## test-xhtml command
 
 def handle_testhtml(bot, ievent):
+    """ arguments: [<txt>] - test the html=True option to event.reply(). """
     if not ievent.rest: data = '<span style="font-family: fixed; font-size: 10pt"><b>YOOOO BROEDERS</b></span>'
     else: data = ievent.rest
     ievent.reply(data, html=True)
@@ -189,7 +194,7 @@ examples.add('test-html', 'test html output', '1) test-html 2) test-html <h1><YO
 ## test-uuid command
 
 def handle_testuuid(bot, ievent):
-    """ show a uuid4. """
+    """ no arguments - show a uuid4. """
     import uuid
     ievent.reply(str(uuid.uuid4()))
 
@@ -199,8 +204,16 @@ examples.add("test-uuid", "show a uuid4.", "test-uuid")
 ## test-threaded command
 
 def handle_testthreaded(bot, ievent):
-    """ run a threaded command. """
+    """ no arguments - run a threaded command. """
     ievent.reply("yoooo!")
 
 cmnds.add("test-threaded", handle_testthreaded, "TEST", threaded=True)
 examples.add("test-threaded", "run a threaded command.", "test-threaded")
+
+## test-re command
+
+def handle_testre(bot, event):
+    event.reply(str(event.groups))
+
+cmnds.add("test-re (.*)$", handle_testre, "TEST", how="regex")
+examples.add("test-re", "regular expression as command test", "test-re")

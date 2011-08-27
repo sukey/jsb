@@ -17,7 +17,7 @@ import logging
 ## more command
 
 def handle_more(bot, ievent):
-    """ pop message from the output cache. """
+    """ no arguments - pop message from the output cache. """
     if ievent.msg and bot.type == "irc": target = ievent.nick
     else: target = ievent.channel
     try: txt, size = outcache.more(u"%s-%s" % (bot.cfg.name, target))

@@ -44,9 +44,9 @@ def host2ip(query):
 ## geo command
 
 def handle_geo(bot, event):
-    """ do a geo lookup. """
+    """ arguments: <ipnr> - do a geo lookup. """
     if not event.rest: 
-        event.missing("<ip>")
+        event.missing("<ipnr>")
         return
     query = event.rest.strip()
     ip = host2ip(query)
@@ -74,7 +74,7 @@ callbacks.add("JOIN", handle_geoJOIN, handle_geoPRE)
 ## geo-on command
 
 def handle_geoon(bot, event):
-    """ enable geo lookup on JOIN. """
+    """ no arguments - enable geo lookup on JOIN. """
     event.chan.data.dogeo = True
     event.chan.save()
     event.done()
@@ -85,7 +85,7 @@ examples.add("geo-on", "enable geo loopups.", "geo-on")
 ## geo-off command
 
 def handle_geooff(bot, event):
-    """ disable geo lookup on JOIN. """
+    """ no arguments - disable geo lookup on JOIN. """
     event.chan.data.dogeo = False
     event.chan.save()
     event.done()

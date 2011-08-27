@@ -2,7 +2,7 @@
 #
 #
 
-""" forward incoming trafic on a bot to another bot through xmpp. """
+""" forward events occuring on a bot to another bot through xmpp. """
 
 ## jsb imports
 
@@ -109,27 +109,28 @@ first_callbacks.add('TORNADO', forwardoutcb, forwardoutpre)
 ## forward-add command
 
 def handle_forwardadd(bot, event):
-    """ add a new forward. """
+    """ arguments: <bot JID> - add a new forward (xmpp account). """
     if not event.rest:
-        event.missing('<JID>')
+        event.missing('<bot JID>')
         return
     if "@" in event.rest:
         forward.data.outs[event.rest] = event.user.data.name
         forward.save()
         if not event.rest in event.chan.data.forwards: event.chan.data.forwards.append(event.rest)
+    else: event.reply("arguments must be a JID (Jabber ID).") ; return
     if event.rest:
         event.chan.save()
         event.done()
 
 cmnds.add("forward-add", handle_forwardadd, 'OPER')
-examples.add("forward-add" , "add an JID to forward to", "forward-add jsoncloud@appspot.com")
+examples.add("forward-add" , "add a bot JID to forward to", "forward-add jsoncloud@appspot.com")
 
 ## forward-del command
 
 def handle_forwarddel(bot, event):
-    """ delete a forward. """
+    """ arguments: <bot JID> - delete a forward. """
     if not event.rest:
-        event.missing('<JID>')
+        event.missing('<bot JID>')
         return
     try: del forward.data.outs[event.rest]
     except KeyError: event.reply("no forward out called %s" % event.rest) ; return
@@ -143,9 +144,9 @@ examples.add("forward-del" , "delete an JID to forward to", "forward-del jsonclo
 ## forward-allow command
 
 def handle_forwardallow(bot, event):
-    """ allow a remote bot to forward to us. """
+    """ arguments: <bot JID> - allow a remote bot to forward to us. """
     if not event.rest:
-        event.missing("<JID>")
+        event.missing("<bot JID>")
         return
     if forward.data.whitelist.has_key(event.rest):
         forward.data.whitelist[event.rest] = bot.type
@@ -153,12 +154,12 @@ def handle_forwardallow(bot, event):
     event.done()
 
 cmnds.add("forward-allow", handle_forwardallow, 'OPER')
-examples.add("forward-allow" , "allow an JID to forward to us", "forward-allow jsoncloud@appspot.com")
+examples.add("forward-allow" , "allow an JID to forward to us", "forward-allow jsonbot@jsonbot.org")
 
 ## forward-list command
 
 def handle_forwardlist(bot, event):
-    """ list forwards. """
+    """ no arguments: list forwards of a channel. """
     try: event.reply("forwards for %s: " % event.channel, forward.data.channels[event.channel])
     except KeyError: event.reply("no forwards for %s" % event.channel)
 
@@ -168,9 +169,9 @@ examples.add("forward-list" , "list all forwards of a channel", "forward-list")
 ## forward command
 
 def handle_forward(bot, event):
-    """ forward the channel tot another bot. """
+    """ arguments: <list of bot JIDs> - forward the channel tot other bots. """
     if not event.args:
-        event.missing("<JID>")
+        event.missing("<list of bot JIDs>")
         return
     forward.data.channels[event.channel.lower()] =  event.args
     for jid in event.args:
@@ -186,9 +187,9 @@ examples.add("forward" , "forward a channel to provided JIDS", "forward jsonclou
 ## forward-stop command
 
 def handle_forwardstop(bot, event):
-    """ stop forwarding the channel to another bot. """
+    """ arguments: <list of bot JIDs> - stop forwarding the channel to other bots. """
     if not event.args:
-        event.missing("<JID>")
+        event.missing("<list of bot JIDs>")
         return
 
     try:

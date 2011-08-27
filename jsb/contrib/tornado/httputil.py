@@ -16,7 +16,11 @@
 
 """HTTP utility code shared by clients and servers."""
 
+import logging
+import urllib
 import re
+
+from tornado.util import b
 
 class HTTPHeaders(dict):
     """A dictionary that maintains Http-Header-Case for all keys.
@@ -128,6 +132,8 @@ class HTTPHeaders(dict):
             self[k] = v
 
     _NORMALIZED_HEADER_RE = re.compile(r'^[A-Z0-9][a-z0-9]*(-[A-Z0-9][a-z0-9]*)*$')
+    _normalized_headers = {}
+
     @staticmethod
     def _normalize_name(name):
         """Converts a name to Http-Header-Case.
@@ -135,9 +141,76 @@ class HTTPHeaders(dict):
         >>> HTTPHeaders._normalize_name("coNtent-TYPE")
         'Content-Type'
         """
-        if HTTPHeaders._NORMALIZED_HEADER_RE.match(name):
-            return name
-        return "-".join([w.capitalize() for w in name.split("-")])
+        try:
+            return HTTPHeaders._normalized_headers[name]
+        except KeyError:
+            if HTTPHeaders._NORMALIZED_HEADER_RE.match(name):
+                normalized = name
+            else:
+                normalized = "-".join([w.capitalize() for w in name.split("-")])
+            HTTPHeaders._normalized_headers[name] = normalized
+            return normalized
+
+
+def url_concat(url, args):
+    """Concatenate url and argument dictionary regardless of whether
+    url has existing query parameters.
+
+    >>> url_concat("http://example.com/foo?a=b", dict(c="d"))
+    'http://example.com/foo?a=b&c=d'
+    """
+    if not args: return url
+    if url[-1] not in ('?', '&'):
+        url += '&' if ('?' in url) else '?'
+    return url + urllib.urlencode(args)
+
+def parse_multipart_form_data(boundary, data, arguments, files):
+    """Parses a multipart/form-data body.
+
+    The boundary and data parameters are both byte strings.
+    The dictionaries given in the arguments and files parameters
+    will be updated with the contents of the body.
+    """
+    # The standard allows for the boundary to be quoted in the header,
+    # although it's rare (it happens at least for google app engine
+    # xmpp).  I think we're also supposed to handle backslash-escapes
+    # here but I'll save that until we see a client that uses them
+    # in the wild.
+    if boundary.startswith(b('"')) and boundary.endswith(b('"')):
+        boundary = boundary[1:-1]
+    if data.endswith(b("\r\n")):
+        footer_length = len(boundary) + 6
+    else:
+        footer_length = len(boundary) + 4
+    parts = data[:-footer_length].split(b("--") + boundary + b("\r\n"))
+    for part in parts:
+        if not part: continue
+        eoh = part.find(b("\r\n\r\n"))
+        if eoh == -1:
+            logging.warning("multipart/form-data missing headers")
+            continue
+        headers = HTTPHeaders.parse(part[:eoh].decode("utf-8"))
+        name_header = headers.get("Content-Disposition", "")
+        if not name_header.startswith("form-data;") or \
+           not part.endswith(b("\r\n")):
+            logging.warning("Invalid multipart/form-data")
+            continue
+        value = part[eoh + 4:-2]
+        name_values = {}
+        for name_part in name_header[10:].split(";"):
+            name, name_value = name_part.strip().split("=", 1)
+            name_values[name] = name_value.strip('"')
+        if not name_values.get("name"):
+            logging.warning("multipart/form-data value missing name")
+            continue
+        name = name_values["name"]
+        if name_values.get("filename"):
+            ctype = headers.get("Content-Type", "application/unknown")
+            files.setdefault(name, []).append(dict(
+                filename=name_values["filename"], body=value,
+                content_type=ctype))
+        else:
+            arguments.setdefault(name, []).append(value)
 
 
 def doctests():

@@ -49,7 +49,6 @@ class ChannelBase(Persist):
         self.data.cacheindex = 0
         self.data.tokens = self.data.tokens or []
         self.data.webchannels = self.data.webchannels or []
-        logging.debug("channelbase - created channel %s" % id)
 
     def setpass(self, type, key):
         """ set channel password based on type. """

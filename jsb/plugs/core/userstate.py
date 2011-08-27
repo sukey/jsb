@@ -14,7 +14,7 @@ from jsb.lib.errors import NoSuchUser
 ## set command
 
 def handle_set(bot, ievent):
-    """ let the user manage its own state. """
+    """ arguments: <item> <value> - set a variable in your userstate. """
     try: (item, value) = ievent.args
     except ValueError: ievent.missing("<item> <value>") ; return
     ievent.user.state.data[item.lower()] = value
@@ -27,7 +27,7 @@ examples.add('set', 'set userstate', 'set place heerhugowaard')
 ## get command
 
 def handle_get(bot, ievent):
-    """ get state of a user. """
+    """ arguments: [<searchtxt>] - get your userstate (complete dump or use <searchtxt> to filter). """
     target = ievent.rest
     if target: target = target.lower()
     userstate = ievent.user.state
@@ -43,7 +43,7 @@ examples.add('get', 'get your userstate', 'get')
 ## unset command
 
 def handle_unset(bot, ievent):
-    """ remove value from user state of the user giving the command. """
+    """ arguments: <item> - remove value from user state of your userstate. """
     try:
         item = ievent.args[0].lower()
     except (IndexError, TypeError):

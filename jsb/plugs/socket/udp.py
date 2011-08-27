@@ -203,7 +203,6 @@ if cfg['udp']: udplistener = Udplistener()
 if cfg['udp'] and cfg['udpseed']: crypt = rijndael(cfg['udpseed'])
 
 def init():
-
     """ init the udp plugin. """
     if cfg['udp']:
         global udplistener
@@ -215,7 +214,6 @@ def init():
 ## shutdown
 
 def shutdown():
-
     """ shutdown the udp plugin. """
     global udplistener
     if udplistener:

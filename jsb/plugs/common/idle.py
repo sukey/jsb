@@ -54,7 +54,7 @@ callbacks.add('DISPATCH', idlecb, preidle)
 ## idle command
 
 def handle_idle(bot, ievent):
-    """ idle [<nick>] .. show how idle an channel/user has been """
+    """ arguments: [<nick>] .. show how idle an channel/user has been """
     try:
         who = ievent.args[0]
     except IndexError:
@@ -91,4 +91,4 @@ def handle_idle2(bot, ievent):
         ievent.reply("channel %s is not idle" % chan)
 
 cmnds.add('idle', handle_idle, ['OPER', 'USER', 'GUEST'])
-examples.add('idle', 'idle [<nick>] .. show how idle the channel is or show how idle <nick> is', '1) idle 2) idle test')
+examples.add('idle', 'show how idle the channel is or show how idle <nick> is', '1) idle 2) idle test')

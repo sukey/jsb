@@ -36,7 +36,7 @@ relay = PlugPersist('relay')
 # see jsb/callbacks.py
   
 def relayprecondition(bot, event):
-    """ check to see whether the callback needs to be executed. """
+    """ precondition to check whether the callback needs to be executed. """
     if event.how == "background": return False
     logging.debug("relay - event path is %s" % event.path)
     if event.isrelayed: logging.info("relay - %s already relayed" % bot.cfg.name) ; return False
@@ -59,6 +59,7 @@ def relaycallback(bot, event):
     e = cpy(event)
     origin = e.channel
     e.isrelayed = True
+    e.headlines = True
     try:
         # loop over relays for origin
         for botname, type, target in relay.data[origin]:
@@ -81,8 +82,9 @@ def relaycallback(bot, event):
                     else: txt = "[%s] %s" % (e.nick, e.txt)
                     if event: t = "[%s]" % outbot.cfg.nick
                     logging.debug("relay - sending to %s (%s)" % (target, outbot.cfg.name)) 
+                    txt = stripcolor(txt)
                     outbot.outnocb(target, txt, "normal", event=e)
-                else: logging.error("can't find bot for (%s,%s,%s)" % (botname, type, target))
+                else: logging.info("can't find bot for (%s,%s,%s)" % (botname, type, target))
             except Exception, ex: handle_exception()
     except KeyError: pass
 
@@ -110,7 +112,7 @@ first_callbacks.add('TORNADO', relaycallback, relayprecondition)
 ## relay command
 
 def handle_relay(bot, event):
-    """ [<botname>] <type> <target> .. open a relay to a user. all input from us will be relayed. """
+    """ arguments: [<botname>] <type> <target> .. open a relay to a user. all input from us will be relayed. """
     try: (botname, type, target) = event.args
     except ValueError:
         try: botname = bot.cfg.name ; (type, target) = event.args
@@ -131,7 +133,7 @@ examples.add('relay', 'open a relay to another user', 'relay bthate@gmail.com')
 ## relay-stop command
 
 def handle_relaystop(bot, event):
-    """ stop a relay to a user. all relaying to target will be ignore. """
+    """ arguments: [<botname>] [<bottype>] [<channel>] - stop a relay to a user. all relaying from the target will be ignored. """
     try: (botname, type, target) = event.args
     except ValueError:
         try: botname = bot.cfg.name ; (type, target) = event.args
@@ -150,7 +152,7 @@ examples.add('relay-stop', 'close a relay to another user', 'relay-stop bthate@g
 ## relay-clear command
 
 def handle_relayclear(bot, event):
-    """ clear all relays from a channel. all relaying to target will be ignored. """
+    """ no arguments - clear all relays from a channel. all relaying to target will be ignored. """
     origin = event.origin or event.channel
     try:
         logging.debug('clearing relay for %s' % origin)
@@ -165,7 +167,7 @@ examples.add('relay-clear', 'clear all relays from a channel', 'relay-clear')
 ## relay-list command
 
 def handle_askrelaylist(bot, event):
-    """ show all relay's of a user. """
+    """ no arguments - show all relay's of a user. """
     origin = event.origin or event.channel
     try: event.reply('relays for %s: ' % origin, relay.data[origin], dot=" .. ")
     except KeyError: event.reply('no relays for %s' % origin)
@@ -176,9 +178,9 @@ examples.add('relay-list', 'show all relays of user/channel/wave.', 'relay-list'
 ## relay-block command
 
 def handle_relayblock(bot, event):
-    """ <type> <target> .. block a user/channel/wave from relaying to us. """
+    """ arguments: <bottype> <target> .. block a user/channel/wave from relaying to us. """
     try: (type, target) = event.args
-    except ValueError: event.missing('<type> <target>') ; return 
+    except ValueError: event.missing('<bottype> <target>') ; return 
     origin = event.origin or event.channel
     if not block.data.has_key(origin): block.data[origin] = []
     if not [type, origin] in block.data[target]: block.data[target].append([type, origin]) ; block.save()
@@ -190,7 +192,7 @@ examples.add('relay-block', 'block a relay from another user', 'relay-block btha
 ## relay-unblock command
 
 def handle_relayunblock(bot, event):
-    """ <target> .. remove a relay block of an user. """
+    """ arguments: <target> .. remove a relay block of an user. """
     try: target = event.args[0]
     except IndexError: event.missing('<target>') ; return 
     origin = event.origin or event.channel
@@ -204,7 +206,7 @@ examples.add('relay-unblock', 'remove a block of another user', 'relay-unblock b
 ## relay-blocklist command
 
 def handle_relayblocklist(bot, event):
-    """ show all blocks of a user/channel.wave. """
+    """ no arguments - show all blocks of a user/channel.wave. """
     origin = event.origin or event.channel
     try: event.reply('blocks for %s: ' % origin, block.data[origin])
     except KeyError: event.reply('no blocks for %s' % origin)

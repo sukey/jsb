@@ -20,7 +20,7 @@ import logging
 ## user-whoami command
 
 def handle_whoami(bot, ievent):
-    """ get your username. """
+    """ no arguments - get your username. """
     ievent.reply('%s' % bot.users.getname(ievent.auth))
 
 cmnds.add('user-whoami', handle_whoami, ['OPER', 'USER', 'GUEST'])
@@ -29,7 +29,7 @@ examples.add('user-whoami', 'get your username', 'user-whoami')
 ## user-meet command
 
 def handle_meet(bot, ievent):
-    """ introduce a new user to the bot. """
+    """ arguments: <nick> - introduce a new user to the bot. """
     try: nick = ievent.args[0]
     except IndexError: 
         ievent.missing('<nick>')
@@ -58,7 +58,7 @@ examples.add('user-meet', '<nick> .. introduce <nick> to the bot', 'user-meet du
 ## user-add command
 
 def handle_adduser(bot, ievent):
-    """ user-add <name> <userhost> .. introduce a new user to the bot. """
+    """ arguments: <name> <userhost> - introduce a new user to the bot. """
     try: (name, userhost) = ievent.args
     except ValueError:
         ievent.missing('<name> <userhost>')
@@ -79,7 +79,7 @@ examples.add('user-add', 'add user to the bot', 'user-add dunker bart@localhost'
 ## user-merge command
 
 def handle_merge(bot, ievent):
-    """ merge the userhost into a already existing user. """
+    """ arguments: <name> <nick> - merge the userhost belonging to <nick> into an already existing user. """
     if len(ievent.args) != 2:
         ievent.missing('<name> <nick>')
         return
@@ -101,10 +101,6 @@ def handle_merge(bot, ievent):
     if bot.ownercheck(userhost):
         ievent.reply("can't merge with owner")
         return
-    #username = bot.users.getname(userhost)
-    #if username:
-    #    ievent.reply('we already have a user with userhost %s (%s)' % (userhost, username))
-    #    return
     result = bot.users.merge(name, userhost)
     if result: ievent.reply('%s merged' % nick)
     else: ievent.reply('merge failed')
@@ -115,7 +111,7 @@ examples.add('user-merge', '<name> <nick> .. merge record with <name> with userh
 ## user-import command
 
 def handle_import(bot, ievent):
-    """ merge the userhost into user giving the command. """
+    """ arguments: <userhost> - merge the userhost into user giving the command. """
     if len(ievent.args) != 1:
         ievent.missing('<userhost>')
         return
@@ -138,7 +134,7 @@ examples.add('user-import', 'user-import <userhost> .. merge record with \
 ## user-del command
 
 def handle_delete(bot, ievent):
-    """ remove user. """
+    """ arguments: <name> - remove user. """
     if not bot.ownercheck(ievent.userhost):
         ievent.reply('only owner can use delete')
         return
@@ -163,7 +159,7 @@ examples.add('user-del', 'user-del <name> .. delete user with <username>' , 'use
 ## user-scan command
 
 def handle_userscan(bot, ievent):
-    """ scan for user. """
+    """ arguments: <searchtxt> - scan for user. """
     try:name = ievent.args[0]
     except IndexError:
         ievent.missing('<txt>')
@@ -182,7 +178,7 @@ examples.add('user-scan', '<txt> .. search database for matching usernames', 'us
 ## user-names command
 
 def handle_names(bot, ievent):
-    """ show registered users. """
+    """ no arguments - show registered users. """
     ievent.reply("usernames: ", bot.users.names())
 
 cmnds.add('user-names', handle_names, 'OPER')
@@ -191,7 +187,7 @@ examples.add('user-names', 'show names of registered users', 'user-names')
 ## user-name command
 
 def handle_name(bot, ievent):
-    """ show name of user giving the command. """
+    """ no arguments - show name of user giving the command. """
     ievent.reply('your name is %s' % bot.users.getname(ievent.auth))
 
 cmnds.add('user-name', handle_name, ['USER', 'GUEST'])
@@ -200,7 +196,7 @@ examples.add('user-name', 'show name of user giving the commands', 'user-name')
 ## user-getname command
 
 def handle_getname(bot, ievent):
-    """ fetch username of nick. """
+    """ arguments: <nick> - fetch username of nick. """
     try: nick = ievent.args[0]
     except IndexError:
         ievent.missing("<nick>")
@@ -224,7 +220,7 @@ examples.add('user-getname', 'user-getname <nick> .. get the name of <nick>', 'u
 ## user-addperm command
 
 def handle_addperm(bot, ievent):
-    """ add permission. """
+    """ arguments: <name> <permission> - add permission to user. """
     if len(ievent.args) != 2:
         ievent.missing('<name> <perm>')
         return
@@ -248,7 +244,7 @@ examples.add('user-addperm', 'user-addperm <name> <perm> .. add permissions to u
 ## user-getperms command
 
 def handle_getperms(bot, ievent):
-    """ get permissions of name. """
+    """ arguments: <name> - get permissions of name. """
     try: name = ievent.args[0]
     except IndexError:
         ievent.missing('<name>')
@@ -267,7 +263,7 @@ examples.add('user-getperms', 'user-getperms <name> .. get permissions of <name>
 ## user-perms command
 
 def handle_perms(bot, ievent):
-    """ get permissions of the user given the command. """
+    """ no arguments - get permissions of the user given the command. """
     if ievent.rest:
         ievent.reply("use getperms to get the permissions of somebody else")
         return
@@ -284,7 +280,7 @@ examples.add('user-perms', 'get permissions', 'user-perms')
 ## user-delperm command
 
 def handle_delperm(bot, ievent):
-    """ <name> <perm> .. delete permission. """
+    """ arguments: <name> <perm> - delete permission from user. """
     if len(ievent.args) != 2:
         ievent.missing('<name> <perm>')
         return
@@ -304,7 +300,7 @@ examples.add('user-delperm', 'delete from user <name> permission <perm>', 'user-
 ## user-addstatus command
 
 def handle_addstatus(bot, ievent):
-    """ add status to a user. """
+    """ arguments: <name> <status> - add status to a user. """
     if len(ievent.args) != 2:
         ievent.missing('<name> <status>')
         return
@@ -327,7 +323,7 @@ examples.add('user-addstatus', 'user-addstatus <name> <status>', 'user-addstatus
 ## user-getstatus command
 
 def handle_getstatus(bot, ievent):
-    """ get status of a user. """
+    """ arguments: <name> - get status of a user. """
     try: name = ievent.args[0]
     except IndexError:
         ievent.missing('<name>')
@@ -346,7 +342,7 @@ examples.add('user-getstatus', 'user-getstatus <name> .. get status of <name>', 
 ## user-status command
 
 def handle_status(bot, ievent):
-    """ get status of user given the command. """
+    """ no arguments - get status of user given the command. """
     status = bot.users.getstatuses(ievent.userhost)
     if status: ievent.reply("you have status: ", status)
     else: ievent.reply('you have no status set')
@@ -357,7 +353,7 @@ examples.add('user-status', 'get status', 'user-status')
 ## user-delstatus command
 
 def handle_delstatus(bot, ievent):
-    """ delete status. """
+    """ arguments: <name> <status> - delete status. """
     if len(ievent.args) != 2:
         ievent.missing('<name> <status>')
         return
@@ -377,7 +373,7 @@ examples.add('user-delstatus', '<name> <status>', 'user-delstatus dunker #dunkbo
 ## user-adduserhost command
 
 def handle_adduserhost(bot, ievent):
-    """ add to userhosts of name. """ 
+    """ arguments: <name> <userhost> - add to userhosts of user. """ 
     if len(ievent.args) != 2:
         ievent.missing('<name> <userhost>')
         return
@@ -399,7 +395,7 @@ examples.add('user-adduserhost', 'user-adduserhost <name> <userhost>', 'user-add
 ## user-deluserhost command
 
 def handle_deluserhost(bot, ievent):
-    """ remove from userhosts of name. """
+    """ arguments: <name> <userhost> - remove from userhosts of name. """
     if len(ievent.args) != 2:
         ievent.missing('<name> <userhost>')
         return
@@ -421,7 +417,7 @@ examples.add('user-deluserhost', 'user-deluserhost <name> <userhost> .. delete f
 ## user-getuserhost command
 
 def handle_getuserhosts(bot, ievent):
-    """ get userhosts of a user. """
+    """ arguments: <name> - get userhosts of a user. """
     try: who = ievent.args[0]
     except IndexError:
         ievent.missing('<name>')
@@ -437,7 +433,7 @@ examples.add('user-getuserhosts', 'user-getuserhosts <name> .. get userhosts of 
 ## user-userhosts command
 
 def handle_userhosts(bot, ievent):
-    """ get userhosts of user giving the command. """
+    """ no arguments - get userhosts of user giving the command. """
     userhosts = bot.users.gethosts(ievent.userhost)
     if userhosts: ievent.reply("you have userhosts: ", userhosts)
     else: ievent.reply('no userhosts found')
@@ -448,7 +444,7 @@ examples.add('user-userhosts', 'get userhosts', 'user-userhosts')
 ## user-getemail command
 
 def handle_getemail(bot, ievent):
-    """ get email addres of a user. """
+    """ arguments: <user> - get email addres of a user. """
     try: name = ievent.args[0]
     except IndexError:
         ievent.missing('<name>')
@@ -467,7 +463,7 @@ examples.add('user-getemail', 'user-getemail <name> .. get email from user <name
 ## user-setemail command
 
 def handle_setemail(bot, ievent):
-    """ set email. """
+    """ arguments: <name> <email> - set email of a user. """
     try: name, email = ievent.args
     except ValueError:
         ievent.missing('<name> <email>')
@@ -484,7 +480,7 @@ examples.add('user-setemail', 'user-setemail <name> <email>.. set email of user 
 ## user-email command
 
 def handle_email(bot, ievent):
-    """ show email of user giving the command. """
+    """ no arguments - show email of user giving the command. """
     if len(ievent.args) != 0:
         ievent.reply('use getemail to get the email address of an user .. email shows your own mail address')
         return
@@ -498,7 +494,7 @@ examples.add('user-email', 'get email', 'user-email')
 ## user-delemail command
 
 def handle_delemail(bot, ievent):
-    """ reset email of user giving the command. """
+    """ no arguments - reset email of user giving the command. """
     name = bot.users.getname(ievent.auth)
     if not name:
         ievent.reply("can't find user for %s" % ievent.userhost)
@@ -513,7 +509,7 @@ examples.add('user-delemail', 'reset email', 'user-delemail')
 ## user-addpermit
 
 def handle_addpermit(bot, ievent):
-    """ add permit to permit list of <name>. """
+    """ arguments: <name> <permit> - allow another user to perform actions on your data. """
     try: who, what = ievent.args
     except ValueError:
         ievent.missing("<name> <permit>")
@@ -538,7 +534,7 @@ examples.add('user-addpermit', 'user-addpermit <nick> <what> .. permit nick acce
 ## user-permit command
 
 def handle_permit(bot, ievent):
-    """ get permit list of user giving the command. """
+    """ no arguments - get permit list of user giving the command. """
     if ievent.rest:
         ievent.reply("use the user-addpermit command to allow somebody something .. use getname <nick> to get the username of somebody .. this command shows what permits you have")
         return
@@ -556,7 +552,7 @@ examples.add('user-permit', 'show permit of user giving the command', 'user-perm
 ## user-delpermit command
 
 def handle_userdelpermit(bot, ievent):
-    """ remove (name, permit) from permit list. """
+    """ arguments: <name> <permit> - remove (name, permit) from permit list. """
     try: who, what = ievent.args
     except ValueError:
         ievent.missing("<name> <permit>")
@@ -581,7 +577,7 @@ examples.add('user-delpermit', 'user-delpermit <name> <permit>', 'user-delpermit
 ## user-check command
 
 def handle_check(bot, ievent):
-    """ get user data of <nick>. """
+    """ arguments: <nick> - get data of a user based on nick name. """
     try: nick = ievent.args[0]
     except IndexError: 
         ievent.missing('<nick>')
@@ -607,7 +603,7 @@ examples.add('user-check', 'user-check <nick>', 'user-check dunker')
 ## user-show command
 
 def handle_show(bot, ievent):
-    """ get user data of <name>. """
+    """ arguments: <name> - get data of a user based on username. """
     try: name = ievent.args[0]
     except IndexError:
         ievent.missing('<name>')
@@ -630,7 +626,7 @@ examples.add('user-show', 'user-show <name> .. show data of <name>', 'user-show 
 # user-match command
 
 def handle_match(bot, ievent):
-    """ user-match <userhost> .. get data of <userhost>. """
+    """ arguments: <userhost> - get data of user based on userhost. """
     try: userhost = ievent.args[0]
     except IndexError:
         ievent.missing('<userhost>')
@@ -652,7 +648,7 @@ examples.add('user-match', 'user-match <userhost>', 'user-match test@test')
 # user-allstatus command
 
 def handle_getuserstatus(bot, ievent):
-    """ list users with status <status>. """
+    """ arguments: <status> - list users with <status>. """
     try: status = ievent.args[0].upper()
     except IndexError:
         ievent.missing('<status>')
@@ -667,7 +663,7 @@ examples.add('user-allstatus', 'user-allstatus <status> .. get all users with <s
 ## user-allperm command
 
 def handle_getuserperm(bot, ievent):
-    """ list users with permission <perm>. """
+    """ arguments: <perm> - list users with permission <perm>. """
     try: perm = ievent.args[0].upper()
     except IndexError:
         ievent.missing('<perm>')
@@ -682,10 +678,10 @@ examples.add('user-allperm', 'user-allperm <perm> .. get users with <perm> permi
 ## user-search command
 
 def handle_usersearch(bot, ievent):
-    """ search for user matching given userhost. """
+    """ arguments: <searchtxt> - search for user matching given userhost. """
     try: what = ievent.args[0]
     except IndexError:
-        ievent.missing('<txt>')
+        ievent.missing('<searchtxt>')
         return
     result = bot.users.usersearch(what)
     if result:

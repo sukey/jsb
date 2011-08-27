@@ -2,11 +2,14 @@
 """Support classes for automated testing.
 
 This module contains three parts:
-* AsyncTestCase/AsyncHTTPTestCase:  Subclasses of unittest.TestCase
+
+* `AsyncTestCase`/`AsyncHTTPTestCase`:  Subclasses of unittest.TestCase
   with additional support for testing asynchronous (IOLoop-based) code.
-* LogTrapTestCase:  Subclass of unittest.TestCase that discards log output
+
+* `LogTrapTestCase`:  Subclass of unittest.TestCase that discards log output
   from tests that pass and only produces output for failing tests.
-* main(): A simple test runner (wrapper around unittest.main()) with support
+
+* `main()`: A simple test runner (wrapper around unittest.main()) with support
   for the tornado.autoreload module to rerun the tests when code changes.
 
 These components may be used together or independently.  In particular,
@@ -22,13 +25,11 @@ from tornado.httpclient import AsyncHTTPClient
 from tornado.httpserver import HTTPServer
 from tornado.stack_context import StackContext, NullContext
 import contextlib
-import functools
 import logging
 import os
 import sys
 import time
 import tornado.ioloop
-import traceback
 import unittest
 
 _next_port = 10000
@@ -58,7 +59,8 @@ class AsyncTestCase(unittest.TestCase):
     returned from self.wait.  It is possible to have multiple
     wait/stop cycles in the same test.
 
-    Example:
+    Example::
+
         # This test uses an asynchronous style similar to most async
         # application code.
         class MyTestCase(AsyncTestCase):
@@ -112,6 +114,7 @@ class AsyncTestCase(unittest.TestCase):
                     logging.debug("error closing fd %d", fd, exc_info=True)
             self.io_loop._waker_reader.close()
             self.io_loop._waker_writer.close()
+        super(AsyncTestCase, self).tearDown()
 
     def get_new_ioloop(self):
         '''Creates a new IOLoop for this test.  May be overridden in
@@ -178,7 +181,12 @@ class AsyncTestCase(unittest.TestCase):
         assert self.__stopped
         self.__stopped = False
         if self.__failure is not None:
-            raise self.__failure[0], self.__failure[1], self.__failure[2]
+            # 2to3 isn't smart enough to convert three-argument raise
+            # statements correctly in some cases.
+            if isinstance(self.__failure[1], self.__failure[0]):
+                raise self.__failure[1], None, self.__failure[2]
+            else:
+                raise self.__failure[0], self.__failure[1], self.__failure[2]
         result = self.__stop_args
         self.__stop_args = None
         return result
@@ -192,7 +200,8 @@ class AsyncHTTPTestCase(AsyncTestCase):
     Tests will typically use the provided self.http_client to fetch
     URLs from this server.
 
-    Example:
+    Example::
+
         class MyHTTPTest(AsyncHTTPTestCase):
             def get_app(self):
                 return Application([('/', MyHandler)...])
@@ -214,7 +223,7 @@ class AsyncHTTPTestCase(AsyncTestCase):
         self._app = self.get_app()
         self.http_server = HTTPServer(self._app, io_loop=self.io_loop,
                                       **self.get_httpserver_options())
-        self.http_server.listen(self.get_http_port())
+        self.http_server.listen(self.get_http_port(), address="127.0.0.1")
 
     def get_app(self):
         """Should be overridden by subclasses to return a
@@ -299,8 +308,10 @@ class LogTrapTestCase(unittest.TestCase):
 def main():
     """A simple test runner with autoreload support.
 
-    The easiest way to run a test is via the command line:
+    The easiest way to run a test is via the command line::
+
         python -m tornado.testing --autoreload tornado.test.stack_context_test
+
     See the standard library unittest module for ways in which tests can
     be specified.
 
@@ -308,7 +319,8 @@ def main():
     tornado/test/runtests.py.  This script should define a method all()
     which returns a test suite and then call tornado.testing.main().
     Note that even when a test script is used, the all() test suite may
-    be overridden by naming a single test on the command line.
+    be overridden by naming a single test on the command line::
+
         # Runs all tests
         tornado/test/runtests.py --autoreload
         # Runs one test
@@ -323,16 +335,27 @@ def main():
     from tornado.options import define, options, parse_command_line
 
     define('autoreload', type=bool, default=False)
+    define('httpclient', type=str, default=None)
     argv = [sys.argv[0]] + parse_command_line(sys.argv)
+
+    if options.httpclient:
+        from tornado.httpclient import AsyncHTTPClient
+        AsyncHTTPClient.configure(options.httpclient)
+
     if __name__ == '__main__' and len(argv) == 1:
         print >> sys.stderr, "No tests specified"
         sys.exit(1)
     try:
         # In order to be able to run tests by their fully-qualified name
         # on the command line without importing all tests here,
-        # module must be set to None (in which case the defaultTest must
-        # also be fully-qualified
-        unittest.main(module=None, defaultTest='__main__.all', argv=argv)
+        # module must be set to None.  Python 3.2's unittest.main ignores
+        # defaultTest if no module is given (it tries to do its own
+        # test discovery, which is incompatible with auto2to3), so don't
+        # set module if we're not asking for a specific test.
+        if len(argv) > 1:
+            unittest.main(module=None, argv=argv)
+        else:
+            unittest.main(defaultTest="all", argv=argv)
     except SystemExit, e:
         if e.code == 0:
             logging.info('PASS')

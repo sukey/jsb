@@ -13,7 +13,7 @@ from jsb.lib.examples import examples
 ## to command
 
 def handle_to(bot, ievent):
-    """ direct pipeline output to <nick>. """
+    """ arguments: <nick> - direct output to <nick>, use this command in a pipeline. """
     if not ievent.inqueue: ievent.reply('use to in a pipeline') ; return
     try: nick = ievent.args[0]
     except IndexError: ievent.reply('to <nick>') ; return

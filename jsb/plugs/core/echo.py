@@ -25,13 +25,13 @@ def echocb(bot, event):
     """ do the echo. """
     bot.outnocb(event.channel, event.txt, event=event)
 
-first_callbacks.add("TORNADO", echocb, echopre)
-first_callbacks.add("DISPATCH", echocb, echopre)
+#first_callbacks.add("TORNADO", echocb, echopre)
+#first_callbacks.add("DISPATCH", echocb, echopre)
 
 ## echo command
 
 def handle_echo(bot, event):
-    """ echo txt to channel. """
+    """ argumetnts: <txt> - echo txt to channel. """
     if event.how != "background" and not event.isremote():
         if not event.isdcc: bot.saynocb(event.channel, u"%s" % event.rest)
             

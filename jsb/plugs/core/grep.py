@@ -18,7 +18,7 @@ import re
 ## grep command
 
 def handle_grep(bot, ievent):
-    """ grep the result list. """
+    """ no arguments - grep the result list, use this command in a pipeline. """
     if not ievent.inqueue: ievent.reply('use grep in a pipeline') ; return
     if not ievent.rest: ievent.reply('grep <txt>') ; return
     try: (options, rest) = getopt.getopt(ievent.args, 'riv')

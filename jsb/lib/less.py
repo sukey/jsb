@@ -12,6 +12,7 @@ from jsb.utils.limlist import Limlist
 ## google imports
 
 try:
+    import waveapi
     from google.appengine.api.memcache import get, set, delete
 except ImportError:
     from jsb.lib.cache import get, set, delete
@@ -58,6 +59,12 @@ class Less(object):
         if data: size = len(data)
         else: size = 0
         return (txt, size)
+
+    def copy(self, channel):
+        """ return 1 item popped from outcache. """
+        channel = unicode(channel).lower()
+        global get
+        return get(u"outcache-" + channel)
 
     def more(self, channel):
         """ return more entry and remaining size. """

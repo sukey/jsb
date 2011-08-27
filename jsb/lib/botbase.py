@@ -35,6 +35,7 @@ from wait import waiter
 from factory import bot_factory
 from jsb.lib.threads import threaded
 from jsb.utils.locking import lock_object, release_object
+from jsb.utils.url import decode_html_entities
 
 try: import wave
 except ImportError:
@@ -55,6 +56,7 @@ import types
 import threading
 import Queue
 import re
+import urllib
 
 ## defines
 
@@ -128,7 +130,7 @@ class BotBase(LazyDict):
         logging.debug(u"owner is %s" % self.owner)
         self.users.make_owner(self.owner)
         self.outcache = outcache
-        self.userhosts = {}
+        self.userhosts = LazyDict()
         self.connectok = threading.Event()
         self.reconnectcount = 0
         self.cfg.nick = nick or self.cfg.nick or u'jsb'
@@ -176,7 +178,7 @@ class BotBase(LazyDict):
 
     def benice(self, event=None):
         if self.server and self.server.io_loop:
-            logging.warn("i'm being nice")
+            logging.debug("i'm being nice")
             if event and self.server and event.handler: self.server.io_loop.add_callback(event.handler.async_callback(lambda: time.sleep(0.001)))
             elif self.server: self.server.io_loop.add_callback(lambda: time.sleep(0.001))
         time.sleep(0.001)
@@ -199,7 +201,7 @@ class BotBase(LazyDict):
         if self.isgae:
             from jsb.drivers.gae.tasks import start_botevent
             start_botevent(self, event, event.speed)
-        else: self.inqueue.put_nowait(event)
+        else: logging.info("%s - putted event %s" % (self.cfg.name, str(event))) ; self.inqueue.put_nowait(event)
 
     def broadcast(self, txt):
         """ broadcast txt to all joined channels. """
@@ -284,6 +286,7 @@ class BotBase(LazyDict):
         except: pass
         if not target: target = self.state['joinedchannels']
         for i in target:
+            time.sleep(5)
             try:
                 logging.debug("%s - joining %s" % (self.cfg.name, i))
                 channel = ChannelBase(i, self.cfg.name)
@@ -291,7 +294,6 @@ class BotBase(LazyDict):
                 else: key = None
                 if channel.data.nick: self.ids.append("%s/%s" % (i, channel.data.nick))
                 start_new_thread(self.join, (i, key))
-                time.sleep(5)
             except Exception, ex:
                 logging.warn('%s - failed to join %s: %s' % (self.cfg.name, i, str(ex)))
                 handle_exception()
@@ -398,7 +400,6 @@ class BotBase(LazyDict):
     def exit(self, stop=True):
         """ exit the bot. """ 
         logging.warn("%s - exit" % self.cfg.name)
-        if not self.stopped: self.quit()
         if stop:
             self.stopped = True   
             self.stopreadloop = True  
@@ -412,28 +413,33 @@ class BotBase(LazyDict):
         self.save()
 
     def _raw(self, txt, *args, **kwargs):
-        """ override this. """ 
+        """ override this. outnocb() is used more though. """ 
         logging.debug(u"%s - out - %s" % (self.cfg.name, txt))
         print txt
 
-    def makeoutput(self, printto, txt, result=[], nr=375, extend=0, dot=", ", origin=None, *args, **kwargs):
+    def makeoutput(self, printto, txt, result=[], nr=375, extend=0, dot=", ", origin=None, showall=False, *args, **kwargs):
+        """ chop output in pieces and stored it for !more command. """
         if not txt: return ""
         txt = self.makeresponse(txt, result, dot)
+        if showall: return txt
         res1, nritems = self.less(origin or printto, txt, nr+extend)
         return res1
 
     def out(self, printto, txt, how="msg", event=None, origin=None, html=False, *args, **kwargs):
+        """ output method with OUTPUT event generated. """
         self.outnocb(printto, txt, how, event=event, origin=origin, html=html, *args, **kwargs)
         self.outmonitor(origin, printto, txt, event=event)
 
     write = out
 
     def outnocb(self, printto, txt, how="msg", event=None, origin=None, html=False, *args, **kwargs):
+        """ output function without callbacks called.. override this in your driver. """
         self._raw(txt)
 
     writenocb = outnocb
 
     def say(self, channel, txt, result=[], how="msg", event=None, nr=375, extend=0, dot=", ", showall=False, *args, **kwargs):
+        """ default method to send txt from the bot to a user/channel/jid/conference etc. """
         if event and event.userhost in self.ignore: logging.warn("%s - ignore on %s - no output done" % (self.cfg.name, event.userhost)) ; return
         if event and event.nooutput:
             logging.debug("%s - event has nooutput set, not outputing" % self.cfg.name)
@@ -446,6 +452,8 @@ class BotBase(LazyDict):
         if showall or (event and event.showall): txt = self.makeresponse(txt, result, dot, *args, **kwargs)
         else: txt = self.makeoutput(channel, txt, result, nr, extend, dot, origin=target, *args, **kwargs)
         if txt:
+            if event and event.displayname: txt = "[%s] %s" % (event.displayname, txt)
+            txt = decode_html_entities(txt)
             if event:
                 event.resqueue.put_nowait(txt)
                 event.outqueue.put_nowait(txt)
@@ -454,8 +462,8 @@ class BotBase(LazyDict):
             self.out(target, txt, how, event=event, origin=target, *args, **kwargs)
         if event: event.result.append(txt)
 
-    def saynocb(self, channel, txt, result=[], how="msg", event=None, nr=375, extend=0, dot=", ", *args, **kwargs):
-        txt = self.makeoutput(channel, txt, result, nr, extend, dot, *args, **kwargs)
+    def saynocb(self, channel, txt, result=[], how="msg", event=None, nr=375, extend=0, dot=", ", showall=False, *args, **kwargs):
+        txt = self.makeoutput(channel, txt, result, nr, extend, dot, showall=showall, *args, **kwargs)
         if event and not self.cfg.name in event.path: event.path.append(self.cfg.name)
         txt = self.outputmorphs.do(txt, event)
         if txt:
@@ -475,7 +483,7 @@ class BotBase(LazyDict):
         res = txtlist[0]
         length = len(txtlist)
         if length > 1:
-            logging.debug("addding %s lines to %s outputcache" % (len(txtlist), printto))
+            logging.info("addding %s lines to %s outcache (less)" % (len(txtlist), printto))
             outcache.set(u"%s-%s" % (self.cfg.name, printto), txtlist[1:])
             res += "<b> - %s more</b>" % (length - 1) 
         return [res, length]
@@ -492,19 +500,21 @@ class BotBase(LazyDict):
         """ send action to channel. """
         pass
 
-    def reconnect(self):
+    def reconnect(self, start=False):
         """ reconnect to the server. """
         if self.stopped: logging.warn("%s - bot is stopped .. not reconnecting" % self.cfg.name) ; return
         time.sleep(2)
         while 1:
             try:
-                if self.connected: self.exit()
+                if not start: self.exit()
                 if self.doreconnect(): break
-                self.reconnectcount += 1
-                logging.warn('%s - reconnecting .. sleeping %s seconds' % (self.cfg.name, self.reconnectcount*5))
-                time.sleep(self.reconnectcount * 5)   
             except Exception, ex: 
                 handle_exception()
+            self.reconnectcount += 1
+            sleepsec = self.reconnectcount * 5
+            if sleepsec > 301: sleepsec = 302
+            logging.warn('%s - reconnecting .. sleeping %s seconds' % (self.cfg.name, sleepsec))
+            time.sleep(sleepsec)
 
     def doreconnect(self):
         return self.start(connect=True)
@@ -584,10 +594,10 @@ class BotBase(LazyDict):
                 continue
             if name in default_plugins: pass
             elif name in plugblacklist.data:
-                logging.warn("%s - %s is in blacklist" % (self.cfg.name, name))
+                logging.info("%s - %s is in blacklist" % (self.cfg.name, name))
                 continue
             elif self.cfg.loadlist and name not in self.cfg.loadlist:
-                logging.warn("%s - %s is not in loadlist" % (self.cfg.name, name))
+                logging.info("%s - %s is not in loadlist" % (self.cfg.name, name))
                 continue
             logging.debug("%s - on demand reloading of %s" % (self.cfg.name, name))
             try:

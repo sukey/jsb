@@ -19,7 +19,7 @@ import logging
 ## learn command
 
 def handle_learn(bot, event):
-    """" set an information item. """
+    """" arguments: <item> is <description> - set an information item. """
     if not event.rest: event.missing("<item> is <description>") ; return
     try: (what, description) = event.rest.split(" is ", 1)
     except ValueError: event.missing("<item> is <description>") ; return
@@ -37,7 +37,7 @@ examples.add('learn', 'learn the bot a description of an item.', "learn dunk is 
 ## forget command
 
 def handle_forget(bot, event):
-    """" set an information item. """
+    """" arguments: <item> and <matchstring> - set an information item. """
     if not event.rest: event.missing("<item> and <match>") ; return
     try: (what, match) = event.rest.split(" and ", 2)
     except ValueError: event.missing("<item> and <match>") ; return
@@ -58,7 +58,7 @@ examples.add('forget', 'forget a description of an item.', "forget dunk and botp
 ## whatis command
 
 def handle_whatis(bot, event):
-    """ show what the bot has learned about a factoid. """
+    """ arguments: <item> - show what the bot has learned about a factoid. """
     items = PlugPersist(event.channel)
     what = event.rest.lower().split('!')[0].strip()
     if what in items.data and items.data[what]: event.reply("%s is " % event.rest, items.data[what], dot=", ")
@@ -70,22 +70,36 @@ examples.add("whatis", "whatis learned about a subject", "whatis jsb")
 ## items command
 
 def handle_items(bot, event):
-    """ show what items the bot has learned. """
+    """ no arguments - show what items the bot has learned. """
     items = PlugPersist(event.channel).data.keys()
     event.reply("i know %s items: " % len(items), items)
 
 cmnds.add('items', handle_items, ['OPER', 'USER', 'GUEST'])
 examples.add("items", "show what items the bot knows", "items")
 
+def handle_searchitems(bot, event):
+    """ argument: <searchtxt>  - search the items the bot has learned. """
+    if not event.rest: event.missing("<searchtxt>") ; return
+    items = PlugPersist(event.channel).data.keys()
+    got = []
+    for i in items:
+        if event.rest in i: got.append(i)
+    event.reply("found %s items: " % len(got), got)
+
+cmnds.add('searchitems', handle_searchitems, ['OPER', 'USER', 'GUEST'])
+examples.add("searchitems", "search the items the bot knows", "searchitems jsonbot")
+
 ## callbacks
 
 def prelearn(bot, event):
+    """ learn precondition. """
     if event.iscmnd(): return False
     if len(event.txt) < 2: return False
     if event.txt and (event.txt[0] == "?" or event.txt[-1] == "?") and not event.forwarded: return True
     return False
 
 def learncb(bot, event):
+    """ learn callback, is for catching ? queries. """
     if bot.type == "convore" and not event.chan.data.enable: return
     event.bind(bot)
     items = PlugPersist(event.channel)

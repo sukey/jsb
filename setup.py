@@ -6,12 +6,8 @@ target = "jsb" # BHJTW change this to /var/cache/jsb on debian
 
 import os
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
-
-print "TARGET IS %s" % target
+try: from setuptools import setup
+except: print "i need setuptools to properly install JSONBOT" ; os._exit(1)
 
 upload = []
 
@@ -26,7 +22,6 @@ def uploadfiles(dir):
             if file.endswith(".pyc"):
                 continue
             upl.append(d)
-    print upl
     return upl
 
 def uploadlist(dir):
@@ -54,47 +49,37 @@ setup(
     author_email='bthate@gmail.com',
     description='The bot for you!',
     license='MIT',
+    include_package_data=True,
+    zip_safe=False,
     scripts=['bin/jsb',
+             'bin/jsb-makecert',
              'bin/jsb-convore',
              'bin/jsb-init',
              'bin/jsb-irc', 
              'bin/jsb-fleet', 
              'bin/jsb-xmpp', 
-             'bin/jsb-release',
-             'bin/jsb-rollback',
-             'bin/jsb-run',
              'bin/jsb-sed',
              'bin/jsb-stop',
              'bin/jsb-tornado',
              'bin/jsb-udp',
-             'bin/jsb-upgrade',
-             'bin/jsb-upload',
-             'bin/jsb-uploadall'],
+             'bin/jsb-udpstripped',
+             'bin/jsb-upgrade'],
     packages=['jsb',
               'jsb.lib', 
               'jsb.lib.rest',
-              'jsb.lib.gae',
               'jsb.drivers',
               'jsb.drivers.console',
               'jsb.drivers.convore',
-              'jsb.drivers.gae',
-              'jsb.drivers.gae.web',
-              'jsb.drivers.gae.wave',
-              'jsb.drivers.gae.xmpp',
               'jsb.drivers.irc',
               'jsb.drivers.xmpp',
               'jsb.drivers.tornado',
               'jsb.utils',
-              'jsb.utils.gae', 
               'jsb.plugs',
               'jsb.plugs.core',
-              'jsb.plugs.wave',
               'jsb.plugs.common',
               'jsb.plugs.socket', 
-              'jsb.plugs.gae',
               'jsb.plugs.myplugs',
               'jsb.plugs.myplugs.socket',
-              'jsb.plugs.myplugs.gae',
               'jsb.plugs.myplugs.common',
               'jsb.contrib',
               'jsb.contrib.dns',
@@ -105,7 +90,7 @@ setup(
               'jsb.contrib.requests',
               'jsb.contrib.requests.packages',
               'jsb.contrib.requests.packages.poster'],
-    long_description = """ JSONBOT is a remote event-driven framework for building bots that talk JSON to each other over XMPP. IRC/Console/XMPP (shell) Wave/Web/XMPP (GAE) implementations provided. """,
+    long_description = """ JSONBOT is a remote event-driven framework for building bots that talk JSON to each other over XMPP. IRC/Console/XMPP/WWW/Convore bots run all on the shell. """,
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Console',
@@ -113,7 +98,6 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Operating System :: Unix',
-        'Operating System :: Other OS',
         'Programming Language :: Python',
         'Topic :: Communications :: Chat',
         'Topic :: Software Development :: Libraries :: Python Modules'],
@@ -121,12 +105,7 @@ setup(
                 (target + os.sep + 'data' + os.sep + 'examples', uploadlist('jsb' + os.sep + 'data' + os.sep + 'examples')),
                 (target + os.sep + 'data' + os.sep + 'static', uploadlist('jsb' + os.sep + 'data' + os.sep + 'static')),
                 (target + os.sep + 'data' + os.sep + 'templates', uploadlist('jsb' + os.sep + 'data' + os.sep + 'templates')),
-                (target + os.sep + 'upload', uploadfiles('jsb' + os.sep + 'upload')),
-                (target + os.sep + 'upload' + os.sep + 'webapp2', uploadlist('jsb' + os.sep + 'upload' + os.sep + 'webapp2')),
-                (target + os.sep + 'upload' + os.sep + 'assets', uploadlist('jsb' + os.sep + 'upload' + os.sep + 'assets')),
-                (target + os.sep + 'upload' + os.sep + 'templates', uploadlist('jsb' + os.sep + 'upload' + os.sep +'templates')),
-                (target + os.sep + 'upload' + os.sep + 'waveapi', uploadlist('jsb' + os.sep + 'upload' + os.sep + 'waveapi')),
-                (target + os.sep + 'upload' + os.sep + 'waveapi' + os.sep + 'oauth', uploadlist('jsb' + os.sep + 'upload' + os.sep + 'waveapi' + os.sep + 'oauth')),
-                (target + os.sep + 'upload' + os.sep + 'waveapi' + os.sep + 'simplejson', uploadlist('jsb' + os.sep + 'upload' + os.sep + 'waveapi' + os.sep + 'simplejson')),
-                (target + os.sep + 'upload' + os.sep + 'gadgets', uploadlist('jsb' + os.sep + 'upload' + os.sep + 'gadgets'))],
+                (target + os.sep + 'contrib' + os.sep + 'tornado', ["jsb/contrib/tornado/ca-certificates.crt",])],
+    package_data={'': ["*.crt"],
+                 },
 )

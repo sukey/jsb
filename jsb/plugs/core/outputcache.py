@@ -18,7 +18,7 @@ import logging
 ## outputcache command
 
 def handle_outputcache(bot, event):
-    """ forward the output cache to the user. """
+    """ no arguments - forward the output cache to the user. """
     res = get(event.channel)
     logging.debug("outputcache - %s - %s" % (bot.type, len(res)))
     if res:
@@ -33,7 +33,7 @@ examples.add('outputcache', 'forward the outputcache to the user.', 'outputcache
 ## outputcache-clear command
 
 def handle_outputcacheclear(bot, event):
-    """ flush outputcache of a channel. """
+    """ no arguments - flush outputcache of a channel. """
     clear(event.channel)
     event.done()
 

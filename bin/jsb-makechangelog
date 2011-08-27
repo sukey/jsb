@@ -2,6 +2,7 @@
 #
 #
 
+import sys
 import os
 import re
 
@@ -19,11 +20,8 @@ for a in data:
         rev = i.split()[1].split(':')[0].strip()
     if i.startswith('date'):
         date = ' '.join(i.split(' ', 1)[1].split()[1:5])
-    if i.startswith('description'):
-        go = counter + 1
-        continue
-    if go == counter:
-        summary = i
+    if i.startswith('summary'):
+        summary = i[10:]
         if 'Added tag' in summary:
             print '\n%s' % summary.split()[2]
             print '~' * len(summary.split()[2]) + '\n\n'

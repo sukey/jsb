@@ -67,7 +67,7 @@ def get_bothost(bot):
 ## ban-list command
 
 def handle_ban_list(bot, ievent):
-    """ list all bans. """
+    """ no arguments - list all bans. """
     banslist = get_bans(bot, ievent.channel)
     if not banslist: ievent.reply('the ban list for %s is empty' % ievent.channel)
     else: ievent.reply('bans on %s: ' % ievent.channel, banslist, nr=True)
@@ -78,9 +78,9 @@ examples.add("ban-list", "list all bans.", "ban-list")
 ## ban-remove command
 
 def handle_ban_remove(bot, ievent):
-    """ remove a ban. """
+    """ arguments: <banlistindex> - remove a ban. """
     channel = ievent.channel.lower()
-    if len(ievent.args) != 1 or not ievent.args[0].isdigit(): ievent.missing('<banlist index>') ; return
+    if len(ievent.args) != 1 or not ievent.args[0].isdigit(): ievent.missing('<banlistindex>') ; return
     if not bot.cfg.name in bans or not channel in bans[bot.cfg.name]:
         banslist = get_bans(bot, ievent.channel)
     else:
@@ -99,7 +99,7 @@ examples.add('ban-remove', 'removes a host from the ban list', 'ban-remove 1')
 ## ban-add command
 
 def handle_ban_add(bot, ievent):
-    """ add a ban. """
+    """ arguments: <nick> - add a ban. """
     if not ievent.args: ievent.missing('<nick>') ; return
     if bot.cfg.nick and ievent.args[0].lower() == bot.cfg.nick.lower():
         ievent.reply('not going to ban myself')
@@ -118,7 +118,7 @@ examples.add('ban-add', 'adds a host to the ban list', 'ban-add *!*@lamers.are.u
 ## ban-kickban command
 
 def handle_kickban_add(bot, ievent):
-    """ add a kickban. """
+    """ arguments: <nick> [<reason>] - add a kickban. """
     if not ievent.args: ievent.missing('<nick> [<reason>]') ; return
     if bot.cfg.nick and ievent.args[0].lower() == bot.cfg.nick.lower():
         ievent.reply('not going to kickban myself')

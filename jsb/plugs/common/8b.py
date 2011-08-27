@@ -43,7 +43,7 @@ balltxt=[
 ## 8b command
 
 def handle_8b(bot, ievent):
-    """ throw the eight ball. """
+    """ no arguments - throw the eight ball. """
     ievent.reply(random.choice(balltxt))
 
 cmnds.add('8b', handle_8b, ['OPER', 'USER', 'GUEST'])

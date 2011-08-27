@@ -85,8 +85,8 @@ class Irc(BotBase):
         try:
             self.lastoutput = time.time()
             itxt = toenc(txt, self.encoding)
-            if not txt.startswith("PONG"): logging.info(u"%s - out - %s" % (self.cfg.name, itxt))             
             if not self.sock: logging.warn("%s - socket disappeared - not sending." % self.cfg.name) ; return
+            if not txt.startswith("PONG"): logging.info(u"%s - out:  %s" % (self.cfg.name, itxt))             
             if self.cfg.has_key('ssl') and self.cfg['ssl']: self.sock.write(itxt + '\n')
             else: self.sock.send(itxt[:500] + '\n')
         except Exception, ex: logging.error("%s - can't send: %s" % (self.cfg.name, str(ex)))
@@ -116,7 +116,7 @@ class Irc(BotBase):
         if self.blocking:
             socktimeout = self.cfg['socktimeout']
             if not socktimeout:
-                socktimeout = 500.0
+                socktimeout = 301.0
             else:
                 socktimeout = float(socktimeout)
             self.oldsock.settimeout(socktimeout)
@@ -173,14 +173,14 @@ class Irc(BotBase):
                 if self.cfg.has_key('ssl') and self.cfg['ssl']: intxt = inputmorphs.do(self.sock.read()).split('\n')
                 #else: intxt = inputmorphs.do(self.fsock.readline()).split('\n')
 		else:
-                    try: [i, o, e] = select.select([self.sock], [], [], 1.0)
+                    try: [i, o, e] = select.select([self.sock], [], [])
                     except socket.error: doreconnect = False ; break
-                    if i: intxt = inputmorphs.do(self.sock.recv(512)).split('\n')
+                    if i: intxt = inputmorphs.do(self.sock.recv(600)).split('\n')
                     if self.stopreadloop or self.stopped:
                         doreconnect = 0
                         break
                     if not i: time.sleep(0.1) ; continue
-                if not intxt or not intxt[0]:
+                if not intxt:
                     doreconnect = 1
                     break
                 if prevtxt:
@@ -190,6 +190,7 @@ class Irc(BotBase):
                     prevtxt = intxt[-1]
                     intxt = intxt[:-1]
                 for r in intxt:
+                    if not r: continue
                     try:
                         r = strippedtxt(r.rstrip(), ["\001", "\002", "\003"]) 
                         rr = unicode(fromenc(r.rstrip(), self.encoding))
@@ -198,7 +199,7 @@ class Irc(BotBase):
                         continue
                     if not rr: continue
                     res = rr
-                    logging.debug(u"%s - %s" % (self.cfg.name, res))
+                    logging.info(u"%s - %s" % (self.cfg.name, res))
                     try:
                         ievent = IrcEvent().parse(self, res)
                     except Exception, ex:
@@ -211,7 +212,8 @@ class Irc(BotBase):
                 handle_exception()
                 continue
             #except socket.SSLError, ex: logging.error("%s - ssl error: %s" % (self.cfg.name, str(ex))) ; break
-            except socket.timeout:
+            except socket.timeout, ex:
+                logging.debug("%s - socket timeout" % self.cfg.name)
                 self.error = str(ex)
                 if self.stopped or self.stopreadloop: break
                 timeout += 1
@@ -219,7 +221,6 @@ class Irc(BotBase):
                     doreconnect = 1
                     logging.warn('%s - no pong received' % self.cfg.name)
                     break
-                logging.debug("%s - socket timeout" % self.cfg.name)
                 pingsend = self.ping()
                 if not pingsend:
                     doreconnect = 1
@@ -367,6 +368,7 @@ class Irc(BotBase):
         txt = txt.replace("<li>", "\0033*\003 ")
         txt = txt.replace("</li>", "")
         txt = txt.replace("<br><br>", " - ")
+        txt = txt.replace("<br>", " [!] ")
         txt = txt.replace("&lt;b&gt;", "\002")
         txt = txt.replace("&lt;/b&gt;", "\002")
         txt = txt.replace("&lt;i&gt;", "\003")

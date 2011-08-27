@@ -13,7 +13,7 @@ from jsb.lib.examples import examples
 ## count command
 
 def handle_count(bot, ievent):
-    """ show nr of elements in result list. """
+    """ no arguments - show nr of elements in result list .. use this command in a pipeline. """
     if not ievent.inqueue:
         ievent.reply("use count in a pipeline")
         return

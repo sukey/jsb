@@ -24,7 +24,7 @@ cpy = copy.deepcopy
 ## rc command
 
 def handle_rc(bot, event):
-    """ import aliases by url. assumes a .RC file. 1 alias per line """
+    """ arguments: <file>|<url> - execute a .jsb resource file with bot commands. """
     if not event.rest: event.missing("<file>|<url>") ; return
     teller = 0
     t = event.rest

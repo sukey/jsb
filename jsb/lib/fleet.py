@@ -34,6 +34,11 @@ import glob
 import logging
 import threading
 import thread
+import copy
+
+## defines
+
+cpy = copy.deepcopy
 
 ## classes
 
@@ -73,14 +78,13 @@ class Fleet(Persist):
         """ load all bots. """ 
         target = names or self.data.names
         if not target: logging.error("no bots in fleet") ; return
-        else: logging.warning("loading %s" % ", ".join(target))
+        else: logging.warn("loading %s" % ", ".join(target))
         threads = []
         bots = []
         for name in target:
-            time.sleep(1)
             if not name: logging.debug(" name is not set") ; continue
             try:
-                if self.data.types[name] == "console": logging.warn("fleet- skipping console bot %s" % name) ; continue
+                #if self.data.types[name] == "console": logging.warn("fleet- skipping console bot %s" % name) ; continue
                 bot = self.makebot(self.data.types[name], name)
                 if bot: bots.append(bot)
             except KeyError: continue
@@ -116,17 +120,17 @@ class Fleet(Persist):
 
     def makebot(self, type, name, config={}, domain="", showerror=False):
         """ create a bot .. use configuration if provided. """
-        assert type
-        assert name
-        if not name: logging.warn(" name is not correct: %s" % name) ; return
-        if config: logging.warn('making %s (%s) bot - %s' % (type, name, config.tojson()))
+        if not name: logging.error(" name is not correct: %s" % name) ; return
+        if not type: type = self.data.types.get(name)
+        if not type: logging.error("no type found for %s bot" % name) ; return 
+        if config: logging.info('making %s (%s) bot - %s' % (type, name, config.tojson()))
         bot = None
         cfg = Config('fleet' + os.sep + stripname(name) + os.sep + 'config')
         if config: cfg.merge(config) 
         if not cfg.name: cfg['name'] = name
         cfg['botname'] = cfg['name']
         if cfg.disable:
-            logging.warn("%s bot is disabled. see %s" % (name, cfg.cfile))
+            logging.error("%s bot is disabled. see %s" % (name, cfg.cfile))
             if showerror: raise BotNotEnabled(name)
             return
         if not cfg.type and type:
@@ -194,7 +198,7 @@ class Fleet(Persist):
         """
         assert bot
         for i in range(len(self.bots)-1, -1, -1):
-            if self.bots[i] == bot: logging.warn("bot %s already in fleet" % str(bot)) ; continue
+            if self.bots[i] == bot: logging.info("bot %s already in fleet" % str(bot)) ; continue
             if self.bots[i].cfg.name == bot.cfg.name:
                 logging.debug('removing %s from fleet' % bot.botname)
                 del self.bots[i]
@@ -211,7 +215,7 @@ class Fleet(Persist):
         for bot in self.bots:
             if bot.cfg.name == name:
                 bot.exit()
-                self.remove(i)
+                self.remove(bot)
                 bot.cfg['disable'] = 1
                 bot.cfg.save()
                 logging.debug('%s disabled' % bot.cfg.name)
@@ -248,20 +252,17 @@ class Fleet(Persist):
         """ do command on a bot. """
         bot = self.byname(name)
         if not bot: return 0
-        from jsb.lib.eventbase import EventBase
-        j = plugs.clonedevent(bot, event)
+        j = cpy(event)
         j.onlyqueues = True
         j.txt = cmnd
-        q = Queue.Queue()
-        j.queues = [q]
-        j.speed = 3
-        plugs.trydispatch(bot, j)
-        result = waitforqueue(q, 3000)
-        if not result: return
-        res = ["[%s]" % bot.cfg.name, ]
-        res += result
-        event.reply(res)
-        return res
+        j.displayname = bot.cfg.name
+        bot.put(j)
+        #result = waitforqueue(j.resqueue, 3000)
+        #if not result: return []
+        #time.sleep(0.2)  
+        #res = ["[%s]" % bot.cfg.name, ]
+        #res += result
+        #return res
 
     def cmndall(self, event, cmnd):
         """ do a command on all bots. """
@@ -274,10 +275,12 @@ class Fleet(Persist):
     def startall(self, bots=None, usethreads=True):
         target = bots or self.bots
         for bot in target:
-            time.sleep(3)
-            if usethreads: start_new_thread(bot.reconnect, ()) ; continue
-            try: bot.reconnect()
+            logging.info('starting %s bot (%s)' % (bot.cfg.name, bot.type))
+            if bot.type == "console": continue
+            if usethreads: start_new_thread(bot.reconnect, (True,)) ; continue
+            try: bot.reconnect(True)
             except Excepton, ex: handle_exception()
+            time.sleep(3)
 
     def resume(self, sessionfile, exclude=[]):
         """ resume bot from session file. """
@@ -291,7 +294,7 @@ class Fleet(Persist):
             cfg = LazyDict(session['bots'][name])
             try: 
                 if not cfg.disable:
-                    logging.warn("resuming %s" % cfg)
+                    logging.info("resuming %s" % cfg)
                     start_new_thread(self.resumebot, (cfg, chan))
             except: handle_exception() ; return
         time.sleep(10)

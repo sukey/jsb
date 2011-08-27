@@ -22,7 +22,8 @@ import logging
 ## plug-enable command
 
 def handle_plugenable(bot, event):
-    if not event.rest: event.missing("<plugin>") ; return
+    """ arguments" <plugname> - enable a plugin. """
+    if not event.rest: event.missing("<plugname>") ; return
     mod = bot.plugs.getmodule(event.rest)
     if not mod: event.reply("can't find module for %s" % event.rest) ; return
     event.reply("reloading and enabling %s" % mod)
@@ -37,6 +38,7 @@ examples.add("plug-enable", "enable a plugin", "plug-enable rss")
 ## plug-disable command
 
 def handle_plugdisable(bot, event):
+    """ arguments: <plugname> - disable a plugin. """
     if not event.rest: event.missing("<plugin>") ; return
     mod = bot.plugs.getmodule(event.rest)
     if mod in default_plugins: event.reply("can't remove a default plugin") ; return
@@ -53,10 +55,10 @@ examples.add("plug-disable", "disable a plugin", "plug-disable rss")
 ## plug-reload command
 
 def handle_plugreload(bot, ievent):
-    """ reload list of plugins. """
+    """ arguments: <list of plugnames> - reload list of plugins. """
     try: pluglist = ievent.args
     except IndexError:
-        ievent.missing('<list plugins>')
+        ievent.missing('<list of plugnames>')
         return
     reloaded = []
     errors = []

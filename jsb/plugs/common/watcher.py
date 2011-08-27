@@ -12,7 +12,6 @@ from jsb.lib.persist import PlugPersist
 from jsb.lib.fleet import getfleet
 from jsb.utils.exception import handle_exception
 from jsb.lib.examples import examples
-from jsb.drivers.gae.wave.waves import Wave
 from jsb.utils.locking import locked
 from jsb.lib.eventbase import EventBase
 
@@ -177,14 +176,12 @@ first_callbacks.add('TORNADO', watchcallback, prewatchcallback)
 ## watcher-start command
 
 def handle_watcherstart(bot, event):
-    """ [<channel>] .. start watching a target (channel/wave). """
+    """ arguments: [<channel>] - start watching a target (channel/wave). """
     target = event.rest or event.channel
-
     watched.subscribe(bot.cfg.name, bot.type, target, event.channel)
     if not target in event.chan.data.watched:
         event.chan.data.watched.append(target)
         event.chan.save()
-
     event.done()
 
 cmnds.add('watcher-start', handle_watcherstart, 'OPER')
@@ -194,7 +191,7 @@ examples.add('watcher-start', 'start watching a channel. ', 'watcher-start <chan
 ## watcher-reset command
 
 def handle_watcherreset(bot, event):
-    """ [<channel>] .. stop watching a channel/wave. """
+    """ no arguments - reset all watcher for a channel. """
     watched.reset(event.channel)
     event.done()
 
@@ -204,7 +201,7 @@ examples.add('watcher-reset', 'stop watching', 'watcher-reset')
 ## watcher-stop command
 
 def handle_watcherstop(bot, event):
-    """ [<channel>] .. stop watching a channel/wave. """
+    """ arguments: [<channel>] - stop watching a channel. """
     if not event.rest: target = event.origin
     else: target = event.rest
     watched.unsubscribe(bot.cfg.name, bot.type, target, event.channel)
@@ -219,7 +216,7 @@ examples.add('watcher-stop', 'stop watching a channel', 'watcher-stop #dunkbots'
 ## watcher-list command
 
 def handle_watcherlist(bot, event):
-    """ see what channels we are watching. """
+    """ no arguments - see what channels we are watching. """
     chans = watched.channels(event.channel)
     if chans:
         res = []
@@ -234,7 +231,7 @@ examples.add('watcher-list', 'show what channels we are watching', 'watcher-chan
 ## watcher-subscribers command
 
 def handle_watchersubscribers(bot, event):
-    """" show channels that are watching us. """
+    """" no arguments - show channels that are watching us. """
     event.reply("watchers for %s: " % event.channel, watched.subscribers(event.channel))
 
 cmnds.add('watcher-subscribers', handle_watchersubscribers, ['OPER', 'USER', 'GUEST'])

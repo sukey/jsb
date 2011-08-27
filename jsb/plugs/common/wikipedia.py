@@ -25,6 +25,7 @@ wikire = re.compile('start content(.*?)end content', re.M)
 ## searchwiki function
 
 def searchwiki(txt, lang='en'):
+    """ parse wiki data. """
     input = []     
     for i in txt.split():
         if i.startswith('-'):
@@ -79,22 +80,23 @@ resultre1 = re.compile("(<li>.*?</li>)")
 resultre2 = re.compile("(<h2>.*?</h2>)")
 
 def handle_wikipedia(bot, ievent):
-    """ <what> .. search wikipedia. """
-    if not ievent.rest: ievent.missing('<what>') ; return
+    """ arguments: <searchtxt> ["-"<countrycode>] -  search wikipedia, you can provide an optional country code.  """
+    if not ievent.rest: ievent.missing('<searchtxt>') ; return
+    showall = False
     res = searchwiki(ievent.rest)
     if not res[0]: ievent.reply('no result found') ; return
     prefix = u'%s ===> ' % res[1]
     result = resultre1.findall(res[0])
     if result:
-        if bot.type == "sxmpp" and not ievent.groupchat: ievent.showall = True
-        ievent.reply(prefix, result, dot="<br><br>")
+        if bot.type == "sxmpp" and not ievent.groupchat: showall = True
+        ievent.reply(prefix, result, dot="<br>", showall=showall)
         return
     result2 = resultre2.findall(res[0])
     if result2:
-        if bot.type == "sxmpp" and not ievent.groupchat: ievent.showall = True
-        ievent.reply(prefix, result2, dot="<br><br>")
+        if bot.type == "sxmpp" and not ievent.groupchat: showall = True
+        ievent.reply(prefix, result2, dot="<br>", showall=showall)
         return
     else: ievent.reply("no data found on %s" % event.rest)
 
 cmnds.add('wikipedia', handle_wikipedia, ['USER', 'GUEST'])
-examples.add('wikipedia', 'wikipedia ["-" <countrycode>] <what> .. search wikipedia for <what>','1) wikipedia gozerbot 2) wikipedia -nl bot')
+examples.add('wikipedia', 'search wikipedia for <what>','1) wikipedia bot 2) wikipedia -nl bot')

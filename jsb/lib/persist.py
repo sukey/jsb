@@ -15,8 +15,9 @@ from jsb.utils.lazydict import LazyDict
 from jsb.utils.exception import handle_exception
 from jsb.utils.name import stripname
 from jsb.utils.locking import lockdec
+from jsb.utils.timeutils import elapsedstring
+from jsb.lib.callbacks import callbacks
 from datadir import getdatadir
-from cache import get, set, delete
 
 ## simplejson imports
 
@@ -28,6 +29,7 @@ json = getjson()
 import thread
 import logging
 import os
+import os.path
 import types
 import copy
 import sys
@@ -36,6 +38,17 @@ import time
 ## global list to keeptrack of what persist objects need to be saved
 
 needsaving = []
+
+def cleanup(bot=None, event=None):
+    global needsaving
+    r = []
+    for p in needsaving:
+        try: p.dosave() ; r.append(p) ; logging.warn("saved on retry - %s" % p.fn)
+        except (OSError, IOError), ex: logging.error("failed to save %s - %s" % (p, str(ex)))
+    for p in r:
+        try: needsaving.remove(p)
+        except ValueError: pass
+    return needsaving
 
 ## try google first
 
@@ -177,7 +190,21 @@ except ImportError:
 
     ## imports for shell bots
 
-    from jsb.lib.cache import get, set
+    if True:
+        got = False
+        from jsb.memcached import getmc
+        mc = getmc()
+        if mc:
+            status = mc.get_stats()
+            if status:
+                get = mc.get
+                set = mc.set
+                logging.warn("memcached uptime is %s" % elapsedstring(status[0][1]['uptime']))
+                got = True
+        if got == False:
+            logging.warn("no memcached found - using own cache")
+            from cache import get, set, delete
+
     import fcntl
 
     ## classes
@@ -185,16 +212,18 @@ except ImportError:
     class Persist(object):
 
         """ persist data attribute to JSON file. """
-
         
-        def __init__(self, filename, default=None, init=True):
+        def __init__(self, filename, default=None, init=True, postfix=None):
             """ Persist constructor """
-            self.fn = filename.strip() # filename to save to
+            if postfix: self.fn = str(filename.strip()) + str("-%s" % postfix)
+            else: self.fn = str(filename.strip())
             self.logname = os.sep.join(self.fn.split(os.sep)[1:])
             self.lock = thread.allocate_lock() # lock used when saving)
             self.data = LazyDict() # attribute to hold the data
             self.count = 0
             self.ssize = 0
+            self.jsontxt = ""
+            self.dontsave = False
             if init:
                 if default == None: default = LazyDict()
                 self.init(default)
@@ -209,41 +238,33 @@ except ImportError:
             gotcache = False
             cachetype = "cache"
             try:
-                data = get(self.fn)
-                if not data:
+                logging.debug("using name %s" % self.fn)
+                self.jsontxt = get(self.fn) ; cachetype = "cache"
+                if not self.jsontxt:
                    datafile = open(self.fn, 'r')
-                   data = datafile.read()
+                   self.jsontxt = datafile.read()
                    datafile.close()
-                   self.ssize = len(data)
+                   self.ssize = len(self.jsontxt)
                    cachetype = "file"
-                else:
-                    self.ssize = len(data)
-                    if type(data) == types.DictType:
-                        d = LazyDict()
-                        d.update(data)
-                    else: d = data
-                    self.data = d
-                    cachetype = "mem"
-                    if not 'run' in self.fn: 
-                        logging.debug("%s - loaded %s (%s) - %s" % (cachetype, self.logname, self.ssize, cfrom))
-                    return
+                   set(self.fn, self.jsontxt)
             except IOError, ex:
                 if not 'No such file' in str(ex):
                     logging.error('failed to read %s: %s' % (self.logname, str(ex)))
                     raise
                 else:
                     logging.debug("%s doesn't exist yet" % self.logname)
-                    return
+                    self.jsontxt = ""
             try:
-                #logging.debug(u"loading: %s" % unicode(data))
-                self.data = json.loads(data)
-                set(self.fn, self.data)
-                if type(self.data) == types.DictType:
+                if self.jsontxt:
+                    logging.debug(u"loading: %s" % type(self.jsontxt))
+                    try: self.data = json.loads(str(self.jsontxt))
+                    except Exception, ex: logging.error("couldn't parse %s" % self.jsontxt) ; self.data = None ; self.dontsave = True
+                if not self.data: self.data = LazyDict()
+                elif type(self.data) == types.DictType:
                     d = LazyDict()
                     d.update(self.data)
                     self.data = d
-                if not 'run' in self.fn: 
-                    logging.debug("%s - loaded %s (%s) - %s" % (cachetype, self.logname, self.ssize, cfrom))
+                logging.debug("%s - loaded %s (%s) - %s" % (cachetype, self.logname, len(self.jsontxt), cfrom))
             except Exception, ex:
                 logging.error('ERROR: %s' % self.fn)
                 raise
@@ -257,30 +278,21 @@ except ImportError:
 
         def sync(self):
             logging.info("syncing %s" % self.fn)
-            set(self.fn, self.data)
+            set(self.fn, json.dumps(self.data))
             return self.data
 
         @persistlocked
         def save(self):
             global needsaving
-            r = []
-            for p in needsaving:
-                try: p.dosave() ; r.append(p)
-                except (OSError, IOError): logging.error("failed to save %s" % p)
             try: self.dosave()
             except (IOError, OSError):
                 self.sync()
                 if self not in needsaving: needsaving.append(self)
-                for p in needsaving:
-                    try: p.dosave(); r.append(p)
-                    except (OSError, IOError): logging.error("failed to save %s" % p)
-            for p in r:
-                try: needsaving.remove(p)
-                except ValueError: pass
         
         def dosave(self):
             """ persist data attribute. """
             try:
+                if self.dontsave: logging.error("dontsave is set on  %s - not saving" % self.fn) ; return
                 fn = self.fn
                 d = []
                 if fn.startswith(os.sep): d = [os.sep,]
@@ -295,7 +307,6 @@ except ImportError:
                 datafile = open(tmp, 'w')
                 fcntl.flock(datafile, fcntl.LOCK_EX | fcntl.LOCK_NB)
                 json.dump(self.data, datafile, indent=True)
-                set(fn, self.data)
                 fcntl.flock(datafile, fcntl.LOCK_UN)
                 datafile.close()
                 try: os.rename(tmp, fn)
@@ -303,8 +314,11 @@ except ImportError:
                     #handle_exception(txt="%s %s" % (tmp, fn))
                     os.remove(fn)
                     os.rename(tmp, fn)
-                if 'lastpoll' in self.logname: logging.debug('%s saved (%s)' % (self.logname, self.ssize))
-                else: logging.warn('%s saved (%s)' % (self.logname, self.ssize))
+                jsontxt = json.dumps(self.data)
+                logging.debug("setting cache %s - %s" % (fn, jsontxt))
+                set(fn, jsontxt)
+                if 'lastpoll' in self.logname: logging.debug('%s saved (%s)' % (self.logname, (self.jsontxt)))
+                else: logging.debug('%s saved (%s)' % (self.logname, len(self.jsontxt)))
             except IOError, ex: logging.error("not saving %s: %s" % (self.fn, str(ex))) ; raise
             except: raise
             finally: pass
@@ -313,6 +327,8 @@ class PlugPersist(Persist):
 
     """ persist plug related data. data is stored in jsondata/plugs/{plugname}/{filename}. """
 
-    def __init__(self, filename, default=None):
+    def __init__(self, filename, default=None, *args, **kwargs):
         plugname = calledfrom(sys._getframe())
-        Persist.__init__(self, getdatadir() + os.sep + 'plugs' + os.sep + stripname(plugname) + os.sep + stripname(filename))
+        Persist.__init__(self, getdatadir() + os.sep + 'plugs' + os.sep + stripname(plugname) + os.sep + stripname(filename), *args, **kwargs)
+
+callbacks.add("TICK60", cleanup)

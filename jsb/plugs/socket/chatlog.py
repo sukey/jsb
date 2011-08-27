@@ -2,11 +2,7 @@
 #
 #
 
-"""
-    log irc channels to [hour:min] <nick> txt format, only 
-    logging to files is supported right now. 
-
-"""
+""" log channels to [hour:min] <nick> txt format, only logging to files is supported right now.  """
 
 ## jsb imports
 
@@ -63,6 +59,7 @@ eventstolog = ["OUTPUT", "PRIVMSG", "CONSOLE", "PART", "JOIN", "QUIT", "PRESENCE
 loggers = {}
 
 def initlog(d):
+    """ create the necesary directories to enable logging. """
     try: LOGDIR = d + os.sep + "chatlogs"
     except ImportError: LOGDIR = d + os.sep + "chatlogs"
 
@@ -79,6 +76,7 @@ def initlog(d):
 format = "%(message)s"
 
 def timestr(dt):
+    """ convert datatime object to a time string. """
     return dt.strftime(format_opt('timestamp_format'))   
 
 ## enablelogging function
@@ -147,6 +145,7 @@ backends['log'] = log_write
 ## log function
 
 def log(bot, event):
+    """ format an event and send it to the logging backend. """
     m = formatevent(bot, event, cfg.get("channels"))
     if m["txt"]: write(m)
 
@@ -156,6 +155,7 @@ def prechatlogcb(bot, ievent):
     """
         Check if event should be logged.  QUIT and NICK are not channel
         specific, so we will check each channel in log().
+
     """
     if bot.isgae: return False
     if not cfg.channels: return False
@@ -170,11 +170,13 @@ def prechatlogcb(bot, ievent):
 ## chatlog callbacks
 
 def chatlogcb(bot, ievent):
+    """ logging callback. """
     log(bot, ievent)
 
 ## plugin-start
 
 def init():
+    """ called upon plugin registration. """
     global stopped
     stopped = False
     global loggers
@@ -196,6 +198,7 @@ def init():
 ## plugin-stop
 
 def shutdown():
+    """ shutdown the plugin. """
     global stopped
     stopped = True
     for file in logfiles.values():
@@ -205,7 +208,7 @@ def shutdown():
 ## chatlog-on command
 
 def handle_chatlogon(bot, ievent):
-    """ enable chatlog. """
+    """ no arguments - enable chatlog. """
     chan = ievent.channel
     enablelogging(bot.cfg.name, chan)
     if [bot.cfg.name, chan] not in cfg.get('channels'):
@@ -214,12 +217,12 @@ def handle_chatlogon(bot, ievent):
     ievent.reply('chatlog enabled on (%s,%s)' % (bot.cfg.name, chan))
 
 cmnds.add('chatlog-on', handle_chatlogon, 'OPER')
-examples.add('chatlog-on', 'enable chatlog on <channel> or the channel the commands is given in', '1) chatlog-on 2) chatlog-on #dunkbots')
+examples.add('chatlog-on', 'enable chatlog on the channel the commands is given in', 'chatlog-on')
 
 ## chatlog-off command
 
 def handle_chatlogoff(bot, ievent):
-    """ disable chatlog. """
+    """ no arguments - disable chatlog. """
     try: cfg['channels'].remove([bot.cfg.name, ievent.channel]) ; cfg.save()
     except ValueError: ievent.reply('chatlog is not enabled in (%s,%s)' % (bot.cfg.name, ievent.channel)) ; return
     try: del loggers["%s-%s" % (bot.cfg.name, stripname(ievent.channel))]
@@ -228,10 +231,11 @@ def handle_chatlogoff(bot, ievent):
     ievent.reply('chatlog disabled on (%s,%s)' % (bot.cfg.name, ievent.channel))
 
 cmnds.add('chatlog-off', handle_chatlogoff, 'OPER')
-examples.add('chatlog-off', 'disable chatlog on <channel> or the channel the commands is given in', '1) chatlog-off 2) chatlog-off #dunkbots')
+examples.add('chatlog-off', 'disable chatlog on the channel the commands is given in', 'chatlog-off')
 
 def handle_chatlogsearch(bot, event):
-    if not event.rest: event.missing("<searchitem>") ; return
+    """ arguments: <searchtxt> - search in the logs. """
+    if not event.rest: event.missing("<searchtxt>") ; return
     result = []
     chatlogdir = getdatadir() + os.sep + "chatlogs"
     chan = event.options.channel or event.channel
@@ -249,10 +253,12 @@ cmnds.add("chatlog-search", handle_chatlogsearch, ["OPER", "USER", "GUEST"])
 examples.add("chatlog-search", "search the chatlogs of a channel.", "chatlog-search jsonbot")
 
 def handle_chatlogstats(bot, event):
+    """ no arguments - create log stats of the channel, possible options: --chan <channel> """
     what = event.rest.strip()
     chatlogdir = getdatadir() + os.sep + "chatlogs"
     chan = event.options.channel or event.channel
     logs = os.listdir(chatlogdir)
+    if not logs: event.reply("no logs available for %s" % chan) ; return
     now = time.time()
     if what: timetarget = strtotime2(what) ; what = striptime(what)
     else: timetarget = 0 ; what = None
@@ -266,6 +272,7 @@ def handle_chatlogstats(bot, event):
         if not channel in filename: continue
         for line in open(chatlogdir + os.sep + filename, 'r'):
             splitted = line.strip().split()
+            if len(splitted) < 2: continue
             who = "unknown"
             for i in splitted:
                if i.startswith("<"): who = i[1:-1]

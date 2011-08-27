@@ -56,15 +56,15 @@ class TornadoBot(BotBase):
         handler.write(txt)
         logging.debug("%s - out - %s" % (self.cfg.name, txt))
 
-    def outnocb(self, channel, txt, how="background", event=None, origin=None, response=None, dotime=False, *args, **kwargs):
+    def outnocb(self, channel, txt, how=None, event=None, origin=None, response=None, dotime=False, *args, **kwargs):
         txt = self.normalize(txt)
         if event and event.how != "background":
-            logging.warn("%s - out - %s" % (self.cfg.name, txt))
+            logging.info("%s - out - %s" % (self.cfg.name, txt))
         if "http://" in txt or "https://" in txt:
              for item in re_url_match.findall(txt):
                  logging.debug("web - raw - found url - %s" % item)
                  url = u'<a href="%s" onclick="window.open(\'%s\'); return false;">%s</a>' % (item, item, item)
-                 try: txt = re.sub(item, url, txt)
+                 try: txt = txt.replace(item, url)
                  except ValueError:  logging.error("web - invalid url - %s" % url)
         if response: self._raw(txt, event.target, event.how, event.handler)
         else:
@@ -72,41 +72,47 @@ class TornadoBot(BotBase):
                 e = cpy(event)
                 e.txt = txt
                 e.channel = channel
+                e.how = event.how or how
             else:
                 e = EventBase()
                 e.nick = self.cfg.nick
                 e.userhost = self.cfg.nick + "@" + "bot"
                 e.channel = channel
                 e.txt = txt
-                e.how = how
-                e.origin = origin
                 e.div = "content_div"
+                e.origin = origin
+                e.how = how or "overwrite"
+                e.headlines = True
+            e.update(kwargs)
             update_web(self, e)
         self.benice(event)
 
     def normalize(self, txt):
         txt = stripcolor(txt)
+        txt = txt.replace("\n", "<br>");
+        txt = txt.replace("<", "&lt;")
+        txt = txt.replace(">", "&gt;")
+        txt = strippedtxt(txt)
         txt = txt.replace("&lt;br&gt;", "<br>")
         txt = txt.replace("&lt;b&gt;", "<b>")
         txt = txt.replace("&lt;/b&gt;", "</b>")
         txt = txt.replace("&lt;i&gt;", "<i>")
-        txt = txt.replace("&lt;/i&gt;", "</i>")
+        txt = txt.replace("&lt;/i&gt;", "</i>")   
         txt = txt.replace("&lt;h2&gt;", "<h2>")
         txt = txt.replace("&lt;/h2&gt;", "</h2>")
-        txt = txt.replace("&lt;h3&gt;", "<h3>") 
+        txt = txt.replace("&lt;h3&gt;", "<h3>")
         txt = txt.replace("&lt;/h3&gt;", "</h3>")
-        txt = txt.replace("&lt;li&gt;", "<li>") 
+        txt = txt.replace("&lt;li&gt;", "<li>")
         txt = txt.replace("&lt;/li&gt;", "</li>")
-        txt = strippedtxt(txt)
         return txt
 
-    def reconnect(self): return True
+    def reconnect(self, *args): return True
 
 
 def update_web(bot, event, end="<br>"):
-        out = Container(event.userhost, event.tojson(), how="direct").tojson()
-        logging.warn("%s - out - %s" % (bot.cfg.name, out))
-        if not bot.websockets.has_key(event.channel): logging.warn("no %s in websockets dict" % event.channel) ; return
+        out = Container(event.userhost, event.tojson(), how="tornado").tojson()
+        logging.info("%s - out - %s" % (bot.cfg.name, out))
+        if not bot.websockets.has_key(event.channel): logging.info("no %s in websockets dict" % event.channel) ; return
         for c in bot.websockets[event.channel]:
             time.sleep(0.01)
             c.write_message(out)

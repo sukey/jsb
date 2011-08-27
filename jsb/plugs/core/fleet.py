@@ -30,7 +30,7 @@ cpy = copy.deepcopy
 ## fleet-avail command
 
 def handle_fleetavail(bot, ievent):
-    """ show available fleet bots. """
+    """ no arguments - show available fleet bots. """
     ievent.reply('available bots: ', getfleet().avail()) 
 
 cmnds.add('fleet-avail', handle_fleetavail, 'OPER')
@@ -39,7 +39,7 @@ examples.add('fleet-avail', 'show available fleet bots', 'fleet-avail')
 ## fleet-connect command
 
 def handle_fleetconnect(bot, ievent):
-    """ connect a fleet bot to it's server. """
+    """ arguments: <botname> - connect a fleet bot to it's server. """
     try: botname = ievent.args[0]
     except IndexError:
         ievent.missing('<botname>')
@@ -70,7 +70,7 @@ examples.add('fleet-connect', 'connect bot with <name> to irc server', 'fleet-co
 ## fleet-disconnect command
 
 def handle_fleetdisconnect(bot, ievent):
-    """ disconnect a fleet bot from server. """
+    """ arguments: <botname> - disconnect a fleet bot from server. """
     try: botname = ievent.args[0]
     except IndexError:
         ievent.missing('<botname>')
@@ -88,7 +88,7 @@ examples.add('fleet-disconnect', 'fleet-disconnect <name> .. disconnect bot with
 ## fleet-list command
 
 def handle_fleetlist(bot, ievent):
-    """ fleet-list .. list bot names in fleet. """
+    """ no arguments - list bot names in fleet. """
     ievent.reply("fleet: ", getfleet().list())
 
 cmnds.add('fleet-list', handle_fleetlist, ['OPER', 'USER', 'GUEST'])
@@ -97,7 +97,7 @@ examples.add('fleet-list', 'show current fleet list', 'fleet-list')
 ## fleet-del command
 
 def handle_fleetdel(bot, ievent):
-    """ delete bot from fleet. """
+    """ arguments: <botname> - delete bot from fleet. """
     try: name = ievent.args[0]
     except IndexError:
         ievent.missing('<name>')
@@ -113,9 +113,9 @@ examples.add('fleet-del', 'fleet-del <botname> .. delete bot from fleet list', '
 ## fleet-disable command
 
 def fleet_disable(bot, ievent):
-    """ disable a fleet bot. """
+    """ arguments: <list of botnames> - disable a fleet bot. """
     if not ievent.rest:
-        ievent.missing("list of fleet bots")
+        ievent.missing("<list of botnames>")
         return
     bots = ievent.rest.split()
     fleet = getfleet()
@@ -135,9 +135,9 @@ examples.add('fleet-disable', 'disable a fleet bot', 'fleet-disable local')
 ## fleet-enable command
 
 def fleet_enable(bot, ievent):
-    """ enable a fleet bot. """
+    """ arguments: <list of botnames> - enable a fleet bot. """
     if not ievent.rest:
-        ievent.missing("list of fleet bots")
+        ievent.missing("<list of botnames>")
         return
     bots = ievent.rest.split()
     fleet = getfleet()
@@ -167,7 +167,7 @@ examples.add('fleet-enable', 'enable a fleet bot', 'fleet-enable local')
 ## fleet-add command
 
 def fleet_add(bot, ievent):
-    """ add a fleet bot. """
+    """ arguments: <name> <type> <server>|<botjid> <nick>|<passwd> - add a newly created bot to the fleet. """
     try:
         name, type, server, nick = ievent.rest.split()
     except ValueError: ievent.missing("<name> <type> <server>|<botjid> <nick>|<passwd>") ; return
@@ -202,22 +202,15 @@ examples.add('fleet-add', 'add a fleet bot', 'fleet-add local irc localhost jsbt
 ## fleet-cmnd command
 
 def fleet_cmnd(bot, ievent):
-    """ do cmnd on fleet bot(s). """
+    """ arguments: <botname> <cmndstring> - do cmnd on fleet bot(s). """
     try:
         (name, cmndtxt) = ievent.rest.split(' ', 1)
-    except ValueError: ievent.missing("<name> <cmndstring>") ; return
+    except ValueError: ievent.missing("<botname> <cmndstring>") ; return
     fleet = getfleet()
-    if name == "all": do = fleet.list()
-    else: do = [name, ]
-    for botname in do:
-        e = cpy(ievent)
-        bot = fleet.byname(botname)
-        if not bot: ievent.reply("%s bot is not in fleet" % botname) ; return
-        result = bot.putevent(e.userhost, e.channel, cmndtxt, nooutput=True, event=e)
-        if result: res = waitforqueue(result.resqueue, 6000, bot=bot)
-        else: ievent.reply("no result")
-        ievent.reply("[%s] %s" % (botname, ", ".join(res)))
-    ievent.reply("done")
+    if name == "all": fleet.cmndall(ievent, cmndtxt)
+    else: fleet.cmnd(ievent, name, cmndtxt)
+    #if result: ievent.reply("results: ", result)
+    #else: ievent.reply("no results")
 
-cmnds.add('fleet-cmnd', fleet_cmnd, 'OPER', threaded=True)
+cmnds.add('fleet-cmnd', fleet_cmnd, 'OPER')
 examples.add('fleet-cmnd', 'run cmnd on fleet bot(s)', '1) fleet-cmnd default-irc uptime 2) fleet-cmnd all uptime')

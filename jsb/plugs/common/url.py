@@ -84,9 +84,9 @@ callbacks.add('TORNADO', urlcb, urlpre, threaded=True)
 ## url-search commands
 
 def handle_urlsearch(bot, ievent):
-    """ search the per channel url database for a search term. """
+    """ arguments: <searchtxt> - search the per channel url database for a search term. """
     if not state: ievent.reply('rss state not initialized') ; return
-    if not ievent.rest: ievent.missing('<what>') ; return
+    if not ievent.rest: ievent.missing('<searchtxt>') ; return
     result = []
     try:
         for i in state['urls'][bot.cfg.name][ievent.channel]:
@@ -102,9 +102,9 @@ examples.add('url-search', 'search matching url entries', 'url-search jsonbot')
 ## url-searchall command
 
 def handle_urlsearchall(bot, ievent):
-    """ search all urls. """
+    """ arguments: <searchtxt> - search all urls. """
     if not state: ievent.reply('rss state not initialized') ; return
-    if not ievent.rest: ievent.missing('<what>') ; return
+    if not ievent.rest: ievent.missing('<searchtxt>') ; return
     result = []
     try:
         for i in state['urls'].values():
@@ -121,7 +121,7 @@ examples.add('url-searchall', 'search matching url entries', 'url-searchall json
 ## url-size command
 
 def handle_urlsize(bot, ievent):
-    """ show number of urls stored. """
+    """ no arguments - show number of urls stored. """
     ievent.reply(str(size()))
 
 cmnds.add('url-size', handle_urlsize, 'OPER')

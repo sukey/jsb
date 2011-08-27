@@ -14,9 +14,10 @@ class Example(object):
 
     """ an example. """
 
-    def __init__(self, descr, ex):
+    def __init__(self, descr, ex, url=False):
         self.descr = descr
         self.example = ex
+        self.url = url
 
 ## Collection of exanples
 
@@ -24,9 +25,9 @@ class Examples(dict):
 
     """ examples holds all the examples. """
 
-    def add(self, name, descr, ex):
+    def add(self, name, descr, ex, url=False):
         """ add description and example. """
-        self[name.lower()] = Example(descr, ex)
+        self[name.lower()] = Example(descr, ex, url)
 
     def size(self):
         """ return size of examples dict. """

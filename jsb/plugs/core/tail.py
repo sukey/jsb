@@ -13,7 +13,7 @@ from jsb.lib.examples import examples
 ## tail command
 
 def handle_tail(bot, ievent):
-    """ used in a pipeline .. show last <nr> elements. """
+    """ no arguments - show last <nr> elements, use this command in a pipeline. """
     if not ievent.inqueue:
         ievent.reply("use tail in a pipeline")
         return

@@ -236,7 +236,7 @@ class Stripper(sgmllib.SGMLParser):
     def strip(self, some_html):
         """ strip html. """
         self.theString = u""
-        self.feed(some_html)
+        self.feed(fromenc(some_html, "ascii"))
         self.close()
         return self.theString
 

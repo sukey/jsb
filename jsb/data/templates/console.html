@@ -36,6 +36,14 @@
         margin-left: 0px;
       }
 
+      div.news {
+        font-family: sans-serif;
+        overflow: auto;
+        align: center; 
+        height: 50%;   
+        top: 30%;
+      }
+
       div.output {
         font-family: sans-serif;
         overflow: auto;
@@ -97,6 +105,13 @@
         margin-right: 5px;
       }
 
+      div.scroll {
+        height: 200px;
+        width: 90%;
+        overflow: auto;
+        align: center;
+      }
+
       /* body styles */
 
       div.body {
@@ -122,7 +137,6 @@
       var incomingurl = document.URL;
       var port = window.location.port;
       var url = "{{ url }}";
-      var websocketurl = "ws://" + host + "/websocket";
       var starttime = new Date();
       var interval_id;
       var lastpolled = new Date();
@@ -140,6 +154,8 @@
       var cmndindex = Cmndlog.length;
       var History = [];
       var historyindex = History.length;
+      var debug = false;
+      var lastseen = 0;
 
       function scrollToBottom(elm_id) {
 	var elm = document.getElementById(elm_id);
@@ -159,23 +175,26 @@
           if (!element) {
               return true;
           }
+          if (div == "news_div") {
+              text = "<i>" + text + "</i>";
+          }
+          if (how == "marquee") {
+              var t = '<marquee behaviour="slide" direction="left">' + text + "</marquee>";
+              element.innerHTML = t;
+          }
           else if (how == "overwrite"){
               element.innerHTML = text;
           }
           else if( how == "background") {
               element.innerHTML = text;
           }
-          else if (how == "normal") {
-              element.innerHTML = text + "<br>";
-          }
           else if (how == "add") {
               element.innerHTML += text;
               scrollToBottom(div);
           }
           else {
-              text = text + "<br>"
-              element.innerHTML += text;
-              scrollToBottom(div);
+              element.innerHTML = text;
+              //scrollToBottom(div);
           }
           document.forms[0].cmnd.focus();
       }
@@ -212,21 +231,33 @@
       // websocket 
 
       function createsocket() {
-          var ws = new WebSocket(websocketurl);
+          var ws = new WebSocket(url);
           ws.onopen = function () {
               var t = new Date();
               dooutput("channel openend on " + t.toTimeString(), "status_div", "overwrite");
               dooutput("channel openend on " + t.toTimeString(), "info_div", "overwrite");
+              dosocket("", "", "");
           }
           ws.onmessage = function (evt) {
-              History.push(evt.data);
-              dooutput("history length is " + History.length, "topper_div", "overwrite");
-              historyindex = History.length-1;
-              handlesocket(evt.data);
+              var data = JSON.parse(evt.data);
+              var event = JSON.parse(data['payload']);
+              if (event['how'] != "background") {
+                  History.push(evt.data);
+                  dooutput("current: " + historyindex + " new: " + (History.length-lastseen-1) + " last: " + (History.length-1), "topper_div", "overwrite");
+              }
+              if (event['execstr']) {
+                  handlesocket(evt.data);
+              }
+              if (event['headlines']) {
+                  dooutput(event['txt'], "news_div", "overwrite");
+              }
+              if (!event['debug']) {
+                  dooutput("", "json_div", "overwrite");
+              }
           }
           ws.onclose = function (evt) {
               var tt = new Date();
-              dooutput("channel closed on " + tt.toTimeString() + " .. please reload this page", "status_div", "overwrite");
+              dooutput("channel closed on " + tt.toTimeString(), "status_div", "overwrite");
               setTimeout("ws = createsocket();", 5000);
           }
           return ws;
@@ -234,15 +265,13 @@
 
       // INIT
 
-      var ws = createsocket();
 
       function start() {
-          setTimeout("doSocket('!welcome', 'content_div', 'background');", 1000);
-          //setTimeout("doSocket('!today', 'info_div', 'background');", 50);
-          //setTimeout("doSocket('!shop', 'info_div', 'background');", 100);
-          setTimeout("doSocket('!topper', 'info_div', 'background');", 100);
-          setTimeout("doSocket('!statusline', 'topper_div', 'background');", 200);
-          setInterval("timeloop();", 1000);
+          ws = createsocket();
+          setTimeout("doSocket('!version', 'content_div', 'overwrite');", 100);
+          setTimeout("doSocket('!topper', 'info_div', 'background');", 200);
+          setTimeout("doSocket('!statusline', 'topper_div', 'background');", 1000);
+          setTimeout('setInterval("timeloop();", 1000);', 5000);
       }
 
       function init() {
@@ -250,14 +279,13 @@
       }
 
       function consolestart() {
-          dooutput("<b>BOOT</b> - ", "status_div", "overwrite");
+          dooutput("<b>WELCOME</b>", "uber_div", "overwrite");
           setTimeout("start();", 100);
-          dooutput(elapsed() + " msec ", "status_div", "normal");
       }
 
       function dohistory(index) {
           var i = index * 1;
-          if (i < 0) { 
+          if (i <= 0) { 
               historyindex = 0;
               i = 0;
           }
@@ -268,7 +296,9 @@
           var res = History[i];
           if (res) {
               handlesocket(res);
-              dooutput(i, "topper_div", "overwrite");
+          }
+          if (historyindex > lastseen) {
+              lastseen = historyindex;
           }
           return false;
       }
@@ -276,11 +306,12 @@
       function showcmnd(index) {
           var i = index * 1;
           if (i < 0) { 
-              cmndindex = 0;
-              i = 0;
+              cmndindex = Cmndlog.length-1;
+              i = cmndindex;
+              return false;
           }
           else if (i > Cmndlog.length-1) {
-              cmndindex = Cmndlog.length-1;
+              cmndindex = 0;
               i = cmndindex;  
               document.forms[0].cmnd.value = "";
               return false;
@@ -298,25 +329,44 @@
       function handlesocket(message) {
           var data = JSON.parse(message);
           var event = JSON.parse(data['payload']);
-          dooutput(message, "json_div", "overwrite");
+          if (historyindex > lastseen) {
+              lastseen = historyindex;
+          }
           dooutput("(" + event['nick'] + ") " + event['userhost'] + " on channel " + event['origin'], "channel_div", "overwrite");
+          var curtime = new Date();
+          var offset = curtime.getTimezoneOffset(); 
+          var ctime = event['ctime'];
+          var t = new Date(ctime*1000);
+          dooutput(t.toDateString() + " " + t.toTimeString(), "date_div", "overwrite");
+          dooutput("current: " + historyindex + " new: " + (History.length-lastseen-1) + " last: " + (History.length-1), "topper_div", "overwrite");
+          dooutput("OK", "status_div", "background"); 
+          if (event['how'] == "background") {
+             dooutput(event['txt'], event['div'], "background");
+             return false;
+          }
+          if (event["debug"]) {
+              dooutput(message, "json_div", "overwrite");
+          }
+          else {
+              dooutput("", "json_div", "overwrite");
+          }
           if (!event['div']) {
               dooutput(event['txt'], "content_div", "overwrite");
           }
-          else if (event['div'] != "content_div") {
-              dooutput("", "content_div", "overwrite");
+          if (event['execstr']) {
+              dooutput("command: " + event['execstr'] + "<br><br>", 'cmnd_div', 'overwrite');
           }
           else {
-              dooutput(event['txt'], event['div'], "overwrite");
+              dooutput("", 'cmnd_div', 'overwrite');
           }
-          dooutput("OK", "status_div", "background"); 
+          dooutput(event['txt'], event['div'], event['how']);
           return false;
       }
       
       // write command over the socket
 
       function doSocket(cmnd, target, how) {
-          dooutput("sending", "status_div", "background"); 
+          dooutput("sending to " + url, "status_div", "background"); 
           var data = {"cmnd": cmnd, "how": how, "target": target };
           Cmndlog.push(cmnd);
           ws.send(JSON.stringify(data));
@@ -334,10 +384,20 @@
         dooutput(keycode, "status_div", "overwrite");
         if (keycode == 13) {
             var cmnd = form.cmnd.value;
-            doSocket(cmnd, "content_div", "normal");
+            doSocket(cmnd, "content_div", "overwrite");
             form.cmnd.value = "";
             form.focus();
             historyindex = History.length;
+            return false;
+        }
+        else if (keycode == 35) {
+            historyindex = History.length;
+            dohistory(historyindex);
+            return false;
+        }
+        else if (keycode == 36) {
+            historyindex = 0;
+            dohistory(historyindex);
             return false;
         }
         else if (keycode == 40) {
@@ -350,14 +410,18 @@
             showcmnd(cmndindex);
             return false;
         }
-        else if (keycode == 37) {
-            historyindex -= 1;
+        else if (keycode == 34) {
+            historyindex -= 1;   
             dohistory(historyindex);
             return false;
         }
-        else if (keycode == 39) {
-            historyindex += 1;
+        else if (keycode == 33) {
+            historyindex += 1;   
             dohistory(historyindex);
+            return false;
+        }
+        else if (keycode == 45) {
+            doSocket("!more", "content_div", "overwrite");
             return false;
         }
         else {
@@ -372,10 +436,10 @@
           if (obj.readyState==4){
               dooutput(obj.status, "status_div", "background");
               if (obj.status==200) {
-                   dooutput(obj.responseText, "content_div", "normal");
+                   dooutput(obj.responseText, "content_div", "overwrite");
               }
               else {
-                   dooutput(obj.status, "content_div", "normal");
+                   dooutput(obj.status, "content_div", "overwrite");
               }
           }
       }
@@ -426,21 +490,28 @@
           <li><a href="http://jsonbot.org/index.html" onclick='window.open("http://jsonbot.org/index.html"); return false'><b>DOCS</b></a></li>
         </ul>
       </div>
+      <div class="body" align="center">
         <div align="center" id="uber_div">Morning !!</div>
         <div align="center"><h1><b>{{ appname }}</b></h1></div>
-        <span class="body" style="font-size: 120%; color: {{ color }};" id="topper_div"></span><br>
+        <span class="body" style="font-size: 120%; color: {{ color }};" id="topper_div"></span><br><br>
+        <span class="center" style="font-size: 110%; font-weight: bold; align: center;" id="news_div">RSS feeds etc. appear here</span>
         <table id="grant_table">
           <br><br>
-          <span class="output" style="align: center;" id="channel_div"></span>
-          <br><br><h5>
-          <span class="output" style="align: center;" id="content_div"></span>
-          <br><br></h5>
+          <span class="output" style="font-size: 120%; font-weight: bold; align: center;" id="channel_div"></span>
+          <br><br><i>
+          <span class="output" style="font-size: 100%; align: center;" id="date_div"></span>
+          </i><br><br>
+          <span class="output" style="background-color: {{ color }}; color: white; font-size: 120%; align: center;" id="cmnd_div"></span>
+          <br>
+          <div class="scroll"><span class="output" style="font-size: 140%; align: center;" id="content_div"></span></div>
+          <br><br>
           <span class="output" style="align: center;" id="json_div"></span>
         </table>
-        <div class="bottom" style="font-size: 120%; color: #C54848;  font-weight: italic;">
+        <div class="bottom" style="font-size: 100%; color: #C54848;  font-weight: italic;">
           <div  id="info_div"></div><br>
           <div class="footer" style="background-color: {{ color }}; font-size:
           120%;"><i></i><br><form><b>&lt;-</b><input style="font-size: 100%;" size="33" type="text" name="cmnd" onKeyDown="return doexec(event);"/><b>-&gt;</b></form>
-          <div class="footer" id="status_div" style="font-size: 90%; background-color: #C54848;"><b>JSONBOT PRESENT!<b></div>
+          <div class="footer" id="status_div" style="border-top: 2; font-size: 100%; background-color: #C54848;"><b>JSONBOT PRESENT!<b></div>
+     </div>
 </body>
 </html>

@@ -26,7 +26,7 @@ def checktopicmode(bot, ievent):
     return 1
 
 def handle_gettopic(bot, ievent):
-    """ topic [<channel>] .. get topic """
+    """ arguments: [<channel>] - get topic """
     try: channel = ievent.args[0]
     except IndexError: channel = ievent.channel
     result = bot.gettopic(channel)
@@ -36,21 +36,21 @@ def handle_gettopic(bot, ievent):
     except (ValueError, TypeError): ievent.reply("can't get topic data of channel %s" % channel)
 
 cmnds.add('topic', handle_gettopic, 'USER', threaded=True)
-examples.add('topic', 'topic [<channel>] .. get topic', '1) topic 2) topic #dunkbots')
+examples.add('topic', 'get topic', '1) topic 2) topic #dunkbots')
 
 def handle_topicset(bot, ievent):
-    """ topic-set .. set the topic """
+    """ arguments: <topic> - set the topic """
     if not bot.jabber and not checktopicmode(bot, ievent): return
-    if not ievent.rest: ievent.missing('<what>') ; return
+    if not ievent.rest: ievent.missing('<topic>') ; return
     bot.settopic(ievent.channel, ievent.rest)
 
 cmnds.add('topic-set', handle_topicset, 'USER', allowqueue=False)
 examples.add('topic-set', 'set channel topic', 'topic-set Yooo')
 
 def handle_topicadd(bot, ievent):
-    """ topic-add <txt> .. add topic item """
+    """ arguments: <txt>  - add topic item """
     if not bot.jabber and not checktopicmode(bot, ievent): return
-    if not ievent.rest: ievent.missing("<what>") ; return
+    if not ievent.rest: ievent.missing("<txt>") ; return
     result = bot.gettopic(ievent.channel)
     if not result: ievent.reply("can't get topic data") ; return
     what = result[0]
@@ -58,10 +58,10 @@ def handle_topicadd(bot, ievent):
     bot.settopic(ievent.channel, what)
 
 cmnds.add('topic-add', handle_topicadd, 'USER', threaded=True)
-examples.add('topic-add', 'topic-add <txt> .. add a topic item', 'topic-add mekker')
+examples.add('topic-add', 'add a topic item to the current topic.', 'topic-add mekker')
 
 def handle_topicdel(bot, ievent):
-    """ topic-del <topicnr> .. delete topic item """
+    """ arguments: <topicnr> - delete topic item """
     if not bot.jabber and not checktopicmode(bot, ievent): return
     try: topicnr = int(ievent.args[0])
     except (IndexError, ValueError): ievent.reply('i need a integer as argument') ; return
@@ -78,7 +78,7 @@ cmnds.add('topic-del', handle_topicdel, 'USER', threaded=True)
 examples.add('topic-del', 'topic-del <topicnr> .. delete topic item', 'topic-del 1')
 
 def handle_topicmove(bot, ievent):
-    """ topic-move <nrfrom> <nrto> .. move topic item """
+    """ arguments: <nrfrom> <nrto> - move topic item """
     if not bot.jabber and not checktopicmode(bot, ievent): return
     try: (topicfrom, topicto) = ievent.args
     except ValueError: ievent.missing('<from> <to>') ; return
@@ -96,10 +96,10 @@ def handle_topicmove(bot, ievent):
     bot.settopic(ievent.channel, newtopic)
 
 cmnds.add('topic-move', handle_topicmove, 'USER', threaded=True)
-examples.add('topic-move', 'topic-move <nrfrom> <nrto> .. move topic items', 'topic-move 3 1')
+examples.add('topic-move', 'move topic items', 'topic-move 3 1')
 
 def handle_topiclistadd(bot, ievent):
-    """ topic-listadd <topicnr> <person> .. add a person to a topic list """
+    """ arguments: <topicnr> <person> - add a person to a topic list """
     if not bot.jabber and not checktopicmode(bot, ievent): return
     try: (topicnr, person) = ievent.args
     except ValueError: ievent.missing('<topicnr> <person>') ; return
@@ -122,7 +122,7 @@ cmnds.add('topic-listadd', handle_topiclistadd, 'USER', threaded=True)
 examples.add('topic-listadd', 'topic-listadd <toicnr> <person> .. add user to topiclist', 'topic-listadd 1 bart')
 
 def handle_topiclistdel(bot, ievent):
-    """ topic-listdel <topicnr> <person> .. remove person from topic list """
+    """ arguments: <topicnr> <person> - remove person from topic list """
     if not bot.jabber and not checktopicmode(bot, ievent): return
     try: (topicnr, person) = ievent.args
     except ValueError: ievent.missing('<topicnr> <person>') ; return
@@ -148,4 +148,4 @@ def handle_topiclistdel(bot, ievent):
     bot.settopic(ievent.channel, newtopic)
 
 cmnds.add('topic-listdel', handle_topiclistdel, 'USER', threaded=True)
-examples.add('topic-listdel', 'topic-listdel <topicnr> <person> .. delete  user from topiclist', 'topic-listdel 1 bart')
+examples.add('topic-listdel', 'delete  user from topic list', 'topic-listdel 1 bart')

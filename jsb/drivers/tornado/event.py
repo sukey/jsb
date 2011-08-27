@@ -35,6 +35,7 @@ class TornadoEvent(EventBase):
         self.bottype = "tornado"
         self.cbtype = "TORNADO"
         self.bot = bot
+        self.how = "overwrite"
 
     def __deepcopy__(self, a):
         e = TornadoEvent()
@@ -45,8 +46,8 @@ class TornadoEvent(EventBase):
 
     def parse(self, handler, request):
         """ parse request/response into a WebEvent. """
-        logging.warn(dir(handler))
-        logging.warn(dir(request))
+        #logging.warn(dir(handler))
+        #logging.warn(dir(request))
         #logging.warn(request.arguments)
         #logging.warn(request.body)
         self.handler = handler
@@ -57,7 +58,7 @@ class TornadoEvent(EventBase):
         except KeyError: how = "background"
         if not how: how = "background"
         self.how = how
-        if self.how == "undefined": self.how = "background"
+        if self.how == "undefined": self.how = "overwrite"
         logging.warn("web - how is %s" % self.how)
         #self.webchan = request.headers.get('webchan')
         #input = request.headers.get('content') or request.headers.get('cmnd')
@@ -84,14 +85,14 @@ class TornadoEvent(EventBase):
         self.handler = handler
         try: data = LazyDict(json.loads(message))
         except Exception, ex: logging.error("failed to parse data: %s - %s" % (message, str(ex))) ; return self
-        logging.warn("incoming: %s" % message)
+        logging.info("incoming: %s" % message)
         self.div = data.target
         self.userhost = tornado.escape.xhtml_escape(handler.current_user)
         if not self.userhost: raise Exception("no current user.")
         self.isweb = True
         input = data.cmnd
-        logging.warn("input is %s" % input)
-        self.how = data.how
+        self.how = data.how or self.how
+        logging.info("cmnd is %s - how is %s" % (input, self.how))
         self.origtxt = fromenc(input.strip(), self.bot.encoding)
         self.txt = self.origtxt
         self.usercmnd = self.txt and self.txt.split()[0]
@@ -106,12 +107,5 @@ class TornadoEvent(EventBase):
         return self
 
 
-    #def reply(self, txt, result=[], event=None, origin="", dot=u", ", nr=600, extend=0, *args, **kwargs):
-    #    """ reply to this event """#
-    #    if self.checkqueues(result): return
-    #    if not txt: return
-    #    if self.how == "background":
-    #        txt = self.bot.makeoutput(self.channel, txt, result, origin=origin, nr=nr, extend=extend, *args, **kwargs)
-    #        self.bot.outnocb(self.channel, txt, self.how, response=self.response, event=self)
-    #    else: self.bot.say(self.channel, txt, result, self.how or "normal", event=self)
-    #     return self
+    def reply(self, txt, result=[], event=None, origin="", dot=u", ", nr=600, extend=0, showall=True, *args, **kwargs):
+        EventBase.reply(self, txt, result, event, origin, dot, nr, extend, showall=True, *args, **kwargs)

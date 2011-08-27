@@ -2,7 +2,7 @@
 #
 #
 
-""" a twitter plugin for the JSONBOT. uses tweepy oauth. """
+""" a twitter plugin for the JSONBOT, currently post only .. uses tweepy oauth. """
 
 ## jsb imports
 
@@ -50,6 +50,7 @@ auth = None
 go = True
 
 def getauth(datadir):
+    """ get auth structure from datadir. """
     global auth
     if auth: return auth
     key, secret = getcreds(datadir)
@@ -59,6 +60,7 @@ def getauth(datadir):
 ## postmsg function
 
 def postmsg(username, txt):
+    """ post a message on twitter. """
     try:
         result = splittxt(txt, 139)
         twitteruser = TwitterUsers("users")
@@ -77,21 +79,27 @@ def postmsg(username, txt):
 
 class TwitterUsers(PlugPersist):
 
+    """ manage users tokens. """
+
     def add(self, user, token):
+        """ add a user with his token. """
         user = user.strip().lower()
         self.data[user] = token
         self.save()
 
     def remove(self, user):
+        """ remove a user. """
         user = user.strip().lower()
         if user in self.data:
             del self.data[user]
             self.save()
 
     def size(self):
+        """ return size of twitter users. """
         return len(self.data)
 
     def __contains__(self, user):
+        """ check if user exists. """
         user = user.strip().lower()
         return user in self.data
 
@@ -99,9 +107,9 @@ class TwitterUsers(PlugPersist):
 ## twitter command
 
 def handle_twitter(bot, ievent):
-    """ send a twitter message. """
+    """ arguments: <txt> - send a twitter message. """
     if not go: ievent.reply("the twitter plugin needs the credentials.py file in the .jsb/data/config dir. see .jsb/data/examples") ; return
-    if not ievent.rest: ievent.missing('<text>') ; return
+    if not ievent.rest: ievent.missing('<txt>') ; return
     else:
         try: nritems = postmsg(ievent.user.data.name, ievent.rest) ; ievent.reply("%s tweet posted" % nritems)
         except TweepError, ex:
@@ -109,14 +117,14 @@ def handle_twitter(bot, ievent):
         except (TweepError, urllib2.HTTPError), e: ievent.reply('twitter failed: %s' % (str(e),))
  
 cmnds.add('twitter', handle_twitter, ['USER', 'GUEST'])
-examples.add('twitter', 'adds a message to your twitter account', 'twitter just found the http://gozerbot.org project')
+examples.add('twitter', 'posts a message on twitter', 'twitter just found the http://jsonbot.org project')
 
 ## twitter-cmnd command
 
 def handle_twittercmnd(bot, ievent):
-    """ do a twitter API cmommand. """
+    """ arguments: <API cmnd> - do a twitter API cmommand. """
     if not go: ievent.reply("the twitter plugin needs the credentials.py file in the .jsb/data//config dir. see .jsb/data/examples") ; return
-    if not ievent.args: ievent.missing('<text>') ; return
+    if not ievent.args: ievent.missing('<API cmnd>') ; return
     target =  strippedtxt(ievent.args[0])
     try:
         twitteruser = TwitterUsers("users")
@@ -152,7 +160,7 @@ examples.add('twitter-cmnd', 'do a cmnd on the twitter API', 'twitter-cmnd home_
 ## twitter-confirm command
 
 def handle_twitter_confirm(bot, ievent):
-    """ confirm auth with PIN. """
+    """ arguments: <PIN code> - confirm auth with PIN. """
     if not go: ievent.reply("the twitter plugin needs the credentials.py file in the %s/config dir. see .jsb/data/examples" % getdatadir()) ; return
     pin = ievent.args[0]
     if not pin: ievent.missing("<PIN> .. see the twitter-auth command.") ; return
@@ -163,12 +171,12 @@ def handle_twitter_confirm(bot, ievent):
     ievent.reply("access token saved.")
 
 cmnds.add('twitter-confirm', handle_twitter_confirm, ['OPER', 'USER', 'GUEST'])
-examples.add('twitter-confirm', 'confirm your twitter account', '1) twitter-confirm 6992762')
+examples.add('twitter-confirm', 'confirm your twitter account', 'twitter-confirm 6992762')
 
 ## twitter-auth command
 
 def handle_twitter_auth(bot, ievent):
-    """ get auth url. """
+    """ no arguments - get url to get the auth PIN needed for the twitter-confirm command. """
     if not go: ievent.reply("the twitter plugin needs the credentials.py file in the .jsb/data/config dir. see .jsb/data/examples") ; return
     try: auth_url = getauth(getdatadir()).get_authorization_url()
     except (TweepError, urllib2.HTTPError), e: ievent.reply('twitter failed: %s' % (str(e),)) ; return
@@ -180,12 +188,12 @@ def handle_twitter_auth(bot, ievent):
         ievent.reply("use the provided code in the twitter-confirm command.")
 
 cmnds.add('twitter-auth', handle_twitter_auth, ['OPER', 'USER', 'GUEST'])
-examples.add('twitter-auth', 'adds your twitter account', '1) twitter-auth')
+examples.add('twitter-auth', 'adds your twitter account', 'twitter-auth')
 
 ## twitter-friends command
 
 def handle_twitterfriends(bot, ievent):
-    """ do a twitter API cmommand. """
+    """ no arguments - show friends timeline (your normal twitter feed). """
     if not go: ievent.reply("the twitter plugin needs the credentials.py file in the .jsb/data/config dir. see .jsb/data/examples") ; return
     try:
         twitteruser = TwitterUsers("users")

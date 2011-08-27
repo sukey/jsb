@@ -17,7 +17,7 @@ import random
 ## choice command
 
 def handle_choice(bot, ievent):
-    """ make a random choice out of different words or list elements. """ 
+    """ arguments: [<space seperated strings>] - make a random choice out of different words or list elements. when used in a pipeline will choose from that. """ 
     result = []
     if ievent.args: result = ievent.args
     elif ievent.inqueue: result = waitforqueue(ievent.inqueue, 3000)

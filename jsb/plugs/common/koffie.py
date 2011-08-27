@@ -92,7 +92,7 @@ def do(bot, ievent, txt):
 ## koffie command
 
 def handle_koffie(bot, ievent):
-    """ get a coffee """
+    """ arguments: [<nick>] - get/give a coffee """
     rand = random.randint(0,len(koffie)-1)
     try:
         input = ievent.args[0]
@@ -107,7 +107,7 @@ examples.add('koffie', 'get a koffie quote', 'koffie')
 ## thee command
 
 def handle_thee(bot, ievent):
-    """ get a thee """
+    """ arguments: [<nick>] - get/give a thee """
     rand = random.randint(0,len(thee)-1)
     try:
         input = ievent.args[0]
@@ -122,7 +122,7 @@ examples.add('thee', 'get an thee', 'thee')
 ## bier command
 
 def handle_bier(bot, ievent):
-    """ get a beer  """
+    """ arguments: [<nick>] - get a beer  """
     rand = random.randint(0,len(bier)-1)
     try:
         input = ievent.args[0]
@@ -137,7 +137,7 @@ examples.add('bier', 'get a bier', 'bier')
 ## wijn command
 
 def handle_wijn(bot, ievent):
-    """ get a wine  """
+    """ arguments: [<nick>] - get a wine  """
     rand = random.randint(0,len(wijn)-1)
     try:
         input = ievent.args[0]   
@@ -152,7 +152,7 @@ examples.add('wijn', 'get a wijn', 'wijn')
 ## fris command
 
 def handle_fris(bot, ievent):
-    """ get a fris  """
+    """ arguments: [<nick>] - get a fris  """
     rand = random.randint(0,len(fris)-1)
     try:
         input = ievent.args[0]
@@ -167,7 +167,7 @@ examples.add('fris', 'get a fris', 'fris')
 ## taart command
 
 def handle_taart(bot, ievent):
-    """ get a taart  """
+    """ arguments: [<nick>] - get a taart  """
     rand = random.randint(0,len(taart)-1)
     try:
         input = ievent.args[0]
@@ -182,7 +182,7 @@ examples.add('taart', 'get a taart', 'taart')
 ## koek command
 
 def handle_koek(bot, ievent):
-    """ get a koek  """
+    """ arguments: [<nick>] - get a koek  """
     rand = random.randint(0,len(koek)-1)
     try:
         input = ievent.args[0]
@@ -200,7 +200,7 @@ examples.add('koekje', 'get a koekje', 'koekje')
 ## chips command
 
 def handle_chips(bot, ievent):
-    """ get a chips  """
+    """ arguments: [<nick>] - get a chips  """
     rand = random.randint(0,len(chips)-1)
     try:
         input = ievent.args[0]
@@ -215,7 +215,7 @@ examples.add('chips', 'get a chips', 'chips')
 ## soep command
 
 def handle_soep(bot, ievent):
-    """ get a soep  """
+    """ arguments: [<nick>] - get a soep  """
     rand = random.randint(0,len(soep)-1)
     try:
         input = ievent.args[0]
@@ -230,7 +230,7 @@ examples.add('soep', 'get a soep', 'soep')
 ## sex command
 
 def handle_sex(bot, ievent):
-    """ get a sex  """
+    """ arguments: [<nick>] - get a sex  """
     rand = random.randint(0,len(sex)-1)
     try:
         input = ievent.args[0]
@@ -245,7 +245,7 @@ examples.add('sex', 'get a sex', 'sex')
 ## roken command
 
 def handle_roken(bot, ievent):
-    """ get a roken  """
+    """ arguments: [<nick>] - get a roken  """
     rand = random.randint(0,len(roken)-1)
     try:
         input = ievent.args[0]
@@ -260,7 +260,7 @@ examples.add('roken', 'get a roken', 'roken')
 ## beledig command
 
 def handle_beledig(bot, ievent):
-    """ get/give an belediging  """
+    """ arguments: [<nick>] - get/give an belediging  """
     rand = random.randint(0,len(beledig)-1)
     try:
         input = ievent.args[0]

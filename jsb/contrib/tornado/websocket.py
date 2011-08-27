@@ -1,22 +1,20 @@
+"""Server-side implementation of the WebSocket protocol.
+
+`WebSockets <http://dev.w3.org/html5/websockets/>`_ allow for bidirectional
+communication between the browser and server.
+
+.. warning::
+
+   The WebSocket protocol is still in development.  This module currently
+   implements the "draft76" version of the protocol, which is supported
+   only by Chrome and Safari.  See this `browser compatibility table 
+   <http://en.wikipedia.org/wiki/WebSockets#Browser_support>`_ on Wikipedia.
+"""
 # Author: Jacob Kristhammar, 2010
-#
-# Updated version of websocket.py[1] that implements latest[2] stable version
-# of the websocket protocol.
-#
-# NB. It's no longer possible to manually select which callback that should
-#     be invoked upon message reception. Instead you must override the
-#     on_message(message) method to handle incoming messsages.
-#     This also means that you don't have to explicitly invoke
-#     receive_message, in fact you shouldn't.
-#
-# [1] http://github.com/facebook/tornado/blob/
-#     2c89b89536bbfa081745336bb5ab5465c448cb8a/tornado/websocket.py
-# [2] http://tools.ietf.org/html/draft-hixie-thewebsocketprotocol-76
 
 import functools
 import hashlib
 import logging
-import re
 import struct
 import time
 import tornado.escape
@@ -34,7 +32,7 @@ class WebSocketHandler(tornado.web.RequestHandler):
     http://tools.ietf.org/html/draft-hixie-thewebsocketprotocol-76.
 
     Here is an example Web Socket handler that echos back all received messages
-    back to the client:
+    back to the client::
 
       class EchoWebSocket(websocket.WebSocketHandler):
           def open(self):
@@ -54,7 +52,7 @@ class WebSocketHandler(tornado.web.RequestHandler):
     implement open() method rather than get() or post().
 
     If you map the handler above to "/websocket" in your application, you can
-    invoke it in JavaScript with:
+    invoke it in JavaScript with::
 
       var ws = new WebSocket("ws://localhost:8888/websocket");
       ws.onopen = function() {
@@ -66,8 +64,9 @@ class WebSocketHandler(tornado.web.RequestHandler):
 
     This script pops up an alert box that says "You said: Hello, world".
     """
-    def __init__(self, application, request):
-        tornado.web.RequestHandler.__init__(self, application, request)
+    def __init__(self, application, request, **kwargs):
+        tornado.web.RequestHandler.__init__(self, application, request,
+                                            **kwargs)
         self.stream = request.connection.stream
         self.client_terminated = False
         self._waiting = None
@@ -86,7 +85,7 @@ class WebSocketHandler(tornado.web.RequestHandler):
         # This is necessary when using proxies (such as HAProxy), which
         # need to see the Upgrade headers before passing through the
         # non-HTTP traffic that follows.
-        self.stream.write(
+        self.stream.write(tornado.escape.utf8(
             "HTTP/1.1 101 Web Socket Protocol Handshake\r\n"
             "Upgrade: WebSocket\r\n"
             "Connection: Upgrade\r\n"
@@ -97,7 +96,7 @@ class WebSocketHandler(tornado.web.RequestHandler):
                     origin=self.request.headers["Origin"],
                     scheme=scheme,
                     host=self.request.host,
-                    uri=self.request.uri)))
+                    uri=self.request.uri))))
         self.stream.read_bytes(8, self._handle_challenge)
 
     def _handle_challenge(self, challenge):
@@ -160,7 +159,6 @@ class WebSocketHandler(tornado.web.RequestHandler):
         """
         if args or kwargs:
             callback = functools.partial(callback, *args, **kwargs)
-
         def wrapper(*args, **kwargs):
             try:
                 return callback(*args, **kwargs)
@@ -191,6 +189,7 @@ class WebSocketHandler(tornado.web.RequestHandler):
         if not self.client_terminated:
             self.async_callback(self.on_message)(
                     frame[:-1].decode("utf-8", "replace"))
+        if not self.client_terminated:
             self._receive_message()
 
     def _on_length_indicator(self, byte):
@@ -246,6 +245,7 @@ class WebSocketRequest(object):
         If a header is missing or have an incorrect value ValueError will be
         raised
         """
+        #logging.warn(self.request.headers)
         headers = self.request.headers
         fields = ("Origin", "Host", "Sec-Websocket-Key1",
                   "Sec-Websocket-Key2")
@@ -258,9 +258,10 @@ class WebSocketRequest(object):
         """Processes the key headers and calculates their key value.
 
         Raises ValueError when feed invalid key."""
-        number, spaces = filter(str.isdigit, key), filter(str.isspace, key)
+        number = int(''.join(c for c in key if c.isdigit()))
+        spaces = len([c for c in key if c.isspace()])
         try:
-            key_number = int(number) / len(spaces)
+            key_number = number / spaces
         except (ValueError, ZeroDivisionError):
             raise ValueError
         return struct.pack(">I", key_number)

@@ -13,9 +13,9 @@ from jsb.lib.fleet import getfleet
 ## xmpp-invite command
 
 def handle_xmppinvite(bot, event):
-    """ invite (subscribe to) a different user. """
+    """ arguments: <list of JIDs> - invite (subscribe to) a different user. """
     if not event.rest:
-        event.missing("<list of jids>")
+        event.missing("<list of JIDs>")
         return
     bot = getfleet().getfirstjabber()
     if bot:

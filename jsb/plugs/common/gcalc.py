@@ -18,7 +18,7 @@ import urllib2
 ## gcalc command
 
 def handle_gcalc(bot, ievent):
-    """ use google calc . """
+    """ arguments: <expression> - use google calc. """
     if len(ievent.args) > 0: expr = " ".join(ievent.args).replace("+", "%2B").replace(" ", "+")
     else: ievent.missing('Missing an expression') ; return
     req = urllib2.Request("http://www.google.com/ig/calculator?hl=en&q=%s" % expr, None,  {'User-agent': useragent()})

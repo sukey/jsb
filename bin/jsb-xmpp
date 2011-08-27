@@ -53,6 +53,8 @@ from jsb.utils.log import setloglevel
 setloglevel(opts.loglevel or mainconfig.loglevel or "warn", opts.colors)
 if opts.loglevel: mainconfig.loglevel = opts.loglevel ; mainconfig.save()
 
+if cfg.disabled: cfg.disabled = 0 ; cfg.save()
+
 ## start bot
 
 boot(opts.datadir)

@@ -64,16 +64,15 @@ def setloglevel(level_name="warn", colors=False, datadir=None):
     """ set loglevel to level_name. """
     if not level_name: return
     LOGDIR = init(datadir or getdatadir())
-    format_short = "\033[94m[!]\033[0m\033[0m \033[97m%(asctime)-8s\033[0m - \033[92m%(module)+12s.%(funcName)-14s\033[0m - \033[93m%(message)s\033[0m"
-    format = "\033[94m[!]\033[0m\033[0m \033[97m%(asctime)s.%(msecs)-13s\033[0m - \033[92m%(module)s.%(funcName)s:%(lineno)s\033[0m - \033[93m%(message)s\033[0m - %(levelname)s - <%(threadName)s>"
-    format_short_plain = "[!] %(asctime)-8s - %(module)+12s.%(funcName)-14s - %(message)s"
-    format_plain = "[!] %(asctime)s.%(msecs)-13s - %(module)s.%(funcName)s:%(lineno)s - %(message)s - %(levelname)s - <%(threadName)s>"
+    format_short = "\033[94m[!]\033[0m\033[0m \033[97m%(asctime)-8s\033[0m - \033[92m%(module)+12s\033[0m - \033[93m%(message)s\033[0m"
+    format = "\033[94m[!]\033[0m\033[0m \033[97m%(asctime)s.%(msecs)-13s\033[0m - \033[92m%(lineno)-5s%(module)+12s.%(funcName)-15s\033[0m - \033[93m%(message)s\033[0m - %(levelname)s - <%(threadName)s>"
+    format_short_plain = "[!] %(asctime)-8s - %(module)+12s - %(message)s"
+    format_plain = "[!] %(asctime)s.%(msecs)-13s - %(lineno)-5s%(module)+12s.%(funcName)-15s - %(message)s - %(levelname)s - <%(threadName)s>"
     datefmt = '%H:%M:%S'
     formatter_short = logging.Formatter(format_short, datefmt=datefmt)
     formatter = logging.Formatter(format, datefmt=datefmt)
     formatter_short_plain = logging.Formatter(format_short_plain, datefmt=datefmt)
     formatter_plain = logging.Formatter(format_plain, datefmt=datefmt)
-
     try:
         import waveapi
     except ImportError:
@@ -91,7 +90,7 @@ def setloglevel(level_name="warn", colors=False, datadir=None):
         for handler in root.handlers: root.removeHandler(handler)
     ch = logging.StreamHandler()
     ch.setLevel(level)
-    if level_name in ["debug",]: 
+    if level_name in ["debug", "info"]: 
          if docolors: ch.setFormatter(formatter)
          else: ch.setFormatter(formatter_plain)
          if filehandler: filehandler.setFormatter(formatter_plain)

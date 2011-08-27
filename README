@@ -22,8 +22,8 @@ JSONBOT is all of the following:
 
 
 see http://jsonbot.googlecode.com
-running demo at http://jsonbot.appspot.com
-documentation is at http://jsonbot.appspot.com/docs
+running demo at http://jsonbot.org:10102
+documentation is at http://jsonbot.org
 
 if you want to upload this bot to the GAE you need "google_appengine" installed in your home dir.
 

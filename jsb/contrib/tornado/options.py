@@ -16,7 +16,7 @@
 
 """A command line parsing module that lets modules define their own options.
 
-Each module defines its own options, e.g.,
+Each module defines its own options, e.g.::
 
     from tornado.options import define, options
 
@@ -31,14 +31,14 @@ Each module defines its own options, e.g.,
 The main() method of your application does not need to be aware of all of
 the options used throughout your program; they are all automatically loaded
 when the modules are loaded. Your main() method can parse the command line
-or parse a config file with:
+or parse a config file with::
 
     import tornado.options
     tornado.options.parse_config_file("/etc/server.conf")
     tornado.options.parse_command_line()
 
 Command line formats are what you would expect ("--myoption=myvalue").
-Config files are just Python files. Global names become options, e.g.,
+Config files are just Python files. Global names become options, e.g.::
 
     myoption = "myvalue"
     myotheroption = "myothervalue"
@@ -55,6 +55,8 @@ import re
 import sys
 import time
 
+from tornado.escape import _unicode
+
 # For pretty log messages, if available
 try:
     import curses
@@ -62,20 +64,20 @@ except:
     curses = None
 
 
-def define(name, default=None, type=str, help=None, metavar=None,
+def define(name, default=None, type=None, help=None, metavar=None,
            multiple=False):
     """Defines a new command line option.
 
-    If type is given (one of str, float, int, datetime, or timedelta),
-    we parse the command line arguments based on the given type. If
-    multiple is True, we accept comma-separated values, and the option
-    value is always a list.
+    If type is given (one of str, float, int, datetime, or timedelta)
+    or can be inferred from the default, we parse the command line
+    arguments based on the given type. If multiple is True, we accept
+    comma-separated values, and the option value is always a list.
 
     For multi-value integers, we also accept the syntax x:y, which
     turns into range(x, y) - very useful for long integer ranges.
 
     help and metavar are used to construct the automatically generated
-    command line help string. The help message is formatted like:
+    command line help string. The help message is formatted like::
 
        --name=METAVAR      help string
 
@@ -90,6 +92,11 @@ def define(name, default=None, type=str, help=None, metavar=None,
     options_file = frame.f_code.co_filename
     file_name = frame.f_back.f_code.co_filename
     if file_name == options_file: file_name = ""
+    if type is None:
+        if not multiple and default is not None:
+            type = default.__class__
+        else:
+            type = str
     options[name] = _Option(name, file_name=file_name, default=default,
                             type=type, help=help, metavar=metavar,
                             multiple=multiple)
@@ -295,15 +302,19 @@ class _Option(object):
         return value.lower() not in ("false", "0", "f")
 
     def _parse_string(self, value):
-        return value.decode("utf-8")
+        return _unicode(value)
 
 
 class Error(Exception):
+    """Exception raised by errors in the options module."""
     pass
 
 
 def enable_pretty_logging():
-    """Turns on formatted logging output as configured."""
+    """Turns on formatted logging output as configured.
+    
+    This is called automatically by `parse_command_line`.
+    """
     root_logger = logging.getLogger()
     if options.log_file_prefix:
         channel = logging.handlers.RotatingFileHandler(
@@ -335,14 +346,23 @@ class _LogFormatter(logging.Formatter):
         logging.Formatter.__init__(self, *args, **kwargs)
         self._color = color
         if color:
-            fg_color = curses.tigetstr("setaf") or curses.tigetstr("setf") or ""
+            # The curses module has some str/bytes confusion in python3.
+            # Most methods return bytes, but only accept strings.
+            # The explict calls to unicode() below are harmless in python2,
+            # but will do the right conversion in python3.
+            fg_color = unicode(curses.tigetstr("setaf") or 
+                               curses.tigetstr("setf") or "", "ascii")
             self._colors = {
-                logging.DEBUG: curses.tparm(fg_color, 4), # Blue
-                logging.INFO: curses.tparm(fg_color, 2), # Green
-                logging.WARNING: curses.tparm(fg_color, 3), # Yellow
-                logging.ERROR: curses.tparm(fg_color, 1), # Red
+                logging.DEBUG: unicode(curses.tparm(fg_color, 4), # Blue
+                                       "ascii"),
+                logging.INFO: unicode(curses.tparm(fg_color, 2), # Green
+                                      "ascii"),
+                logging.WARNING: unicode(curses.tparm(fg_color, 3), # Yellow
+                                         "ascii"),
+                logging.ERROR: unicode(curses.tparm(fg_color, 1), # Red
+                                       "ascii"),
             }
-            self._normal = curses.tigetstr("sgr0")
+            self._normal = unicode(curses.tigetstr("sgr0"), "ascii")
 
     def format(self, record):
         try:

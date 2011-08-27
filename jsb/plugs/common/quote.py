@@ -24,7 +24,8 @@ if not quotes.data.index:
 ## quote-add command
 
 def handle_quoteadd(bot, event):
-    """ add a quote. """
+    """ arguments: <quote> - add a quote. """
+    if not event.rest: event.missing("<quote>") ; return
     quotes.data.index += 1
     quotes.data[quotes.data.index] = event.rest
     quotes.save()
@@ -36,7 +37,7 @@ examples.add('quote-add' , 'add a quote to the bot', 'quote-add blablabla')
 ## quote command
 
 def handle_quote(bot, event):
-    """ get a quote. """
+    """ no arguments - get a quote. """
     possible = quotes.data.keys()
     possible.remove('index')
     if possible: nr = random.choice(possible) ; event.reply("#%s %s" % (nr, quotes.data[nr]))

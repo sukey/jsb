@@ -25,6 +25,7 @@ parser.add_option('-n', '--name', type='string', default=False, dest='name', hel
 parser.add_option('-l', '--loglevel', type='string', default=False, dest='loglevel', help="logging level")
 parser.add_option('-f', '--fast', action="store_true", default=False, dest='fast', help="boot fast (dont load myplugs)")
 parser.add_option('', '--colors', action="store_true", default=False, dest='colors', help="enable the use of colors")
+parser.add_option('', '--fleet', action="store_true", default=False, dest='fleet', help="start the fleet")
 opts, args = parser.parse_args()
 opts.args = args
 
@@ -53,11 +54,14 @@ from jsb.lib.config import Config
 from jsb.lib.errors import NoOwnerSet
 from jsb.lib.commands import cmnds
 from jsb.lib.exit import globalshutdown
+from jsb.lib.fleet import getfleet
+from jsb.lib.threads import start_new_thread
 
 ## basic imports
 
 import getpass
 import time
+import logging
 
 ## start the bot
 name = opts.name or "default-console"
@@ -87,6 +91,12 @@ if opts.args:
         sys.stdout.close()
     except: pass
     os._exit(0)
+
+if opts.fleet:
+    fleet = getfleet()
+    bots = fleet.loadall()
+    logging.error("starting fleet %s" % fleet.list())
+    start_new_thread(fleet.startall, ())
 
 bot.startshell()
 globalshutdown()

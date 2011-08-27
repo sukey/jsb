@@ -45,7 +45,7 @@ from jsb.imports import getfeedparser, getjson
 
 ## google imports
 
-try: from google.appengine.api.memcache import get, set, delete
+try: import waveapi ; from google.appengine.api.memcache import get, set, delete
 except ImportError: from jsb.lib.cache import get, set, delete
 
 ## tinyurl import
@@ -272,9 +272,9 @@ sleeptime=15*60, running=0):
         name = self.data.name
         try:
             loopover = self.data.watchchannels
-            logging.warn("loopover in %s deliver is: %s" % (self.data.name, loopover))
+            logging.info("loopover in %s deliver is: %s" % (self.data.name, loopover))
             for item in loopover:
-                logging.warn("item is: %s" % str(item))
+                logging.info("item is: %s" % str(item))
                 if not item: continue
                 try:
                     (botname, type, channel) = item
@@ -295,13 +295,13 @@ sleeptime=15*60, running=0):
                 if self.markup.get(jsonstring([name, type, channel]), 'all-lines'):
                     for i in res2: 
                         response = self.makeresponse(name, type, [i, ], channel)
-                        try: bot.saynocb(nick or channel, response)
+                        try: bot.saynocb(nick or channel, response, **{'headlines': True})
                         except Exception, ex: handle_exception()
                 else:
                     sep =  self.markup.get(jsonstring([name, type, channel]), 'separator')
                     if sep: response = self.makeresponse(name, type, res2, channel, sep=sep)
                     else: response = self.makeresponse(name, type, res2, channel)
-                    try: bot.saynocb(nick or channel, response)
+                    try: bot.saynocb(nick or channel, response, **{'headlines': True})
                     except Exception, ex: handle_exception()
             return True
         except Exception, ex: handle_exception(txt=name) ; return False
@@ -441,7 +441,8 @@ class Rssdict(PlugPersist):
         if rssitem == None: raise RssNoItem()
         rssitem.data.running = 1
         rssitem.data.stoprunning = 0
-        rssitem.check(rssitem.sync())
+        res = rssitem.sync() 
+        rssitem.check(res)
         rssitem.save()
         if not name in runners.data: runners.data[name] = "bla" ; runners.save()
         sleeptime.data[name] = sleepsec
@@ -477,13 +478,13 @@ class Rsswatcher(Rssdict):
             if name: rssitem = self.byname(name)
             else: url = find_self_url(result.feed.links) ; rssitem = self.byurl(url)
             if rssitem: name = rssitem.data.name
-            else: logging.warn("can't find %s item" % strippassword(url)) ; del data ; return
+            else: logging.info("can't find %s item" % strippassword(url)) ; del data ; return
             if not name in urls.data: urls.data[name] = url ; urls.save()
             result = rssitem.fetchdata(data)
-            logging.warn("%s - got %s items from feed" % (name, len(result)))
+            logging.info("%s - got %s items from feed" % (name, len(result)))
             res = rssitem.check(result)
             if res: rssitem.deliver(res, save=True)
-            else: logging.warn("%s - no items to deliver" % name)
+            else: logging.info("%s - no items to deliver" % name)
         except Exception, ex: handle_exception(txt=name)
         del data
         return True
@@ -723,6 +724,7 @@ def dodata(data, name):
 ## rssfetchcb callback
 
 def rssfetchcb(rpc):
+    """ used on GAE todo a async fetch of the feeds. """
     import google
     try: data = rpc.get_result()
     except google.appengine.api.urlfetch_errors.DownloadError, ex: logging.warn("%s - error: %s" % (strippassword(rpc.final_url), str(ex))) ; return
@@ -732,11 +734,12 @@ def rssfetchcb(rpc):
         logging.info("defered %s feed" % rpc.feedname)
         from google.appengine.ext.deferred import defer
         defer(dodata, data, rpc.feedname)
-    else: logging.warn("fetch returned status code %s - %s" % (data.status_code, strippassword(rpc.feedurl)))
+    else: logging.info("fetch returned status code %s - %s" % (data.status_code, strippassword(rpc.feedurl)))
 
 ## creaete_rsscallback function
 
 def create_rsscallback(rpc):
+    """ return a callback for an rpc. """
     return lambda: rssfetchcb(rpc)
 
 ## doperiodicalGAE function
@@ -792,17 +795,19 @@ def doperiodical(*args, **kwargs):
             except Exception, ex: handle_exception() ; return
     lastpoll.save()
 
-callbacks.add('TICK', doperiodical)
+callbacks.add('TICK60', doperiodical)
 
 ## init function
 
 def init():
+    """ initialize the rss plugin. """
     taskmanager.add('rss', doperiodicalGAE)
     if not runners.data: watcher.checkrunners()
     
 ## shutdown function
 
 def shutdown():
+    """ shutdown the rss plugin. """
     taskmanager.unload('rss')
 
 ## size function
@@ -820,19 +825,18 @@ def save():
 ## rss-clone command
 
 def handle_rssclone(bot, event):
-    """ clone feed running in a channel. """
+    """ arguments: <channel> - clone feed running in a channel. """
     if not event.rest: event.missing('<channel>') ; event.done()
     feeds = watcher.clone(bot.cfg.name, event.channel, event.rest)
     event.reply('cloned the following feeds: ', feeds)
-    bot.say(event.rest, "this wave is continued in %s" % strippassword(event.url))
  
 cmnds.add('rss-clone', handle_rssclone, 'USER')
-examples.add('rss-clone', 'clone feeds into new channel', 'wave-clone waveid')
+examples.add('rss-clone', 'clone feeds into new channel', 'wave-clone #dunkbots')
 
 ## rss-cloneurl command
 
 def handle_rsscloneurl(bot, event):
-    """ clone feeds from another bot (pointed to by url). """
+    """ arguments: <url> - clone feeds from another bot (pointed to by url). """
     if not event.rest: event.missing('<url>') ; event.done
     feeds = watcher.cloneurl(event.rest, event.auth)
     event.reply('cloned the following feeds: ', feeds)
@@ -843,21 +847,21 @@ examples.add('rss-cloneurl', 'clone feeds from remote url', 'wave-clone jsonbot-
 ## rss-add command
 
 def handle_rssadd(bot, ievent):
-    """ rss-add <name> <url> .. add a rss item. """
+    """ arguments: <feedname> <url> - add a rss item. """
     try: (name, url) = ievent.args
-    except ValueError: ievent.missing('<name> <url>') ; return
+    except ValueError: ievent.missing('<feedname> <url>') ; return
     if watcher.checkfeed(url, ievent): watcher.add(name, url, ievent.userhost) ; ievent.reply('rss item added')
     else: ievent.reply('%s is not valid' % strippassword(url))
 
 cmnds.add('rss-add', handle_rssadd, 'USER')
-examples.add('rss-add', 'rss-add <name> <url> to the rsswatcher', 'rss-add jsonbot http://code.google.com/feeds/p/jsonbot/hgchanges/basic')
+examples.add('rss-add', 'add a feed to the rsswatcher', 'rss-add jsonbot http://code.google.com/feeds/p/jsonbot/hgchanges/basic')
 
 ## rss-register command
 
 def handle_rssregister(bot, ievent):
-    """ rss-register <name> <url> .. register and start a rss item. """
+    """ arguments: <feedname> <url> - register and start a rss item. """
     try: (name, url) = ievent.args
-    except ValueError: ievent.missing('<name> <url>') ; return
+    except ValueError: ievent.missing('<feedname> <url>') ; return
     if watcher.byname(name):
         ievent.reply('we already have a feed with %s name .. plz choose a different name' % name)
         return
@@ -869,14 +873,14 @@ def handle_rssregister(bot, ievent):
     else: ievent.reply('%s is not valid' % strippassword(url))
 
 cmnds.add('rss-register', handle_rssregister, 'USER')
-examples.add('rss-register', 'rss-register <name> <url> - register and start a rss feed', 'rss-register jsonbot-hg http://code.google.com/feeds/p/jsonbot/hgchanges/basic')
+examples.add('rss-register', 'register and start a rss feed', 'rss-register jsonbot-hg http://code.google.com/feeds/p/jsonbot/hgchanges/basic')
 
 ## rss-del command
 
 def handle_rssdel(bot, ievent):
-    """ rss-del <name> .. delete a rss item. """
+    """ arguments: <feedname> .. delete a rss item. """
     try: name = ievent.args[0]
-    except IndexError: ievent.missing('<name>') ; return
+    except IndexError: ievent.missing('<feedname>') ; return
     rssitem =  watcher.byname(name)
     if rssitem:
         if not watcher.ownercheck(name, ievent.userhost): ievent.reply("you are not the owner of the %s feed" % name) ; return
@@ -886,29 +890,28 @@ def handle_rssdel(bot, ievent):
     else: ievent.reply('there is no %s rss item' % name)
 
 cmnds.add('rss-del', handle_rssdel, ['USER', ])
-examples.add('rss-del', 'rss-del <name> .. remove <name> from the rsswatcher', 'rss-del mekker')
+examples.add('rss-del', 'remove a feed from the rsswatcher', 'rss-del mekker')
 
 ## rss-sync command
 
 def handle_rsssync(bot, ievent):
-    """ rss-del <name> .. delete a rss item. """
+    """ arguments: <feedname> - sync a feed with the latest. """
     try: name = ievent.args[0]
-    except IndexError: ievent.missing('<name>') ; return
+    except IndexError: ievent.missing('<feedname>') ; return
     if name in watcher.data['names']: watcher.byname(name).sync() ; ievent.done()
     else: ievent.reply("no %s feed available" % name)
 
 cmnds.add('rss-sync', handle_rsssync, ['OPER', ])
-examples.add('rss-sync', 'rss-sync <name> .. sync <name> feed', 'rss-sync mekker')
+examples.add('rss-sync', 'sync feed with the latest.', 'rss-sync mekker')
 
 ## rss-watch command
 
 def handle_rsswatch(bot, ievent):
-    """ rss-watch <name> .. start watcher thread. """
-    if not ievent.channel: ievent.reply('no channel provided')
+    """ arguments: <feedname> [secondstosleep] - start watching a feed. """
     try: name, sleepsec = ievent.args
     except ValueError:
         try: name = ievent.args[0] ; sleepsec = 1800
-        except IndexError: ievent.missing('<name> [secondstosleep]') ; return
+        except IndexError: ievent.missing('<feedname> [secondstosleep]') ; return
     try: sleepsec = int(sleepsec)
     except ValueError: ievent.reply("time to sleep needs to be in seconds") ; return
     if name == "all": target = watcher.data.names
@@ -926,12 +929,12 @@ def handle_rsswatch(bot, ievent):
 
 
 cmnds.add('rss-watch', handle_rsswatch, 'USER')
-examples.add('rss-watch', 'rss-watch <name> [seconds to sleep] .. go watching <name>', '1) rss-watch jsonbot 2) rss-watch jsonbot 600')
+examples.add('rss-watch', 'start watching a feed', '1) rss-watch jsonbot 2) rss-watch jsonbot 600')
 
 ## rss-start command
 
 def handle_rssstart(bot, ievent):
-    """ rss-start <name> .. start a rss feed to a user. """
+    """ arguments: <list of feeds|"all"> - start a rss feed to a user/channel. """
     feeds = ievent.args
     if not feeds: ievent.missing('<list of feeds>') ; return
     started = []
@@ -947,14 +950,13 @@ def handle_rssstart(bot, ievent):
     ievent.reply('started: ', started)
 
 cmnds.add('rss-start', handle_rssstart, ['RSS', 'USER'])
-examples.add('rss-start', 'rss-start <name> .. start a rss feed \
-(per user/channel) ', 'rss-start jsonbot')
+examples.add('rss-start', 'start a rss feed (per user/channel) ', 'rss-start jsonbot')
 
 ## rss-stop command
 
 def handle_rssstop(bot, ievent):
-    """ rss-start <name> .. start a rss feed to a user. """
-    if not ievent.rest: ievent.missing('<feed name>') ; return
+    """ arguments: <feedname> .. stop a rss feed to a user/channel. """
+    if not ievent.rest: ievent.missing('<feedname>') ; return
     if ievent.rest == "all": loopover = ievent.chan.data.feeds
     else: loopover = [ievent.rest, ]
     stopped = []
@@ -974,12 +976,12 @@ def handle_rssstop(bot, ievent):
     ievent.reply('stopped feeds: ', stopped)
 
 cmnds.add('rss-stop', handle_rssstop, ['RSS', 'USER'])
-examples.add('rss-stop', 'rss-stop <name> .. stop a rss feed (per user/channel) ', 'rss-stop jsonbot')
+examples.add('rss-stop', 'stop a rss feed (per user/channel) ', 'rss-stop jsonbot')
 
 ## rss-stopall command
 
 def handle_rssstopall(bot, ievent):
-    """ rss-stop <name> .. stop all rss feeds to a channel. """
+    """ no arguments - stop all rss feeds to a channel. """
     if not ievent.rest: target = ievent.channel
     else: target = ievent.rest
     stopped = []
@@ -998,9 +1000,9 @@ examples.add('rss-stopall', 'rss-stopall .. stop all rss feeds (per user/channel
 ## rss-channels command
 
 def handle_rsschannels(bot, ievent):
-    """ rss-channels <name> .. show channels of rss feed. """
+    """ arguments: <feedname> - show channels of rss feed. """
     try: name = ievent.args[0]
-    except IndexError: ievent.missing("<name>")  ; return
+    except IndexError: ievent.missing("<feedname>")  ; return
     rssitem = watcher.byname(name)
     if rssitem == None: ievent.reply("we don't have a %s rss object" % name) ; return
     if not rssitem.data.watchchannels: ievent.reply('%s is not in watch mode' % name) ; return
@@ -1009,18 +1011,18 @@ def handle_rsschannels(bot, ievent):
     ievent.reply("channels of %s: " % name, result)
 
 cmnds.add('rss-channels', handle_rsschannels, ['OPER', ])
-examples.add('rss-channels', 'rss-channels <name> .. show channels', 'rss-channels jsonbot')
+examples.add('rss-channels', 'show channels in which a feed runs', 'rss-channels jsonbot')
 
 ## rss-addchannel command
 
 def handle_rssaddchannel(bot, ievent):
-    """ rss-addchannel <name> [<botname>] <channel> .. add a channel to rss item. """
+    """ arguments: <feedname> [<botname>] [<bottype>] [<channel>] - add a channel to rss item. """
     try: (name, botname, type, channel) = ievent.args
     except ValueError:
         try: (name, channel) = ievent.args ; botname = bot.cfg.name ; type = bot.type
         except ValueError:
             try: name = ievent.args[0] ; botname = bot.cfg.name ; type = bot.type ; channel = ievent.channel
-            except IndexError: ievent.missing('<name> [<botname>] <channel>') ; return
+            except IndexError: ievent.missing('<feedname> [<botname>] [<bottype] [<channel>]') ; return
     rssitem = watcher.byname(name)
     if rssitem == None: ievent.reply("we don't have a %s rss object" % name) ; return
     if not rssitem.data.running: ievent.reply('%s watcher is not running' % name) ; return
@@ -1037,9 +1039,9 @@ examples.add('rss-addchannel', 'add a channel to watchchannels of a feed', '1) r
 ## rss-setitems command
 
 def handle_rsssetitems(bot, ievent):
-    """ set items of a rss feed. """
+    """ arguments: <feedname> <tokens> - set tokens to display - see rss-scan for available tokens. """
     try: (name, items) = ievent.args[0], ievent.args[1:]
-    except (ValueError, IndexError): ievent.missing('<name> <items>') ; return
+    except (ValueError, IndexError): ievent.missing('<feedname> <list of tokens>') ; return
     if ievent.options and ievent.options.channel: target = ievent.options.channel
     else: target = ievent.channel
     rssitem = watcher.byname(name)
@@ -1054,9 +1056,9 @@ examples.add('rss-setitems', 'set tokens of the itemslist (per user/channel)', '
 ## rss-additem command
 
 def handle_rssadditem(bot, ievent):
-    """ add an item (token) to a feeds itemslist. """
+    """ arguments: <feedname> <token> - add an item (token) to a feeds tokens to be displayed, see rss-scan for a list of available tokens. """
     try: (name, item) = ievent.args
-    except ValueError: ievent.missing('<name> <item>') ; return
+    except ValueError: ievent.missing('<feedname> <token>') ; return
     if ievent.options and ievent.options.channel: target = ievent.options.channel
     else: target = ievent.channel
     feed = watcher.byname(name)
@@ -1067,15 +1069,14 @@ def handle_rssadditem(bot, ievent):
     ievent.reply('%s added to (%s,%s) itemslist' % (item, name, target))
 
 cmnds.add('rss-additem', handle_rssadditem, ['RSS', 'USER'])
-examples.add('rss-additem', 'add a token to the itemslist (per user/channel)',\
- 'rss-additem jsonbot link')
+examples.add('rss-additem', 'add a token to the itemslist (per user/channel)', 'rss-additem jsonbot link')
 
 ## rss-delitem command
 
 def handle_rssdelitem(bot, ievent):
-    """ delete item from a feeds itemlist. """
+    """ arguments: <feedname> <token> - delete token from a feeds itemlist. """
     try: (name, item) = ievent.args
-    except ValueError: ievent.missing('<name> <item>') ; return
+    except ValueError: ievent.missing('<feedname> <token>') ; return
     if ievent.options and ievent.options.channel: target = ievent.options.channel
     else: target = ievent.channel
     rssitem =  watcher.byname(name)
@@ -1092,7 +1093,7 @@ examples.add('rss-delitem', 'remove a token from the itemslist (per user/channel
 ## rss-markuplist command
 
 def handle_rssmarkuplist(bot, ievent):
-    """ show possible markups that can be used. """
+    """ no arguments - show possible markups that can be used. """
     ievent.reply('possible markups ==> ' , possiblemarkup)
 
 cmnds.add('rss-markuplist', handle_rssmarkuplist, ['USER', ])
@@ -1101,9 +1102,9 @@ examples.add('rss-markuplist', 'show possible markup entries', 'rss-markuplist')
 ## rss-markup command
 
 def handle_rssmarkup(bot, ievent):
-    """ show the markup of a feed. """
+    """ arguments: <feedname> - show the markup of a feed. """
     try: name = ievent.args[0]
-    except IndexError: ievent.missing('<name>') ; return
+    except IndexError: ievent.missing('<feedname>') ; return
     rssitem =  watcher.byname(name)
     if not rssitem: ievent.reply("we don't have a %s feed" % name) ; return
     if ievent.options and ievent.options.channel: target = ievent.options.channel
@@ -1117,9 +1118,9 @@ examples.add('rss-markup', 'show markup list for a feed (per user/channel)', 'rs
 ## rss-addmarkup command
 
 def handle_rssaddmarkup(bot, ievent):
-    """ add a markup to a feeds markuplist. """
+    """ arguments: <feedname> <item> <value> - add a markup to a feeds markuplist. """
     try: (name, item, value) = ievent.args
-    except ValueError: ievent.missing('<name> <item> <value>') ; return
+    except ValueError: ievent.missing('<feedname> <item> <value>') ; return
     rssitem =  watcher.byname(name)
     if not rssitem: ievent.reply("we don't have a %s feed" % name) ; return
     if ievent.options and ievent.options.channel: target = ievent.options.channel
@@ -1138,9 +1139,9 @@ examples.add('rss-addmarkup', 'add a markup option to the markuplist (per user/c
 ## rss-delmarkup command
 
 def handle_rssdelmarkup(bot, ievent):
-    """ delete markup from a feeds markuplist. """
+    """ arguments: <feedname> <item> - delete markup from a feeds markuplist. """
     try: (name, item) = ievent.args
-    except ValueError: ievent.missing('<name> <item>') ; return
+    except ValueError: ievent.missing('<feedname> <item>') ; return
     rssitem =  watcher.byname(name)
     if not rssitem: ievent.reply("we don't have a %s feed" % name) ; return
     if ievent.options and ievent.options.channel: target = ievent.options.channel
@@ -1156,7 +1157,7 @@ examples.add('rss-delmarkup', 'remove a markup option from the markuplist (per u
 ## rss-delchannel command
 
 def handle_rssdelchannel(bot, ievent):
-    """ delete channel from feed. """
+    """arguments: <feedname> [<botname>] [<bottype>] [<channel>] - delete channel from feed. """
     botname = None
     try: (name, botname, type, channel) = ievent.args
     except ValueError:
@@ -1167,7 +1168,7 @@ def handle_rssdelchannel(bot, ievent):
                 botname = bot.cfg.name
                 type = bot.type
                 channel = ievent.channel
-            except IndexError: ievent.missing('<name> [<botname>] [<channel>]') ; return
+            except IndexError: ievent.missing('<feedname> [<botname>] [<channel>]') ; return
     rssitem = watcher.byname(name)
     if rssitem == None: ievent.reply("we don't have a %s rss object" % name) ; return
     if jsonstring([botname, type, channel]) in rssitem.data.watchchannels:
@@ -1185,9 +1186,9 @@ examples.add('rss-delchannel', 'delete channel from feed', '1) rss-delchannel js
 ## rss-stopwatch command
 
 def handle_rssstopwatch(bot, ievent):
-    """ stop watching a feed. """
+    """ arguments: <feedname> - stop watching a feed. """
     try: name = ievent.args[0]
-    except IndexError: ievent.missing('<name>') ; return
+    except IndexError: ievent.missing('<feedname>') ; return
     stopped = []
     if name == "all":
         for name in watcher.runners():
@@ -1197,25 +1198,24 @@ def handle_rssstopwatch(bot, ievent):
     ievent.reply('stopped rss watchers: ', stopped)
 
 cmnds.add('rss-stopwatch', handle_rssstopwatch, ['OPER', ])
-examples.add('rss-stopwatch', 'rss-stopwatch <name> .. stop polling <name>', 'rss-stopwatch jsonbot')
+examples.add('rss-stopwatch', 'stop polling a feed', 'rss-stopwatch jsonbot')
 
 ## rss-sleeptime command
 
 def handle_rsssleeptime(bot, ievent):
-    """ get sleeptime of rss item. """
+    """ arguments: <feedname> - get sleeptime of rss item. """
     try: name = ievent.args[0]
-    except IndexError: ievent.missing('<name>') ; return
+    except IndexError: ievent.missing('<feedname>') ; return
     try: ievent.reply('sleeptime for %s is %s seconds' % (name, str(sleeptime.data[name])))
     except KeyError: ievent.reply("can't get sleeptime for %s" % name)
 
 cmnds.add('rss-sleeptime', handle_rsssleeptime, 'USER')
-examples.add('rss-sleeptime', 'rss-sleeptime <name> .. get sleeping time \
-for <name>', 'rss-sleeptime jsonbot')
+examples.add('rss-sleeptime', 'get sleeping time of a feed', 'rss-sleeptime jsonbot')
 
 ## rss-setsleeptime command
 
 def handle_rsssetsleeptime(bot, ievent):
-    """ set sleeptime of feed. """
+    """ arguments: <feedname> <seconds> - set sleeptime of feed, minimum is 60 seconds. """
     try: (name, sec) = ievent.args ; sec = int(sec)
     except ValueError: ievent.missing('<name> <seconds>') ; return
     if not watcher.ownercheck(name, ievent.userhost): ievent.reply("you are not the owner of the %s feed" % name) ; return
@@ -1229,15 +1229,14 @@ def handle_rsssetsleeptime(bot, ievent):
     ievent.reply('sleeptime set')
 
 cmnds.add('rss-setsleeptime', handle_rsssetsleeptime, ['USER', ])
-examples.add('rss-setsleeptime', 'rss-setsleeptime <name> <seconds> .. set \
-sleeping time for <name> .. min 60 sec', 'rss-setsleeptime jsonbot 600')
+examples.add('rss-setsleeptime', 'set sleeping time of a feed .. min 60 sec', 'rss-setsleeptime jsonbot 600')
 
 ## rss-get command
 
 def handle_rssget(bot, ievent):
-    """ fetch feed data. """
+    """ arguments: <feedname> - fetch feed data. """
     try: name = ievent.args[0]
-    except IndexError: ievent.missing('<name>') ; return
+    except IndexError: ievent.missing('<feedname>') ; return
     channel = ievent.channel
     rssitem = watcher.byname(name)
     if rssitem == None: ievent.reply("we don't have a %s rss item" % name) ; return
@@ -1249,12 +1248,12 @@ def handle_rssget(bot, ievent):
     else: ievent.reply("can't make a reponse out of %s" % name)
 
 cmnds.add('rss-get', handle_rssget, ['RSS', 'USER'], threaded=True)
-examples.add('rss-get', 'rss-get <name> .. get data from <name>', 'rss-get jsonbot')
+examples.add('rss-get', 'get data of a feed', 'rss-get jsonbot')
 
 ## rss-running command
 
 def handle_rssrunning(bot, ievent):
-    """ show which watchers are running. """
+    """ no arguments - show which watchers are running. """
     result = watcher.runners()
     resultlist = []
     teller = 1
@@ -1269,7 +1268,7 @@ examples.add('rss-running', 'rss-running .. get running rsswatchers', \
 ## rss-list command
 
 def handle_rsslist(bot, ievent):
-    """ return list of rss items. """
+    """ no arguments - return list of available rss items. """
     result = watcher.list()
     result.sort()
     if result: ievent.reply("rss items: ", result)
@@ -1281,9 +1280,9 @@ examples.add('rss-list', 'get list of rss items', 'rss-list')
 ## rss-url command
 
 def handle_rssurl(bot, ievent):
-    """ return url of feed. """
+    """ arguments: <feedname> - return url of feed. """
     try: name = ievent.args[0]
-    except IndexError: ievent.missing('<name>') ; return
+    except IndexError: ievent.missing('<feedname>') ; return
     if not watcher.ownercheck(name, ievent.userhost): ievent.reply("you are not the owner of the %s feed" % name) ; return
     result = watcher.url(name)
     if not result: ievent.reply("don't know url for %s" % name) ; return
@@ -1295,9 +1294,9 @@ examples.add('rss-url', 'get url of feed', 'rss-url jsonbot')
 ## rss-seturl command
 
 def handle_rssseturl(bot, ievent):
-    """ set url of feed. """
+    """ arguments: <feedname> <url> - set url of feed. """
     try: name = ievent.args[0] ; url = ievent.args[1]
-    except IndexError: ievent.missing('<name> <url>') ; return
+    except IndexError: ievent.missing('<feedname> <url>') ; return
     if not watcher.ownercheck(name, ievent.userhost): ievent.reply("you are not the owner of the %s feed" % name) ; return
     oldurl = watcher.url(name)
     if not oldurl: ievent.reply("no %s rss item found" % name) ; return
@@ -1308,14 +1307,14 @@ def handle_rssseturl(bot, ievent):
     else: ievent.reply('failed to set url of %s to %s' % (name, strippassword(url)))
 
 cmnds.add('rss-seturl', handle_rssseturl, ['USER', ])
-examples.add('rss-seturl', 'change url of rssitem', 'rss-seturl jsonbot-hg http://code.google.com/feeds/p/jsonbot/hgchanges/basic')
+examples.add('rss-seturl', 'set the url of a feed', 'rss-seturl jsonbot-hg http://code.google.com/feeds/p/jsonbot/hgchanges/basic')
 
 ## rss-itemslist
 
 def handle_rssitemslist(bot, ievent):
-    """ rss-itemslist <name> .. show itemslist of rss item. """
+    """ argumetns <feedname> - show list of tokens of feed that are being displayed. """
     try: name = ievent.args[0]
-    except IndexError: ievent.missing('<name>') ; return
+    except IndexError: ievent.missing('feed<name>') ; return
     rssitem = watcher.byname(name)
     if not rssitem: ievent.reply("we don't have a %s feed." % name) ; return
     if ievent.options and ievent.options.channel: target = ievent.options.channel
@@ -1330,9 +1329,9 @@ examples.add('rss-itemslist', 'get itemslist of feed', 'rss-itemslist jsonbot')
 ## rss-scan command
 
 def handle_rssscan(bot, ievent):
-    """ scan rss item for used xml tokens. """
+    """ arguments: <feedname> - scan rss item for used xml tokens. """
     try: name = ievent.args[0]
-    except IndexError: ievent.missing('<name>') ; return
+    except IndexError: ievent.missing('<feedname>') ; return
     if not watcher.byname(name): ievent.reply('no %s feeds available' % name) ; return
     try: result = watcher.scan(name)
     except Exception, ex: ievent.reply(str(ex)) ; return
@@ -1342,12 +1341,12 @@ def handle_rssscan(bot, ievent):
     ievent.reply("tokens of %s: " % name, res)
 
 cmnds.add('rss-scan', handle_rssscan, ['USER', ])
-examples.add('rss-scan', 'rss-scan <name> .. get possible items of <name> ', 'rss-scan jsonbot')
+examples.add('rss-scan', 'get possible tokens of a feed that can be displayed ', 'rss-scan jsonbot')
 
 ## rss-feeds
 
 def handle_rssfeeds(bot, ievent):
-    """ show what feeds are running in a channel. """
+    """ arguments: [<channel>] - show what feeds are running in a channel. """
     if ievent.options and ievent.options.channel: target = ievent.options.channel
     else: target = ievent.channel
     result = watcher.getfeeds(bot.cfg.name, bot.type, target)
@@ -1355,14 +1354,14 @@ def handle_rssfeeds(bot, ievent):
     else: ievent.reply('%s has no feeds running' % target)
 
 cmnds.add('rss-feeds', handle_rssfeeds, ['USER', 'RSS'])
-examples.add('rss-feeds', 'rss-feeds <name> .. show what feeds are running in a channel', '1) rss-feeds 2) rss-feeds #dunkbots')
+examples.add('rss-feeds', 'show what feeds are running in a channel', '1) rss-feeds 2) rss-feeds #dunkbots')
 
 ## rss-link command
 
 def handle_rsslink(bot, ievent):
-    """ search link entries in cached data. """
+    """ arguments: <feedname> <searchtxt> - search link entries in cached data. """
     try: feed, rest = ievent.rest.split(' ', 1)
-    except ValueError: ievent.missing('<feed> <words to search>') ; return
+    except ValueError: ievent.missing('<feedname> <searchtxt>') ; return
     rest = rest.strip().lower()
     try:
         res = watcher.search(feed, 'link', rest)
@@ -1371,29 +1370,28 @@ def handle_rsslink(bot, ievent):
     except KeyError: ievent.reply('no %s feed data available' % feed) ; return
 
 cmnds.add('rss-link', handle_rsslink, ['RSS', 'USER'])
-examples.add('rss-link', 'give link of item which title matches search key', 'rss-link jsonbot gozer')
+examples.add('rss-link', 'give link of feeds which title matches search key', 'rss-link jsonbot gozer')
 
 ## rss-description commmand
 
 def handle_rssdescription(bot, ievent):
-    """ search descriptions in cached data. """
+    """ arguments: <feedname> <searchtxt> - search descriptions in cached data. """
     try: feed, rest = ievent.rest.split(' ', 1)
-    except ValueError: ievent.missing('<feed> <words to search>') ; return
+    except ValueError: ievent.missing('<feedname> <searchtxt>') ; return
     rest = rest.strip().lower()
     res = ""
     try: ievent.reply("results: ", watcher.search(feed, 'summary', rest))
     except KeyError: ievent.reply('no %s feed data available' % feed) ; return
 
 cmnds.add('rss-description', handle_rssdescription, ['RSS', 'USER'])
-examples.add('rss-description', 'give description of item which title \
-matches search key', 'rss-description jsonbot gozer')
+examples.add('rss-description', 'give description of item which title matches search key', 'rss-description jsonbot gozer')
 
 ## rss-all command
 
 def handle_rssall(bot, ievent):
-    """ search titles of all cached data. """
+    """ arguments: <feedname> - search titles of all cached data of a feed. """
     try: feed = ievent.args[0]
-    except IndexError: ievent.missing('<feed>') ; return
+    except IndexError: ievent.missing('<feedname>') ; return
     try: ievent.reply('results: ', watcher.all(feed, 'title'), dot=" \002||\002 ")
     except KeyError: ievent.reply('no %s feed data available' % feed) ; return
 
@@ -1403,21 +1401,23 @@ examples.add('rss-all', "give titles of a feed", 'rss-all jsonbot')
 ## rss-search
 
 def handle_rsssearch(bot, ievent):
-    """ search in titles of cached data. """
+    """ arguments: <searchtxt> - search in titles of cached data. """
     try: txt = ievent.args[0]
-    except IndexError: ievent.missing('<txt>') ; return
+    except IndexError: ievent.missing('<searchtxt>') ; return
     try: ievent.reply("results: ", watcher.searchall('title', txt))
     except KeyError: ievent.reply('no %s feed data available' % feed) ; return
 
 cmnds.add('rss-search', handle_rsssearch, ['RSS', 'USER'])
-examples.add('rss-search', "search titles of all current feeds", 'rss-search goz')
+examples.add('rss-search', "search titles of all current feeds", 'rss-search json')
 
 def handle_rssimport(bot, ievent):
-    """ import feeds uses OPML. """
+    """ arguments: <url> - import feeds uses OPML. """
     if not ievent.rest: ievent.missing("<url>") ; return
     import xml.etree.ElementTree as etree
-    data = geturl2(ievent.rest)
-    if not data: ievent.reply("can't fetch data from %s" % ievent.rest)
+    try:
+        data = geturl2(ievent.rest)
+        if not data: ievent.reply("can't fetch data from %s" % ievent.rest)
+    except Exception, ex: ievent.reply("error fetching %s: %s" % (ievent.rest, str(ex))) ; return
     try: element = etree.fromstring(data)
     except Exception, ex: ievent.reply("error reading %s: %s" % (ievent.rest, str(ex))) ; return
     teller = 0
@@ -1442,3 +1442,4 @@ def handle_rssimport(bot, ievent):
         ievent.reply("there were errors: ", errlist)
 
 cmnds.add('rss-import', handle_rssimport, ['OPER', ])
+examples.add('rss-import', 'import rss feeds from a remote OPML file.', 'rss-import http://jsonbot.org/feeds.opml')

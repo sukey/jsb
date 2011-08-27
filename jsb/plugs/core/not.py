@@ -18,7 +18,7 @@ import re
 ## not command
 
 def handle_not(bot, ievent):
-    """ negative grep. """
+    """ no arguments - negative grep, use this command in a pipeline. """
     if not ievent.inqueue:
         ievent.reply('use not in a pipeline')
         return

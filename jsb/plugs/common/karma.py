@@ -2,7 +2,7 @@
 #
 #
 
-""" karma plugin. """
+""" maintain karma! """
 
 ## jsb imports
 
@@ -29,6 +29,8 @@ cfg.define('verbose', '1')
 
 class KarmaItem(PlugPersist):
 
+     """ Item holding karma data. """
+
      def __init__(self, name, default={}):
          PlugPersist.__init__(self, name)
          self.data.name = name
@@ -54,6 +56,7 @@ def prekarma(bot, event):
 ## karma-callbacks
 
 def karmacb(bot, event):
+    """ karma callback. """
     event.bind(bot)
     if bot.type == "convore" and not event.chan.data.enable: return
     targets = re.findall(RE_KARMA, event.txt)
@@ -80,7 +83,6 @@ def karmacb(bot, event):
             i.save()
         karma.append("%s: %s" % (item, i.data.count))
         got = item or item2
-    #if karma: event.reply("karma - ", karma) ; event.ready()
     if karma: 
         if cfg.get('verbose') == '1': event.reply("karma - ", karma)
         event.ready()
@@ -94,8 +96,8 @@ callbacks.add('TORNADO', karmacb, prekarma)
 ## karma command
 
 def handle_karma(bot, event):
-    """ show karma of item. """
-    if not event.rest: event.missing("<what>") ; return
+    """ arguments: <item> - show karma of item. """
+    if not event.rest: event.missing("<item>") ; return
     k = event.rest.lower()
     item = KarmaItem(event.channel.lower() + "-" + k)
     if item.data.count: event.reply("karma of %s is %s" % (k, item.data.count))
@@ -107,7 +109,7 @@ examples.add('karma', 'show karma', 'karma jsb')
 ## karma-whyup command
 
 def handle_karmawhyup(bot, event):
-    """ show reason for karma increase. """
+    """ arguments: <item> - show reason for karma increase. """
     k = event.rest.lower()
     item = KarmaItem(event.channel + "-" + k)
     if item.data.whyup: event.reply("reasons for karma up are: ", item.data.whyup)
@@ -119,7 +121,7 @@ examples.add("karma-whyup", "show why a karma item is upped", "karma-whyup jsb")
 ## karma-whoup command
 
 def handle_karmawhoup(bot, event):
-    """ show who increased the karma of an item. """
+    """ arguments: <item> - show who increased the karma of an item. """
     k = event.rest.lower()
     item = KarmaItem(event.channel.lower() + "-" + k)
     sd = StatDict(item.data.whoup)
@@ -135,7 +137,7 @@ examples.add("karma-whoup", "show who upped an item", "karma-whoup jsb")
 ## karma-whydown command
 
 def handle_karmawhydown(bot, event):
-    """ show reason why karma was lowered. """
+    """ arguments: <item> - show reason why karma was lowered. """
     k = event.rest.lower()
     item = KarmaItem(event.channel.lower() + "-" + k)
     if item.data.whydown: event.reply("reasons for karmadown are: ", item.data.whydown)
@@ -147,7 +149,7 @@ examples.add("karma-whydown", "show why a karma item is downed", "karma-whydown 
 ## karma-whodown command
 
 def handle_karmawhodown(bot, event):
-    """ show who lowered the karma of an item. """
+    """ arguments: <item> - show who lowered the karma of an item. """
     k = event.rest.lower()
     item = KarmaItem(event.channel.lower() + "-" + k)
     sd = StatDict(item.data.whodown)

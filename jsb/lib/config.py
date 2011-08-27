@@ -267,6 +267,8 @@ class Config(LazyDict):
             self.setdefault('color', "")
             self.comments["colors"] = "# - enable colors in logging."
             self.setdefault('colors', "")
+            self.comments["memcached"] = "# - enable memcached."
+            self.setdefault('memcached', 0)
         self['createdfrom'] = whichmodule()
         self.comments['datadir'] = "# - directory to store bot data in."
         self.comments["owner"] = "# - owner of the bot."
@@ -291,6 +293,7 @@ class Config(LazyDict):
         self.comments["isdb"] = "# - whether this config file lives in the database and not on file."
         self.comments["filename"] = "# - filename of this config file."
         self.comments["username"] = "# - username of the bot."
+        self.comments["fulljids"] = "# - use fulljids of bot users (used in non anonymous conferences."
 
     def reload(self):
         """ reload the config file. """
@@ -324,7 +327,7 @@ irctemplate = """# =====================================================
 
 
 # - to enable put this to 0
-disable = 1
+disable = 0
 
 # - the bot's nick.
 nick = "jsb"
@@ -375,13 +378,16 @@ xmpptemplate = """# =====================================================
 channels = []
 
 # - to enable put this to 0
-disable = 1
+disable = 0
 
 # - the bot's nick.
 nick = "jsb"
 
 # - owner of the bot.
 owner = []
+
+# - use fulljids of bot users (used in non anonymous conferences.
+fulljids = 0
 
 # password used to auth on the server.
 password = ""

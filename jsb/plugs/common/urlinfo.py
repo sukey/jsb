@@ -107,16 +107,17 @@ def getUrlInfo(text):
 
 ## callbacks
 
-# Catch channel chat for possible URLs
 def catchHasUrls(bot, ievent):
+    """ catch channel chat for possible URLs. """
     if ievent.how == "background": return 0
     if cfg.data.has_key(ievent.channel) and cfg.data[ievent.channel]:
         if len(ievent.txt) >= 5:
             if (ievent.txt.find('www.') != -1) or (ievent.txt.find('http') != -1): return 1
     return 0  
 
-# Catch channel chat
+
 def catchUrls(bot, ievent):
+    """ the urlinfo callback. """
     bot.say(ievent.channel, getUrlInfo(ievent.txt))
 
 callbacks.add('PRIVMSG', catchUrls, catchHasUrls, threaded=True)
@@ -128,7 +129,7 @@ callbacks.add('TORNADO', catchUrls, catchHasUrls, threaded=True)
 ## urlinfo-enable command
 
 def handle_urlinfo_enable(bot, ievent):
-    """ enable urlinfo in a channel. """
+    """ no arguments - enable urlinfo in a channel. """
     cfg.data[ievent.channel] = True
     cfg.save()
     ievent.reply('urlinfo enabled')
@@ -139,7 +140,7 @@ examples.add('urlinfo-enable', 'enable urlinfo in the channel', 'urlinfo-enable'
 ## urlinfo-disable command
 
 def handle_urlinfo_disable(bot, ievent):
-    """ disable urlinfo in a channel. """
+    """ no arguments - disable urlinfo in a channel. """
     cfg.data[ievent.channel] = False
     cfg.save()
     ievent.reply('urlinfo disabled')
@@ -150,7 +151,7 @@ examples.add('urlinfo-disable', 'disable urlinfo in the channel', 'urlinfo-disab
 ## urlinfo-list command
 
 def handle_urlinfo_list(bot, ievent):
-    """ list what channels are using urlinfo. """
+    """ no arguments - list what channels are using urlinfo. """
     chans = []
     names = cfg.data.keys()
     names.sort()

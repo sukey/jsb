@@ -20,7 +20,7 @@ import types
 ## reverse command
 
 def handle_reverse(bot, ievent):
-    """ reverse string or pipelined list. """
+    """ arguments: [<string>] - reverse string or use in a pipeline. """
     if ievent.rest: result = ievent.rest
     else: result = waitforqueue(ievent.inqueue, 5000)
     if not result: ievent.reply("reverse what?") ; return

@@ -16,7 +16,7 @@ from jsb.lib.examples import examples
 ## cc command
 
 def handle_cc(bot, ievent):
-    """ cc [<controlchar>] .. set/get control character of channel. """
+    """ arguments: [<controlchar>] - set/get control character of channel. """
     try:
         what = ievent.args[0]
         if not bot.users.allowed(ievent.userhost, 'OPER'): return
@@ -41,7 +41,7 @@ examples.add('cc', 'set control char of channel or show control char of channel'
 ## cc-add command
 
 def handle_ccadd(bot, ievent):
-    """ add a control char to the channels cc list. """
+    """ arguments: <character> - add a control char to the channels cc list. """
     try:
         what = ievent.args[0]
         if not bot.users.allowed(ievent.userhost, 'OPER'): return
@@ -62,7 +62,7 @@ examples.add('cc-add', 'cc-add <control char> .. add control character', 'cc-add
 ## cc-del command
 
 def handle_ccdel(bot, ievent):
-    """ remove a control char from the channels cc list. """
+    """ arguments: <character> - remove a control char from the channels cc list. """
     try:
         what = ievent.args[0]
         if not bot.users.allowed(ievent.userhost, 'OPER'): return

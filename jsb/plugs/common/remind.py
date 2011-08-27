@@ -89,7 +89,7 @@ callbacks.add('TORNADO', remindcb, preremind, threaded=True)
 ## remind command
 
 def handle_remind(bot, ievent):
-    """ remind <nick> <txt> .. add a remind. """
+    """ arguments: <nick> <txt>  - add a remind for a user, as soon as he/she gets online or says something the txt will be send. """
     try: who = ievent.args[0] ; txt = ' '.join(ievent.args[1:])
     except IndexError: ievent.missing('<nick> <txt>') ; return
     if not txt: ievent.missing('<nick> <txt>') ; return

@@ -1,8 +1,6 @@
 plugin documentation
 ====================
 
-
-
 .. toctree::
     :maxdepth: 2
     :glob:
@@ -25,16 +23,6 @@ common plugins
 
     common/*
 
-
-wave plugins
-------------
-
-.. toctree::
-    :maxdepth: 2
-    :glob:
-
-    wave/*
-
 socket plugins
 --------------
 
@@ -43,15 +31,6 @@ socket plugins
     :glob:
 
     socket/*
-
-gae plugins
------------
-
-.. toctree::
-    :maxdepth: 2
-    :glob:
-
-    gae/*
 
 myplugs plugins
 ---------------

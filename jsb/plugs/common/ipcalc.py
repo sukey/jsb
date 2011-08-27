@@ -7,7 +7,6 @@
 
 """ IP subnet calculator. this module allows you to perform network calculations. """
 
-"""
 # IP subnet calculator
 # (C) 2007 Wijnand 'tehmaze' Modderman - http://tehmaze.com
 # BSD License
@@ -38,7 +37,6 @@
 #  * Peter van Dijk (Habbie)
 #  * Hans van Kranenburg (Knorrie)
 #
-"""
 
 ## jsb imports
 
@@ -430,7 +428,7 @@ class Network(IP):
 ## ipcalc command
 
 def handle_ipcalc(bot, ievent):
-    """ <ip>[</size>] .. calculate IP subnets. """
+    """ arguments: <ip>[</size>] .. calculate IP subnets. """
     if not ievent.args:
         ievent.missing('<ip>[/<size>]')
         return

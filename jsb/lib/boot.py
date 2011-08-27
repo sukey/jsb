@@ -10,9 +10,10 @@ from jsb.utils.generic import checkpermissions, isdebian, botuser
 from jsb.lib.persist import Persist
 from jsb.utils.exception import handle_exception
 from jsb.lib.datadir import makedirs, getdatadir
-from jsb.lib.config import Config
+from jsb.lib.config import Config, getmainconfig
 from jsb.lib.jsbimport import _import
 from jsb.utils.lazydict import LazyDict
+from jsb.memcached import startmcdaemon
 
 ## basic imports
 
@@ -56,6 +57,11 @@ cpy = copy.deepcopy
 
 def boot(ddir=None, force=False, encoding="utf-8", umask=None, saveperms=True, fast=False, clear=False):
     """ initialize the bot. """
+    try:
+        if os.getuid() == 0:
+            print "don't run the bot as root"
+            os._exit(1)
+    except AttributeError: pass
     logging.info("booting ..")
     from jsb.lib.datadir import getdatadir, setdatadir
     if ddir: setdatadir(ddir)
@@ -66,11 +72,6 @@ def boot(ddir=None, force=False, encoding="utf-8", umask=None, saveperms=True, f
     makedirs(ddir)
     if os.path.isdir("/var/run/jsb") and botuser() == "jsb": rundir = "/var/run/jsb"
     else: rundir = ddir + os.sep + "run"
-    try:
-        if os.getuid() == 0:
-            print "don't run the bot as root"
-            os._exit(1)
-    except AttributeError: pass
     try:
         k = open(rundir + os.sep + 'jsb.pid','w')
         k.write(str(os.getpid()))

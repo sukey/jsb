@@ -54,6 +54,7 @@ def set(target, txtlist):
 
 def get(target):
     """ get output for target. """
+    logging.warn("get target is %s" % target)
     cache = Persist(getdatadir() + os.sep + 'run' + os.sep + 'outputcache' + os.sep + stripname(target))
     try:
         result = cache.data['msg']

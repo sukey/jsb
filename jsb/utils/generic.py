@@ -93,7 +93,9 @@ def getwho(bot, who):
     """ get userhost from bots userhost cache """
     who = who.lower()
     for user in bot.userhosts:
-        if user.lower() == who: return bot.userhosts[user]
+        if user.lower() == who:
+            if bot.type in ["xmpp", "sxmpp"]: return stripped(bot.userhosts[user])
+            else: return bot.userhosts[user]
     if bot.type == "irc":
         bot.whois(who)
         time.sleep(3)
@@ -187,13 +189,16 @@ def strippedtxt(what, allowed=[]):
 
 ## stripcolor function
 
-REcolor = re.compile(r"\003\d(.+?)\003")
+REcolor = re.compile("\003\d\d(.*)\003")
 
 def matchcolor(match):
     return match.group(1)
 
 def stripcolor(txt):
-    return REcolor.sub(matchcolor, txt)
+    find = re.findall(REcolor, txt)
+    for c in find:
+        if c: txt = re.sub(REcolor, c, txt, 1)
+    return txt
 
 ## uniqlist function
 

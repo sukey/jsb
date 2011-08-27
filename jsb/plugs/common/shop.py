@@ -33,7 +33,7 @@ def sayshop(bot, ievent, shoplist):
 ## shop command
 
 def handle_shop(bot, ievent):
-    """ shop [<item>] .. show shop list or add <item> """
+    """ arguments: [<item>] - show shop list or add <item> """
     if len(ievent.args) != 0: handle_shop2(bot, ievent) ; return
     if ievent.user.state.data.shops: sayshop(bot, ievent, ievent.user.state.data.shops)
     else: ievent.reply("no shops")
@@ -48,12 +48,12 @@ def handle_shop2(bot, ievent):
     ievent.reply('shop item added')
 
 cmnds.add('shop', handle_shop, ['OPER', 'USER', 'GUEST'])
-examples.add('shop', 'shop [<item>] .. show shop items or add a shop item', '1) shop 2) shop bread')
+examples.add('shop', 'show shop items or add a shop item', '1) shop 2) shop bread')
 
 ## got command
 
 def handle_got(bot, ievent):
-    """ got <listofnrs> .. remove items from shoplist """
+    """ arguments: <list of shop nrs> - remove items from shoplist """
     if len(ievent.args) == 0: ievent.missing('<list of nrs>') ; return
     try:
         nrs = []
@@ -73,4 +73,4 @@ def handle_got(bot, ievent):
     ievent.reply('%s shop item(s) deleted' % teller)
 
 cmnds.add('got', handle_got, ['USER', 'GUEST'])
-examples.add('got', 'got <listofnrs> .. remove item <listofnrs> from shop list','1) got 3 2) got 1 6 8')
+examples.add('got', 'emove items from shop list','1) got 3 2) got 1 6 8')

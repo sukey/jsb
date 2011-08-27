@@ -65,7 +65,7 @@ class ConsoleBot(BotBase):
     BLUE = '\033[94m'
     GREEN = '\033[92m'
     ENDC = '\033[0m'
-
+    COMMON = '\003[9'
 
     def __init__(self, cfg=None, users=None, plugs=None, botname=None, *args, **kwargs):
         BotBase.__init__(self, cfg, users, plugs, botname, *args, **kwargs)
@@ -136,7 +136,7 @@ class ConsoleBot(BotBase):
         what = what.replace("</h3>", self.ENDC)
         what = what.replace("&lt;b&gt;", self.BOLD)
         what = what.replace("&lt;/b&gt;", self.ENDC)
-        what = what.replace("<br>", "")
+        what = what.replace("<br>", "\n")
         what = what.replace("<li>", "* ")
         what = what.replace("</li>", "\n")
         if what.count(self.ENDC) % 2: what = "%s%s" %  (self.ENDC, what)

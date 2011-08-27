@@ -109,6 +109,8 @@ def gendoc(m, f, output):
         try:
             if z.plugname == base:
                 cmndlist.append(j)
+            if not data['descriptions'].has_key(j): data['descriptions'][j] = []
+            if z.func.__doc__: data['descriptions'][j] = z.func.__doc__ 
         except AttributeError:
             pass
     for command in cmndlist:
@@ -121,11 +123,11 @@ def gendoc(m, f, output):
             data['permissions'][command] = cmnds.perms(command)
         except: 
             pass
-        data['examples'][command] = []
+        if not data['examples'].has_key(command): data['examples'][command] = []
         exampleslist = re.split('\d\)', ex.example)
         for e in exampleslist:
             data['examples'][command].append(e.strip())
-            data['descriptions'][command] = ex.descr
+        if not data['descriptions'].has_key(command): data['descriptions'][command] = ex.descr
     if data.has_key('description'):
         output.write("description" + '\n')
         output.write( "-----------" + '\n')

@@ -22,6 +22,7 @@ URL = "http://www.deanclatworthy.com/imdb/?q=%s"
 ## imdb command
 
 def handle_imdb(bot, event):
+    """ arguments: <query> - query the imdb databae at http://www.deanclatworthy.com/imdb/ """
     if not event.rest:  event.missing("<query>") ; return
     query = event.rest.strip()
     urlquery = query.replace(" ", "+")

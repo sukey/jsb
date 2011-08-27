@@ -113,7 +113,7 @@ callbacks.add('QUIT', seen.quitcb)
 ## seen command
 
 def handle_seen(bot, ievent):
-    """ lookup last seen information. """
+    """ arguments: <nick> - lookup last seen information. """
     if not ievent.args: ievent.missing('<nick>') ; return
     if True:
         nick = ievent.args[0].lower()
@@ -141,7 +141,7 @@ def handle_seen(bot, ievent):
                     seen.data[nick]['what'], text))
 
 cmnds.add('seen', handle_seen, ['OPER', 'USER', 'GUEST'])
-examples.add('seen', 'show last spoken txt of <nikc>', 'seen dunker')
+examples.add('seen', 'show last spoken txt of a user', 'seen dunker')
 
 ## shutdown
 

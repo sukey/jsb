@@ -135,7 +135,8 @@ def makefleetopts():
 def makeeventopts(txt):
     """ create option parser for events. """
     parser = EventOptionParser()
-    parser.add_option('-c', '--chan', type='string', default=False, dest='channel', help="target channel")
+    parser.add_option('', '--chan', type='string', default=False, dest='channel', help="target channel")
+    parser.add_option('-c', '--chan-default', action='store_true', default=False, dest='dochan',  help="use the channel command is given in")
     parser.add_option('-s', '--silent', action='store_true', default=False, dest='silent',  help="give bot response in /pm")
     try: opts, args = parser.parse_args(txt.split())
     except Exception, ex: logging.warn("opts - can't parse %s" % txt) ; return

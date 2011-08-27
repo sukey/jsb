@@ -27,7 +27,7 @@ ignorenicks = []
 ## broadcast command
 
 def handle_broadcast(bot, ievent):
-    """ broadcast txt to all joined channels. """
+    """ arguments: <txt> - broadcast txt to all joined channels. """
     if not ievent.rest:
          ievent.missing('<txt>')
          return
@@ -42,7 +42,7 @@ examples.add('broadcast', 'send a message to all channels and dcc users', 'broad
 ## jump command
 
 def handle_jump(bot, ievent):
-    """ change server. """
+    """ arguments: <server> <port> - change server. """
     if bot.jabber:
         ievent.reply('jump only works on irc bots')
         return
@@ -63,7 +63,7 @@ examples.add('jump', 'jump <server> <port> .. switch server', 'jump localhost 66
 ## nick command
 
 def handle_nick(bot, ievent):
-    """ change bot's nick. """
+    """ arguments: <nickname> - change bot's nick. """
     if bot.jabber:
         ievent.reply('nick works only on irc bots')
         return
@@ -81,7 +81,7 @@ examples.add('nick', 'nick <nickname> .. set nick of the bot', 'nick mekker')
 ## sendraw command
 
 def handle_sendraw(bot, ievent):
-    """ send raw text to the server. """
+    """ arguments: <txt> - send raw text to the server. """
     ievent.reply('sending raw txt')
     bot._raw(ievent.rest)
     ievent.done()
@@ -94,7 +94,7 @@ examples.add('sendraw', 'sendraw <txt> .. send raw string to the server', 'sendr
 nickresult = []
 
 def handle_nicks(bot, event):
-    """ return nicks on channel. """
+    """ no arguments - return nicks on channel. """
     if bot.type != 'irc': event.reply('nicks only works on irc bots') ; return
 
     def aggregate(bot, e):
@@ -121,7 +121,7 @@ examples.add('nicks', 'show nicks on channel the command was given in', 'nicks')
 ## reconnect command
 
 def handle_reconnect(bot, ievent):
-    """ reconnect .. reconnect to server. """
+    """ no arguments - reconnect .. reconnect to server. """
     ievent.reply('reconnecting')
     bot.reconnect()
     ievent.done()
@@ -132,7 +132,7 @@ examples.add('reconnect', 'reconnect to server', 'reconnect')
 ## action command
 
 def handle_action(bot, ievent):
-    """ make the bot send an action string. """
+    """ arguments: <channel> <txt> - make the bot send an action string. """
     try: channel, txt = ievent.rest.split(' ', 1)
     except ValueError:
         ievent.missing('<channel> <txt>')
@@ -145,7 +145,7 @@ examples.add('action', 'send an action message', 'action #test yoo dudes')
 ## say command
 
 def handle_say(bot, ievent):
-    """ <channel> <txt> .. make the bot say something. """
+    """ aguments: <channel> <txt> - make the bot say something. """
     try: channel, txt = ievent.rest.split(' ', 1)
     except ValueError:
         ievent.missing('<channel> <txt>')
@@ -158,7 +158,7 @@ examples.add('say', 'send txt to channel/user', 'say #test good morning')
 ## server command
 
 def handle_server(bot, ievent):
-    """ show the server to which the bot is connected. """
+    """ no arguments - show the server to which the bot is connected. """
     ievent.reply(bot.cfg.server or "not connected.")
 
 cmnds.add('server', handle_server, 'OPER')
@@ -167,7 +167,7 @@ examples.add('server', 'show server hostname of bot', 'server')
 ## voice command
 
 def handle_voice(bot, ievent):
-    """ <nick> .. give voice. """
+    """ arguments: <nick> - give voice. """
     if bot.type != 'irc':
         ievent.reply('voice only works on irc bots')
         return
